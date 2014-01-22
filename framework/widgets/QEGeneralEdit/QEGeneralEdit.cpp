@@ -66,14 +66,14 @@ void QEGeneralEdit::commonSetup ()
    this->setFrameShape (QFrame::Panel);
    this->setFrameShadow (QFrame::Plain);
 
-   // QEFreame sets this to false (as it's not an EPICS aware widget).
+   // QEFrame sets this to false (as it's not an EPICS aware widget).
    // But the QEGeneralEdit is EPICS aware, so set default to true.
    //
    this->setVariableAsToolTip (true);
 
    // Set up data
-   // This control uses a single data source
-   //true
+   // This control uses a single data source.
+   //
    this->setNumVariables (1);
 
    // Set up default properties
@@ -118,6 +118,8 @@ void QEGeneralEdit::createInternalWidgets ()
    this->valueLabel = new QELabel (this);
    this->valueLabel->setFrameShape (QFrame::Panel);
    this->valueLabel->setFrameShadow (QFrame::Plain);
+   this->pvNameLabel->setMinimumHeight (19);
+   this->pvNameLabel->setMaximumHeight (19);
    this->verticalLayout->addWidget (valueLabel);
 
    this->numericEditWidget = new QENumericEdit (this);
@@ -147,13 +149,17 @@ void QEGeneralEdit::createInternalWidgets ()
 qcaobject::QCaObject*  QEGeneralEdit::createQcaItem (unsigned int variableIndex)
 {
    qcaobject::QCaObject * result = NULL;
+   QString pvName;
 
    if (variableIndex != 0) {
       DEBUG << "unexpected variableIndex" << variableIndex;
       return NULL;
    }
 
-   result = new qcaobject::QCaObject (getSubstitutedVariableName (0), this);
+   pvName = this->getSubstitutedVariableName (0).trimmed ();
+   this->pvNameLabel->setText (pvName);
+
+   result = new qcaobject::QCaObject (pvName, this);
    return result;
 }
 
@@ -268,8 +274,6 @@ void QEGeneralEdit::dataChanged (const QVariant& value, QCaAlarmInfo& alarmInfo,
       QEWidget* qeWidget = dynamic_cast <QEWidget*> (useThisWidget);
       if (useThisWidget && qeWidget) {
 
-         this->pvNameLabel->setText (pvName);
-
          qeWidget->setRunVisible (true);
          qeWidget->setVariableNameAndSubstitutions (pvName, "", 0);
 
@@ -285,7 +289,7 @@ void QEGeneralEdit::dataChanged (const QVariant& value, QCaAlarmInfo& alarmInfo,
                QEScaling::scale (20);
 
          this->setMinimumSize (newWidth, newHeight);
-         this->setMaximumSize (newWidth, newHeight);
+         this->setMaximumSize (QWIDGETSIZE_MAX, newHeight);
       }
 
       this->isFirstUpdate = false;
