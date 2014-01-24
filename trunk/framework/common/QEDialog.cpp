@@ -24,6 +24,8 @@
  */
 
 #include <QDebug>
+#include <QApplication>
+#include <QDesktopWidget>
 #include <QMainWindow>
 #include <QTimer>
 
@@ -55,7 +57,7 @@ int QEDialog::exec (QWidget* targetWidgetIn)
    // relocate it. Thisis particularly important on first activation.
    // Empirically found that we need more than 1 mSec.
    //
-   QTimer::singleShot (25, this, SLOT (relocateToCenteredPosition ()));
+   QTimer::singleShot (10, this, SLOT (relocateToCenteredPosition ()));
 
    // Now call parent exec method to do actual work.
    //
@@ -96,15 +98,32 @@ void QEDialog::relocateToCenteredPosition ()
 
       // Sanity check - ensure no off screen mis-calculations.
       //
-      const int gap = 20;
-      if (dialogGeo.x () < gap || dialogGeo.y () < gap) {
-         delta.setX  (MAX (0, gap - dialogGeo.x ()));
-         delta.setY  (MAX (0, gap - dialogGeo.y ()));
-         dialogGeo.translate (delta);
-      }
+      dialogGeo =  QEDialog::constrainGeometry (dialogGeo);
 
       this->setGeometry (dialogGeo);
    }
+}
+
+//------------------------------------------------------------------------------
+//
+QRect QEDialog::constrainGeometry (const QRect& geometry)
+{
+   const int gap = 20;
+   const QRect screen = QApplication::desktop ()->screenGeometry ();
+   const QSize size = geometry.size ();
+   QPoint position = geometry.topLeft ();
+
+   // Constain X position.
+   //
+   position.setX (MIN (position.x (), screen.right () - size.width () - gap));
+   position.setX (MAX (position.x (), screen.left () + gap));
+
+   // Constain Y position.
+   //
+   position.setY (MIN (position.y (), screen.bottom () - size.height () - gap));
+   position.setY (MAX (position.y (), screen.top () + gap));
+
+   return QRect (position, size);
 }
 
 // end
