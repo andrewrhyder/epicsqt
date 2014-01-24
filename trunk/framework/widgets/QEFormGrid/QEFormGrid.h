@@ -72,13 +72,12 @@ public:
 
    Q_PROPERTY (QString variableSubstitutions READ getGridVariableSubstitutions WRITE setGridVariableSubstitutions)
 
-   /// The total number of QEForms. This is restricted to the range 1 to 210.
-   /// The upper limit 210 is the product of the first form prime numbers.
+   /// The total number of QEForms. This is restricted to the range 1 to 2000.
    /// Default value: 4.
    Q_PROPERTY (int number              READ getNumber           WRITE setNumber     )
 
 
-   /// Specifies the number of columns.  This is restricted to the range 1 to 42.
+   /// Specifies the number of columns.  This is restricted to the range 1 to 200.
    /// Default value: 1.
    Q_PROPERTY (int columns             READ getColumns          WRITE setColumns    )
 
@@ -97,7 +96,7 @@ public:
 
    /// Specified formal slot macro name prefix
    /// Default value: SLOT
-   Q_PROPERTY (QString  slotMacroPrefix  READ getSlotMacroPrefix    WRITE setSlotMacroPrefix )
+   Q_PROPERTY (QString  slotMacroPrefix  READ getSlotMacroPrefix  WRITE setSlotMacroPrefix )
 
    /// Specifies the SLOT macro number offset.
    /// Default value: 1.
@@ -216,9 +215,6 @@ protected:
    QSize sizeHint () const;
 
 private:
-   static const int MaximumForms;
-   static const int MaximumColumns;
-
    QGridLayout* layout;
    QList<QEForm*> formsList;              // holds a reference to each of the QEForms
 
