@@ -32,8 +32,10 @@
 
 #define WAIT_FOR_TYPING_TO_FINISH 1000       // One Second
 
-const int QEFormGrid::MaximumForms = 210;    // 2*3*5*7
-const int QEFormGrid::MaximumColumns = 42;   // 2*3*7
+// Kind of arbitary, and provids parctical upper limits to avoid excess.
+//
+const int MaximumForms = 2000;
+const int MaximumColumns = 200;
 
 //==============================================================================
 // MacroData functions
@@ -170,8 +172,8 @@ void QEFormGrid::commonSetup (const QString& uiFileIn,
    // Save input parameters.
    //
    this->uiFile = uiFileIn;
-   this->number = LIMIT (numberIn, 1, QEFormGrid::MaximumForms);
-   this->columns = LIMIT (colsIn, 1, QEFormGrid::MaximumColumns);
+   this->number = LIMIT (numberIn, 1, MaximumForms);
+   this->columns = LIMIT (colsIn, 1, MaximumColumns);
 
    // If a container profile has been defined, then this widget isn't being created
    // within designer, so flag the various properties are not being modified
@@ -384,7 +386,7 @@ void QEFormGrid::addSubForm ()
    int row, col;
 
    slot = this->formsList.count ();
-   if (slot < QEFormGrid::MaximumForms) {
+   if (slot < MaximumForms) {
 
       form = this->createQEForm (slot);
       this->formsList.append (form);
@@ -500,7 +502,7 @@ void QEFormGrid::setNumber (int number)
 {
    const int currentNumber = this->getNumber ();
 
-   this->number = LIMIT (number, 1, QEFormGrid::MaximumForms);
+   this->number = LIMIT (number, 1, MaximumForms);
 
    if (this->gridOrder == RowMajor) {
       // Existing row and col numbers remain unchanged.
@@ -543,7 +545,7 @@ int QEFormGrid::getNumber ()
 //
 void QEFormGrid::setColumns (int number)
 {
-   int newColumns = LIMIT (number, 1, QEFormGrid::MaximumColumns);
+   int newColumns = LIMIT (number, 1, MaximumColumns);
 
    if (this->columns != newColumns) {
       this->columns = newColumns;
