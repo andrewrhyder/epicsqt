@@ -1853,15 +1853,6 @@ void QEPlotter::plot ()
          }
       }
 
-      // Take the log need be.
-      //
-      if (this->isLogarithmic) {
-         for (int j = 0; j < number; j++) {
-            double t = ydata [j];
-            ydata [j] = LOG10 (t);
-         }
-      }
-
       // Lastly plot the data.
       //
       pen.setColor (ys->colour);
