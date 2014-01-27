@@ -293,6 +293,7 @@ private:
       QCaVariableNamePropertyManager sizeVariableNameManager;
       DataPlotKinds dataKind;
       SizePlotKinds sizeKind;
+      QString letter;
       QString pvName;
       QString aliasName;
       QString expression;        // when dataKind is CalculationPlot

@@ -358,6 +358,7 @@ void QEPlotter::DataSets::setContext (QEPlotter* ownerIn, int slotIn)
 {
    this->owner = ownerIn;
    this->slot = slotIn;
+   this->letter = item_labels [this->slot];
 }
 
 //------------------------------------------------------------------------------
@@ -447,22 +448,44 @@ int QEPlotter::DataSets::effectiveSize ()
    return result;
 }
 
-
 //------------------------------------------------------------------------------
 //
 QString QEPlotter::DataSets::getDataData ()
 {
-   QString result = "TBD";
-  return result;
+   const int fw = 12;   // field width
+   const int n = this->data.count ();
+   QString result;
+   DataSets* dx = &this->owner->xy [0];
+
+   result = "\n";
+
+   if (this == dx) {
+      // x/this data only
+      result.append (QString ("%1\n").arg ("X", fw));
+      for (int j = 0 ; j < n; j++) {
+         result.append ( QString ("%1\n").arg (this->data[j], fw));
+      }
+   } else {
+      // x and y/this data
+      result.append (QString ("%1\t%2\n").arg ("X", fw).arg (this->letter, fw));
+      for (int j = 0 ; j < n; j++) {
+         result.append ( QString ("%1\t%2\n").arg (dx->data[j], fw).arg (this->data[j], fw));
+      }
+   }
+   return result;
 }
 
 //------------------------------------------------------------------------------
 //
 QString QEPlotter::DataSets::getSizeData ()
 {
-   QString result = "TBD";
+   const int n = this->data.count ();
+   QString result;
+
+   result = QString ("%1").arg (n);
    return result;
 }
+
 
 //==============================================================================
 // QEPlotter
