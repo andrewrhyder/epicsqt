@@ -447,6 +447,23 @@ int QEPlotter::DataSets::effectiveSize ()
    return result;
 }
 
+
+//------------------------------------------------------------------------------
+//
+QString QEPlotter::DataSets::getDataData ()
+{
+   QString result = "TBD";
+  return result;
+}
+
+//------------------------------------------------------------------------------
+//
+QString QEPlotter::DataSets::getSizeData ()
+{
+   QString result = "TBD";
+   return result;
+}
+
 //==============================================================================
 // QEPlotter
 //==============================================================================
@@ -503,6 +520,14 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
       vpnm = &this->xy [slot].sizeVariableNameManager;
       QObject::connect (vpnm, SIGNAL (newVariableNameProperty (QString, QString, unsigned int)),
                         this, SLOT   (setNewVariableName      (QString, QString, unsigned int)));
+   }
+
+   // Connect action requests to consumer, e.g. qegui.
+   //
+   QObject* consumer = this->getGuiLaunchConsumer ();
+   if (consumer) {
+      QObject::connect (this,      SIGNAL (requestAction (const QEActionRequests& )),
+                        consumer,  SLOT   (requestAction (const QEActionRequests& )));
    }
 
    this->xScaleMode = QEPlotterNames::smDynamic;
@@ -832,6 +857,16 @@ QMenu* QEPlotter::generalContextMenuCreate ()
 
 //------------------------------------------------------------------------------
 //
+void QEPlotter::sendRequestAction (const QString& action, const QString& pvName)
+{
+   if (!pvName.isEmpty ()) {
+      QEActionRequests request (action, pvName);
+      emit this->requestAction (request);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
 void QEPlotter::generalContextMenuRequested (const QPoint& pos)
 {
    QPoint golbalPos;
@@ -859,6 +894,13 @@ void QEPlotter::itemContextMenuRequested (const QPoint& pos)
 
    SLOT_CHECK (slot,);
    DataSets* ds = &(this->xy [slot]);
+
+   // Allow edit PV menu if and only if we are using the engineer use level.
+   //
+   bool inEngineeringMode = (this->getUserLevel () == userLevelTypes::USERLEVEL_ENGINEER);
+
+   ds->itemMenu->setActionVisible (QEPlotterNames::PLOTTER_GENERAL_DATA_PV_EDIT, inEngineeringMode);
+   ds->itemMenu->setActionVisible (QEPlotterNames::PLOTTER_GENERAL_SIZE_PV_EDIT, inEngineeringMode);
 
    if (slot > 0) {
       // Only meaningful for y data sets.
@@ -888,7 +930,9 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
 
    QWidget* wsender = dynamic_cast <QWidget*> (this->sender ());
    QClipboard* cb = NULL;
+   QString copyText;
    QString pasteText;
+   QString pvName;
    DataSets* ds = &(this->xy [slot]);
    int n;
 
@@ -1066,11 +1110,12 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
          }
          break;
 
+
       case  QEPlotterNames::PLOTTER_PASTE_DATA_PV:
          cb = QApplication::clipboard ();
-         pasteText = cb->text().trimmed();
+         pasteText = cb->text ().trimmed ();
 
-         if (! pasteText.isEmpty()) {
+         if (! pasteText.isEmpty ()) {
             this->setXYDataPV (slot, pasteText);
             this->replotIsRequired = true;
          }
@@ -1078,13 +1123,84 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
 
       case  QEPlotterNames::PLOTTER_PASTE_SIZE_PV:
          cb = QApplication::clipboard ();
-         pasteText = cb->text().trimmed();
+         pasteText = cb->text ().trimmed ();
 
-         if (! pasteText.isEmpty()) {
+         if (! pasteText.isEmpty ()) {
             this->setXYSizePV (slot, pasteText);
             this->replotIsRequired = true;
          }
          break;
+
+
+      case QEPlotterNames::PLOTTER_COPY_DATA_VARIABLE:
+         copyText = this->getXYDataPV (slot);
+         cb = QApplication::clipboard ();
+         cb->setText (copyText);
+         break;
+
+      case QEPlotterNames::PLOTTER_COPY_SIZE_VARIABLE:
+         copyText = this->getXYSizePV (slot);
+         cb = QApplication::clipboard ();
+         cb->setText (copyText);
+         break;
+
+
+      case QEPlotterNames::PLOTTER_COPY_DATA_DATA:
+         copyText = ds->getDataData ();
+         cb = QApplication::clipboard ();
+         cb->setText (copyText);
+         break;
+
+      case QEPlotterNames::PLOTTER_COPY_SIZE_DATA:
+         copyText = ds->getSizeData ();
+         cb = QApplication::clipboard ();
+         cb->setText (copyText);
+         break;
+
+
+      case QEPlotterNames::PLOTTER_SHOW_DATA_PV_PROPERTIES:
+         pvName = this->getXYDataPV (slot);
+         this->sendRequestAction ("PV Properties...", pvName);
+         break;
+
+      case QEPlotterNames::PLOTTER_SHOW_SIZE_PV_PROPERTIES:
+         pvName = this->getXYSizePV (slot);
+         this->sendRequestAction ("PV Properties...", pvName);
+         break;
+
+
+      case QEPlotterNames::PLOTTER_ADD_DATA_PV_TO_STRIPCHART:
+         pvName = this->getXYDataPV (slot);
+         this->sendRequestAction ("Strip Chart...", pvName);
+         break;
+
+      case QEPlotterNames::PLOTTER_ADD_SIZE_PV_TO_STRIPCHART:
+         pvName = this->getXYSizePV (slot);
+         this->sendRequestAction ("Strip Chart...", pvName);
+         break;
+
+
+      case QEPlotterNames::PLOTTER_ADD_DATA_PV_TO_SCRATCH_PAD:
+         pvName = this->getXYDataPV (slot);
+         this->sendRequestAction ("Scratch Pad...", pvName);
+         break;
+
+      case QEPlotterNames::PLOTTER_ADD_SIZE_PV_TO_SCRATCH_PAD:
+         pvName = this->getXYSizePV (slot);
+         this->sendRequestAction ("Scratch Pad...", pvName);
+         break;
+
+
+      case QEPlotterNames::PLOTTER_GENERAL_DATA_PV_EDIT:
+         pvName = this->getXYDataPV (slot);
+         this->sendRequestAction ("General PV Edit...", pvName);
+         break;
+
+      case QEPlotterNames::PLOTTER_GENERAL_SIZE_PV_EDIT:
+         pvName = this->getXYSizePV (slot);
+         this->sendRequestAction ("General PV Edit...", pvName);
+         break;
+
 
       case QEPlotterNames::PLOTTER_DATA_CLEAR:
          this->setXYDataPV (slot, "");

@@ -36,6 +36,7 @@
 #include <QLabel>
 #include <QCheckBox>
 
+#include <QEActionRequests.h>
 #include <QEFloatingArray.h>
 #include <QEFloatingFormatting.h>
 #include <QEIntegerFormatting.h>
@@ -180,6 +181,9 @@ public:
    void setStatusVisible (bool visible);
    bool getStatusVisible();
 
+signals:
+    void requestAction (const QEActionRequests&);             // Signal 'launch a GUI'
+
 protected:
    // Implementation of QEWidget's virtual funtions
    //
@@ -282,6 +286,8 @@ private:
       bool isInUse ();
       int actualSize ();
       int effectiveSize ();
+      QString getDataData ();
+      QString getSizeData ();
 
       QCaVariableNamePropertyManager dataVariableNameManager;
       QCaVariableNamePropertyManager sizeVariableNameManager;
@@ -365,6 +371,8 @@ private:
 
    QMenu* generalContextMenuCreate ();
    bool connectMenuOrToolBar (QWidget* item);
+
+   void sendRequestAction (const QString& action, const QString& pvName);
 
    // Perform a pvNameDropEvent 'drop'
    //
