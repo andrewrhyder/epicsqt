@@ -38,12 +38,16 @@
 class QEPlotterMenu : public QMenu {
 Q_OBJECT
 public:
-   // general context menu constructor
+   // General context menu constructor
    //
    explicit QEPlotterMenu (QWidget* parent = 0);
 
    // PV item context menu constructor
+   //
    explicit QEPlotterMenu (const int slot, QWidget* parent = 0);
+
+   // Destuctor
+   //
    virtual ~QEPlotterMenu ();
 
    // Allow setting of specific action attributes.

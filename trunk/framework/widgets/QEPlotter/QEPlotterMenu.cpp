@@ -23,9 +23,12 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
+#include <QApplication>
+#include <QClipboard>
 #include <QDebug>
-#include <QECommon.h>
 
+#include <QECommon.h>
+#include <QEWidget.h>
 #include <QEPlotterMenu.h>
 
 #define DEBUG  qDebug () << "QEPlotterMenu::" <<  __FUNCTION__  << ":" << __LINE__
@@ -90,8 +93,13 @@ QEPlotterMenu::QEPlotterMenu (QWidget* parent) : QMenu (parent)
 QEPlotterMenu::QEPlotterMenu (const int slotIn, QWidget* parent) : QMenu (parent)
 {
    QMenu* menu = NULL;
+   bool pasteAllowed = false;
 
    this->slot = slotIn;
+
+   // Something to paste?
+   //
+   pasteAllowed = !(QApplication::clipboard ()->text ().isEmpty ());
 
    // Ensure all actions are null unless otherwise defined.
    //
@@ -101,18 +109,39 @@ QEPlotterMenu::QEPlotterMenu (const int slotIn, QWidget* parent) : QMenu (parent
 
    this->setTitle ("Plotter Item");
 
-   menu = new QMenu ("Data", this);
+   this->make (this, "Define... ",              false, QEPlotterNames::PLOTTER_DATA_DIALOG);
+   this->make (this, "Select",                  false, QEPlotterNames::PLOTTER_DATA_SELECT)->setEnabled (slot > 0);
+
+   menu = new QMenu ("Data PV", this);
    this->addMenu (menu);
-   this->make (menu, "Define...",           false, QEPlotterNames::PLOTTER_DATA_DIALOG);
-   this->make (menu, "Paste Data PV Name ", false, QEPlotterNames::PLOTTER_PASTE_DATA_PV);
-   this->make (menu, "Paste Size PVName",   false, QEPlotterNames::PLOTTER_PASTE_SIZE_PV);
-   this->make (menu, "Select",              false, QEPlotterNames::PLOTTER_DATA_SELECT)->setEnabled (slot > 0);
-   this->make (menu, "Clear",               false, QEPlotterNames::PLOTTER_DATA_CLEAR);
+   this->make (menu, "Examine Properties",      false, QEPlotterNames::PLOTTER_SHOW_DATA_PV_PROPERTIES);
+   this->make (menu, "Plot in StripChart",      false, QEPlotterNames::PLOTTER_ADD_DATA_PV_TO_STRIPCHART);
+   this->make (menu, "Show in Scratch Pad",     false, QEPlotterNames::PLOTTER_ADD_DATA_PV_TO_SCRATCH_PAD);
+   menu->addSeparator();
+   this->make (menu, "Copy variable name",      false, QEPlotterNames::PLOTTER_COPY_DATA_VARIABLE);
+   this->make (menu, "Copy data",               false, QEPlotterNames::PLOTTER_COPY_DATA_DATA);
+   this->make (menu, "Paste to variable name",  false, QEPlotterNames::PLOTTER_PASTE_DATA_PV)->setEnabled (pasteAllowed);
+   menu->addSeparator();
+   this->make (menu, "Edit PV",                 false,  QEPlotterNames::PLOTTER_GENERAL_DATA_PV_EDIT);
+
+
+   menu = new QMenu ("Size PV", this);
+   this->addMenu (menu);
+   this->make (menu, "Examine Properties",      false, QEPlotterNames::PLOTTER_SHOW_SIZE_PV_PROPERTIES);
+   this->make (menu, "Plot in StripChart",      false, QEPlotterNames::PLOTTER_ADD_SIZE_PV_TO_STRIPCHART);
+   this->make (menu, "Show in Scratch Pad",     false, QEPlotterNames::PLOTTER_ADD_SIZE_PV_TO_SCRATCH_PAD);
+   menu->addSeparator();
+   this->make (menu, "Copy variable name",      false, QEPlotterNames::PLOTTER_COPY_SIZE_VARIABLE);
+   this->make (menu, "Copy data",               false, QEPlotterNames::PLOTTER_COPY_SIZE_DATA);
+   this->make (menu, "Paste to variable name",  false, QEPlotterNames::PLOTTER_PASTE_SIZE_PV)->setEnabled (pasteAllowed);
+   menu->addSeparator();
+   this->make (menu, "Edit PV",                 false,  QEPlotterNames::PLOTTER_GENERAL_SIZE_PV_EDIT);
+
 
    menu = new QMenu ("Scale to", this);
    this->addMenu (menu);
-   this->make (menu, "Min to Max values",   false, QEPlotterNames::PLOTTER_SCALE_TO_MIN_MAX);
-   this->make (menu, "Zero to Max values ", false, QEPlotterNames::PLOTTER_SCALE_TO_ZERO_MAX);
+   this->make (menu, "Min to Max values",       false, QEPlotterNames::PLOTTER_SCALE_TO_MIN_MAX);
+   this->make (menu, "Zero to Max values ",     false, QEPlotterNames::PLOTTER_SCALE_TO_ZERO_MAX);
 
    menu = new QMenu ("Line", this);
    this->addMenu (menu);
@@ -121,11 +150,13 @@ QEPlotterMenu::QEPlotterMenu (const int slotIn, QWidget* parent) : QMenu (parent
    //
    menu->setEnabled (this->slot > 0);
    if (this->slot > 0) {
-      this->make (menu, "Bold",             true, QEPlotterNames::PLOTTER_LINE_BOLD);
-      this->make (menu, "Dots",             true, QEPlotterNames::PLOTTER_LINE_DOTS);
-      this->make (menu, "Visible",          true, QEPlotterNames::PLOTTER_LINE_VISIBLE);
-      this->make (menu, "Colour... ",       false,QEPlotterNames::PLOTTER_LINE_COLOUR)->setEnabled (slot < 16);
+      this->make (menu, "Bold",                 true,  QEPlotterNames::PLOTTER_LINE_BOLD);
+      this->make (menu, "Dots",                 true,  QEPlotterNames::PLOTTER_LINE_DOTS);
+      this->make (menu, "Visible",              true,  QEPlotterNames::PLOTTER_LINE_VISIBLE);
+      this->make (menu, "Colour... ",           false, QEPlotterNames::PLOTTER_LINE_COLOUR)->setEnabled (slot < 16);
    }
+
+   this->make (this, "Clear",               false, QEPlotterNames::PLOTTER_DATA_CLEAR);
 
    QObject::connect (this, SIGNAL (triggered             (QAction* )),
                      this, SLOT   (contextMenuTriggered  (QAction* )));
