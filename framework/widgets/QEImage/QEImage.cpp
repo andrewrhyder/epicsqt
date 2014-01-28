@@ -1441,8 +1441,12 @@ void QEImage::useAllMarkupData()
 // Update image from non CA souce (no associated CA timestamp or alarm info available)
 void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long width, unsigned long height )
 {
+    // Set the image dimensions to match the image size
     imageBuffWidth = width;
     imageBuffHeight = height;
+
+    // Update the image buffer according to the new size.
+    setImageBuff();
 
     QCaAlarmInfo alarmInfo;
     QCaDateTime dateTime = QCaDateTime( QDateTime::currentDateTime() );
