@@ -73,7 +73,6 @@ equals(QE_MPEG, "true") {
 }
 equals(QE_MPEG, "false") {
     message( "MPG viewer will NOT be included in QEImage. Set QE_MPEG = true in framework.pro if you want this" )
-    DEFINES += QE_MPEG
 }
 
 #===========================================================
