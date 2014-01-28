@@ -62,17 +62,14 @@ DEFINES += QWT_DLL=TRUE
 
 #===========================================================
 # Include MPG streaming into QEImage widget
-# Set QE_MPEG = false if MPG streaming is not required
-# Set QE_MPEG = true if MPG streaming is required (ffmpeg libraries required)
+# If mpeg streaming is required, define environment variable QE_USE_MPEG
 
-QE_MPEG = false
-#QE_MPEG = true
-equals(QE_MPEG, "true") {
-    message( "MPG viewer will be included in QEImage. ffmpeg libraries will be expected. Set QE_MPEG = false in framework.pro if you don't want this" )
-    DEFINES += QE_MPEG
-}
-equals(QE_MPEG, "false") {
-    message( "MPG viewer will NOT be included in QEImage. Set QE_MPEG = true in framework.pro if you want this" )
+_QE_USE_MPG = $$(QE_USE_MPG)
+isEmpty( _QE_USE_MPG ) {
+    warning( "MPG viewer will NOT be included in QEImage. Define environment variable QE_USE_MPEG if you want this" )
+} else {
+    warning( "MPG viewer will be included in QEImage. ffmpeg libraries will be expected. Remove environment variable QE_USE_MPG if you don't want this" )
+    DEFINES += QE_USE_MPEG
 }
 
 #===========================================================
@@ -185,16 +182,22 @@ isEmpty( _QWT_INCLUDE_PATH ) {
 # qwt was not installed fully, with qwt available as a Qt 'feature'.
 # When installed as a Qt 'feature' all that is needed is CONFIG += qwt (above)
 INCLUDEPATH += $$(QWT_INCLUDE_PATH)
-LIBS += -LC:/qwt-6.0.1/lib
-#LIBS += -LC:/qwt-6.1.0/lib
+win32:LIBS += -LC:/qwt-6.0.1/lib
+#win32:LIBS += -LC:/qwt-6.1.0/lib
 
 # Depending on build, the qwt library below may need to be -lqwt or -lqwt6
 LIBS += -lqwt
 
 # ffmpeg stuff
-equals(QE_MPEG, "true") {
-    INCLUDEPATH += /usr/local/include
-    LIBS += -L/usr/local/lib/
+isEmpty( _QE_USE_MPG ) {
+} else {
+    unix:INCLUDEPATH += /usr/local/include
+    unix:LIBS += -L/usr/local/lib/
+
+    win32:INCLUDEPATH += "C:/Program Files (x86)/Microsoft Visual Studio 12.0/VC/include"
+    win32:INCLUDEPATH += C:/ffmpeg/include
+    win32:LIBS += -LC:/ffmpeg/lib/
+
     LIBS += -lavdevice -lavformat -lavcodec -lavutil -lbz2 -lswscale -lz
     LIBS += -lX11
     DEFINES += __STDC_CONSTANT_MACROS

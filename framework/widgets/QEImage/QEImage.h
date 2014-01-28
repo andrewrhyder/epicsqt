@@ -47,8 +47,9 @@
 #include <QEFloatingFormatting.h>
 
 // Only include the mpeg stuff if required.
-// To include mpeg stuff, don't define QE_MPEG directly, set QE_MPEG = true in framework.pro
-#ifdef QE_MPEG
+// To include mpeg stuff, don't define QE_USE_MPEG directly, define environment variable
+// QE_USE_MPEG to be processed by framework.pro
+#ifdef QE_USE_MPG
 #include <mpeg.h>
 #else
 // Define a stub mpegSource class in place of the class defined when mpeg.h is included.
@@ -56,7 +57,7 @@
 class mpegSource
 {
 };
-#endif // QE_MPEG
+#endif // QE_USE_MPEG
 
 // Class to keep track of a rectangular area such as region of interest or profile line information
 // As data arrives, this class is used to record it.
@@ -1359,11 +1360,12 @@ public:
     //=========
 
 // Only include the mpeg stuff if required.
-// To include mpeg stuff, don't define QE_MPEG directly, set QE_MPEG = true in framework.pro
-#ifdef QE_MPEG
+    // To include mpeg stuff, don't define QE_USE_MPEG directly, define environment variable
+    // QE_USE_MPEG to be processed by framework.pro
+#ifdef QE_USE_MPEG
     /// MPEG stream URL. If this is specified, this will be used as the source of the image in preference to variables (variables defining the image data, width, and height will be ignored)
     Q_PROPERTY(QString URL READ getURL WRITE setURL)
-#endif // QE_MPEG
+#endif // QE_USE_MPEG
 };
 
 #endif // QEIMAGE_H
