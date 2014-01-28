@@ -48,7 +48,9 @@ HEADERS += \
     widgets/QEImage/QEImageOptionsDialog.h \
     widgets/QEImage/QEImageMarkupThickness.h
 
-equals(QE_MPEG, "true") {
+isEmpty( _QE_USE_MPG ) {
+
+} else {
     HEADERS += widgets/QEImage/mpeg.h
 }
 
@@ -76,7 +78,8 @@ SOURCES += \
     widgets/QEImage/QEImageOptionsDialog.cpp \
     widgets/QEImage/QEImageMarkupThickness.cpp
 
-equals(QE_MPEG, "true") {
+isEmpty( _QE_USE_MPG ) {
+} else {
     SOURCES += widgets/QEImage/mpeg.cpp
 }
 
