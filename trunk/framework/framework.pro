@@ -65,8 +65,8 @@ DEFINES += QWT_DLL=TRUE
 # Set QE_MPEG = false if MPG streaming is not required
 # Set QE_MPEG = true if MPG streaming is required (ffmpeg libraries required)
 
-#QE_MPEG = false
-QE_MPEG = true
+QE_MPEG = false
+#QE_MPEG = true
 equals(QE_MPEG, "true") {
     message( "MPG viewer will be included in QEImage. ffmpeg libraries will be expected. Set QE_MPEG = false in framework.pro if you don't want this" )
     DEFINES += QE_MPEG
