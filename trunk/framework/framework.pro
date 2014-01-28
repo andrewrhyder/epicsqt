@@ -59,6 +59,23 @@ DESTDIR = designer
 TARGET = QEPlugin
 
 DEFINES += QWT_DLL=TRUE
+
+#===========================================================
+# Include MPG streaming into QEImage widget
+# Set QE_MPEG = false if MPG streaming is not required
+# Set QE_MPEG = true if MPG streaming is required (ffmpeg libraries required)
+
+#QE_MPEG = false
+QE_MPEG = true
+equals(QE_MPEG, "true") {
+    message( "MPG viewer will be included in QEImage. ffmpeg libraries will be expected. Set QE_MPEG = false in framework.pro if you don't want this" )
+    DEFINES += QE_MPEG
+}
+equals(QE_MPEG, "false") {
+    message( "MPG viewer will NOT be included in QEImage. Set QE_MPEG = true in framework.pro if you want this" )
+    DEFINES += QE_MPEG
+}
+
 #===========================================================
 # Project files
 #
@@ -176,15 +193,16 @@ LIBS += -LC:/qwt-6.0.1/lib
 LIBS += -lqwt
 
 # ffmpeg stuff
-#INCLUDEPATH += /usr/local/include
-#LIBS += -L/usr/local/lib/
-#LIBS += -lavdevice -lavformat -lavcodec -lavutil -lbz2 -lswscale -lz
-#LIBS += -lX11
-#DEFINES += __STDC_CONSTANT_MACROS
+equals(QE_MPEG, "true") {
+    INCLUDEPATH += /usr/local/include
+    LIBS += -L/usr/local/lib/
+    LIBS += -lavdevice -lavformat -lavcodec -lavutil -lbz2 -lswscale -lz
+    LIBS += -lX11
+    DEFINES += __STDC_CONSTANT_MACROS
 
-# xvideo stuff
-#LIBS += -lXv
-
+    # xvideo stuff
+    LIBS += -lXv
+}
 
 #
 # end

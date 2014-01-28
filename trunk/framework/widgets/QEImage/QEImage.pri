@@ -47,7 +47,10 @@ HEADERS += \
     widgets/QEImage/brightnessContrast.h \
     widgets/QEImage/QEImageOptionsDialog.h \
     widgets/QEImage/QEImageMarkupThickness.h
-#    widgets/QEImage/mpeg.h
+
+equals(QE_MPEG, "true") {
+    HEADERS += widgets/QEImage/mpeg.h
+}
 
 SOURCES += \
     widgets/QEImage/QEImage.cpp \
@@ -72,7 +75,10 @@ SOURCES += \
     widgets/QEImage/brightnessContrast.cpp \
     widgets/QEImage/QEImageOptionsDialog.cpp \
     widgets/QEImage/QEImageMarkupThickness.cpp
-#    widgets/QEImage/mpeg.cpp
+
+equals(QE_MPEG, "true") {
+    SOURCES += widgets/QEImage/mpeg.cpp
+}
 
 INCLUDEPATH += \
     widgets/QEImage

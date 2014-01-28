@@ -45,7 +45,18 @@
 #include <QEPluginLibrary_global.h>
 #include <QEIntegerFormatting.h>
 #include <QEFloatingFormatting.h>
-//#include <mpeg.h>
+
+// Only include the mpeg stuff if required.
+// To include mpeg stuff, don't define QE_MPEG directly, set QE_MPEG = true in framework.pro
+#ifdef QE_MPEG
+#include <mpeg.h>
+#else
+// Define a stub mpegSource class in place of the class defined when mpeg.h is included.
+// this is reauired as mpegSource is a base class for QEImage
+class mpegSource
+{
+};
+#endif // QE_MPEG
 
 // Class to keep track of a rectangular area such as region of interest or profile line information
 // As data arrives, this class is used to record it.
@@ -123,8 +134,7 @@ class pointInfo
         bool haveY;
 };
 
-
-class QEPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QEWidget, public imageInfo/*, mpegSource*/ {
+class QEPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QEWidget, public imageInfo, private mpegSource {
     Q_OBJECT
 
   public:
@@ -475,7 +485,6 @@ public slots:
 
 
   private:
-
     void useTargetingData();
 //    void useAllMarkupData();
     void useROIData( const unsigned int& variableIndex );
@@ -1349,9 +1358,12 @@ public:
 
     //=========
 
-//    /// MPEG stream URL. If this is specified, this will be used as the source of the image in preference to variables (variables defining the image data, width, and height will be ignored)
-//    Q_PROPERTY(QString URL READ getURL WRITE setURL)
-
+// Only include the mpeg stuff if required.
+// To include mpeg stuff, don't define QE_MPEG directly, set QE_MPEG = true in framework.pro
+#ifdef QE_MPEG
+    /// MPEG stream URL. If this is specified, this will be used as the source of the image in preference to variables (variables defining the image data, width, and height will be ignored)
+    Q_PROPERTY(QString URL READ getURL WRITE setURL)
+#endif // QE_MPEG
 };
 
 #endif // QEIMAGE_H
