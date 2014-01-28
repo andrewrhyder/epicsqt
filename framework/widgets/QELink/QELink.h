@@ -83,6 +83,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QELink : public QLabel, QEWidget {
 
   public slots:
     void in( const bool& in );
+    void in( const long& in );
     void in( const qlonglong& in );
     void in( const double& in );
     void in( const QString& in );
