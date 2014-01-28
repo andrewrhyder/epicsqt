@@ -80,7 +80,14 @@ void QELink::in( const bool& inVal )
     EVAL_CONDITION;
 }
 
-// Slot to perform a comparison on an integer
+// Slot to perform a comparison on an integer (long)
+void QELink::in( const long& inVal )
+{
+    qlonglong val = comparisonValue.toLongLong();
+    EVAL_CONDITION;
+}
+
+// Slot to perform a comparison on an integer (qLongLong)
 void QELink::in( const qlonglong& inVal )
 {
     qlonglong val = comparisonValue.toLongLong();
