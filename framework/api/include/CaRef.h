@@ -77,6 +77,9 @@ private:
     CaRef* next;                            // List link
     time_t idleTime;                        // Time discarded
     bool ownerIsCaObject;                   // True if owner is a CaObject class (otherwise a CaConnection class) - diagnostic only
+    unsigned int usageCount;                // Note the number of times this class instance has been recycled (equals 1 for first use)
+    unsigned int sequence;                  // Instance creation order
+    static unsigned int nextSequence;       // Next value for 'sequence'
 };
 
 #endif  // CAOBJECTREF_H_

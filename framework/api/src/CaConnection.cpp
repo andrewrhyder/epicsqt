@@ -99,12 +99,12 @@ ca_responses CaConnection::establishContext( void (*exceptionHandler)(struct exc
     Returns: REQUEST_SUCCESSFUL or REQUEST_FAILED
 */
 ca_responses CaConnection::establishChannel( void (*connectionHandler)(struct connection_handler_args), std::string channelName, priorities priority ) {
-//    printf( "CaConnection::establishChannel %ld  chid: %ld  name: %s\n", (long)(&channel), (long)(channel.id), channelName.c_str() ); fflush(stdout);
-//capri prio;
-//channelName.compare( "INTEG01DET02:IMAGE:ArrayData" )?prio=1:prio=0;
-    if( context.activated == true && channel.activated == false ) {
+    if( context.activated == true && channel.activated == false )
+    {
+        myRef->setPV( channelName );
         channel.creation = ca_create_channel( channelName.c_str(), connectionHandler, myRef, priority, &channel.id );
 //        channel.creation = ca_create_channel( channelName.c_str(), connectionHandler, myRef, prio, &channel.id );
+        myRef->setChannelId( channel.id );
         // Sanity check
         if( channel.id == 0 )
         {
@@ -217,6 +217,7 @@ ca_responses CaConnection::establishSubscription( void (*subscriptionHandler)(st
   */
 void CaConnection::subscriptionInitialHandler( struct event_handler_args args )
 {
+    CaRef::accessLock();
 //    printf( "CaConnection::subscriptionInitialHandler\n" ); fflush(stdout);
     // As this is a static function, recover the CaConnection class instance
     CaConnection* me = (CaConnection*)(((CaRef*)(args.usr))->getRef( args.chid ));
@@ -243,6 +244,8 @@ void CaConnection::subscriptionInitialHandler( struct event_handler_args args )
                                                         me->subscriptionArgs, &me->eventId );
 //    printf( "CaConnection::subscriptionInitialHandler setting real subscription: chid: %ld (%ld) eventId: %ld\n", (long)(me->channel.id), (long)(args.chid), (long)me->eventId ); fflush(stdout);
     ca_flush_io();
+
+    CaRef::accessUnlock();
 }
 
 /*
