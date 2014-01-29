@@ -343,6 +343,8 @@ public:
     QString getEllipseLegend();                        ///< Access function for #ellipseLegend property - refer to #ellipseLegend property for details
     void setEllipseLegend( QString legend );            ///< Access function for #ellipseLegend property - refer to #ellipseLegend property for details
 
+    bool getFullScreen();                               ///< Access function for #fullScreen property - refer to #fullScreen property for details
+    void setFullScreen( bool fullScreenIn );            ///< Access function for #fullScreen property - refer to #fullScreen property for details
 
 
   protected:
@@ -534,6 +536,8 @@ public slots:
     void presentControls();
 
     bool displayMarkups;
+
+    bool fullScreen;
 
     // Button widgets
     QPushButton* pauseButton;
@@ -1310,6 +1314,10 @@ public:
     /// For example, if true and target variables are defined a target position markup will be displayed as soon as target position data is read.
     /// If false, the target position markup will only be displayed when in target selection mode and the user selects a point in the image.
     Q_PROPERTY(bool displayMarkups READ getDisplayMarkups WRITE setDisplayMarkups)
+
+    /// If true, show the widget in full screen
+    ///
+    Q_PROPERTY(bool fullScreen READ getFullScreen WRITE setFullScreen)
 
     //=========
     // This grouop of properties should be kept consistant QE Buttons

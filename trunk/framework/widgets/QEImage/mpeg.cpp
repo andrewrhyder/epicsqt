@@ -369,6 +369,7 @@ void mpegSource::updateImage(FFBuffer *newbuf) {
 #else
         ba = QByteArray::fromRawData( buff, buffSize );
 #endif
+        //!!!!!! Can still crash here on deletionof QEImage
         setImage( ba, 1, newbuf->width, newbuf->height );
 
         // Unlock buffer
