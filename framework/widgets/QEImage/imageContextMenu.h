@@ -91,6 +91,7 @@ public:
                                   ICM_THICKNESS_ONE_MARKUP,
                                   ICM_THICKNESS_SELECT_MARKUP,
                                   ICM_COPY_PLOT_DATA,
+                                  ICM_FULL_SCREEN,
                                   ICM_OPTIONS
                                 };
 

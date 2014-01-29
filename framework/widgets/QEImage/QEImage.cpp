@@ -138,6 +138,8 @@ void QEImage::setup() {
 
     displayMarkups = false;
 
+    fullScreen = false;
+
     // With so many variables involved, don't bother alterning the presentation of the widget when any one variable goes into alarm
     setDisplayAlarmState( false );
 
@@ -3547,6 +3549,7 @@ applicationLauncher::programStartupOptions QEImage::getProgramStartupOption1(){ 
 void QEImage::setProgramStartupOption2( applicationLauncher::programStartupOptions programStartupOption ){ programLauncher2.setProgramStartupOption( programStartupOption ); }
 applicationLauncher::programStartupOptions QEImage::getProgramStartupOption2(){ return programLauncher2.getProgramStartupOption(); }
 
+// Legends
 QString QEImage::getHozSliceLegend()                     { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_H_SLICE );        }
 void    QEImage::setHozSliceLegend      ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_H_SLICE, legend ); }
 QString QEImage::getVertSliceLegend()                    { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_V_SLICE );        }
@@ -3567,6 +3570,35 @@ QString QEImage::getBeamLegend()                         { return videoWidget->g
 void    QEImage::setBeamLegend          ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_BEAM,    legend ); }
 QString QEImage::getEllipseLegend()                       { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_ELLIPSE );       }
 void    QEImage::setEllipseLegend       ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_ELLIPSE, legend ); }
+
+// Full Screen
+bool QEImage::getFullScreen()
+{
+    return fullScreen;
+}
+
+void QEImage::setFullScreen( bool fullScreenIn )
+{
+    fullScreen = fullScreenIn;
+
+    QWidget* w = videoWidget;
+    while( w && !w->isWindow() )
+    {
+        w = w->parentWidget();
+    }
+
+    if( w )
+    {
+        if( fullScreen )
+        {
+            w->showFullScreen();
+        }
+        else
+        {
+            w->showNormal();
+        }
+    }
+}
 
 //=================================================================================================
 
@@ -5000,6 +5032,9 @@ void QEImage::showImageContextMenu( const QPoint& pos )
         frMenu->setChecked( rotation, flipHoz, flipVert );
         cm->addMenu( frMenu );
 
+        // Add 'full scree' item
+        addMenuItem( cm,      "Full Screen",                   true,      fullScreen,                 imageContextMenu::ICM_FULL_SCREEN              );
+
         // Add option... dialog
         addMenuItem( cm,      "Options...",                    false,     false,                      imageContextMenu::ICM_OPTIONS                  );
 
@@ -5050,6 +5085,7 @@ void QEImage::optionAction( imageContextMenu::imageContextMenuOptions option, bo
         case imageContextMenu::ICM_ENABLE_TARGET:               doEnableTargetSelection   ( checked ); break;
         case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:          buttonGroup->setVisible   ( checked ); break;
         case imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST: doEnableBrightnessContrast( checked ); break;
+        case imageContextMenu::ICM_FULL_SCREEN:                 setFullScreen             ( checked ); break;
         case imageContextMenu::ICM_OPTIONS:                     optionsDialog->exec( this );           break;
 
         // Note, zoom options caught by zoom menu signal
@@ -5376,6 +5412,15 @@ void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool ini
         if( !initialise )
         {
             programLauncher2.launchImage( this, copyImage() );
+        }
+    }
+
+    // Show in fullscreen mode
+    else if( action == "Full Screen" )
+    {
+        if( !initialise )
+        {
+            setFullScreen( true );
         }
     }
 
