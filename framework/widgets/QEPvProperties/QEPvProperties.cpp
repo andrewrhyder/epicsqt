@@ -255,12 +255,23 @@ QEPvProperties::QEPvProperties (const QString & variableName, QWidget * parent) 
 //
 QEPvProperties::~QEPvProperties ()
 {
-   QEString *qca;
-
    // Free up all allocated QEString objects.
    //
+   // Ensure the standardRecordType and alternateRecordType QEString objects
+   // are deleted as well as the field QEString objects.
+   //
+   if (this->standardRecordType) {
+      delete this->standardRecordType;
+      this->standardRecordType = NULL;
+   }
+
+   if (this->alternateRecordType) {
+      delete this->alternateRecordType;
+      this->alternateRecordType = NULL;
+   }
+
    while (!this->fieldChannels.isEmpty ()) {
-      qca = this->fieldChannels.takeFirst ();
+      QEString *qca = this->fieldChannels.takeFirst ();
       if (qca) {
          delete qca;
       }
