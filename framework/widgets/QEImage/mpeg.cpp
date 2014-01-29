@@ -271,6 +271,8 @@ mpegSource::mpegSource()
 
 mpegSource::~mpegSource()
 {
+    // Ensure the thread is dead
+    ffQuit();
 }
 
 QString mpegSource::getURL()
@@ -329,8 +331,6 @@ void mpegSource::updateImage(FFBuffer *newbuf) {
 
     if ( fullbuf )
     {
-        QByteArray ba;
-
         newbuf->reserve();
 
         // Ensure an adequate buffer to hold the image data with no line gaps is allocated.
@@ -350,6 +350,9 @@ void mpegSource::updateImage(FFBuffer *newbuf) {
         }
 
         // Populate buffer with no line gaps
+        // (Each horizontal line of pixels in in a larger horizontal line of storage.
+        //  Observed example: each line was 1624 pixels stored in 1664 bytes with
+        //  trailing 40 bytes of value 128 before start of pixel on next line)
         char* buffPtr = buff;
         const char* linePtr = (const char*)(newbuf->pFrame->data[0]);
         for( int i = 0; i < fullbuf->height; i++ )
@@ -359,15 +362,16 @@ void mpegSource::updateImage(FFBuffer *newbuf) {
             linePtr += newbuf->pFrame->linesize[0];// !!! Why is fullbuf->pFrame->linesize[0] not the same as newbuf->pFrame->linesize[0]???
         }
 
-        // Load Qt byte array with data
+        // Deliver image update
+        QByteArray ba;
 #if QT_VERSION >= 0x040700
         ba.setRawData( (const char*)(buff), buffSize );
 #else
         ba = QByteArray::fromRawData( buff, buffSize );
 #endif
-
-//!! often crashes here on exit. In original code, this was within paint event which would never be called after video target was deleted???
         setImage( ba, 1, newbuf->width, newbuf->height );
+
+        // Unlock buffer
         newbuf->release();
     }
 }
