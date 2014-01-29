@@ -454,6 +454,9 @@ void QEImage::presentControls()
             components.append( componentHostListItem( profileDisplay, QEActionRequests::OptionFloatingDockWindow, true, "Arbitrary Profile" ) );
         }
 */
+        enableVertSlicePresentation = false;
+        enableHozSlicePresentation = false;
+        enableProfilePresentation = false;
         buttonGroup->hide();
 
 //        emitComponentHostRequest( QEActionRequests( components ) );
