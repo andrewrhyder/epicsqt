@@ -1441,6 +1441,14 @@ void QEImage::useAllMarkupData()
 // Update image from non CA souce (no associated CA timestamp or alarm info available)
 void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long width, unsigned long height )
 {
+    //!!! Should the bit depth, width and height be clobered like this? (especially where we are altering properties, like bitDepth)
+    //!!! Perhaps CA delivered and MPEG delivered images should maintain their own attributes?
+
+    //!!! should also set format as delivered with image from mpeg source???
+
+    // Set the image bit depth
+    bitDepth = 8;
+
     // Set the image dimensions to match the image size
     imageBuffWidth = width;
     imageBuffHeight = height;

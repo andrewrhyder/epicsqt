@@ -49,7 +49,7 @@
 // Only include the mpeg stuff if required.
 // To include mpeg stuff, don't define QE_USE_MPEG directly, define environment variable
 // QE_USE_MPEG to be processed by framework.pro
-#ifdef QE_USE_MPG
+#ifdef QE_USE_MPEG
 #include <mpeg.h>
 #else
 // Define a stub mpegSource class in place of the class defined when mpeg.h is included.

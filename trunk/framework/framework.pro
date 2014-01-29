@@ -61,14 +61,14 @@ TARGET = QEPlugin
 DEFINES += QWT_DLL=TRUE
 
 #===========================================================
-# Include MPG streaming into QEImage widget
+# Include MPEG streaming into QEImage widget
 # If mpeg streaming is required, define environment variable QE_USE_MPEG
 
-_QE_USE_MPG = $$(QE_USE_MPG)
-isEmpty( _QE_USE_MPG ) {
-    warning( "MPG viewer will NOT be included in QEImage. Define environment variable QE_USE_MPEG if you want this" )
+_QE_USE_MPEG = $$(QE_USE_MPEG)
+isEmpty( _QE_USE_MPEG ) {
+    warning( "MPEG viewer will NOT be included in QEImage. Install FFmpeg and define environment variable QE_USE_MPEG if you want this" )
 } else {
-    warning( "MPG viewer will be included in QEImage. ffmpeg libraries will be expected. Remove environment variable QE_USE_MPG if you don't want this" )
+    warning( "MPEG viewer will be included in QEImage. FFmpeg libraries will be expected. Remove environment variable QE_USE_MPEG if you don't want this" )
     DEFINES += QE_USE_MPEG
 }
 
@@ -189,7 +189,7 @@ win32:LIBS += -LC:/qwt-6.0.1/lib
 LIBS += -lqwt
 
 # ffmpeg stuff
-isEmpty( _QE_USE_MPG ) {
+isEmpty( _QE_USE_MPEG ) {
 } else {
     unix:INCLUDEPATH += /usr/local/include
     unix:LIBS += -L/usr/local/lib/
