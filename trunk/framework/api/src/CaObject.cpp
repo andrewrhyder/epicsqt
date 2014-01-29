@@ -141,6 +141,7 @@ void CaObject::shutdown() {
     Establishes client side channel setup.
 */
 caconnection::ca_responses CaObjectPrivate::setChannel( std::string channelName, caconnection::priorities priority ) {
+    CaRef::accessLock();
     owner->myRef->setPV( channelName );
     caRecord.setName( channelName );
     caRecord.setValid( false );
@@ -149,6 +150,11 @@ caconnection::ca_responses CaObjectPrivate::setChannel( std::string channelName,
     {
         owner->myRef->setChannelId( caConnection->getChannelId() );
     }
+    else
+    {
+        owner->myRef->setChannelId( 0 );
+    }
+    CaRef::accessUnlock();
     return ret;
 }
 
