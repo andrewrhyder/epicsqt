@@ -413,7 +413,7 @@ void QERadioGroup::setButtonGeometry ()
 
    for (j = 0; j < this->number && j < this->radioButtonList.count (); j++) {
       QRadioButton *button = this->radioButtonList.value (j, NULL);
-      if (button && button->isVisible ()) {
+      if (button) {
 
          // Find row and col - row major.
          //
