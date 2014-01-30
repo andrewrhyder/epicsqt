@@ -399,8 +399,8 @@ bool QEForm::readUiFile()
             // If a .ui is present, manage resizing it
             if( ui )
             {
-                // If the form contents should take all its sizing clues from the form, then set the top ui widget to match
-                // the form's size related properties.
+                // If the QEForm contents should take all its sizing clues from the QEForm, then set the top ui widget to match
+                // the QEForm's size related properties.
                 if( resizeContents )
                 {
                     QRect formRect = ui->geometry();
@@ -410,7 +410,6 @@ bool QEForm::readUiFile()
                     ui->setMaximumSize( maximumSize() );
                     ui->setSizeIncrement( sizeIncrement() );
                     ui->setBaseSize( baseSize() );
-                    ui->setContentsMargins( contentsMargins() );
                 }
 
                 // If the form should take all its sizing clues from the form's contents, then set the form to match
@@ -424,8 +423,11 @@ bool QEForm::readUiFile()
                     setMaximumSize( ui->maximumSize() );
                     setSizeIncrement( ui->sizeIncrement() );
                     setBaseSize( ui->baseSize() );
-                    setContentsMargins( ui->contentsMargins() );
                 }
+
+                // Set the QEForm contents margin to zero (should always be zero already???) and rely on the QEForm's
+                // contents for any margin decoration. For example, if the contents is a frame with a border.
+                setContentsMargins( QMargins( 0, 0, 0, 0 ) );
 
                 // Reset the user interface's position.
                 // Not sure why, but the loaded user interface does not always have a position of 0,0
