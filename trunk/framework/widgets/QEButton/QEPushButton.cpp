@@ -68,6 +68,12 @@ void QEPushButton::setup() {
     }
 }
 
+// Slot to receiver a 'process completed' signal from the application launcher
+void QEPushButton::programCompletedSlot()
+{
+    emit programCompleted();
+}
+
 //==============================================================================
 // Drag drop
 

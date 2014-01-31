@@ -69,6 +69,11 @@ public slots:
     /// For example, the QEGui application does provide a slot for creating new GUIs in the ContainerProfile class which respects the creation options, knows how to add tabs in the application, and extend the application's window menu in the menu bar.
     void requestAction( const QEActionRequests& request ){ startGui( request ); }
 
+private slots:
+    // Note, keep in sync. The text below is repeated in QEPushButton.h, QERadioButton.h and QECheckBox.h
+    /// Slot to receiver a 'process completed' signal from the application launcher
+    void programCompletedSlot();
+
 signals:
     // Note, the following signals are common to many QE widgets,
     // if changing the doxygen comments, ensure relevent changes are migrated to all instances
@@ -94,7 +99,10 @@ signals:
     /// The value emitted is the integer interpretation of the clickText property (or the clickCheckedText property if the button was checked)
     void clicked( int value );
 
-  protected:
+    /// Program started by button has compelted
+    void programCompleted();
+
+protected:
 
 private:
     void setup();

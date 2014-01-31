@@ -370,7 +370,7 @@ void QEGenericButton::userClicked( bool checked )
     }
 
     // If there is a command to run, run it, with substitutions applied to the command and arguments
-    programLauncher.launch( this );
+    programLauncher.launch( (VariableNameManager*)this, getButtonQObject() );
 
     // If a new GUI is required, start it
     if( !guiName.isEmpty() )

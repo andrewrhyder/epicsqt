@@ -66,12 +66,12 @@ void applicationLauncher::launchImage( VariableNameManager* variableNameManager,
     launchCommon( variableNameManager, tempFile );
 }
 
-void applicationLauncher::launch( VariableNameManager* variableNameManager )
+void applicationLauncher::launch( VariableNameManager* variableNameManager, QObject* receiver )
 {
-    launchCommon( variableNameManager );
+    launchCommon( variableNameManager, NULL, receiver );
 }
 
-void applicationLauncher::launchCommon( VariableNameManager* variableNameManager, QTemporaryFile* tempFile )
+void applicationLauncher::launchCommon( VariableNameManager* variableNameManager, QTemporaryFile* tempFile, QObject* receiver )
 {
     // Do nothing if no program to run
     if( program.isEmpty() )
@@ -82,6 +82,12 @@ void applicationLauncher::launchCommon( VariableNameManager* variableNameManager
     // Create a new process to run the program
     // (It will be up to the processManager to delete the temporary file if present)
     processManager* process = new processManager( programStartupOption == PSO_LOGOUTPUT, tempFile );
+
+    // Connect to caller if a recipient has been provided
+    if( receiver )
+    {
+        QObject::connect( process, SIGNAL( processCompleted() ), receiver, SLOT( programCompletedSlot() ) );
+    }
 
     // Apply substitutions to the arguments
     QStringList substitutedArguments = arguments;
