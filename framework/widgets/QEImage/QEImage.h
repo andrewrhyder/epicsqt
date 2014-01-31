@@ -45,6 +45,7 @@
 #include <QEPluginLibrary_global.h>
 #include <QEIntegerFormatting.h>
 #include <QEFloatingFormatting.h>
+#include <fullScreenWindow.h>
 
 // Only include the mpeg stuff if required.
 // To include mpeg stuff, don't define QE_USE_MPEG directly, define environment variable
@@ -429,6 +430,7 @@ private slots:
     void currentPixelInfo( QPoint pos );
     void pan( QPoint pos );
     void redraw();
+    void showImageContextMenuFullScreen( const QPoint& pos );
     void showImageContextMenu( const QPoint& );
     void selectMenuTriggered( QAction* selectedItem );
     void zoomMenuTriggered( QAction* selectedItem );
@@ -447,6 +449,10 @@ private slots:
     void setLineProfileControlsNotVisible();
 
     void useAllMarkupData();
+
+    void raiseFullScreen();         // Ensure the full screen main window is in front of the application.
+
+    void resizeFullScreen();        // Resize full screen once it has been managed
 
 public slots:
     void setImageFile( QString name );
@@ -486,7 +492,6 @@ public slots:
 
     void componentHostRequest( const QEActionRequests& request );
 
-
   private:
     void useTargetingData();
 //    void useAllMarkupData();
@@ -508,6 +513,9 @@ public slots:
 
 
     void emitComponentHostRequest( const QEActionRequests& request ){ emit componentHostRequest( request ); }
+
+    QSize getVedioDestinationSize();                // Get the size of the widget where the image is being displayed (either a scroll widget within the QEImage widget, or a full screen main window)
+    void showImageContextMenuCommon( const QPoint& pos, const QPoint& globalPos );  // Common support for showImageContextMenu() and showImageContextMenuFullScreen()
 
     void setup();
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
@@ -537,7 +545,8 @@ public slots:
 
     bool displayMarkups;
 
-    bool fullScreen;
+    bool fullScreen;                            // True if in full screen mode
+    fullScreenWindow* fullScreenMainWindow;     // Main window used to present image in full screen mode. Only present when in full screen mode
 
     // Button widgets
     QPushButton* pauseButton;

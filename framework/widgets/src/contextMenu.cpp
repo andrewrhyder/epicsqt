@@ -144,7 +144,16 @@ QMenu* contextMenu::buildContextMenu()
     return menu;
 }
 
-// Present the context menu
+// Create and present a context menu given a global co-ordinate
+QAction* contextMenu::showContextMenuGlobal( const QPoint& globalPos )
+{
+    QMenu* menu = buildContextMenu();
+    QAction* action = showContextMenuGlobal( menu, globalPos );
+    delete menu;
+    return action;
+}
+
+// Create and present a context menu given a co-ordinate relative to the QE widget
 QAction* contextMenu::showContextMenu( const QPoint& pos )
 {
     QMenu* menu = buildContextMenu();
@@ -153,8 +162,14 @@ QAction* contextMenu::showContextMenu( const QPoint& pos )
     return action;
 }
 
-// Present the context menu
-QAction* contextMenu::showContextMenu(  QMenu* menu, const QPoint& pos )
+// Present an existing context menu given a global co-ordinate
+QAction* contextMenu::showContextMenuGlobal( QMenu* menu, const QPoint& globalPos )
+{
+    return menu->exec( globalPos );
+}
+
+// Present an existing context menu given a co-ordinate relative to the QE widget
+QAction* contextMenu::showContextMenu( QMenu* menu, const QPoint& pos )
 {
     QPoint globalPos = qew->getQWidget()->mapToGlobal( pos );
     return menu->exec( globalPos );
