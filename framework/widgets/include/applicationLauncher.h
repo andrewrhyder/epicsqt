@@ -65,7 +65,11 @@ public:
         {
             delete tempFile;
         }
+
     }
+
+signals:
+    void processCompleted();
 
 public slots:
     void doRead()
@@ -74,12 +78,14 @@ public slots:
     }
     void doFinished( int /*exitCode*/, QProcess::ExitStatus /*exitStatus*/ )
     {
+        emit processCompleted();
         deleteLater();
     }
 
 private:
     UserMessage message;
     QTemporaryFile* tempFile;
+    QObject* receiver;
 };
 
 
@@ -91,8 +97,8 @@ public:
     ~applicationLauncher();
 
     void launchImage( VariableNameManager* variableNameManager, QImage image );
-    void launch( VariableNameManager* variableNameManager );
-    void launchCommon( VariableNameManager* variableNameManager, QTemporaryFile* tempFile = NULL );
+    void launch( VariableNameManager* variableNameManager, QObject* receiver );
+    void launchCommon( VariableNameManager* variableNameManager, QTemporaryFile* tempFile = NULL, QObject* receiver = NULL );
 
     // Program String
     void setProgram( QString programIn ){ program = programIn; }

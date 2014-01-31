@@ -34,7 +34,7 @@ fullScreenWindow::fullScreenWindow(QWidget *parent) :
 }
 
 // The mouse has been pressed over the image
-void fullScreenWindow::resizeEvent( QResizeEvent * event )
+void fullScreenWindow::resizeEvent( QResizeEvent* /*event*/ )
 {
     emit fullScreenResize();
 }

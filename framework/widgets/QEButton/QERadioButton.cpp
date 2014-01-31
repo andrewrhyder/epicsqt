@@ -71,6 +71,12 @@ void QERadioButton::setup() {
     QObject::connect( &variableNamePropertyManager, SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ), this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
 }
 
+// Slot to receiver a 'process completed' signal from the application launcher
+void QERadioButton::programCompletedSlot()
+{
+    emit programCompleted();
+}
+
 //==============================================================================
 // Drag drop
 
