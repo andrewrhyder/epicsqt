@@ -65,11 +65,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QELink : public QLabel, QEWidget {
     void    setOutFalseValue( QString outFalseValue );
     QString getOutFalseValue();
 
-    // visible (widget is visible outside 'Designer')
-    void setRunVisible( bool visibleIn );
-    bool getRunVisible();
-
-
   protected:
     conditions condition;       // Rule for comparing incoming signal
     QVariant comparisonValue;    // Value to compare incoming signal against
@@ -78,8 +73,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QELink : public QLabel, QEWidget {
     bool signalFalse;           // Flag true if a signal should be emmited if the condition does not match
     QVariant outTrueValue;      // Value to send in signal if condition matches
     QVariant outFalseValue;     // Value to send in signal if condition does not match
-
-    bool visible;               // Flag true if the widget should be visible outside 'Designer'
 
   public slots:
     void in( const bool& in );
