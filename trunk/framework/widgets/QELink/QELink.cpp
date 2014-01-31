@@ -33,17 +33,8 @@
 */
 QELink::QELink( QWidget *parent ) : QLabel( parent ), QEWidget( this ) {
 
-    // If this widget is not being used in a real GUI (it is in Designer) then it
-    // should be displayed all the time, not visible according to the visible property.
-    visible = false;
-    if( inDesigner() )
-    {
-        setVisible( true );
-    }
-    else
-    {
-            setVisible( visible );
-    }
+    // Don't display this widget, by default (will always display in 'Designer'
+    setRunVisible( false );
 
     // Set default properties
     setText( "Link" );
@@ -220,21 +211,4 @@ void    QELink::setOutFalseValue( QString outFalseValueIn )
 QString QELink::getOutFalseValue()
 {
     return outFalseValue.toString();
-}
-
-// visible (widget is visible outside 'Designer')
-void QELink::setRunVisible( bool visibleIn )
-{
-    // Update the property
-    visible = visibleIn;
-
-    // If this widget is being used in a real GUI (not in Designer) then it
-    // should be visible according to the visible property.
-    if( !inDesigner() )
-        setVisible( visible );
-
-}
-bool QELink::getRunVisible()
-{
-    return visible;
 }
