@@ -139,6 +139,7 @@ void QEImage::setup() {
     displayMarkups = false;
 
     fullScreen = false;
+    fullScreenMainWindow = NULL;
 
     // With so many variables involved, don't bother alterning the presentation of the widget when any one variable goes into alarm
     setDisplayAlarmState( false );
@@ -2521,6 +2522,24 @@ void QEImage::displayImage()
     updateMarkupData();
 }
 
+// Return the size of the widget where the image will be presented
+// It will be presented in the QEImage's main window used for full screen view,
+// or in QEImage's scroll area
+QSize QEImage::getVedioDestinationSize()
+{
+    // If full screen, return the size of the main window used for this
+    // (sanity check, only do this if the full screen widget is present - it always should be in full screen)
+    if( fullScreen && fullScreenMainWindow )
+    {
+        return fullScreenMainWindow->size();
+    }
+    // Not in full screen, the destination is the scroll area widget
+    else
+    {
+        return scrollArea->size();
+    }
+}
+
 // Set the image buffer used for generating images so it will be large enough to hold the processed image.
 void QEImage::setImageBuff()
 {
@@ -2538,8 +2557,9 @@ void QEImage::setImageBuff()
 
         // Resize the image to fit exactly within the QCaItem
         case RESIZE_OPTION_FIT:
-            double vScale = (double)(scrollArea->size().height()) / (double)(rotatedImageBuffHeight());
-            double hScale = (double)(scrollArea->size().width()) / (double)(rotatedImageBuffWidth());
+            QSize destSize = getVedioDestinationSize();
+            double vScale = (double)(destSize.height()) / (double)(rotatedImageBuffHeight());
+            double hScale = (double)(destSize.width()) / (double)(rotatedImageBuffWidth());
             double scale = (hScale<vScale)?hScale:vScale;
 
             videoWidget->resize( (int)((double)rotatedImageBuffWidth() * scale),
@@ -3571,7 +3591,7 @@ void    QEImage::setBeamLegend          ( QString legend ){        videoWidget->
 QString QEImage::getEllipseLegend()                       { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_ELLIPSE );       }
 void    QEImage::setEllipseLegend       ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_ELLIPSE, legend ); }
 
-// Full Screen
+// Full Screen property set/get
 bool QEImage::getFullScreen()
 {
     return fullScreen;
@@ -3579,25 +3599,73 @@ bool QEImage::getFullScreen()
 
 void QEImage::setFullScreen( bool fullScreenIn )
 {
+    // Save the current full screen state
     fullScreen = fullScreenIn;
 
-    QWidget* w = videoWidget;
-    while( w && !w->isWindow() )
+    // Enter full screen
+    if( fullScreen )
     {
-        w = w->parentWidget();
+        // Only do anything if not in designer, and no full screen window has been created already
+        if( !inDesigner() && !fullScreenMainWindow )
+        {
+            // Create full screen window
+            // (and set up context sensitive menu (right click menu))
+            fullScreenMainWindow = new fullScreenWindow( this );
+            fullScreenMainWindow->setContextMenuPolicy( Qt::CustomContextMenu );
+            connect( fullScreenMainWindow, SIGNAL( customContextMenuRequested( const QPoint& )), this, SLOT( showImageContextMenuFullScreen( const QPoint& )));
+            connect( fullScreenMainWindow, SIGNAL( fullScreenResize()), this, SLOT( fullScreenResize()));
+
+            // Move the video widget into the full screen window and present it in full screen
+            QWidget* w = scrollArea->takeWidget();
+            fullScreenMainWindow->setCentralWidget( w );
+            fullScreenMainWindow->showFullScreen();
+
+            // Raise in front of whatever application the QEImage widget is in, and resize it
+            // This is only required when the QEWidget is created before being loaded into
+            // some other application widget hierarchy.
+            // For example, when QEGui opens a .ui file containing a QEImage widget:
+            //    - The QEImage is created when the .ui file is loaded (and on creation creates and uses the full screen widget here)
+            //    - QEGui inserts the widgets created from the .ui file and presents it's main window (over the top of the QEImage's full screen window)
+            // Note, a timer event is used to to wait for any particular elapsed time,
+            //       but to ensure raising the full screen window occurs after an application creating
+            //       this QEImage widget has finished doing whatever it is doing (which may include
+            //       showing itself over the top of the full screen window.
+            QTimer::singleShot( 0, this, SLOT(raiseFullScreen() ) );
+        }
     }
 
-    if( w )
+    // Leave full screen
+    else
     {
-        if( fullScreen )
+        // Only do anything if already presenting in full screen
+        if( fullScreenMainWindow )
         {
-            w->showFullScreen();
-        }
-        else
-        {
-            w->showNormal();
+            // Move the video widget back into the scroll area within the QEImage
+            QWidget* w = fullScreenMainWindow->centralWidget();
+            scrollArea->setWidget( w );
+
+            // Destroy the fullscreen main window
+            delete fullScreenMainWindow;
+            fullScreenMainWindow = NULL;
         }
     }
+}
+
+// Ensure the full screen main window is in front of the application that created the QEImage widget,
+// and resized to fit the screen.
+// This is called as a timer event, not to create a delay (time is zero) but to ensure it is called after back in event loop
+void QEImage::raiseFullScreen()
+{
+    if( fullScreenMainWindow )
+    {
+        fullScreenMainWindow->activateWindow();
+    }
+}
+
+// Resize full screen once it has been managed
+void QEImage::resizeFullScreen()
+{
+    setResizeOption( RESIZE_OPTION_FIT );
 }
 
 //=================================================================================================
@@ -4994,11 +5062,25 @@ void QEImage::redraw()
 
 //=================================================================================================
 // Present the context menu
+// (When in full screen)
+void QEImage::showImageContextMenuFullScreen( const QPoint& pos )
+{
+    QPoint globalPos = fullScreenMainWindow->mapToGlobal( pos );
+    showImageContextMenuCommon( pos, globalPos );
+}
+
+// Present the context menu
+// (When not in full screen)
 void QEImage::showImageContextMenu( const QPoint& pos )
 {
-    // Get the overall position on the display
     QPoint globalPos = mapToGlobal( pos );
+    showImageContextMenuCommon( pos, globalPos );
+}
 
+// Present the context menu
+// (full screen and not full screen)
+void QEImage::showImageContextMenuCommon( const QPoint& pos, const QPoint& globalPos )
+{
     // If the markup system wants to put up a menu, let it do so
     // For example, if the user has clicked over a markup, it may offer the user a menu
     if( videoWidget->showMarkupMenu( videoWidget->mapFrom( this, pos ), globalPos ) )
@@ -5041,7 +5123,7 @@ void QEImage::showImageContextMenu( const QPoint& pos )
         // Present the menu
         imageContextMenu::imageContextMenuOptions option;
         bool checked;
-        QAction* selectedItem = showContextMenu( cm, pos );
+        QAction* selectedItem = showContextMenuGlobal( cm, globalPos );
         if( selectedItem )
         {
             option = (imageContextMenu::imageContextMenuOptions)(selectedItem->data().toInt());
@@ -5059,7 +5141,7 @@ void QEImage::showImageContextMenu( const QPoint& pos )
     }
     else
     {
-        showContextMenu( pos );
+        showContextMenuGlobal( globalPos );
     }
 
 }

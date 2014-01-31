@@ -46,7 +46,8 @@ HEADERS += \
     widgets/QEImage/markupEllipse.h \
     widgets/QEImage/brightnessContrast.h \
     widgets/QEImage/QEImageOptionsDialog.h \
-    widgets/QEImage/QEImageMarkupThickness.h
+    widgets/QEImage/QEImageMarkupThickness.h \
+    widgets/QEImage/fullScreenWindow.h
 
 isEmpty( _QE_USE_MPEG ) {
 
@@ -76,7 +77,8 @@ SOURCES += \
     widgets/QEImage/markupEllipse.cpp \
     widgets/QEImage/brightnessContrast.cpp \
     widgets/QEImage/QEImageOptionsDialog.cpp \
-    widgets/QEImage/QEImageMarkupThickness.cpp
+    widgets/QEImage/QEImageMarkupThickness.cpp \
+    widgets/QEImage/fullScreenWindow.cpp
 
 isEmpty( _QE_USE_MPEG ) {
 } else {
