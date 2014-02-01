@@ -1359,26 +1359,26 @@ MainWindow* MainWindow::launchGui( QString guiName, QString customisationName, Q
 void MainWindow::createActionMaps()
 {
     inbuiltFormMap.clear();
-    inbuiltFormMap.insert( "General PV Edit...",     ":/qe/gui/forms/General_PV_Edit.ui" );
-    inbuiltFormMap.insert( "PV Properties...",       ":/qe/gui/forms/PVProperties.ui" );
-    inbuiltFormMap.insert( "Strip Chart...",         ":/qe/gui/forms/StripChart.ui" );
-    inbuiltFormMap.insert( "Scratch Pad...",         ":/qe/gui/forms/ScratchPad.ui" );
-    inbuiltFormMap.insert( "Message Log...",         ":/qe/gui/forms/MessageLog.ui" );
-    inbuiltFormMap.insert( "Plotter...",             ":/qe/gui/forms/Plotter.ui" );
-    inbuiltFormMap.insert( "PV Load/Save...",        ":/qe/gui/forms/PVLoadSave.ui" );
-    inbuiltFormMap.insert( "Archive Status...",      ":/qe/gui/forms/ArchiveStatus.ui" );
-    inbuiltFormMap.insert( "Archive Name Search...", ":/qe/gui/forms/ArchiveNameSearch.ui" );
+    inbuiltFormMap.insert( QEActionRequests::actionGeneralPvEdit(),  ":/qe/gui/forms/General_PV_Edit.ui" );
+    inbuiltFormMap.insert( QEActionRequests::actionPvProperties(),   ":/qe/gui/forms/PVProperties.ui" );
+    inbuiltFormMap.insert( QEActionRequests::actionStripChart(),     ":/qe/gui/forms/StripChart.ui" );
+    inbuiltFormMap.insert( QEActionRequests::actionScratchPad(),     ":/qe/gui/forms/ScratchPad.ui" );
+    inbuiltFormMap.insert( "Message Log...",                         ":/qe/gui/forms/MessageLog.ui" );
+    inbuiltFormMap.insert( "Plotter...",                             ":/qe/gui/forms/Plotter.ui" );
+    inbuiltFormMap.insert( "PV Load/Save...",                        ":/qe/gui/forms/PVLoadSave.ui" );
+    inbuiltFormMap.insert( "Archive Status...",                      ":/qe/gui/forms/ArchiveStatus.ui" );
+    inbuiltFormMap.insert( "Archive Name Search...",                 ":/qe/gui/forms/ArchiveNameSearch.ui" );
 
     classNameMap.clear();
-    classNameMap.insert( "General PV Edit...",       "QEGeneralEdit" );
-    classNameMap.insert( "PV Properties...",         "QEPvProperties" );
-    classNameMap.insert( "Strip Chart...",           "QEStripChart" );
-    classNameMap.insert( "Scratch Pad...",           "QEScratchPad" );
-    classNameMap.insert( "Message Log...",           "QEMessageLog" );
-    classNameMap.insert( "Plotter...",               "QEPlotter" );
-    classNameMap.insert( "PV Load/Save...",          "QEPvLoadSave" );
-    classNameMap.insert( "Archive Status...",        "QEArchiveStatus" );
-    classNameMap.insert( "Archive Name Search...",   "QEArchiveNameSearch" );
+    classNameMap.insert( QEActionRequests::actionGeneralPvEdit(),    "QEGeneralEdit" );
+    classNameMap.insert( QEActionRequests::actionPvProperties(),     "QEPvProperties" );
+    classNameMap.insert( QEActionRequests::actionStripChart(),       "QEStripChart" );
+    classNameMap.insert( QEActionRequests::actionScratchPad(),       "QEScratchPad" );
+    classNameMap.insert( "Message Log...",                           "QEMessageLog" );
+    classNameMap.insert( "Plotter...",                               "QEPlotter" );
+    classNameMap.insert( "PV Load/Save...",                          "QEPvLoadSave" );
+    classNameMap.insert( "Archive Status...",                        "QEArchiveStatus" );
+    classNameMap.insert( "Archive Name Search...",                   "QEArchiveNameSearch" );
 }
 
 // Slot for launching a new gui from a contained object.

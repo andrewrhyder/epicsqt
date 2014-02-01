@@ -64,6 +64,14 @@ public:
                   OptionRightDockWindowTabbed,
                   OptionFloatingDockWindow };
 
+
+   // Predefined actions values for built in windows that consumer may provide.
+   //
+   static QString actionPvProperties ()  { return "PV Properties...";   }
+   static QString actionStripChart ()    { return "Strip Chart...";     }
+   static QString actionScratchPad ()    { return "Scratch Pad...";     }
+   static QString actionGeneralPvEdit () { return "General PV Edit..."; }
+
    // Constructors.
    //
    QEActionRequests ();

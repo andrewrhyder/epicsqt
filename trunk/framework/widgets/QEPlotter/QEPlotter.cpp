@@ -1183,45 +1183,45 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
 
       case QEPlotterNames::PLOTTER_SHOW_DATA_PV_PROPERTIES:
          pvName = this->getXYDataPV (slot);
-         this->sendRequestAction ("PV Properties...", pvName);
+         this->sendRequestAction (QEActionRequests::actionPvProperties (), pvName);
          break;
 
       case QEPlotterNames::PLOTTER_SHOW_SIZE_PV_PROPERTIES:
          pvName = this->getXYSizePV (slot);
-         this->sendRequestAction ("PV Properties...", pvName);
+         this->sendRequestAction (QEActionRequests::actionPvProperties (), pvName);
          break;
 
 
       case QEPlotterNames::PLOTTER_ADD_DATA_PV_TO_STRIPCHART:
          pvName = this->getXYDataPV (slot);
-         this->sendRequestAction ("Strip Chart...", pvName);
+         this->sendRequestAction (QEActionRequests::actionStripChart (), pvName);
          break;
 
       case QEPlotterNames::PLOTTER_ADD_SIZE_PV_TO_STRIPCHART:
          pvName = this->getXYSizePV (slot);
-         this->sendRequestAction ("Strip Chart...", pvName);
+         this->sendRequestAction (QEActionRequests::actionStripChart (), pvName);
          break;
 
 
       case QEPlotterNames::PLOTTER_ADD_DATA_PV_TO_SCRATCH_PAD:
          pvName = this->getXYDataPV (slot);
-         this->sendRequestAction ("Scratch Pad...", pvName);
+         this->sendRequestAction (QEActionRequests::actionScratchPad (), pvName);
          break;
 
       case QEPlotterNames::PLOTTER_ADD_SIZE_PV_TO_SCRATCH_PAD:
          pvName = this->getXYSizePV (slot);
-         this->sendRequestAction ("Scratch Pad...", pvName);
+         this->sendRequestAction (QEActionRequests::actionScratchPad (), pvName);
          break;
 
 
       case QEPlotterNames::PLOTTER_GENERAL_DATA_PV_EDIT:
          pvName = this->getXYDataPV (slot);
-         this->sendRequestAction ("General PV Edit...", pvName);
+         this->sendRequestAction (QEActionRequests::actionGeneralPvEdit (), pvName);
          break;
 
       case QEPlotterNames::PLOTTER_GENERAL_SIZE_PV_EDIT:
          pvName = this->getXYSizePV (slot);
-         this->sendRequestAction ("General PV Edit...", pvName);
+         this->sendRequestAction (QEActionRequests::actionGeneralPvEdit (), pvName);
          break;
 
 
