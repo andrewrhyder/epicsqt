@@ -295,7 +295,7 @@ void contextMenu::doPaste()
 void contextMenu::doShowPvProperties ()
 {
     QString pvName = copyVariable();
-    QEActionRequests request( "PV Properties...", pvName );
+    QEActionRequests request( QEActionRequests::actionPvProperties(), pvName );
     object->sendRequestAction( request );
 }
 
@@ -303,7 +303,7 @@ void contextMenu::doShowPvProperties ()
 void contextMenu::doAddToStripChart ()
 {
     QString pvName = copyVariable();
-    QEActionRequests request( "Strip Chart...", pvName );
+    QEActionRequests request( QEActionRequests::actionStripChart(), pvName );
     object->sendRequestAction( request );
 }
 
@@ -311,7 +311,7 @@ void contextMenu::doAddToStripChart ()
 void contextMenu::doAddToScratchPad()
 {
    QString pvName = copyVariable();
-   QEActionRequests request( "Scratch Pad...", pvName );
+   QEActionRequests request( QEActionRequests::actionScratchPad(), pvName );
    object->sendRequestAction( request );
 }
 
@@ -319,7 +319,7 @@ void contextMenu::doAddToScratchPad()
 void contextMenu::doGeneralPVEdit()
 {
    QString pvName = copyVariable();
-   QEActionRequests request( "General PV Edit...", pvName );
+   QEActionRequests request( QEActionRequests::actionGeneralPvEdit(), pvName );
    object->sendRequestAction( request );
 }
 
