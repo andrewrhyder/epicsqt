@@ -26,6 +26,7 @@
 #ifndef QERADIOGROUP_H
 #define QERADIOGROUP_H
 
+#include <QGridLayout>
 #include <QList>
 #include <QString>
 #include <QVector>
@@ -148,6 +149,7 @@ private:
     //
     QIntToIntMap valueToButtonIndexMap;
     QIntToIntMap buttonIndexToValueMap;
+    QGridLayout* radioButtonLayout;
     QRadioButtonList radioButtonList;
     QRadioButton *noSelectionButton;
 
@@ -161,7 +163,7 @@ private:
 
     void commonSetup ();
     void setButtonText ();
-    void setButtonGeometry ();
+    void setRadioButtonLayout ();
 
 private slots:
     void connectionChanged (QCaConnectionInfo& connectionInfo);

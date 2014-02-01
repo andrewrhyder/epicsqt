@@ -107,7 +107,12 @@ void QERadioGroup::commonSetup ()
    this->rows = 0;
    this->cols = 2;
 
+   this->radioButtonLayout = new QGridLayout (this);
+   this->radioButtonLayout->setContentsMargins (8, 4, 8, 4);  // left, top, right, bottom
+   this->radioButtonLayout->setSpacing (4);
+
    // Create buttons - invisble for now.
+   // NOTE: radio buttons are added/removed from layout as and when needed.
    //
    for (j = 0; j < MAXIMUM_BUTTONS; j++) {
       button = new QRadioButton (this);
@@ -308,7 +313,7 @@ void QERadioGroup::buttonClicked (bool)
 //
 void QERadioGroup::resizeEvent (QResizeEvent *)
 {
-   this->setButtonGeometry ();
+   this->setRadioButtonLayout ();
 }
 
 //---------------------------------------------------------------------------------
@@ -387,30 +392,22 @@ void QERadioGroup::setButtonText ()
       }
    }
 
-   this->setButtonGeometry ();
+   this->setRadioButtonLayout ();
 }
 
 //---------------------------------------------------------------------------------
 //
-void QERadioGroup::setButtonGeometry ()
+void QERadioGroup::setRadioButtonLayout ()
 {
-   const int tm = this->title().isEmpty() ? 4 : 20;  // top margin
-   const int bm = 4;            // bottom margin
-   const int sm = 8;            // side margin
-   const int hs = 8;            // horizontal spacing
-   const int vs = 4;            // vertical spacing
-
-   const int tw = (this->width ()  - (sm + sm) + hs - 1);
-   const int th = (this->height () - (tm + bm) + vs - 1);
-
-   const double dx = double (tw) / double (MAX (this->cols, 1));
-   const double dy = double (th) / double (MAX (this->rows, 1));
-
    int j;
    int row, col;
-   double x0, x1;
-   double y0, y1;
 
+   // Remove any existing items from the layout.
+   //
+   while (this->radioButtonLayout->takeAt (0) != NULL);
+
+   // Add buttons that are now required.
+   //
    for (j = 0; j < this->number && j < this->radioButtonList.count (); j++) {
       QRadioButton *button = this->radioButtonList.value (j, NULL);
       if (button) {
@@ -420,17 +417,7 @@ void QERadioGroup::setButtonGeometry ()
          row = j / MAX (this->cols, 1);
          col = j % MAX (this->cols, 1);
 
-         // Do floating point arithmetic.
-         //
-         x0 = sm + (col * dx);
-         x1 = x0 + dx - hs;
-
-         y0 = tm + (row * dy);
-         y1 = y0 + dy - vs;
-
-         // Apply integer values.
-         //
-         button->setGeometry (int (x0), int (y0), int (x1) - int (x0), int (y1) - int (y0));
+         this->radioButtonLayout->addWidget (button, row, col);
       }
    }
 }
@@ -503,7 +490,7 @@ void QERadioGroup::setColumns (int colsIn)
    if (this->cols != constrainedCols) {
       this->cols = constrainedCols;
       this->rows = (this->number + this->cols - 1) / MAX (this->cols, 1);
-      this->setButtonGeometry ();
+      this->setRadioButtonLayout ();
    }
 }
 
