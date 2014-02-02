@@ -126,7 +126,6 @@ public:
     int getCurrentIndex ();
 protected:
     QSize sizeHint () const;
-    void resizeEvent (QResizeEvent * event);
 
     // override QEWidget fnctions.
     //
