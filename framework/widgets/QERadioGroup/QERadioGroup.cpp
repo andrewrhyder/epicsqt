@@ -299,7 +299,7 @@ void QERadioGroup::buttonClicked (bool)
    // Write the new value.
    // Get the variable to write to
    //
-   QEInteger *qca = (QEInteger *) getQcaItem (0);
+   QEInteger* qca = (QEInteger *) getQcaItem (0);
 
    // If a QCa object is present (if there is a variable to write to)
    // then write the value.
@@ -311,17 +311,10 @@ void QERadioGroup::buttonClicked (bool)
 
 //---------------------------------------------------------------------------------
 //
-void QERadioGroup::resizeEvent (QResizeEvent *)
-{
-   this->setRadioButtonLayout ();
-}
-
-//---------------------------------------------------------------------------------
-//
 void QERadioGroup::setButtonText ()
 {
-   qcaobject::QCaObject * qca = NULL;
-   QRadioButton *button = NULL;
+   qcaobject::QCaObject* qca = NULL;
+   QRadioButton* button = NULL;
    QStringList enumerations;
    QString text;
    bool isMatch;
