@@ -32,6 +32,8 @@
 #include <QString>
 #include <QLabel>
 #include <QLibraryInfo>
+#include <QProcessEnvironment>
+#include <QDir>
 
 aboutDialog::aboutDialog( QString QEGuiVersion,                // Version info and the build date/time at compile time of QEGui
                           QString QEFrameworkVersionQEGui,     // Version info and the build date/time at compile time of the copy of QEPlugin library loaded by QEGui
@@ -67,7 +69,10 @@ aboutDialog::aboutDialog( QString QEGuiVersion,                // Version info a
 
     // Environment
     ui->userLevelLabel->setText( userLevel );
-    ui->macroSubstitutionsLabel->setText( macroSubstitutions );
+    ui->macroSubstitutionsTextEdit->setPlainText( macroSubstitutions );
+
+    // Paths
+    ui->currentPathTextEdit->setPlainText( QDir::currentPath());
 
     for( int i = 0; i < pathList.count(); i++ )
     {
@@ -78,6 +83,16 @@ aboutDialog::aboutDialog( QString QEGuiVersion,                // Version info a
     {
         ui->pathVariableList->addItem( envPathList[i] );
     }
+
+    QString pathVarName;
+#ifdef WIN32
+        pathVarName = "Path";
+#else
+        pathVarName = "PATH";
+#endif
+
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    ui->systemPathLabelTextEdit->setPlainText( env.value( pathVarName, QString( "Couldn't find environment variable: " ).append( pathVarName ) ));
 
     // Windows
     int rowCount = std::min( windowTitles.count(), windowFiles.count() );

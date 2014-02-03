@@ -2907,7 +2907,7 @@ void QEImage::saveClicked()
     QString filename;
     bool result;
 
-    qFileDialog = new QFileDialog(this, "Save displayed image", QString());
+    qFileDialog = new QFileDialog(this, "Save displayed image", QDir::currentPath().append( QDir::separator() ).append("image.png") );
     filterList << "Tagged Image File Format (*.tiff)" << "Portable Network Graphics (*.png)" << "Windows Bitmap (*.bmp)" << "Joint Photographics Experts Group (*.jpg)";
     qFileDialog->setNameFilters(filterList);
     qFileDialog->setAcceptMode(QFileDialog::AcceptSave);
@@ -2989,10 +2989,18 @@ void QEImage::doEnableVertSliceSelection( bool enableVSliceSelection )
     sMenu->setVSliceEnabled( enableVSliceSelection );
 
     // If disabling, and it is the current mode, then default to panning
-    if( !enableVSliceSelection && getSelectionOption() == SO_VSLICE )
+    if( !enableVSliceSelection )
     {
-        sMenu->setChecked( QEImage::SO_PANNING );
-        panModeClicked();
+        if( getSelectionOption() == SO_VSLICE )
+        {
+            sMenu->setChecked( QEImage::SO_PANNING );
+            panModeClicked();
+        }
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_V_SLICE );
+    }
+    else
+    {
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_V_SLICE );
     }
 }
 
@@ -3002,10 +3010,18 @@ void QEImage::doEnableHozSliceSelection( bool enableHSliceSelection )
     sMenu->setHSlicetEnabled( enableHSliceSelection );
 
     // If disabling, and it is the current mode, then default to panning
-    if( !enableHSliceSelection && getSelectionOption() == SO_HSLICE )
+    if( !enableHSliceSelection )
     {
-        sMenu->setChecked( QEImage::SO_PANNING );
-        panModeClicked();
+        if( getSelectionOption() == SO_HSLICE )
+        {
+            sMenu->setChecked( QEImage::SO_PANNING );
+            panModeClicked();
+        }
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_H_SLICE );
+    }
+    else
+    {
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_H_SLICE );
     }
 }
 
@@ -3015,14 +3031,27 @@ void QEImage::doEnableAreaSelection( bool enableAreaSelection )
     sMenu->setAreaEnabled( enableAreaSelection );
 
     // If disabling, and it is the current mode, then default to panning
-    if( !enableAreaSelection &&
-        ( ( getSelectionOption() == SO_AREA1 ) ||
-          ( getSelectionOption() == SO_AREA2 ) ||
-          ( getSelectionOption() == SO_AREA3 ) ||
-          ( getSelectionOption() == SO_AREA4 )))
+    if( !enableAreaSelection )
     {
-        sMenu->setChecked( QEImage::SO_PANNING );
-        panModeClicked();
+        if( ( ( getSelectionOption() == SO_AREA1 ) ||
+            ( getSelectionOption() == SO_AREA2 ) ||
+            ( getSelectionOption() == SO_AREA3 ) ||
+            ( getSelectionOption() == SO_AREA4 )))
+        {
+            sMenu->setChecked( QEImage::SO_PANNING );
+            panModeClicked();
+        }
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_REGION1 );
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_REGION2 );
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_REGION3 );
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_REGION4 );
+    }
+    else
+    {
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_REGION1 );
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_REGION2 );
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_REGION3 );
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_REGION4 );
     }
 }
 
@@ -3032,10 +3061,18 @@ void QEImage::doEnableProfileSelection( bool enableProfileSelection )
     sMenu->setProfileEnabled( enableProfileSelection );
 
     // If disabling, and it is the current mode, then default to panning
-    if( !enableProfileSelection && getSelectionOption() == SO_PROFILE )
+    if( !enableProfileSelection )
     {
-        sMenu->setChecked( QEImage::SO_PANNING );
-        panModeClicked();
+        if( getSelectionOption() == SO_PROFILE )
+        {
+            sMenu->setChecked( QEImage::SO_PANNING );
+            panModeClicked();
+        }
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_LINE );
+    }
+    else
+    {
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_LINE );
     }
 }
 
@@ -3046,10 +3083,20 @@ void QEImage::doEnableTargetSelection( bool enableTargetSelection )
     targetButton->setVisible( enableTargetSelection );
 
     // If disabling, and it is the current mode, then default to panning
-    if( !enableTargetSelection && ( getSelectionOption() == SO_TARGET || getSelectionOption() == SO_BEAM ))
+    if( !enableTargetSelection )
     {
-        sMenu->setChecked( QEImage::SO_PANNING );
-        panModeClicked();
+        if( ( getSelectionOption() == SO_TARGET || getSelectionOption() == SO_BEAM ))
+        {
+            sMenu->setChecked( QEImage::SO_PANNING );
+            panModeClicked();
+        }
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_TARGET );
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_BEAM );
+    }
+    else
+    {
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_TARGET );
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_BEAM );
     }
 }
 
