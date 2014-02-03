@@ -2912,6 +2912,15 @@ void QEImage::saveClicked()
     qFileDialog->setNameFilters(filterList);
     qFileDialog->setAcceptMode(QFileDialog::AcceptSave);
 
+// Don't set default suffix since the filename as entered is checked for existance (and
+// replacement confirmed with the user), then the filename with suffix is returned!
+// this means a file may be overwritten without warning, or warning may be given,
+// then a different file created
+//    qFileDialog->setDefaultSuffix( "png" );
+
+// Don't avoid native dialog as they are much richer.
+//    qFileDialog->setOption ( QFileDialog::DontUseNativeDialog, true );
+
     if (qFileDialog->exec())
     {
         QImage qImage = copyImage();
