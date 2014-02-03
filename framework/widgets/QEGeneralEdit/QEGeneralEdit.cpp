@@ -128,7 +128,7 @@ void QEGeneralEdit::createInternalWidgets ()
    this->verticalLayout->addWidget (numericEditWidget);
 
    this->radioGroupPanel = new QERadioGroup ("", "", this);
-   this->radioGroupPanel->setMinimumSize (QSize (412, 192));
+   this->radioGroupPanel->setMinimumSize (QSize (412, 23));
    this->radioGroupPanel->setColumns (3);
    this->verticalLayout->addWidget (this->radioGroupPanel);
 
@@ -136,9 +136,9 @@ void QEGeneralEdit::createInternalWidgets ()
    this->stringEditWidget->setMinimumSize (342, 23);
    this->verticalLayout->addWidget (this->stringEditWidget);
 
-   this->numericEditWidget->setRunVisible (false);
-   this->radioGroupPanel->setRunVisible (false);
-   this->stringEditWidget->setRunVisible (false);
+   this->numericEditWidget->setVisible (false);
+   this->radioGroupPanel->setVisible (false);
+   this->stringEditWidget->setVisible (true);  // allow one (at least at design time)
 }
 
 
@@ -227,9 +227,19 @@ void QEGeneralEdit::dataChanged (const QVariant& value, QCaAlarmInfo& alarmInfo,
       pvName = this->getSubstitutedVariableName (0).trimmed ();
       this->valueLabel->setVariableNameAndSubstitutions (pvName, "", 0);
 
+      // Clear all three optional edit widgets.
+      //
+      // Can't use regular widget setVisible as this get inter-twinggled with
+      // the visibility set by the setting user level.
+      //
       this->numericEditWidget->setRunVisible (false);
       this->radioGroupPanel->setRunVisible (false);
       this->stringEditWidget->setRunVisible (false);
+
+      this->numericEditWidget->setVariableNameAndSubstitutions ("", "", 0);
+      this->radioGroupPanel->setVariableNameAndSubstitutions ("", "", 0);
+      this->stringEditWidget->setVariableNameAndSubstitutions ("", "", 0);
+
 
       // Use data type to figure out which type of editting widget is most
       // appropriate.
