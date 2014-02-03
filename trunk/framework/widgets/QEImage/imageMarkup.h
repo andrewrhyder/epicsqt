@@ -139,8 +139,11 @@ public:
     QFont legendFont;                                           // Font used to notate markups (and for time)
     QFontMetrics* legendFontMetrics;                            // Size info about legendFont;
 
-    void setMarkupLegend( markupIds mode, QString legend );       // Set the markup legend (for example, area 1 markup might be called 'ROI 1')
-    QString getMarkupLegend( markupIds mode );                   // Get the markup legend
+    void setMarkupLegend( markupIds mode, QString legend );     // Set the markup legend (for example, area 1 markup might be called 'ROI 1')
+    QString getMarkupLegend( markupIds mode );                  // Get the markup legend
+    void clearMarkup( markupIds markupId );                     // Hide a markup
+    void showMarkup( markupIds markupId );                      // Reveal a markup
+
 
 protected:
     void drawMarkups( QPainter& p, const QRect& rect );         // The image has changed, redraw the markups if any
@@ -160,7 +163,10 @@ protected:
     virtual void markupAction( markupIds mode, bool complete, bool clearing, QPoint point1, QPoint point2, unsigned int thickness )=0;     // There is an application task to do in response to user interaction with the markups
 
 private:
-    void setActiveItem( const QPoint& pos );    // // Determine if the user clicked over an interactive, visible item
+    void setActiveItem( const QPoint& pos );                            // Determine if the user clicked over an interactive, visible item
+    void setThickness( markupIds markupId, unsigned int newThickness ); // Set a markup to a thickness
+    void setSinglePixelThickness( markupIds markupId );                 // Set a markup to signel pixel thickness
+
     markupIds activeItem;                       // Current markup being interacted with
     markupIds mode;                             // Current operation
     void redrawActiveItemHere( QPoint pos );    // The active item has moved to a new position. Redraw it.

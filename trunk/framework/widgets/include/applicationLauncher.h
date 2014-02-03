@@ -124,8 +124,7 @@ private:
     QString program;        // Program to run
     QStringList arguments;  // Program arguments
     programStartupOptions programStartupOption; // Startup option (in a terminal, log output, or just start it and forget it)
-
-
+    UserMessage message;
 };
 
 #endif // APPLICATIONLAUNCHER_H

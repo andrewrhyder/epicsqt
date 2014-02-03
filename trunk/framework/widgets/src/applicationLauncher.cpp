@@ -139,6 +139,7 @@ void applicationLauncher::launchCommon( VariableNameManager* variableNameManager
     }
 
     // Run the program
+    message.sendMessage( QString( "Launching: " ).append( prog ), "Application launcher" );
     process->start( prog );
 
     // Alternate (and cleaner) way to run the program without building a string containing the program and arguments.
