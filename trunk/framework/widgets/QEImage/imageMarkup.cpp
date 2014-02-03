@@ -254,7 +254,7 @@ bool imageMarkup::markupMousePressEvent(QMouseEvent *event, bool panning)
 }
 
 // Manage the markups as the mouse moves
-bool imageMarkup::markupMouseMoveEvent( QMouseEvent* event, bool panning )
+bool imageMarkup::markupMouseMoveEvent( QMouseEvent* event, bool /*panning*/ )
 {
     // If no button is down, ensure the cursor reflects what it is over
     // (once the button is pressed, this doesn't need to be assesed again)
@@ -273,8 +273,8 @@ bool imageMarkup::markupMouseMoveEvent( QMouseEvent* event, bool panning )
             }
         }
 
-        // If not panning and not over any item, set the default markup cursor
-        if( !panning && i == n /*loop completed without finding an item under the cursor*/ )
+        // If not over any item, set the default markup cursor
+        if( i == n /*loop completed without finding an item under the cursor*/ )
         {
             markupSetCursor( getDefaultMarkupCursor() );
         }
