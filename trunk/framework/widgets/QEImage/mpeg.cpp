@@ -115,7 +115,7 @@ FFThread::FFThread (const QString &url, QObject* parent)
     : QThread (parent)
 {
     // this is the url to read the stream from
-    strcpy(this->url, url.toAscii().data());
+    strcpy(this->url, url.toLatin1().data());
     // set this to 1 to finish
     this->stopping = 0;
     // initialise the ffmpeg library once only
@@ -145,7 +145,7 @@ void FFThread::run()
     int                 frameFinished, len;
 
     // Open video file
-    if (av_open_input_file(&pFormatCtx, this->url, NULL, 0, NULL)!=0) {
+    if (avformat_open_input(&pFormatCtx, this->url, NULL, NULL)!=0) {
         printf("Opening input '%s' failed\n", this->url);
         return;
     }
@@ -175,7 +175,7 @@ void FFThread::run()
 
     // Open codec
     ffmutex->lock();
-    if(avcodec_open(pCodecCtx, pCodec)<0) {
+    if(avcodec_open2(pCodecCtx, pCodec, NULL)<0) {
         printf("Could not open codec for '%s'\n", this->url);
         return;
     }
@@ -201,7 +201,7 @@ void FFThread::run()
         }
         
         // Tell the codec to use this bit of memory
-        pCodecCtx->internal_buffer = raw->mem;
+//        pCodecCtx->internal_buffer = raw->mem;
 
         // Decode video frame
         len = avcodec_decode_video2(pCodecCtx, raw->pFrame, &frameFinished,
@@ -214,7 +214,7 @@ void FFThread::run()
         }
         
         // Set the internal buffer back to null so that we don't accidentally free it
-        pCodecCtx->internal_buffer = NULL;
+//        pCodecCtx->internal_buffer = NULL;
         
         // Fill in the output buffer
         raw->pix_fmt = pCodecCtx->pix_fmt;         
@@ -429,16 +429,16 @@ FFBuffer * mpegSource::formatFrame(FFBuffer *src, PixelFormat pix_fmt) {
     dest->pix_fmt = pix_fmt;
     // see if we have a suitable cached context
     // note that we use the original values of width and height
-    this->ctx = sws_getCachedContext(this->ctx,
-        dest->width, dest->height, src->pix_fmt,
-        dest->width, dest->height, dest->pix_fmt,
-        SWS_BICUBIC, NULL, NULL, NULL);
+//    this->ctx = sws_getCachedContext(this->ctx,
+//        dest->width, dest->height, src->pix_fmt,
+//        dest->width, dest->height, dest->pix_fmt,
+//        SWS_BICUBIC, NULL, NULL, NULL);
     // Assign appropriate parts of buffer->mem to planes in buffer->pFrame
-    avpicture_fill((AVPicture *) dest->pFrame, dest->mem,
-        dest->pix_fmt, dest->width, dest->height);
+//    avpicture_fill((AVPicture *) dest->pFrame, dest->mem,
+//        dest->pix_fmt, dest->width, dest->height);
     // do the software scale
-    sws_scale(this->ctx, src->pFrame->data, src->pFrame->linesize, 0,
-        src->height, dest->pFrame->data, dest->pFrame->linesize);
+//    sws_scale(this->ctx, src->pFrame->data, src->pFrame->linesize, 0,
+//        src->height, dest->pFrame->data, dest->pFrame->linesize);
     return dest;
 }
 
