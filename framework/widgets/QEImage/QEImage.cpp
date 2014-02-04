@@ -5394,6 +5394,15 @@ void QEImage::showImageAboutDialog()
         }
     }
 
+// Note if mpeg stuff if included.
+// To include mpeg stuff, don't define QE_USE_MPEG directly, define environment variable
+// QE_FFMPEG to be processed by framework.pro
+#ifdef QE_USE_MPEG
+    about.append( "\n\nImage MPEG URL: " ).append( (!getURL().isEmpty())?getURL():"No URL" );
+#else
+    about.append( "\n\nImage MPEG URL: ---MPEG source not enabled in this build---" );
+#endif // QE_USE_MPEG
+
     qcaobject::QCaObject *qca;
 
     qca = getQcaItem( IMAGE_VARIABLE );

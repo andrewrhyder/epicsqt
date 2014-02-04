@@ -28,15 +28,11 @@
 #include <QThread>
 #include <QWidget>
 #include <QMutex>
-//#include <QTime>
-//#include <QTimer>
-//#include <X11/Xlib.h>
-//#include <X11/extensions/Xvlib.h>
 
 /* ffmpeg includes */
 extern "C" {
 #include "libavformat/avformat.h"
-#include "libswscale/swscale.h"
+//#include "libswscale/swscale.h"
 #include "libavutil/avutil.h"
 }
 
@@ -129,15 +125,8 @@ private:
     FFThread* ff;
     virtual void setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long width, unsigned long height ) = 0;
 
-    FFBuffer* rawbuf;
-    FFBuffer* fullbuf;
-    void makeFullFrame();
-    FFBuffer* formatFrame(FFBuffer *src, PixelFormat pix_fmt);
-    struct SwsContext *ctx;
-
     char* buff;     // Buffer to use to build image without line gaps
     int buffSize;   // Size of 'buff'
-
 
 };
 

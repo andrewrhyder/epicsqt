@@ -49,7 +49,7 @@
 
 // Only include the mpeg stuff if required.
 // To include mpeg stuff, don't define QE_USE_MPEG directly, define environment variable
-// QE_USE_MPEG to be processed by framework.pro
+// QE_FFMPEG to be processed by framework.pro
 #ifdef QE_USE_MPEG
 #include <mpeg.h>
 #else
@@ -1378,7 +1378,7 @@ public:
 
 // Only include the mpeg stuff if required.
     // To include mpeg stuff, don't define QE_USE_MPEG directly, define environment variable
-    // QE_USE_MPEG to be processed by framework.pro
+    // QE_FFMPEG to be processed by framework.pro
 #ifdef QE_USE_MPEG
     /// MPEG stream URL. If this is specified, this will be used as the source of the image in preference to variables (variables defining the image data, width, and height will be ignored)
     Q_PROPERTY(QString URL READ getURL WRITE setURL)
