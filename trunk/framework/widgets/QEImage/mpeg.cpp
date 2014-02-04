@@ -76,13 +76,13 @@ bool FFBuffer::grabFree() {
 void FFBuffer::reserve() {
     this->mutex->lock();
     this->refs += 1;
-    this->mutex->unlock();    
+    this->mutex->unlock();
 }
 
 void FFBuffer::release() {
     this->mutex->lock();
     this->refs -= 1;
-    this->mutex->unlock();    
+    this->mutex->unlock();
 }
 
 // List of FFBuffers to use for raw frames
@@ -98,7 +98,7 @@ FFBuffer * findFreeBuffer(FFBuffer* source) {
         if (source[i].mutex->tryLock()) {
             if (source[i].refs == 0) {
                 source[i].refs += 1;
-                source[i].mutex->unlock();    
+                source[i].mutex->unlock();
                 return &source[i];
             } else {
                 source[i].mutex->unlock();    
@@ -146,7 +146,7 @@ void FFThread::run()
 
     // Open video file
     if (avformat_open_input(&pFormatCtx, this->url, NULL, NULL)!=0) {
-        printf("Opening input '%s' failed\n", this->url);
+        qDebug() << QString( "Opening input '%1' failed" ).arg( url );
         return;
     }
 
@@ -159,7 +159,7 @@ void FFThread::run()
         }
     }
     if( videoStream==-1) {
-        printf("Finding video stream in '%s' failed\n", this->url);
+        qDebug() << QString( "Finding video stream in '%1' failed" ).arg( url );
         return;
     }
 
@@ -169,14 +169,14 @@ void FFThread::run()
     // Find the decoder for the video stream
     pCodec=avcodec_find_decoder(pCodecCtx->codec_id);
     if(pCodec==NULL) {
-        printf("Could not find decoder for '%s'\n", this->url);
+        qDebug() << QString( "Could not find decoder for '%1'" ).arg( url );
         return;
     }
 
     // Open codec
     ffmutex->lock();
     if(avcodec_open2(pCodecCtx, pCodec, NULL)<0) {
-        printf("Could not open codec for '%s'\n", this->url);
+        qDebug() << QString( "Could not open codec for '%1'" ).arg( url );
         return;
     }
     ffmutex->unlock();
@@ -187,7 +187,7 @@ void FFThread::run()
         // Is this a packet from the video stream?
         if (packet.stream_index!=videoStream) {
             // Free the packet if not
-            printf("Non video packet. Shouldn't see this...\n");
+            qDebug() << "Non video packet. Shouldn't see this...";
             av_free_packet(&packet);
             continue;
         }
@@ -195,26 +195,20 @@ void FFThread::run()
         // grab a buffer to decode into
         FFBuffer *raw = findFreeBuffer(rawbuffers);        
         if (raw == NULL) {
-            printf("Couldn't get a free buffer, skipping packet\n");
+            qDebug() << "Couldn't get a free buffer, skipping packet";
             av_free_packet(&packet);
             continue;
         }
         
-        // Tell the codec to use this bit of memory
-//        pCodecCtx->internal_buffer = raw->mem;
-
         // Decode video frame
         len = avcodec_decode_video2(pCodecCtx, raw->pFrame, &frameFinished,
             &packet);
         if (!frameFinished) {
-            printf("Frame not finished. Shouldn't see this...\n");
+            qDebug() << "Frame not finished. Shouldn't see this...";
             av_free_packet(&packet);
             raw->release();
             continue;
         }
-        
-        // Set the internal buffer back to null so that we don't accidentally free it
-//        pCodecCtx->internal_buffer = NULL;
         
         // Fill in the output buffer
         raw->pix_fmt = pCodecCtx->pix_fmt;         
@@ -260,9 +254,6 @@ void mpegSourceObject::sentAboutToQuit()
 mpegSource::mpegSource()
 {
     ff = NULL;
-    rawbuf = NULL;
-    fullbuf = NULL;
-    ctx = NULL;
     mso = new mpegSourceObject( this );
 
     buff = NULL;
@@ -318,127 +309,51 @@ void mpegSource::ffQuit() {
 void mpegSourceObject::updateImage(FFBuffer *newbuf)
 {
     ms->updateImage( newbuf );
+    newbuf->release();
 }
 
 void mpegSource::updateImage(FFBuffer *newbuf) {
 
-    // store the buffer
-    if (this->rawbuf) this->rawbuf->release();
-    this->rawbuf = newbuf;
+    newbuf->reserve();
 
-    // make the frame the right format
-    makeFullFrame();
-
-    if ( fullbuf )
+    // Ensure an adequate buffer to hold the image data with no line gaps is allocated.
+    // (re)allocate if not present of not the right size
+    int newBuffSize = newbuf->width * newbuf->height;
+    if( buffSize != newBuffSize )
     {
-        newbuf->reserve();
-
-        // Ensure an adequate buffer to hold the image data with no line gaps is allocated.
-        // (re)allocate if not present of not the right size
-        int newBuffSize = fullbuf->width * fullbuf->height;
-        if( buffSize != newBuffSize )
+        // Free last buffer, if re-allocating
+        if( buff )
         {
-            // Free last buffer, if re-allocating
-            if( buff )
-            {
-                free( buff );
-            }
-
-            // Allocate buffer
-            buffSize = newBuffSize;
-            buff = (char*)malloc( newBuffSize );
+            free( buff );
         }
 
-        // Populate buffer with no line gaps
-        // (Each horizontal line of pixels in in a larger horizontal line of storage.
-        //  Observed example: each line was 1624 pixels stored in 1664 bytes with
-        //  trailing 40 bytes of value 128 before start of pixel on next line)
-        char* buffPtr = buff;
-        const char* linePtr = (const char*)(newbuf->pFrame->data[0]);
-        for( int i = 0; i < fullbuf->height; i++ )
-        {
-            memcpy( buffPtr, linePtr, fullbuf->width );
-            buffPtr += fullbuf->width;
-            linePtr += newbuf->pFrame->linesize[0];// !!! Why is fullbuf->pFrame->linesize[0] not the same as newbuf->pFrame->linesize[0]???
-        }
+        // Allocate buffer
+        buffSize = newBuffSize;
+        buff = (char*)malloc( newBuffSize );
+    }
 
-        // Deliver image update
-        QByteArray ba;
+    // Populate buffer with no line gaps
+    // (Each horizontal line of pixels in in a larger horizontal line of storage.
+    //  Observed example: each line was 1624 pixels stored in 1664 bytes with
+    //  trailing 40 bytes of value 128 before start of pixel on next line)
+    char* buffPtr = buff;
+    const char* linePtr = (const char*)(newbuf->pFrame->data[0]);
+    for( int i = 0; i < newbuf->height; i++ )
+    {
+        memcpy( buffPtr, linePtr, newbuf->width );
+        buffPtr += newbuf->width;
+        linePtr += newbuf->pFrame->linesize[0];// !!! Why is fullbuf->pFrame->linesize[0] not the same as newbuf->pFrame->linesize[0]???
+    }
+
+    // Deliver image update
+    QByteArray ba;
 #if QT_VERSION >= 0x040700
-        ba.setRawData( (const char*)(buff), buffSize );
+    ba.setRawData( (const char*)(buff), buffSize );
 #else
-        ba = QByteArray::fromRawData( buff, buffSize );
+    ba = QByteArray::fromRawData( buff, buffSize );
 #endif
-        //!!!!!! Can still crash here on deletionof QEImage
-        setImage( ba, 1, newbuf->width, newbuf->height );
+    setImage( ba, 1, newbuf->width, newbuf->height );
 
-        // Unlock buffer
-        newbuf->release();
-    }
+    // Unlock buffer
+    newbuf->release();
 }
-
-void mpegSource::makeFullFrame() {
-    PixelFormat pix_fmt;
-
-    // make sure we have a raw buffer
-    if (this->rawbuf == NULL || this->rawbuf->width <= 0 || this->rawbuf->height <= 0) {
-        return;
-    }
-
-    // if we have a raw buffer then decompress it
-    this->rawbuf->reserve();
-
-    // if we've got an image that's too big, force RGB
-//    if (this->ff_fmt == PIX_FMT_YUVJ420P && (this->rawbuf->width > maxW || this->rawbuf->height > maxH)) {
-//        printf("Image too big, using QImage fallback mode\n");
-        pix_fmt = PIX_FMT_RGB24;
-//    } else {
-//        pix_fmt = this->ff_fmt;
-//    }
-
-    // release any full frame we might have
-    if (this->fullbuf) this->fullbuf->release();
-
-//    // Format the decoded frame as we've been asked
-//    if (_fcol) {
-//        // make it false colour
-//        this->fullbuf = this->falseFrame(this->rawbuf, pix_fmt);
-//    } else {
-//        // pass out frame through sw_scale
-        this->fullbuf = this->formatFrame(this->rawbuf, pix_fmt);
-//    }
-    this->rawbuf->release();
-
-    // Check we got a buffer
-    if (this->fullbuf == NULL) {
-        printf("Couldn't get a free buffer, skipping frame\n");
-        return;
-    }
-}
-
-
-// take a buffer and swscale it to the requested dimensions
-FFBuffer * mpegSource::formatFrame(FFBuffer *src, PixelFormat pix_fmt) {
-    FFBuffer *dest = findFreeBuffer(outbuffers);
-    // make sure we got a buffer
-    if (dest == NULL) return NULL;
-
-    // fill in multiples of 8 that we can cope with
-    dest->width = src->width - src->width % 8;
-    dest->height = src->height - src->height % 2;
-    dest->pix_fmt = pix_fmt;
-    // see if we have a suitable cached context
-    // note that we use the original values of width and height
-//    this->ctx = sws_getCachedContext(this->ctx,
-//        dest->width, dest->height, src->pix_fmt,
-//        dest->width, dest->height, dest->pix_fmt,
-//        SWS_BICUBIC, NULL, NULL, NULL);
-    // Assign appropriate parts of buffer->mem to planes in buffer->pFrame
-//    avpicture_fill((AVPicture *) dest->pFrame, dest->mem,
-//        dest->pix_fmt, dest->width, dest->height);
-    // do the software scale
-//    sws_scale(this->ctx, src->pFrame->data, src->pFrame->linesize, 0,
-//        src->height, dest->pFrame->data, dest->pFrame->linesize);
-    return dest;
-}
-
