@@ -277,7 +277,7 @@ void QEGeneralEdit::dataChanged (const QVariant& value, QCaAlarmInfo& alarmInfo,
             break;
 
          default:
-            DEBUG << " Unexpcted type:" << type;
+            DEBUG << " Unexpected type:" << type;
             return; // do nothing
       }
 
