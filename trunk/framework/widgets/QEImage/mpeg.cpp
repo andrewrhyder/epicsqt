@@ -145,7 +145,11 @@ void FFThread::run()
     int                 frameFinished, len;
 
     // Open video file
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(53, 2, 0)
+    if (av_open_input_file(&pFormatCtx, this->url, NULL, 0, NULL)!=0) {
+#else
     if (avformat_open_input(&pFormatCtx, this->url, NULL, NULL)!=0) {
+#endif
         qDebug() << QString( "Opening input '%1' failed" ).arg( url );
         return;
     }
@@ -175,7 +179,11 @@ void FFThread::run()
 
     // Open codec
     ffmutex->lock();
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(53, 2, 0)
+    if(avcodec_open(pCodecCtx, pCodec)<0) {
+#else
     if(avcodec_open2(pCodecCtx, pCodec, NULL)<0) {
+#endif
         qDebug() << QString( "Could not open codec for '%1'" ).arg( url );
         return;
     }
