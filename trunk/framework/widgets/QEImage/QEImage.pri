@@ -49,7 +49,7 @@ HEADERS += \
     widgets/QEImage/QEImageMarkupThickness.h \
     widgets/QEImage/fullScreenWindow.h
 
-isEmpty( _QE_USE_MPEG ) {
+isEmpty( _QE_FFMPEG ) {
 
 } else {
     HEADERS += widgets/QEImage/mpeg.h
@@ -80,7 +80,7 @@ SOURCES += \
     widgets/QEImage/QEImageMarkupThickness.cpp \
     widgets/QEImage/fullScreenWindow.cpp
 
-isEmpty( _QE_USE_MPEG ) {
+isEmpty( _QE_FFMPEG ) {
 } else {
     SOURCES += widgets/QEImage/mpeg.cpp
 }

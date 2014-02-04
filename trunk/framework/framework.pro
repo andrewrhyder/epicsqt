@@ -62,13 +62,13 @@ DEFINES += QWT_DLL=TRUE
 
 #===========================================================
 # Include MPEG streaming into QEImage widget
-# If mpeg streaming is required, define environment variable QE_USE_MPEG
+# If mpeg streaming is required, define environment variable QE_FFMPEG (on windows, this must point to the FFMPEG directory)
 
-_QE_USE_MPEG = $$(QE_USE_MPEG)
-isEmpty( _QE_USE_MPEG ) {
-    warning( "MPEG viewer will NOT be included in QEImage. Install FFmpeg and define environment variable QE_USE_MPEG if you want this" )
+_QE_FFMPEG = $$(QE_FFMPEG)
+isEmpty( _QE_FFMPEG ) {
+    warning( "MPEG viewer will NOT be included in QEImage. If you want MPEG support install FFmpeg and define environment variable QE_FFMPEG. This can be defined as anything on linux, but must point to the FFmpeg directory on windows" )
 } else {
-    warning( "MPEG viewer will be included in QEImage. FFmpeg libraries will be expected. Remove environment variable QE_USE_MPEG if you don't want this" )
+    warning( "MPEG viewer will be included in QEImage. FFmpeg libraries will be expected. On windows the environment variable QE_FFMPEG must point to the FFmpeg directory. Remove environment variable QE_FFMPEG if you don't want this" )
     DEFINES += QE_USE_MPEG
 }
 
@@ -182,28 +182,34 @@ isEmpty( _QWT_INCLUDE_PATH ) {
 # qwt was not installed fully, with qwt available as a Qt 'feature'.
 # When installed as a Qt 'feature' all that is needed is CONFIG += qwt (above)
 INCLUDEPATH += $$(QWT_INCLUDE_PATH)
-win32:LIBS += -LC:/qwt-6.0.1/lib
-#win32:LIBS += -LC:/qwt-6.1.0/lib
+#win32:LIBS += -LC:/qwt-6.0.1/lib
+win32:LIBS += -LC:/qwt-6.1.0/lib
 
 # Depending on build, the qwt library below may need to be -lqwt or -lqwt6
-LIBS += -lqwt
+win32 {
+    debug {
+        LIBS += -lqwtd
+    }
+    release {
+        LIBS += -lqwt
+    }
+}
+
+unix {
+    LIBS += -lqwt
+}
 
 # ffmpeg stuff
-isEmpty( _QE_USE_MPEG ) {
+isEmpty( _QE_FFMPEG ) {
 } else {
     unix:INCLUDEPATH += /usr/local/include
     unix:LIBS += -L/usr/local/lib/
 
-    win32:INCLUDEPATH += "C:/Program Files (x86)/Microsoft Visual Studio 12.0/VC/include"
-    win32:INCLUDEPATH += C:/ffmpeg/include
-    win32:LIBS += -LC:/ffmpeg/lib/
+    win32:INCLUDEPATH += $$_QE_FFMPEG/include
+    win32:LIBS += -L$$_QE_FFMPEG/lib
 
-    LIBS += -lavdevice -lavformat -lavcodec -lavutil -lbz2 -lswscale -lz
-    LIBS += -lX11
-    DEFINES += __STDC_CONSTANT_MACROS
-
-    # xvideo stuff
-    LIBS += -lXv
+    LIBS += -lavutil -lavcodec -lavformat
+    unix:DEFINES += __STDC_CONSTANT_MACROS
 }
 
 #
