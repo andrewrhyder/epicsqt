@@ -1,4 +1,5 @@
-/*
+/*  applicationLauncher.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -38,49 +39,23 @@
 #include <UserMessage.h>
 
 
-// Class to manage a process started by a QE button
+// Class to manage a process started by a QE button/image
 class processManager : public QProcess
 {
     Q_OBJECT
 
 public:
-    processManager( bool logOutput, QTemporaryFile* tempFileIn )
-    {
-        tempFile = tempFileIn;
-
-        // Catch when the process can be deleted
-        QObject::connect( this, SIGNAL( finished(int, QProcess::ExitStatus) ), this, SLOT( doFinished(int, QProcess::ExitStatus) ) );
-
-        // Catch output if required
-        if( logOutput )
-        {
-            QObject::connect( this, SIGNAL( readyReadStandardOutput() ), this, SLOT( doRead() ) );
-            QObject::connect( this, SIGNAL( readyReadStandardError() ), this, SLOT( doRead() ) );
-        }
-    }
-    virtual ~processManager()
-    {
-        qDebug() << "processManager destructor called";
-        if( tempFile )
-        {
-            delete tempFile;
-        }
-
-    }
+    processManager( bool logOutput, bool useStandardIo, QTemporaryFile* tempFileIn );
+    virtual ~processManager();
 
 signals:
     void processCompleted();
 
 public slots:
-    void doRead()
-    {
-        message.sendMessage( readAll() );
-    }
-    void doFinished( int /*exitCode*/, QProcess::ExitStatus /*exitStatus*/ )
-    {
-        emit processCompleted();
-        deleteLater();
-    }
+    void doRead();
+    void doReadToStandardOutput();
+    void doReadToStandardError();
+    void doFinished( int /*exitCode*/, QProcess::ExitStatus /*exitStatus*/ );
 
 private:
     UserMessage message;
@@ -111,10 +86,12 @@ public:
     // Startup option
     enum programStartupOptions { PSO_NONE,         // Just run the program
                                  PSO_TERMINAL,     // Run the program in a termainal
-                                 PSO_LOGOUTPUT };  // Run the program, and log the output in the QE message system
+                                 PSO_LOGOUTPUT,    // Run the program, and log the output in the QE message system
+                                 PSO_STDOUTPUT };  // Run the program, and send output to standard output and standard error
+
+
     void setProgramStartupOption( programStartupOptions programStartupOptionIn ){ programStartupOption = programStartupOptionIn; }
     programStartupOptions getProgramStartupOption(){ return programStartupOption; }
-
 
 protected:
 

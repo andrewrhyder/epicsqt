@@ -1364,10 +1364,12 @@ public:
 
     /// Startup options. Just run the command, run the command within a terminal, or display the output in QE message system.
     ///
-    enum ProgramStartupOptionNames{ None      = applicationLauncher::PSO_NONE,       ///< Just run the program
-                                    Terminal  = applicationLauncher::PSO_TERMINAL,   ///< Run the program in a termainal (in Windows a command interpreter will also be started, so the program may be a built-in command like 'dir')
-                                    LogOutput = applicationLauncher::PSO_LOGOUTPUT   ///< Run the program, and log the output in the QE message system
-                                  };
+    enum ProgramStartupOptionNames{
+        None      = applicationLauncher::PSO_NONE,       ///< Just run the program
+        Terminal  = applicationLauncher::PSO_TERMINAL,   ///< Run the program in a termainal (in Windows a command interpreter will also be started, so the program may be a built-in command like 'dir')
+        LogOutput = applicationLauncher::PSO_LOGOUTPUT,  ///< Run the program, and log the output in the QE message system
+        StdOutput = applicationLauncher::PSO_STDOUTPUT   ///< Run the program, and send doutput to standard output and standard error
+    };
 
     void setProgramStartupOptionProperty1( ProgramStartupOptionNames programStartupOption ){ setProgramStartupOption1( (applicationLauncher::programStartupOptions)programStartupOption ); }  ///< Access function for #ProgramStartupOptionNames1 property - refer to #ProgramStartupOptionNames1 property for details
     ProgramStartupOptionNames getProgramStartupOptionProperty1(){ return (ProgramStartupOptionNames)getProgramStartupOption1(); }                                                             ///< Access function for #ProgramStartupOptionNames1 property - refer to #ProgramStartupOptionNames1 property for details
