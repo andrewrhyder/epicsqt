@@ -31,7 +31,6 @@
 #include <QBoxLayout>
 #include <QColor>
 #include <QDateTime>
-#include <QFrame>
 #include <QGridLayout>
 #include <QMenu>
 #include <QMouseEvent>
@@ -47,6 +46,7 @@
 #include <QCaDateTime.h>
 #include <QCaConnectionInfo.h>
 #include <QEDragDrop.h>
+#include <QEFrame.h>
 #include <QEWidget.h>
 #include <persistanceManager.h>
 #include <QEResizeableFrame.h>
@@ -67,7 +67,7 @@ class QEGraphic;
 class QEStripChartItem;
 
 
-class QEPLUGINLIBRARYSHARED_EXPORT QEStripChart : public QFrame, public QEWidget {
+class QEPLUGINLIBRARYSHARED_EXPORT QEStripChart : public QEFrame {
    Q_OBJECT
 
    Q_PROPERTY (int     duration   READ getDuration               WRITE setDuration)
@@ -201,7 +201,6 @@ private:
 
    QScrollArea* pvScrollArea;
    QEResizeableFrame* pvResizeFrame;
-
 
    QEGraphic* plotArea;
    QFrame* plotFrame;

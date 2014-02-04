@@ -847,7 +847,7 @@ void QEStripChart::nextState ()
 //------------------------------------------------------------------------------
 // Constructor
 //
-QEStripChart::QEStripChart (QWidget * parent) : QFrame (parent), QEWidget (this)
+QEStripChart::QEStripChart (QWidget * parent) : QEFrame (parent)
 {
    // Configure the panel and create contents
    //
@@ -1031,7 +1031,7 @@ void QEStripChart::tickTimeout ()
       this->recalculateData ();
    }
 
-   // Progress any on-going cgart rescaling.
+   // Progress any on-going chart rescaling.
    //
    this->plotArea->doDynamicRescaling ();
 
