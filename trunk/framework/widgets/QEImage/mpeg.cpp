@@ -36,6 +36,44 @@
 
 #include <QByteArray>
 
+
+
+
+
+
+
+#define CLIP(X) ( (X) > 255 ? 255 : (X) < 0 ? 0 : X)
+
+// RGB -> YUV
+#define RGB2Y(R, G, B) CLIP(( (  66 * (R) + 129 * (G) +  25 * (B) + 128) >> 8) +  16)
+#define RGB2U(R, G, B) CLIP(( ( -38 * (R) -  74 * (G) + 112 * (B) + 128) >> 8) + 128)
+#define RGB2V(R, G, B) CLIP(( ( 112 * (R) -  94 * (G) -  18 * (B) + 128) >> 8) + 128)
+
+// YUV -> RGB
+#define C(Y) ( (Y) - 16  )
+#define D(U) ( (U) - 128 )
+#define E(V) ( (V) - 128 )
+
+#define YUV2R(Y, U, V) CLIP(( 298 * C(Y)              + 409 * E(V) + 128) >> 8)
+#define YUV2G(Y, U, V) CLIP(( 298 * C(Y) - 100 * D(U) - 208 * E(V) + 128) >> 8)
+#define YUV2B(Y, U, V) CLIP(( 298 * C(Y) + 516 * D(U)              + 128) >> 8)
+
+// RGB -> YCbCr
+#define CRGB2Y(R, G, B) CLIP((19595 * R + 38470 * G + 7471 * B ) >> 16)
+#define CRGB2Cb(R, G, B) CLIP((36962 * (B - CLIP((19595 * R + 38470 * G + 7471 * B ) >> 16) ) >> 16) + 128)
+#define CRGB2Cr(R, G, B) CLIP((46727 * (R - CLIP((19595 * R + 38470 * G + 7471 * B ) >> 16) ) >> 16) + 128)
+
+// YCbCr -> RGB
+#define CYCbCr2R(Y, Cb, Cr) CLIP( Y + ( 91881 * Cr >> 16 ) - 179 )
+#define CYCbCr2G(Y, Cb, Cr) CLIP( Y - (( 22544 * Cb + 46793 * Cr ) >> 16) + 135)
+#define CYCbCr2B(Y, Cb, Cr) CLIP( Y + (116129 * Cb >> 16 ) - 226 )
+
+
+
+
+
+
+
 /* global switch for fallback mode */
 int fallback = 0;
 
@@ -326,7 +364,7 @@ void mpegSource::updateImage(FFBuffer *newbuf) {
 
     // Ensure an adequate buffer to hold the image data with no line gaps is allocated.
     // (re)allocate if not present of not the right size
-    int newBuffSize = newbuf->width * newbuf->height;
+    int newBuffSize = newbuf->width * newbuf->height * 3;   //!!!??? * 3 for color only
     if( buffSize != newBuffSize )
     {
         // Free last buffer, if re-allocating
@@ -345,13 +383,59 @@ void mpegSource::updateImage(FFBuffer *newbuf) {
     //  Observed example: each line was 1624 pixels stored in 1664 bytes with
     //  trailing 40 bytes of value 128 before start of pixel on next line)
     char* buffPtr = buff;
-    const char* linePtr = (const char*)(newbuf->pFrame->data[0]);
-    for( int i = 0; i < newbuf->height; i++ )
+
+    switch( newbuf->pFrame->format )
     {
-        memcpy( buffPtr, linePtr, newbuf->width );
-        buffPtr += newbuf->width;
-        linePtr += newbuf->pFrame->linesize[0];// !!! Why is fullbuf->pFrame->linesize[0] not the same as newbuf->pFrame->linesize[0]???
+/*
+    case PIX_FMT_YUVJ420P:
+        {
+            const unsigned char* linePtrY = (const unsigned char*)(newbuf->pFrame->data[0]);
+            const unsigned char* linePtrU = (const unsigned char*)(newbuf->pFrame->data[1]);
+            const unsigned char* linePtrV = (const unsigned char*)(newbuf->pFrame->data[2]);
+
+            for( int i = 0; i < newbuf->height; i++ )
+            {
+                for( int j = 0; j < newbuf->width; j++ )
+                {
+                    unsigned char y,u,v;
+                    unsigned char r,g,b;
+
+                    int uv = j/2;
+                    y = linePtrY[j];
+                    u = linePtrU[uv];
+                    v = linePtrV[uv];
+
+                    r = YUV2R(y, u, v);
+                    g = YUV2G(y, u, v);
+                    b = YUV2B(y, u, v);
+
+                    *buffPtr++ = r;
+                    *buffPtr++ = g;
+                    *buffPtr++ = b;
+                }
+                linePtrY += newbuf->pFrame->linesize[0];
+                if( i & 1 )
+                {
+                    linePtrU += newbuf->pFrame->linesize[1];
+                    linePtrV += newbuf->pFrame->linesize[2];
+                }
+            }
+        }
+        break;
+*/
+    default:
+        {
+            const char* linePtr = (const char*)(newbuf->pFrame->data[0]);
+            for( int i = 0; i < newbuf->height; i++ )
+            {
+                memcpy( buffPtr, linePtr, newbuf->width );
+                buffPtr += newbuf->width;
+                linePtr += newbuf->pFrame->linesize[0];
+            }
+        }
+        break;
     }
+
 
     // Deliver image update
     QByteArray ba;
