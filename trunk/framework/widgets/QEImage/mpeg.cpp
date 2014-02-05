@@ -384,9 +384,12 @@ void mpegSource::updateImage(FFBuffer *newbuf) {
     //  trailing 40 bytes of value 128 before start of pixel on next line)
     char* buffPtr = buff;
 
+    /*
+// older version does not have 'format'
+//widgets/QEImage/mpeg.cpp: In member function 'void mpegSource::updateImage(FFBuffer*)':
+//widgets/QEImage/mpeg.cpp:387: error: 'struct AVFrame' has no member named 'format'
     switch( newbuf->pFrame->format )
     {
-/*
     case PIX_FMT_YUVJ420P:
         {
             const unsigned char* linePtrY = (const unsigned char*)(newbuf->pFrame->data[0]);
@@ -422,8 +425,9 @@ void mpegSource::updateImage(FFBuffer *newbuf) {
             }
         }
         break;
-*/
+
     default:
+*/
         {
             const char* linePtr = (const char*)(newbuf->pFrame->data[0]);
             for( int i = 0; i < newbuf->height; i++ )
@@ -433,8 +437,8 @@ void mpegSource::updateImage(FFBuffer *newbuf) {
                 linePtr += newbuf->pFrame->linesize[0];
             }
         }
-        break;
-    }
+//        break;
+//    }
 
 
     // Deliver image update
