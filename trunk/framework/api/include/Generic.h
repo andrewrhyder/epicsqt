@@ -31,7 +31,12 @@
 
 namespace generic {
 
-  enum generic_types { GENERIC_STRING, GENERIC_SHORT, GENERIC_UNSIGNED_SHORT, GENERIC_UNSIGNED_CHAR, GENERIC_LONG, GENERIC_UNSIGNED_LONG, GENERIC_FLOAT, GENERIC_DOUBLE, GENERIC_UNKNOWN };
+  enum generic_types { GENERIC_STRING,
+                       GENERIC_SHORT, GENERIC_UNSIGNED_SHORT,
+                       GENERIC_UNSIGNED_CHAR,
+                       GENERIC_LONG, GENERIC_UNSIGNED_LONG,
+                       GENERIC_FLOAT, GENERIC_DOUBLE,
+                       GENERIC_UNKNOWN };
 
   class Generic {
     public:
