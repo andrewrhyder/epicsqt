@@ -73,34 +73,6 @@ static const QEExpressionEvaluation::InputKinds Primed = QEExpressionEvaluation:
 
 
 //==============================================================================
-// Local support classes.
-//==============================================================================
-// Tagged check box.
-//
-class TPlotterCheckBox : public QCheckBox {
-public:
-   explicit TPlotterCheckBox (QWidget* parent=0);
-   explicit TPlotterCheckBox (const QString& text, QWidget* parent = 0);
-
-   int tag;
-};
-
-//------------------------------------------------------------------------------
-//
-TPlotterCheckBox::TPlotterCheckBox (QWidget* parent) : QCheckBox (parent)
-{
-   this->tag = 0;
-}
-
-//------------------------------------------------------------------------------
-//
-TPlotterCheckBox::TPlotterCheckBox (const QString& text, QWidget* parent) : QCheckBox (text, parent)
-{
-   this->tag = 0;
-}
-
-
-//==============================================================================
 // QEPlotter
 //==============================================================================
 //
@@ -201,18 +173,20 @@ void QEPlotter::createInternalWidgets ()
 
       QHBoxLayout* frameLayout = new QHBoxLayout (frame);
       frameLayout->setMargin (0);
-      frameLayout->setSpacing (0);
+      frameLayout->setSpacing (2);
 
-      QLabel* letter = new QLabel (frame);
+      QPushButton* letter = new QPushButton (frame);
       QLabel* label = new QLabel (frame);
       QEPlotterMenu* menu = new QEPlotterMenu (slot, this);
-      TPlotterCheckBox* box = NULL;
+      QCheckBox* box = NULL;
 
       letter->setFixedWidth (16);
       letter->setText (item_labels [slot]);
       letter->setStyleSheet (letterStyle);
-      letter->setAlignment (Qt::AlignHCenter);
       frameLayout->addWidget (letter);
+
+      QObject::connect (letter, SIGNAL ( clicked (bool)),
+                        this,   SLOT   ( letterButtonClicked (bool)));
 
       label->setMinimumWidth (16);
       label->setMaximumWidth (400);
@@ -233,8 +207,7 @@ void QEPlotter::createInternalWidgets ()
          frameLayout->addSpacing (4 + 17);
       } else {
          frameLayout->addSpacing (4);
-         box = new TPlotterCheckBox (frame);
-         box->tag = slot;
+         box = new QCheckBox (frame);
          box->setFixedWidth (17);
          box->setChecked (true);
          frameLayout->addWidget (box);
@@ -247,7 +220,7 @@ void QEPlotter::createInternalWidgets ()
       //
       this->xy [slot].frame = frame;
       this->xy [slot].frameLayout = frameLayout;
-      this->xy [slot].itemLetter = letter;
+      this->xy [slot].letterButton = letter;
       this->xy [slot].itemName = label;
       this->xy [slot].checkBox = box;
       this->xy [slot].itemMenu = menu;
@@ -638,16 +611,30 @@ void QEPlotter::updateLabel (const int slot)
 
 //------------------------------------------------------------------------------
 //
-void QEPlotter::checkBoxStateChanged (int state)
+void QEPlotter::letterButtonClicked (bool)
 {
-   TPlotterCheckBox* box = dynamic_cast <TPlotterCheckBox*> (this->sender ());
+   QPushButton* button =  dynamic_cast <QPushButton*> (this->sender ());
    int slot;
 
-   if (!box) return;
-   slot = box->tag;
-   SLOT_CHECK (slot,);
-   this->xy [slot].isDisplayed = (state == Qt::Checked);
-   this->replotIsRequired = true;
+   slot = this->findSlot (button);
+   if (slot >= 0) {
+      // Leverage of menu handler
+      this->menuSelected (QEPlotterNames::PLOTTER_DATA_DIALOG, slot);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPlotter::checkBoxStateChanged (int state)
+{
+   QCheckBox* box = dynamic_cast <QCheckBox*> (this->sender ());
+   int slot;
+
+   slot = this->findSlot (box);
+   if (slot >= 0) {
+      this->xy [slot].isDisplayed = (state == Qt::Checked);
+      this->replotIsRequired = true;
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -793,7 +780,9 @@ int QEPlotter::findSlot (QObject *obj)
    int slot;
 
    for (slot = 0 ; slot < ARRAY_LENGTH (this->xy); slot++) {
-      if (this->xy [slot].itemName == obj) {
+      if ((this->xy [slot].letterButton == obj) ||
+          (this->xy [slot].itemName == obj) ||
+          (this->xy [slot].checkBox == obj)) {
          // found it.
          //
          result = slot;
@@ -1119,7 +1108,7 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
          this->dataDialog->setFieldInformation (this->getXYDataPV (slot),
                                                 this->getXYAlias  (slot),
                                                 this->getXYSizePV (slot));
-         n = this->dataDialog->exec (this);
+         n = this->dataDialog->exec (wsender ? wsender : this);
          if (n == 1) {
             QString newData;
             QString newAlias;

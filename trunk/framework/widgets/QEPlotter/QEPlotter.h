@@ -35,6 +35,7 @@
 #include <QWidget>
 #include <QLabel>
 #include <QCheckBox>
+#include <QPushButton>
 
 #include <QEActionRequests.h>
 #include <QEFloatingArray.h>
@@ -322,7 +323,7 @@ private:
       //
       QFrame* frame;
       QHBoxLayout* frameLayout;
-      QLabel* itemLetter;
+      QPushButton* letterButton;
       QLabel* itemName;
       QCheckBox* checkBox;
       QEPlotterMenu* itemMenu;
@@ -455,6 +456,7 @@ private slots:
                           QCaDateTime& timeStamp,
                           const unsigned int& variableIndex);
 
+   void letterButtonClicked (bool checked);
    void checkBoxStateChanged (int state);
    void tickTimeout ();
 
