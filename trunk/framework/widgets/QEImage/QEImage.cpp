@@ -3715,6 +3715,8 @@ void QEImage::raiseFullScreen()
     if( fullScreenMainWindow )
     {
         fullScreenMainWindow->activateWindow();
+        fullScreenMainWindow->raise();
+        fullScreenMainWindow->setFocus();
     }
 }
 
