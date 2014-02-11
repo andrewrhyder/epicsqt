@@ -434,6 +434,7 @@ private:
    int  slotOf      (const unsigned int vi) { return (vi / 2); }
 
    void updateLabel (const int slot);
+   void runDataDialog (const int slot, QWidget* control);
 
 private slots:
    void setNewVariableName (QString variableName,

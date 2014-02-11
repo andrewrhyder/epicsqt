@@ -66,7 +66,7 @@
      <item row="1" column="1">
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Eg: YOUR_PV.VAL or &quot;=9*A/5+32&quot;</string>
+        <string>Eg: YOUR_PV.VAL or =9*A/5+32</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -126,7 +126,7 @@
      <item row="5" column="1">
       <widget class="QLabel" name="label_6">
        <property name="text">
-        <string>Eg: scan1.NPTS or literal integer &quot;42&quot;</string>
+        <string>Eg: scan1.NPTS or literal integer e.g. 42</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

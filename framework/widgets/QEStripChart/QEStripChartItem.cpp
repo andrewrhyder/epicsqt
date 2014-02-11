@@ -95,7 +95,6 @@ QEStripChartItem::QEStripChartItem (QEStripChart* chartIn,
    // Set up other properties.
    //
    this->pvSlotLetter->setStyleSheet (letterStyle);
-   this->pvSlotLetter->setAlignment(Qt::AlignHCenter);
 
    this->pvName->setIndent (6);
    this->pvName->setToolTip (regularTip);
@@ -165,11 +164,16 @@ QEStripChartItem::QEStripChartItem (QEStripChart* chartIn,
    this->connect (this->emptyMenu, SIGNAL (contextMenuSelected (const QEStripChartNames::ContextMenuOptions)),
                   this,            SLOT   (contextMenuSelected (const QEStripChartNames::ContextMenuOptions)));
 
+   // Connect letter button
+   //
+   QObject::connect (this->pvSlotLetter, SIGNAL ( clicked (bool)),
+                     this,   SLOT   ( letterButtonClicked (bool)));
 
    this->hostSlotAvailable = false;
 
    // Prepare to interact with whatever application is hosting this widget.
    // For example, the QEGui application can host docks and toolbars for QE widgets
+   // Needed to lauch the PV Statistics window.
    //
    if (this->isProfileDefined ()) {
       // Setup a signal to request component hosting.
@@ -203,7 +207,7 @@ void QEStripChartItem::createInternalWidgets ()
    this->layout->setSpacing (4);
    this->layout->setContentsMargins (1, 1, 1, 1);
 
-   this->pvSlotLetter = new QLabel (letter, this);
+   this->pvSlotLetter = new QPushButton (letter, this);
    this->pvSlotLetter->setMinimumSize (QSize (16, 15));
    this->pvSlotLetter->setMaximumSize (QSize (16, 15));
    layout->addWidget (this->pvSlotLetter);
@@ -960,9 +964,7 @@ bool QEStripChartItem::eventFilter (QObject *obj, QEvent *event)
       case QEvent::MouseButtonDblClick:
          mouseEvent = static_cast<QMouseEvent *> (event);
          if (obj == this->pvName && (mouseEvent->button () == Qt::LeftButton)) {
-            // Leverage of existing context menu handler.
-            //
-            this->contextMenuSelected (QEStripChartNames::SCCM_PV_EDIT_NAME);
+            this->runSelectNameDialog (this->pvName);
             return true;  // we have handled double click
          }
          break;
@@ -1071,6 +1073,34 @@ void QEStripChartItem::generateStatistics ()
       pvStatistics->setWindowTitle (this->getPvName () + " Statistics");
       pvStatistics->show ();
    }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChartItem::runSelectNameDialog (QWidget* control)
+{
+   int n;
+
+   this->chart->pvNameSelectDialog->setPvName (this->getPvName ());
+   n = this->chart->pvNameSelectDialog->exec (control ? control : this);
+   if (n == 1) {
+      // User has selected okay.
+      //
+      if (this->getPvName () != this->chart->pvNameSelectDialog->getPvName ()) {
+         this->setPvName (this->chart->pvNameSelectDialog->getPvName (), "");
+      }
+      // and replot the data
+      //
+      this->chart->setReplotIsRequired ();
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChartItem::letterButtonClicked (bool)
+{
+   QWidget* from = dynamic_cast <QWidget*> (sender ());
+   this->runSelectNameDialog (from);
 }
 
 //------------------------------------------------------------------------------
@@ -1207,18 +1237,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
 
       case QEStripChartNames::SCCM_PV_ADD_NAME:
       case QEStripChartNames::SCCM_PV_EDIT_NAME:
-         this->chart->pvNameSelectDialog->setPvName (this->getPvName ());
-         n = this->chart->pvNameSelectDialog->exec (this->pvName);
-         if (n == 1) {
-            // User has selected okay.
-            //
-            if (this->getPvName () != this->chart->pvNameSelectDialog->getPvName ()) {
-               this->setPvName (this->chart->pvNameSelectDialog->getPvName (), "");
-            }
-            // and replot the data
-            //
-            this->chart->setReplotIsRequired ();
-         }
+         this->runSelectNameDialog (this->pvName);
          break;
 
       case QEStripChartNames::SCCM_PV_PASTE_NAME:

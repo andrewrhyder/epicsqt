@@ -618,8 +618,7 @@ void QEPlotter::letterButtonClicked (bool)
 
    slot = this->findSlot (button);
    if (slot >= 0) {
-      // Leverage of menu handler
-      this->menuSelected (QEPlotterNames::PLOTTER_DATA_DIALOG, slot);
+      this->runDataDialog (slot, button);
    }
 }
 
@@ -895,7 +894,6 @@ void QEPlotter::generalContextMenuRequested (const QPoint& pos)
    }
 }
 
-
 //------------------------------------------------------------------------------
 //
 void QEPlotter::itemContextMenuRequested (const QPoint& pos)
@@ -933,6 +931,32 @@ bool QEPlotter::connectMenuOrToolBar (QWidget* item)
    return QObject::connect (item, SIGNAL (selected     (const QEPlotterNames::MenuActions, const int)),
                             this, SLOT   (menuSelected (const QEPlotterNames::MenuActions, const int)));
 }
+
+//------------------------------------------------------------------------------
+//
+void QEPlotter::runDataDialog (const int slot, QWidget* control)
+{
+   SLOT_CHECK (slot,);
+   int n;
+
+   this->dataDialog->setFieldInformation (this->getXYDataPV (slot),
+                                          this->getXYAlias  (slot),
+                                          this->getXYSizePV (slot));
+
+   n = this->dataDialog->exec (control ? control: this);
+   if (n == 1) {
+      QString newData;
+      QString newAlias;
+      QString newSize;
+
+      this->dataDialog->getFieldInformation (newData, newAlias, newSize);
+      this->setXYDataPV (slot, newData);
+      this->setXYAlias  (slot, newAlias);
+      this->setXYSizePV (slot, newSize);
+      this->replotIsRequired = true;
+   }
+}
+
 
 //------------------------------------------------------------------------------
 //
@@ -1105,23 +1129,8 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
          break;
 
       case QEPlotterNames::PLOTTER_DATA_DIALOG:
-         this->dataDialog->setFieldInformation (this->getXYDataPV (slot),
-                                                this->getXYAlias  (slot),
-                                                this->getXYSizePV (slot));
-         n = this->dataDialog->exec (wsender ? wsender : this);
-         if (n == 1) {
-            QString newData;
-            QString newAlias;
-            QString newSize;
-
-            this->dataDialog->getFieldInformation (newData, newAlias, newSize);
-            this->setXYDataPV (slot, newData);
-            this->setXYAlias  (slot, newAlias);
-            this->setXYSizePV (slot, newSize);
-            this->replotIsRequired = true;
-         }
+         this->runDataDialog (slot, wsender);
          break;
-
 
       case  QEPlotterNames::PLOTTER_PASTE_DATA_PV:
          cb = QApplication::clipboard ();
@@ -1557,8 +1566,7 @@ bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
       case QEvent::MouseButtonDblClick:
          slot = this->findSlot (obj);
          if (slot >= 0) {
-            // Leverage of menu handler
-            this->menuSelected (QEPlotterNames::PLOTTER_DATA_DIALOG, slot);
+            this->runDataDialog (slot, dynamic_cast <QWidget*> (obj));
             return true;  // we have handled double click
          }
          break;
