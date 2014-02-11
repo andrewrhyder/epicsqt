@@ -34,6 +34,7 @@
 #include <QLabel>
 #include <QObject>
 #include <QPoint>
+#include <QPushButton>
 #include <QString>
 #include <QWidget>
 
@@ -171,7 +172,7 @@ private:
    QEStripChart *chart;
 
    QHBoxLayout* layout;
-   QLabel *pvSlotLetter;
+   QPushButton *pvSlotLetter;
    QLabel *pvName;
    QELabel *caLabel;
    QColorDialog *colourDialog;
@@ -181,6 +182,7 @@ private:
    bool hostSlotAvailable;
 
    void createInternalWidgets ();
+   void runSelectNameDialog (QWidget* control);
 
 private slots:
    void newVariableNameProperty (QString pvName, QString substitutions, unsigned int slot);
@@ -190,8 +192,10 @@ private slots:
 
    void setArchiveData (const QObject *userData, const bool okay, const QCaDataPointList &archiveData);
 
+   void letterButtonClicked (bool checked);
    void contextMenuRequested (const QPoint & pos);
    void contextMenuSelected  (const QEStripChartNames::ContextMenuOptions option);
+
 };
 
 #endif  // QSTRIPCHARTITEM_H
