@@ -238,7 +238,7 @@ private:
    QEStripChartRangeDialog* rangeDialog;
    QColorDialog *colourDialog;
    QEPlotterItemDialog* dataDialog;
-   QMenu* generalContextMenu;
+   QEPlotterMenu* generalContextMenu;
 
    // State data
    //
@@ -371,7 +371,7 @@ private:
    void prevState ();
    void nextState ();
 
-   QMenu* generalContextMenuCreate ();
+   QEPlotterMenu* generalContextMenuCreate ();
    bool connectMenuOrToolBar (QWidget* item);
 
    void sendRequestAction (const QString& action, const QString& pvName);

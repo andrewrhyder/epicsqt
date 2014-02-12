@@ -492,7 +492,7 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
    //
    this->setFrameShape (QFrame::Panel);
    this->setFrameShadow (QFrame::Plain);
-   this->setMinimumSize (520, 480);
+   this->setMinimumSize (240, 120);
 
    this->enableConextMenu = true;
    this->isLogarithmic = false;
@@ -846,7 +846,7 @@ void QEPlotter::highLight (const int slot, const bool isHigh)
 
 //------------------------------------------------------------------------------
 //
-QMenu* QEPlotter::generalContextMenuCreate ()
+QEPlotterMenu* QEPlotter::generalContextMenuCreate ()
 {
    QEPlotterMenu* result = NULL;
 
@@ -889,6 +889,15 @@ void QEPlotter::generalContextMenuRequested (const QPoint& pos)
    // button event handler is called before this slot is invoked.
    //
    if (this->plotArea->rightButtonPressed () == false) {
+      // Disable/enable show/hide menu items.
+      //
+      this->generalContextMenu->setActionEnabled (QEPlotterNames::PLOTTER_SHOW_HIDE_TOOLBAR,
+                                                  this->enableConextMenu);
+      this->generalContextMenu->setActionEnabled (QEPlotterNames::PLOTTER_SHOW_HIDE_PV_ITEMS,
+                                                  this->enableConextMenu);
+      this->generalContextMenu->setActionEnabled (QEPlotterNames::PLOTTER_SHOW_HIDE_STATUS,
+                                                  this->enableConextMenu);
+
       golbalPos = this->mapToGlobal (pos);
       this->generalContextMenu->exec (golbalPos, 0);
    }

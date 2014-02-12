@@ -50,12 +50,6 @@ QEPlotterMenu::QEPlotterMenu (QWidget* parent) : QMenu (parent)
 
    this->setTitle ("Plotter General");
 
-   menu = new QMenu ("Show", this);
-   this->addMenu (menu);
-   this->make (menu, "Show/Hide Tool Bar",  true,  QEPlotterNames::PLOTTER_SHOW_HIDE_TOOLBAR);
-   this->make (menu, "Show/Hide PV Items",  true,  QEPlotterNames::PLOTTER_SHOW_HIDE_PV_ITEMS);
-   this->make (menu, "Show/Hide Status",    true,  QEPlotterNames::PLOTTER_SHOW_HIDE_STATUS);
-
    menu = new QMenu ("General", this);
    this->addMenu (menu);
    this->make (menu, "Previous state",      false, QEPlotterNames::PLOTTER_PREV);
@@ -83,6 +77,12 @@ QEPlotterMenu::QEPlotterMenu (QWidget* parent) : QMenu (parent)
    this->make (menu, "Manual X Scale...",   false, QEPlotterNames::PLOTTER_MANUAL_X_RANGE);
    this->make (menu, "X Data Range Scale",  false, QEPlotterNames::PLOTTER_CURRENT_X_RANGE);
    this->make (menu, "Dynamic X Scale",     false, QEPlotterNames::PLOTTER_DYNAMIC_X_RANGE);
+
+   menu = new QMenu ("Show", this);
+   this->addMenu (menu);
+   this->make (menu, "Show/Hide Tool Bar",  true,  QEPlotterNames::PLOTTER_SHOW_HIDE_TOOLBAR);
+   this->make (menu, "Show/Hide PV Items",  true,  QEPlotterNames::PLOTTER_SHOW_HIDE_PV_ITEMS);
+   this->make (menu, "Show/Hide Status",    true,  QEPlotterNames::PLOTTER_SHOW_HIDE_STATUS);
 
    QObject::connect (this, SIGNAL (triggered             (QAction* ) ),
                      this, SLOT   (contextMenuTriggered  (QAction* )));
