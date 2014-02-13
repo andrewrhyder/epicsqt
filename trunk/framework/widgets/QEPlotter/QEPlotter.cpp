@@ -23,6 +23,8 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
+#include <QApplication>
+#include <QClipboard>
 #include <QDebug>
 #include <QCheckBox>
 #include <QApplication>
@@ -34,8 +36,9 @@
 #include <QEGraphic.h>
 
 #include <QECommon.h>
-#include <QEInteger.h>
 #include <QEFloating.h>
+#include <QEInteger.h>
+#include <QEScaling.h>
 
 #include "QEPlotter.h"
 
@@ -73,8 +76,90 @@ static const QEExpressionEvaluation::InputKinds Primed = QEExpressionEvaluation:
 
 
 //==============================================================================
+// Slot range checking macro function.
+// Set default to nil for void functions.
+//
+#define SLOT_CHECK(slot, default) {                           \
+   if ((slot < 0) || (slot >= ARRAY_LENGTH (this->xy))) {     \
+      DEBUG << "slot out of range: " << slot;                 \
+      return default;                                         \
+   }                                                          \
+}
+
+
+//==============================================================================
 // QEPlotter
 //==============================================================================
+//
+void QEPlotter::createSlotWidgets (const int slot)
+{
+   SLOT_CHECK(slot,)
+
+   QFrame* frame = new QFrame (this->itemFrame);
+   frame->setFixedHeight (16);
+   this->itemLayout->addWidget (frame);
+   if (slot == 0) {
+      this->itemLayout->addSpacing (4);
+   }
+
+   QHBoxLayout* frameLayout = new QHBoxLayout (frame);
+   frameLayout->setMargin (0);
+   frameLayout->setSpacing (2);
+
+   QPushButton* letter = new QPushButton (frame);
+   QLabel* label = new QLabel (frame);
+   QCheckBox* box = NULL;
+
+   letter->setFixedWidth (16);
+   letter->setText (item_labels [slot]);
+   letter->setStyleSheet (letterStyle);
+   frameLayout->addWidget (letter);
+
+   QObject::connect (letter, SIGNAL ( clicked (bool)),
+                     this,   SLOT   ( letterButtonClicked (bool)));
+
+   label->setMinimumWidth (16);
+   label->setMaximumWidth (400);
+   label->setIndent (6);
+   label->setStyleSheet (QEUtilities::colourToStyle (item_colours [slot]));
+   label->setAcceptDrops (true);
+   label->installEventFilter (this);
+   label->setContextMenuPolicy (Qt::CustomContextMenu);
+   frameLayout->addWidget (label);
+
+   QObject::connect (label, SIGNAL ( customContextMenuRequested (const QPoint &)),
+                     this,  SLOT   ( itemContextMenuRequested (const QPoint &)));
+
+   if (slot == 0) {
+      frameLayout->addSpacing (4 + 17);
+   } else {
+      frameLayout->addSpacing (4);
+      box = new QCheckBox (frame);
+      box->setFixedWidth (17);
+      box->setChecked (true);
+      frameLayout->addWidget (box);
+
+      QObject::connect (box,  SIGNAL (stateChanged (int)),
+                        this, SLOT   (checkBoxStateChanged (int)));
+   }
+
+   // Save widget references.
+   //
+   this->xy [slot].frame = frame;
+   this->xy [slot].frameLayout = frameLayout;
+   this->xy [slot].letterButton = letter;
+   this->xy [slot].itemName = label;
+   this->xy [slot].checkBox = box;
+
+   // Add spacer at the bottom of the last item.
+   //
+   if (slot == ARRAY_LENGTH (this->xy) - 1) {
+      QSpacerItem* verticalSpacer = new QSpacerItem (10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding);
+      this->itemLayout->addItem (verticalSpacer);
+   }
+}
+
+//------------------------------------------------------------------------------
 //
 void QEPlotter::createInternalWidgets ()
 {
@@ -164,72 +249,8 @@ void QEPlotter::createInternalWidgets ()
    this->itemLayout->setSpacing (6);
 
    for (slot = 0; slot < ARRAY_LENGTH (this->xy); slot++) {
-      QFrame* frame = new QFrame (this->itemFrame);
-      frame->setFixedHeight (16);
-      this->itemLayout->addWidget (frame);
-      if (slot == 0) {
-         this->itemLayout->addSpacing (4);
-      }
-
-      QHBoxLayout* frameLayout = new QHBoxLayout (frame);
-      frameLayout->setMargin (0);
-      frameLayout->setSpacing (2);
-
-      QPushButton* letter = new QPushButton (frame);
-      QLabel* label = new QLabel (frame);
-      QEPlotterMenu* menu = new QEPlotterMenu (slot, this);
-      QCheckBox* box = NULL;
-
-      letter->setFixedWidth (16);
-      letter->setText (item_labels [slot]);
-      letter->setStyleSheet (letterStyle);
-      frameLayout->addWidget (letter);
-
-      QObject::connect (letter, SIGNAL ( clicked (bool)),
-                        this,   SLOT   ( letterButtonClicked (bool)));
-
-      label->setMinimumWidth (16);
-      label->setMaximumWidth (400);
-      label->setIndent (6);
-      label->setStyleSheet (QEUtilities::colourToStyle (item_colours [slot]));
-      label->setAcceptDrops (true);
-      label->installEventFilter (this);
-      label->setContextMenuPolicy (Qt::CustomContextMenu);
-      frameLayout->addWidget (label);
-
-      QObject::connect (label, SIGNAL ( customContextMenuRequested (const QPoint &)),
-                        this,  SLOT   ( itemContextMenuRequested (const QPoint &)));
-
-      this->connectMenuOrToolBar (menu);
-
-
-      if (slot == 0) {
-         frameLayout->addSpacing (4 + 17);
-      } else {
-         frameLayout->addSpacing (4);
-         box = new QCheckBox (frame);
-         box->setFixedWidth (17);
-         box->setChecked (true);
-         frameLayout->addWidget (box);
-
-         QObject::connect (box,  SIGNAL (stateChanged (int)),
-                           this, SLOT   (checkBoxStateChanged (int)));
-      }
-
-      // Save widget references.
-      //
-      this->xy [slot].frame = frame;
-      this->xy [slot].frameLayout = frameLayout;
-      this->xy [slot].letterButton = letter;
-      this->xy [slot].itemName = label;
-      this->xy [slot].checkBox = box;
-      this->xy [slot].itemMenu = menu;
+      this->createSlotWidgets (slot);
    }
-
-   // Add spacer at the bottom of the items.
-   //
-   QSpacerItem* verticalSpacer = new QSpacerItem (10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding);
-   this->itemLayout->addItem (verticalSpacer);
 
    // Status frame.
    //
@@ -316,6 +337,13 @@ QEPlotter::DataSets::DataSets ()
    this->isDisplayed = true;
    this->isBold = false;
    this->showDots = false;
+
+   this->frame = NULL;
+   this->frameLayout = NULL;
+   this->letterButton = NULL;
+   this->itemName = NULL;
+   this->checkBox = NULL;
+   this->itemMenu = NULL;
 }
 
 //------------------------------------------------------------------------------
@@ -471,7 +499,13 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
 
    this->createInternalWidgets ();
 
-   this->generalContextMenu = this->generalContextMenuCreate ();
+   this->setContextMenuPolicy (Qt::CustomContextMenu);
+   QObject::connect (this, SIGNAL (customContextMenuRequested  (const QPoint &)),
+                     this, SLOT   (generalContextMenuRequested (const QPoint &)));
+
+   // The actual meni widget is created as and when needed.
+   //
+   this->generalContextMenu = NULL;
 
    this->setNumVariables (2*ARRAY_LENGTH (this->xy));
 
@@ -560,17 +594,6 @@ QSize QEPlotter::sizeHint () const {
 }
 
 //------------------------------------------------------------------------------
-// Slot range checking macro function.
-// Set default to nil for void functions.
-//
-#define SLOT_CHECK(slot, default) {                           \
-   if ((slot < 0) || (slot >= ARRAY_LENGTH (this->xy))) {     \
-      DEBUG << "slot out of range: " << slot;                 \
-      return default;                                         \
-   }                                                          \
-}
-
-//------------------------------------------------------------------------------
 //
 void QEPlotter::updateLabel (const int slot)
 {
@@ -606,7 +629,9 @@ void QEPlotter::updateLabel (const int slot)
 
    }
 
-   ds->itemName->setText (text);
+   if (ds->itemName) {
+      ds->itemName->setText (text);
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -846,28 +871,6 @@ void QEPlotter::highLight (const int slot, const bool isHigh)
 
 //------------------------------------------------------------------------------
 //
-QEPlotterMenu* QEPlotter::generalContextMenuCreate ()
-{
-   QEPlotterMenu* result = NULL;
-
-   this->setContextMenuPolicy (Qt::CustomContextMenu);
-
-   QObject::connect (this, SIGNAL (customContextMenuRequested  (const QPoint &)),
-                     this, SLOT   (generalContextMenuRequested (const QPoint &)));
-
-   result = new QEPlotterMenu (this);
-
-   result->setActionChecked (QEPlotterNames::PLOTTER_SHOW_HIDE_TOOLBAR, true);
-   result->setActionChecked (QEPlotterNames::PLOTTER_SHOW_HIDE_PV_ITEMS, true);
-   result->setActionChecked (QEPlotterNames::PLOTTER_SHOW_HIDE_STATUS, true);
-
-   this->connectMenuOrToolBar (result);
-
-   return result;
-}
-
-//------------------------------------------------------------------------------
-//
 void QEPlotter::sendRequestAction (const QString& action, const QString& pvName)
 {
    if (!pvName.isEmpty ()) {
@@ -888,19 +891,41 @@ void QEPlotter::generalContextMenuRequested (const QPoint& pos)
    // NOTE: The 2nd part of this check relies on the fact that the right mouse
    // button event handler is called before this slot is invoked.
    //
-   if (this->plotArea->rightButtonPressed () == false) {
-      // Disable/enable show/hide menu items.
-      //
-      this->generalContextMenu->setActionEnabled (QEPlotterNames::PLOTTER_SHOW_HIDE_TOOLBAR,
-                                                  this->enableConextMenu);
-      this->generalContextMenu->setActionEnabled (QEPlotterNames::PLOTTER_SHOW_HIDE_PV_ITEMS,
-                                                  this->enableConextMenu);
-      this->generalContextMenu->setActionEnabled (QEPlotterNames::PLOTTER_SHOW_HIDE_STATUS,
-                                                  this->enableConextMenu);
-
-      golbalPos = this->mapToGlobal (pos);
-      this->generalContextMenu->exec (golbalPos, 0);
+   if (this->plotArea->rightButtonPressed () == true) {
+       return;
    }
+
+   // Because they take so long top create (~ 50mSec), menu are only created as
+   // and when needed. A one off 50 mS hardly noticable, while an 900 mS delay
+   // when widget created, especially if there are several instances on form,
+   // stands out like a sore thumb.
+   //
+   if (!this->generalContextMenu)  {
+      this->generalContextMenu = new QEPlotterMenu (this);
+      QEScaling::applyToWidget (this->generalContextMenu);
+      this->connectMenuOrToolBar (this->generalContextMenu);
+   }
+
+   // Disable/enable show/hide menu items.
+   //
+   this->generalContextMenu->setActionEnabled (QEPlotterNames::PLOTTER_SHOW_HIDE_TOOLBAR,
+                                               this->enableConextMenu);
+   this->generalContextMenu->setActionEnabled (QEPlotterNames::PLOTTER_SHOW_HIDE_PV_ITEMS,
+                                               this->enableConextMenu);
+   this->generalContextMenu->setActionEnabled (QEPlotterNames::PLOTTER_SHOW_HIDE_STATUS,
+                                               this->enableConextMenu);
+
+   // Set current checked states.
+   //
+   this->generalContextMenu->setActionChecked (QEPlotterNames::PLOTTER_SHOW_HIDE_TOOLBAR,
+                                               this->getToolBarVisible ());
+   this->generalContextMenu->setActionChecked (QEPlotterNames::PLOTTER_SHOW_HIDE_PV_ITEMS,
+                                               this->getPvItemsVisible ());
+   this->generalContextMenu->setActionChecked (QEPlotterNames::PLOTTER_SHOW_HIDE_STATUS,
+                                               this->getStatusVisible ());
+
+   golbalPos = this->mapToGlobal (pos);
+   this->generalContextMenu->exec (golbalPos, 0);
 }
 
 //------------------------------------------------------------------------------
@@ -913,6 +938,21 @@ void QEPlotter::itemContextMenuRequested (const QPoint& pos)
 
    SLOT_CHECK (slot,);
    DataSets* ds = &(this->xy [slot]);
+
+   // Differed creation - see generalContextMenuRequested comment.
+   //
+   if (!this->xy [slot].itemMenu) {
+      this->xy [slot].itemMenu = new QEPlotterMenu (slot, this);
+      QEScaling::applyToWidget (this->xy [slot].itemMenu);
+      this->connectMenuOrToolBar (this->xy [slot].itemMenu);
+   }
+
+   // Allow paste PV menu if and only if we have something to paste?
+   //
+   bool pasteAllowed = !(QApplication::clipboard ()->text ().trimmed().isEmpty ());
+
+   ds->itemMenu->setActionEnabled (QEPlotterNames::PLOTTER_PASTE_DATA_PV, pasteAllowed);
+   ds->itemMenu->setActionEnabled (QEPlotterNames::PLOTTER_PASTE_SIZE_PV, pasteAllowed);
 
    // Allow edit PV menu if and only if we are using the engineer use level.
    //
@@ -1102,8 +1142,8 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
          this->pushState ();
          break;
 
-      // PV item specific.
-      //
+         // PV item specific.
+         //
       case QEPlotterNames::PLOTTER_LINE_BOLD:
          ds->isBold = ! ds->isBold;
          this->replotIsRequired = true;
@@ -2246,7 +2286,6 @@ void QEPlotter::tickTimeout ()
    }
 }
 
-
 //------------------------------------------------------------------------------
 // Property functions.
 //------------------------------------------------------------------------------
@@ -2331,7 +2370,9 @@ void QEPlotter::setXYColour (const int slot, const QColor& colour)
    //
    if (slot != 0) {
       this->xy [slot].colour = colour;
-      this->xy [slot].itemName->setStyleSheet (QEUtilities::colourToStyle (colour));
+      if (this->xy [slot].itemName) {
+         this->xy [slot].itemName->setStyleSheet (QEUtilities::colourToStyle (colour));
+      }
    }
 }
 
