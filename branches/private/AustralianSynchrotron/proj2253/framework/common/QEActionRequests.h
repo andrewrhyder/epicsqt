@@ -59,7 +59,19 @@ public:
                   OptionBottomDockWindow,
                   OptionLeftDockWindow,
                   OptionRightDockWindow,
+                  OptionTopDockWindowTabbed,
+                  OptionBottomDockWindowTabbed,
+                  OptionLeftDockWindowTabbed,
+                  OptionRightDockWindowTabbed,
                   OptionFloatingDockWindow };
+
+
+   // Predefined actions values for built in windows that consumer may provide.
+   //
+   static QString actionPvProperties ()  { return "PV Properties...";   }
+   static QString actionStripChart ()    { return "Strip Chart...";     }
+   static QString actionScratchPad ()    { return "Scratch Pad...";     }
+   static QString actionGeneralPvEdit () { return "General PV Edit..."; }
 
    // Constructors.
    //
@@ -120,6 +132,9 @@ public:
    QList<windowCreationListItem> getWindows() const;
    QList<componentHostListItem> getComponents() const;
 
+   static bool isDockCreationOption( const Options createOption );          // Return true if creation option creates a dock
+   static bool isTabbedDockCreationOption( const Options createOption );    // Return true if creation option creates a tabbed dock
+
 private:
    Kinds kind;
    QString action;
@@ -146,12 +161,12 @@ public:
                                                            title = item->title;
                                                            winSize.setHeight(0); winSize.setWidth(0);
                                                          }
-    QString                   uiFile;
-    QString                   macroSubstitutions;
-    QString                   customisationName;
-    QEActionRequests::Options creationOption;
-    bool                      hidden;
-    QString                   title;
+    QString                   uiFile;               // .UI file to open when this item is actioned
+    QString                   macroSubstitutions;   // Macro substitutions to apply when this item is actioned
+    QString                   customisationName;    // Customisation name to apply to any main windows created when this item is actioned
+    QEActionRequests::Options creationOption;       // Creation option defining how the UI file is presented (in a new window, a tabbed dock, etc)
+    bool                      hidden;               // If true, any new dock is created hidden
+    QString                   title;                // Title of this menu item
     QSize                     winSize;
 };
 

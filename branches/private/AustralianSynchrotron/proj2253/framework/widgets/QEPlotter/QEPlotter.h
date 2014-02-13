@@ -33,7 +33,11 @@
 #include <QTimer>
 #include <QVector>
 #include <QWidget>
+#include <QLabel>
+#include <QCheckBox>
+#include <QPushButton>
 
+#include <QEActionRequests.h>
 #include <QEFloatingArray.h>
 #include <QEFloatingFormatting.h>
 #include <QEIntegerFormatting.h>
@@ -178,6 +182,9 @@ public:
    void setStatusVisible (bool visible);
    bool getStatusVisible();
 
+signals:
+    void requestAction (const QEActionRequests&);             // Signal 'launch a GUI'
+
 protected:
    // Implementation of QEWidget's virtual funtions
    //
@@ -231,7 +238,7 @@ private:
    QEStripChartRangeDialog* rangeDialog;
    QColorDialog *colourDialog;
    QEPlotterItemDialog* dataDialog;
-   QMenu* generalContextMenu;
+   QEPlotterMenu* generalContextMenu;
 
    // State data
    //
@@ -280,11 +287,14 @@ private:
       bool isInUse ();
       int actualSize ();
       int effectiveSize ();
+      QString getDataData ();
+      QString getSizeData ();
 
       QCaVariableNamePropertyManager dataVariableNameManager;
       QCaVariableNamePropertyManager sizeVariableNameManager;
       DataPlotKinds dataKind;
       SizePlotKinds sizeKind;
+      QString letter;
       QString pvName;
       QString aliasName;
       QString expression;        // when dataKind is CalculationPlot
@@ -313,7 +323,7 @@ private:
       //
       QFrame* frame;
       QHBoxLayout* frameLayout;
-      QLabel* itemLetter;
+      QPushButton* letterButton;
       QLabel* itemName;
       QCheckBox* checkBox;
       QEPlotterMenu* itemMenu;
@@ -361,8 +371,10 @@ private:
    void prevState ();
    void nextState ();
 
-   QMenu* generalContextMenuCreate ();
+   QEPlotterMenu* generalContextMenuCreate ();
    bool connectMenuOrToolBar (QWidget* item);
+
+   void sendRequestAction (const QString& action, const QString& pvName);
 
    // Perform a pvNameDropEvent 'drop'
    //
@@ -422,6 +434,7 @@ private:
    int  slotOf      (const unsigned int vi) { return (vi / 2); }
 
    void updateLabel (const int slot);
+   void runDataDialog (const int slot, QWidget* control);
 
 private slots:
    void setNewVariableName (QString variableName,
@@ -444,6 +457,7 @@ private slots:
                           QCaDateTime& timeStamp,
                           const unsigned int& variableIndex);
 
+   void letterButtonClicked (bool checked);
    void checkBoxStateChanged (int state);
    void tickTimeout ();
 

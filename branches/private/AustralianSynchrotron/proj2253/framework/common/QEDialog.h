@@ -27,6 +27,8 @@
 #define QEDIALOG_H
 
 #include <QDialog>
+#include <QRect>
+
 #include <QEPluginLibrary_global.h>
 
 /// This class provides a thin wrapper aroind the QDialog class, specifically the
@@ -53,14 +55,22 @@ public slots:
    int exec (QWidget* targetWidget);
 
 protected:
-   // widget (within dialog) to use to colocate over targetWidget - default is this.
+   // Spcified the widget on the dialog to be centered over the target widget.
+   //
+   void setSourceWidget (QWidget* widget);
+
+private:
+   // Widget (within dialog) to use to colocate over targetWidget - default is this.
    //
    QWidget* sourceWidget;
 
-private:
-   // widget (defined by caller) to use to colocation point.
+   // Widget (defined by caller) to use to colocation point.
    //
    QWidget* targetWidget;
+
+   // Uility function to ensure specified geometry on screen.
+   //
+   static QRect constrainGeometry (const QRect& geometry);
 
 private slots:
    void relocateToCenteredPosition ();

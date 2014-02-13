@@ -24,9 +24,12 @@
  */
 
 #include <QDebug>
+#include <QApplication>
+#include <QDesktopWidget>
 #include <QMainWindow>
 #include <QTimer>
 
+#include "QECommon.h"
 #include "QEDialog.h"
 
 #define DEBUG qDebug () << "QEDialog" << __FUNCTION__ << ":" << __LINE__
@@ -39,6 +42,13 @@ QEDialog::QEDialog (QWidget* parent) : QDialog (parent) {
 
 //------------------------------------------------------------------------------
 //
+void QEDialog::setSourceWidget (QWidget* widget)
+{
+   this->sourceWidget = widget;
+}
+
+//------------------------------------------------------------------------------
+//
 int QEDialog::exec (QWidget* targetWidgetIn)
 {
    this->targetWidget = targetWidgetIn;
@@ -47,7 +57,7 @@ int QEDialog::exec (QWidget* targetWidgetIn)
    // relocate it. Thisis particularly important on first activation.
    // Empirically found that we need more than 1 mSec.
    //
-   QTimer::singleShot (5, this, SLOT (relocateToCenteredPosition ()));
+   QTimer::singleShot (10, this, SLOT (relocateToCenteredPosition ()));
 
    // Now call parent exec method to do actual work.
    //
@@ -58,35 +68,62 @@ int QEDialog::exec (QWidget* targetWidgetIn)
 //
 void QEDialog::relocateToCenteredPosition ()
 {
-  // Did caller specify an widget to centre this over?
-  //
-  if (this->targetWidget && this->sourceWidget) {
+   // Did caller specify an widget to centre this over?
+   //
+   if (this->targetWidget && this->sourceWidget) {
 
-     // Find centres and map this to global coordinates.
-     //
-     const QRect sourceGeo = this->sourceWidget->geometry ();
-     const QRect targetGeo = this->targetWidget->geometry ();
+      // Find centres and map this to global coordinates.
+      //
+      const QRect sourceGeo = this->sourceWidget->geometry ();
+      const QRect targetGeo = this->targetWidget->geometry ();
 
-     QPoint sourceMiddle = QPoint (sourceGeo.width () / 2, sourceGeo.height () / 2);
-     QPoint targetMiddle = QPoint (targetGeo.width () / 2, targetGeo.height () / 2);
+      QPoint sourceMiddle = QPoint (sourceGeo.width () / 2, sourceGeo.height () / 2);
+      QPoint targetMiddle = QPoint (targetGeo.width () / 2, targetGeo.height () / 2);
 
-     // Convert both to global coordinates.
-     //
-     sourceMiddle = this->sourceWidget->mapToGlobal (sourceMiddle);
-     targetMiddle = this->targetWidget->mapToGlobal (targetMiddle);
+      // Convert both to global coordinates.
+      //
+      sourceMiddle = this->sourceWidget->mapToGlobal (sourceMiddle);
+      targetMiddle = this->targetWidget->mapToGlobal (targetMiddle);
 
-     // Calculate difference between where we are and where we want to get to.
-     //
-     QPoint delta = targetMiddle - sourceMiddle;
+      // Calculate difference between where we are and where we want to get to.
+      //
+      QPoint delta = targetMiddle - sourceMiddle;
 
-     // Extract current dialog location and calculate translation offset.
-     // Move dialog widget geometry rectangle, careful not to change width or
-     // height and apply.
-     //
-     QRect dialogGeo = this->geometry ();
-     dialogGeo.translate (delta);
-     this->setGeometry (dialogGeo);
-  }
+      // Extract current dialog location and calculate translation offset.
+      // Move dialog widget geometry rectangle, careful not to change width or
+      // height and apply.
+      //
+      QRect dialogGeo = this->geometry ();
+      dialogGeo.translate (delta);
+
+      // Sanity check - ensure no off screen mis-calculations.
+      //
+      dialogGeo =  QEDialog::constrainGeometry (dialogGeo);
+
+      this->setGeometry (dialogGeo);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+QRect QEDialog::constrainGeometry (const QRect& geometry)
+{
+   const int gap = 20;
+   const QRect screen = QApplication::desktop ()->screenGeometry ();
+   const QSize size = geometry.size ();
+   QPoint position = geometry.topLeft ();
+
+   // Constain X position.
+   //
+   position.setX (MIN (position.x (), screen.right () - size.width () - gap));
+   position.setX (MAX (position.x (), screen.left () + gap));
+
+   // Constain Y position.
+   //
+   position.setY (MIN (position.y (), screen.bottom () - size.height () - gap));
+   position.setY (MAX (position.y (), screen.top () + gap));
+
+   return QRect (position, size);
 }
 
 // end

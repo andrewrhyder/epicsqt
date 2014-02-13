@@ -25,6 +25,7 @@
 
 #include <QDebug>
 #include <QCheckBox>
+#include <QApplication>
 
 #include <qwt_plot.h>
 #include <qwt_plot_canvas.h>
@@ -69,34 +70,6 @@ static const QString item_labels [1 + NUMBER_OF_PLOTS] = {
 
 static const QEExpressionEvaluation::InputKinds Normal = QEExpressionEvaluation::Normal;
 static const QEExpressionEvaluation::InputKinds Primed = QEExpressionEvaluation::Primed;
-
-
-//==============================================================================
-// Local support classes.
-//==============================================================================
-// Tagged check box.
-//
-class TPlotterCheckBox : public QCheckBox {
-public:
-   explicit TPlotterCheckBox (QWidget* parent=0);
-   explicit TPlotterCheckBox (const QString& text, QWidget* parent = 0);
-
-   int tag;
-};
-
-//------------------------------------------------------------------------------
-//
-TPlotterCheckBox::TPlotterCheckBox (QWidget* parent) : QCheckBox (parent)
-{
-   this->tag = 0;
-}
-
-//------------------------------------------------------------------------------
-//
-TPlotterCheckBox::TPlotterCheckBox (const QString& text, QWidget* parent) : QCheckBox (text, parent)
-{
-   this->tag = 0;
-}
 
 
 //==============================================================================
@@ -200,18 +173,20 @@ void QEPlotter::createInternalWidgets ()
 
       QHBoxLayout* frameLayout = new QHBoxLayout (frame);
       frameLayout->setMargin (0);
-      frameLayout->setSpacing (0);
+      frameLayout->setSpacing (2);
 
-      QLabel* letter = new QLabel (frame);
+      QPushButton* letter = new QPushButton (frame);
       QLabel* label = new QLabel (frame);
       QEPlotterMenu* menu = new QEPlotterMenu (slot, this);
-      TPlotterCheckBox* box = NULL;
+      QCheckBox* box = NULL;
 
       letter->setFixedWidth (16);
       letter->setText (item_labels [slot]);
       letter->setStyleSheet (letterStyle);
-      letter->setAlignment (Qt::AlignHCenter);
       frameLayout->addWidget (letter);
+
+      QObject::connect (letter, SIGNAL ( clicked (bool)),
+                        this,   SLOT   ( letterButtonClicked (bool)));
 
       label->setMinimumWidth (16);
       label->setMaximumWidth (400);
@@ -232,8 +207,7 @@ void QEPlotter::createInternalWidgets ()
          frameLayout->addSpacing (4 + 17);
       } else {
          frameLayout->addSpacing (4);
-         box = new TPlotterCheckBox (frame);
-         box->tag = slot;
+         box = new QCheckBox (frame);
          box->setFixedWidth (17);
          box->setChecked (true);
          frameLayout->addWidget (box);
@@ -246,7 +220,7 @@ void QEPlotter::createInternalWidgets ()
       //
       this->xy [slot].frame = frame;
       this->xy [slot].frameLayout = frameLayout;
-      this->xy [slot].itemLetter = letter;
+      this->xy [slot].letterButton = letter;
       this->xy [slot].itemName = label;
       this->xy [slot].checkBox = box;
       this->xy [slot].itemMenu = menu;
@@ -357,6 +331,7 @@ void QEPlotter::DataSets::setContext (QEPlotter* ownerIn, int slotIn)
 {
    this->owner = ownerIn;
    this->slot = slotIn;
+   this->letter = item_labels [this->slot];
 }
 
 //------------------------------------------------------------------------------
@@ -446,6 +421,45 @@ int QEPlotter::DataSets::effectiveSize ()
    return result;
 }
 
+//------------------------------------------------------------------------------
+//
+QString QEPlotter::DataSets::getDataData ()
+{
+   const int fw = 12;   // field width
+   const int n = this->data.count ();
+   QString result;
+   DataSets* dx = &this->owner->xy [0];
+
+   result = "\n";
+
+   if (this == dx) {
+      // x/this data only
+      result.append (QString ("%1\n").arg ("X", fw));
+      for (int j = 0 ; j < n; j++) {
+         result.append ( QString ("%1\n").arg (this->data[j], fw));
+      }
+   } else {
+      // x and y/this data
+      result.append (QString ("%1\t%2\n").arg ("X", fw).arg (this->letter, fw));
+      for (int j = 0 ; j < n; j++) {
+         result.append ( QString ("%1\t%2\n").arg (dx->data[j], fw).arg (this->data[j], fw));
+      }
+   }
+   return result;
+}
+
+//------------------------------------------------------------------------------
+//
+QString QEPlotter::DataSets::getSizeData ()
+{
+   const int n = this->data.count ();
+   QString result;
+
+   result = QString ("%1").arg (n);
+   return result;
+}
+
+
 //==============================================================================
 // QEPlotter
 //==============================================================================
@@ -478,7 +492,7 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
    //
    this->setFrameShape (QFrame::Panel);
    this->setFrameShadow (QFrame::Plain);
-   this->setMinimumSize (520, 480);
+   this->setMinimumSize (240, 120);
 
    this->enableConextMenu = true;
    this->isLogarithmic = false;
@@ -502,6 +516,14 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
       vpnm = &this->xy [slot].sizeVariableNameManager;
       QObject::connect (vpnm, SIGNAL (newVariableNameProperty (QString, QString, unsigned int)),
                         this, SLOT   (setNewVariableName      (QString, QString, unsigned int)));
+   }
+
+   // Connect action requests to consumer, e.g. qegui.
+   //
+   QObject* consumer = this->getGuiLaunchConsumer ();
+   if (consumer) {
+      QObject::connect (this,      SIGNAL (requestAction (const QEActionRequests& )),
+                        consumer,  SLOT   (requestAction (const QEActionRequests& )));
    }
 
    this->xScaleMode = QEPlotterNames::smDynamic;
@@ -589,16 +611,29 @@ void QEPlotter::updateLabel (const int slot)
 
 //------------------------------------------------------------------------------
 //
-void QEPlotter::checkBoxStateChanged (int state)
+void QEPlotter::letterButtonClicked (bool)
 {
-   TPlotterCheckBox* box = dynamic_cast <TPlotterCheckBox*> (this->sender ());
+   QPushButton* button =  dynamic_cast <QPushButton*> (this->sender ());
    int slot;
 
-   if (!box) return;
-   slot = box->tag;
-   SLOT_CHECK (slot,);
-   this->xy [slot].isDisplayed = (state == Qt::Checked);
-   this->replotIsRequired = true;
+   slot = this->findSlot (button);
+   if (slot >= 0) {
+      this->runDataDialog (slot, button);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPlotter::checkBoxStateChanged (int state)
+{
+   QCheckBox* box = dynamic_cast <QCheckBox*> (this->sender ());
+   int slot;
+
+   slot = this->findSlot (box);
+   if (slot >= 0) {
+      this->xy [slot].isDisplayed = (state == Qt::Checked);
+      this->replotIsRequired = true;
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -744,7 +779,9 @@ int QEPlotter::findSlot (QObject *obj)
    int slot;
 
    for (slot = 0 ; slot < ARRAY_LENGTH (this->xy); slot++) {
-      if (this->xy [slot].itemName == obj) {
+      if ((this->xy [slot].letterButton == obj) ||
+          (this->xy [slot].itemName == obj) ||
+          (this->xy [slot].checkBox == obj)) {
          // found it.
          //
          result = slot;
@@ -809,7 +846,7 @@ void QEPlotter::highLight (const int slot, const bool isHigh)
 
 //------------------------------------------------------------------------------
 //
-QMenu* QEPlotter::generalContextMenuCreate ()
+QEPlotterMenu* QEPlotter::generalContextMenuCreate ()
 {
    QEPlotterMenu* result = NULL;
 
@@ -831,6 +868,16 @@ QMenu* QEPlotter::generalContextMenuCreate ()
 
 //------------------------------------------------------------------------------
 //
+void QEPlotter::sendRequestAction (const QString& action, const QString& pvName)
+{
+   if (!pvName.isEmpty ()) {
+      QEActionRequests request (action, pvName);
+      emit this->requestAction (request);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
 void QEPlotter::generalContextMenuRequested (const QPoint& pos)
 {
    QPoint golbalPos;
@@ -842,11 +889,19 @@ void QEPlotter::generalContextMenuRequested (const QPoint& pos)
    // button event handler is called before this slot is invoked.
    //
    if (this->plotArea->rightButtonPressed () == false) {
+      // Disable/enable show/hide menu items.
+      //
+      this->generalContextMenu->setActionEnabled (QEPlotterNames::PLOTTER_SHOW_HIDE_TOOLBAR,
+                                                  this->enableConextMenu);
+      this->generalContextMenu->setActionEnabled (QEPlotterNames::PLOTTER_SHOW_HIDE_PV_ITEMS,
+                                                  this->enableConextMenu);
+      this->generalContextMenu->setActionEnabled (QEPlotterNames::PLOTTER_SHOW_HIDE_STATUS,
+                                                  this->enableConextMenu);
+
       golbalPos = this->mapToGlobal (pos);
       this->generalContextMenu->exec (golbalPos, 0);
    }
 }
-
 
 //------------------------------------------------------------------------------
 //
@@ -858,6 +913,13 @@ void QEPlotter::itemContextMenuRequested (const QPoint& pos)
 
    SLOT_CHECK (slot,);
    DataSets* ds = &(this->xy [slot]);
+
+   // Allow edit PV menu if and only if we are using the engineer use level.
+   //
+   bool inEngineeringMode = (this->getUserLevel () == userLevelTypes::USERLEVEL_ENGINEER);
+
+   ds->itemMenu->setActionVisible (QEPlotterNames::PLOTTER_GENERAL_DATA_PV_EDIT, inEngineeringMode);
+   ds->itemMenu->setActionVisible (QEPlotterNames::PLOTTER_GENERAL_SIZE_PV_EDIT, inEngineeringMode);
 
    if (slot > 0) {
       // Only meaningful for y data sets.
@@ -881,13 +943,41 @@ bool QEPlotter::connectMenuOrToolBar (QWidget* item)
 
 //------------------------------------------------------------------------------
 //
+void QEPlotter::runDataDialog (const int slot, QWidget* control)
+{
+   SLOT_CHECK (slot,);
+   int n;
+
+   this->dataDialog->setFieldInformation (this->getXYDataPV (slot),
+                                          this->getXYAlias  (slot),
+                                          this->getXYSizePV (slot));
+
+   n = this->dataDialog->exec (control ? control: this);
+   if (n == 1) {
+      QString newData;
+      QString newAlias;
+      QString newSize;
+
+      this->dataDialog->getFieldInformation (newData, newAlias, newSize);
+      this->setXYDataPV (slot, newData);
+      this->setXYAlias  (slot, newAlias);
+      this->setXYSizePV (slot, newSize);
+      this->replotIsRequired = true;
+   }
+}
+
+
+//------------------------------------------------------------------------------
+//
 void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const int slot)
 {
    SLOT_CHECK (slot,);  // We know slot is 0 (i.e valid) when not used.
 
    QWidget* wsender = dynamic_cast <QWidget*> (this->sender ());
    QClipboard* cb = NULL;
+   QString copyText;
    QString pasteText;
+   QString pvName;
    DataSets* ds = &(this->xy [slot]);
    int n;
 
@@ -1048,28 +1138,14 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
          break;
 
       case QEPlotterNames::PLOTTER_DATA_DIALOG:
-         this->dataDialog->setFieldInformation (this->getXYDataPV (slot),
-                                                this->getXYAlias  (slot),
-                                                this->getXYSizePV (slot));
-         n = this->dataDialog->exec (this);
-         if (n == 1) {
-            QString newData;
-            QString newAlias;
-            QString newSize;
-
-            this->dataDialog->getFieldInformation (newData, newAlias, newSize);
-            this->setXYDataPV (slot, newData);
-            this->setXYAlias  (slot, newAlias);
-            this->setXYSizePV (slot, newSize);
-            this->replotIsRequired = true;
-         }
+         this->runDataDialog (slot, wsender);
          break;
 
       case  QEPlotterNames::PLOTTER_PASTE_DATA_PV:
          cb = QApplication::clipboard ();
-         pasteText = cb->text().trimmed();
+         pasteText = cb->text ().trimmed ();
 
-         if (! pasteText.isEmpty()) {
+         if (! pasteText.isEmpty ()) {
             this->setXYDataPV (slot, pasteText);
             this->replotIsRequired = true;
          }
@@ -1077,13 +1153,84 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
 
       case  QEPlotterNames::PLOTTER_PASTE_SIZE_PV:
          cb = QApplication::clipboard ();
-         pasteText = cb->text().trimmed();
+         pasteText = cb->text ().trimmed ();
 
-         if (! pasteText.isEmpty()) {
+         if (! pasteText.isEmpty ()) {
             this->setXYSizePV (slot, pasteText);
             this->replotIsRequired = true;
          }
          break;
+
+
+      case QEPlotterNames::PLOTTER_COPY_DATA_VARIABLE:
+         copyText = this->getXYDataPV (slot);
+         cb = QApplication::clipboard ();
+         cb->setText (copyText);
+         break;
+
+      case QEPlotterNames::PLOTTER_COPY_SIZE_VARIABLE:
+         copyText = this->getXYSizePV (slot);
+         cb = QApplication::clipboard ();
+         cb->setText (copyText);
+         break;
+
+
+      case QEPlotterNames::PLOTTER_COPY_DATA_DATA:
+         copyText = ds->getDataData ();
+         cb = QApplication::clipboard ();
+         cb->setText (copyText);
+         break;
+
+      case QEPlotterNames::PLOTTER_COPY_SIZE_DATA:
+         copyText = ds->getSizeData ();
+         cb = QApplication::clipboard ();
+         cb->setText (copyText);
+         break;
+
+
+      case QEPlotterNames::PLOTTER_SHOW_DATA_PV_PROPERTIES:
+         pvName = this->getXYDataPV (slot);
+         this->sendRequestAction (QEActionRequests::actionPvProperties (), pvName);
+         break;
+
+      case QEPlotterNames::PLOTTER_SHOW_SIZE_PV_PROPERTIES:
+         pvName = this->getXYSizePV (slot);
+         this->sendRequestAction (QEActionRequests::actionPvProperties (), pvName);
+         break;
+
+
+      case QEPlotterNames::PLOTTER_ADD_DATA_PV_TO_STRIPCHART:
+         pvName = this->getXYDataPV (slot);
+         this->sendRequestAction (QEActionRequests::actionStripChart (), pvName);
+         break;
+
+      case QEPlotterNames::PLOTTER_ADD_SIZE_PV_TO_STRIPCHART:
+         pvName = this->getXYSizePV (slot);
+         this->sendRequestAction (QEActionRequests::actionStripChart (), pvName);
+         break;
+
+
+      case QEPlotterNames::PLOTTER_ADD_DATA_PV_TO_SCRATCH_PAD:
+         pvName = this->getXYDataPV (slot);
+         this->sendRequestAction (QEActionRequests::actionScratchPad (), pvName);
+         break;
+
+      case QEPlotterNames::PLOTTER_ADD_SIZE_PV_TO_SCRATCH_PAD:
+         pvName = this->getXYSizePV (slot);
+         this->sendRequestAction (QEActionRequests::actionScratchPad (), pvName);
+         break;
+
+
+      case QEPlotterNames::PLOTTER_GENERAL_DATA_PV_EDIT:
+         pvName = this->getXYDataPV (slot);
+         this->sendRequestAction (QEActionRequests::actionGeneralPvEdit (), pvName);
+         break;
+
+      case QEPlotterNames::PLOTTER_GENERAL_SIZE_PV_EDIT:
+         pvName = this->getXYSizePV (slot);
+         this->sendRequestAction (QEActionRequests::actionGeneralPvEdit (), pvName);
+         break;
+
 
       case QEPlotterNames::PLOTTER_DATA_CLEAR:
          this->setXYDataPV (slot, "");
@@ -1428,8 +1575,7 @@ bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
       case QEvent::MouseButtonDblClick:
          slot = this->findSlot (obj);
          if (slot >= 0) {
-            // Leverage of menu handler
-            this->menuSelected (QEPlotterNames::PLOTTER_DATA_DIALOG, slot);
+            this->runDataDialog (slot, dynamic_cast <QWidget*> (obj));
             return true;  // we have handled double click
          }
          break;
@@ -1852,15 +1998,6 @@ void QEPlotter::plot ()
          }
       }
 
-      // Take the log need be.
-      //
-      if (this->isLogarithmic) {
-         for (int j = 0; j < number; j++) {
-            double t = ydata [j];
-            ydata [j] = LOG10 (t);
-         }
-      }
-
       // Lastly plot the data.
       //
       pen.setColor (ys->colour);
@@ -2094,6 +2231,10 @@ void QEPlotter::processSelectedItem (const QEFloatingArray& xdata,
 void QEPlotter::tickTimeout ()
 {
    this->tickTimerCount = (this->tickTimerCount + 1) % 20;
+
+   // Progress any on-going cgart rescaling.
+   //
+   this->plotArea->doDynamicRescaling ();
 
    if ((this->tickTimerCount % 20) == 0) {
       // 20th update, i.e. 1 second has passed - must replot.

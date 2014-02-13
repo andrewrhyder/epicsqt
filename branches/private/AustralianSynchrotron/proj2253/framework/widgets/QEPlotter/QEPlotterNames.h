@@ -84,8 +84,6 @@ public:
       PLOTTER_LINE_VISIBLE,        //
       PLOTTER_LINE_COLOUR,         //
 
-      PLOTTER_PASTE_DATA_PV,       //
-      PLOTTER_PASTE_SIZE_PV,       //
       PLOTTER_DATA_SELECT,         //
       PLOTTER_DATA_DIALOG,         //
       PLOTTER_DATA_CLEAR,          //
@@ -93,7 +91,31 @@ public:
       PLOTTER_SCALE_TO_MIN_MAX,    //
       PLOTTER_SCALE_TO_ZERO_MAX,   //
 
-      PLOTTER_LAST                 // Must be last
+      // Data PV related menu items - keep more or less in line with standard QE contextMenu
+      //
+      PLOTTER_COPY_DATA_VARIABLE,
+      PLOTTER_COPY_DATA_DATA,
+      PLOTTER_PASTE_DATA_PV,
+//    PLOTTER_DRAG_DATA_VARIABLE,
+//    PLOTTER_DRAG_DATA_DATA,
+      PLOTTER_SHOW_DATA_PV_PROPERTIES,
+      PLOTTER_ADD_DATA_PV_TO_STRIPCHART,
+      PLOTTER_ADD_DATA_PV_TO_SCRATCH_PAD,
+      PLOTTER_GENERAL_DATA_PV_EDIT,
+
+      // Size PV related menu items.
+      //
+      PLOTTER_COPY_SIZE_VARIABLE,
+      PLOTTER_COPY_SIZE_DATA,
+      PLOTTER_PASTE_SIZE_PV,
+//    PLOTTER_DRAG_SIZE_VARIABLE,
+//    PLOTTER_DRAG_SIZE_DATA,
+      PLOTTER_SHOW_SIZE_PV_PROPERTIES,
+      PLOTTER_ADD_SIZE_PV_TO_STRIPCHART,
+      PLOTTER_ADD_SIZE_PV_TO_SCRATCH_PAD,
+      PLOTTER_GENERAL_SIZE_PV_EDIT,
+
+      PLOTTER_LAST                     // Must be last
    };
 
    enum ScaleModes { smFixed,          // Fixed scale in x and y

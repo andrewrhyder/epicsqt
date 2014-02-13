@@ -74,7 +74,7 @@ bool QEExpressionEvaluation::initialise (const QString& expression)
    long status;
    short error;
 
-   pinfix = translated.toAscii ().data ();
+   pinfix = translated.toLatin1 ().data ();
 
    status = postfix (pinfix, this->postFix, &error);
    this->calcError = QString (calcErrorStr (error));
@@ -203,7 +203,7 @@ bool QEExpressionEvaluation::buildMaps (const QString& expression, QString& tran
          kind = Primed;
       }
 
-      c = x.toUpper().toAscii ();
+      c = x.toUpper().toLatin1 ();
       letter = (int) c - (int) 'A';
       userArg = (NumberUserArguments * kind) + letter;
 
