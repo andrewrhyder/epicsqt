@@ -23,8 +23,6 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-#include <QApplication>
-#include <QClipboard>
 #include <QDebug>
 
 #include <QECommon.h>
@@ -93,13 +91,8 @@ QEPlotterMenu::QEPlotterMenu (QWidget* parent) : QMenu (parent)
 QEPlotterMenu::QEPlotterMenu (const int slotIn, QWidget* parent) : QMenu (parent)
 {
    QMenu* menu = NULL;
-   bool pasteAllowed = false;
 
    this->slot = slotIn;
-
-   // Something to paste?
-   //
-   pasteAllowed = !(QApplication::clipboard ()->text ().isEmpty ());
 
    // Ensure all actions are null unless otherwise defined.
    //
@@ -120,7 +113,7 @@ QEPlotterMenu::QEPlotterMenu (const int slotIn, QWidget* parent) : QMenu (parent
    menu->addSeparator();
    this->make (menu, "Copy variable name",      false, QEPlotterNames::PLOTTER_COPY_DATA_VARIABLE);
    this->make (menu, "Copy data",               false, QEPlotterNames::PLOTTER_COPY_DATA_DATA);
-   this->make (menu, "Paste to variable name",  false, QEPlotterNames::PLOTTER_PASTE_DATA_PV)->setEnabled (pasteAllowed);
+   this->make (menu, "Paste to variable name",  false, QEPlotterNames::PLOTTER_PASTE_DATA_PV);
    menu->addSeparator();
    this->make (menu, "Edit PV",                 false,  QEPlotterNames::PLOTTER_GENERAL_DATA_PV_EDIT);
 
@@ -133,7 +126,7 @@ QEPlotterMenu::QEPlotterMenu (const int slotIn, QWidget* parent) : QMenu (parent
    menu->addSeparator();
    this->make (menu, "Copy variable name",      false, QEPlotterNames::PLOTTER_COPY_SIZE_VARIABLE);
    this->make (menu, "Copy data",               false, QEPlotterNames::PLOTTER_COPY_SIZE_DATA);
-   this->make (menu, "Paste to variable name",  false, QEPlotterNames::PLOTTER_PASTE_SIZE_PV)->setEnabled (pasteAllowed);
+   this->make (menu, "Paste to variable name",  false, QEPlotterNames::PLOTTER_PASTE_SIZE_PV);
    menu->addSeparator();
    this->make (menu, "Edit PV",                 false,  QEPlotterNames::PLOTTER_GENERAL_SIZE_PV_EDIT);
 

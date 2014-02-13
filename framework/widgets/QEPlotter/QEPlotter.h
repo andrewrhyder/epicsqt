@@ -337,6 +337,7 @@ private:
    DataSets xy [1 + NUMBER_OF_PLOTS];
 
 
+   void createSlotWidgets (const int slot);
    void createInternalWidgets ();
    void selectDataSet (const int slot);
    void highLight (const int slot, const bool isHigh);
@@ -371,7 +372,6 @@ private:
    void prevState ();
    void nextState ();
 
-   QEPlotterMenu* generalContextMenuCreate ();
    bool connectMenuOrToolBar (QWidget* item);
 
    void sendRequestAction (const QString& action, const QString& pvName);
