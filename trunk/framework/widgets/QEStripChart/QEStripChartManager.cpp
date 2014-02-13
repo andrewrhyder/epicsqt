@@ -1,4 +1,6 @@
-/*  This file is part of the EPICS QT Framework, initially developed at the
+/*  QEStripChartManager.cpp
+ *
+ *  This file is part of the EPICS QT Framework, initially developed at the
  *  Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or
@@ -28,18 +30,15 @@
 #include <QEStripChart.h>
 #include <QtPlugin>
 
-/*
-    ???
-*/
-
+//------------------------------------------------------------------------------
+//
 QEStripChartManager::QEStripChartManager (QObject * parent) : QObject (parent)
 {
    initialized = false;
 }
 
-/*
-    ???
-*/
+//------------------------------------------------------------------------------
+//
 void QEStripChartManager::initialize (QDesignerFormEditorInterface *)
 {
    if (initialized) {
@@ -48,74 +47,71 @@ void QEStripChartManager::initialize (QDesignerFormEditorInterface *)
    initialized = true;
 }
 
-/*
-    ???
-*/
+//------------------------------------------------------------------------------
+//
 bool QEStripChartManager::isInitialized () const
 {
    return initialized;
 }
 
-/*
-    Widget factory. Creates a QEStripChart widget.
-*/
-QWidget *QEStripChartManager::createWidget (QWidget * parent)
+//------------------------------------------------------------------------------
+// Widget factory. Creates a QEStripChart widget.
+//
+QWidget *QEStripChartManager::createWidget (QWidget* parent)
 {
    return new QEStripChart (parent);
 }
 
-/*
-    Name for widget. Used by Qt Designer in widget list.
-*/
+//------------------------------------------------------------------------------
+// Name for widget. Used by Qt Designer in widget list.
+//
 QString QEStripChartManager::name () const
 {
    return "QEStripChart";
 }
 
-/*
-    Name of group Qt Designer will add widget to.
-*/
+//------------------------------------------------------------------------------
+// Name of group Qt Designer will add widget to.
+//
 QString QEStripChartManager::group () const
 {
    return "EPICS Widgets";
 }
 
-/*
-    Icon for widget. Used by Qt Designer in widget list.
-*/
+//------------------------------------------------------------------------------
+// Icon for widget. Used by Qt Designer in widget list.
+//
 QIcon QEStripChartManager::icon () const
 {
    return QIcon (":/qe/stripchart/icon.png");
 }
 
-/*
-    Tool tip for widget. Used by Qt Designer in widget list.
-*/
+//------------------------------------------------------------------------------
+// Tool tip for widget. Used by Qt Designer in widget list.
+//
 QString QEStripChartManager::toolTip () const
 {
    return "EPICS PV/Archive Strip Chart Viewer";
 }
 
-/*
-    ???
-*/
+//------------------------------------------------------------------------------
+//
 QString QEStripChartManager::whatsThis () const
 {
    return "PV/Archive Strip Chart Viewer";
 }
 
-/*
-    ???
-*/
+//------------------------------------------------------------------------------
+//
 bool QEStripChartManager::isContainer () const
 {
    return false;  //???? true
 }
 
+//------------------------------------------------------------------------------
+//
 /*
-    ???
-*/
-/*QString QEStripChartManager::domXml() const {
+ *QString QEStripChartManager::domXml() const {
     return "<widget class=\"QEStripChart\" name=\"qCaStripChart\">\n"
            " <property name=\"geometry\">\n"
            "  <rect>\n"
@@ -135,9 +131,8 @@ bool QEStripChartManager::isContainer () const
            "</widget>\n";
 }*/
 
-/*
-    ???
-*/
+//------------------------------------------------------------------------------
+//
 QString QEStripChartManager::includeFile () const
 {
    return "QEStripChart.h";
