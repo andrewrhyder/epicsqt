@@ -960,7 +960,6 @@ bool QEStripChartItem::eventFilter (QObject *obj, QEvent *event)
 
    switch (type) {
 
-      case QEvent::MouseButtonPress:
       case QEvent::MouseButtonDblClick:
          mouseEvent = static_cast<QMouseEvent *> (event);
          if (obj == this->pvName && (mouseEvent->button () == Qt::LeftButton)) {
