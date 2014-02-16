@@ -103,7 +103,6 @@ QEPlotterMenu::QEPlotterMenu (const int slotIn, QWidget* parent) : QMenu (parent
    this->setTitle ("Plotter Item");
 
    this->make (this, "Define... ",              false, QEPlotterNames::PLOTTER_DATA_DIALOG);
-   this->make (this, "Select",                  false, QEPlotterNames::PLOTTER_DATA_SELECT)->setEnabled (slot > 0);
 
    menu = new QMenu ("Data PV", this);
    this->addMenu (menu);
@@ -149,7 +148,9 @@ QEPlotterMenu::QEPlotterMenu (const int slotIn, QWidget* parent) : QMenu (parent
       this->make (menu, "Colour... ",           false, QEPlotterNames::PLOTTER_LINE_COLOUR)->setEnabled (slot < 16);
    }
 
-   this->make (this, "Clear",               false, QEPlotterNames::PLOTTER_DATA_CLEAR);
+   this->make (this, "Select",                  false, QEPlotterNames::PLOTTER_DATA_SELECT)->setEnabled (slot > 0);
+
+   this->make (this, "Clear",                   false, QEPlotterNames::PLOTTER_DATA_CLEAR);
 
    QObject::connect (this, SIGNAL (triggered             (QAction* )),
                      this, SLOT   (contextMenuTriggered  (QAction* )));
