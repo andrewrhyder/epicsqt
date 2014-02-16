@@ -27,15 +27,16 @@
 #define QEPLOTTER_H
 
 #include <QColor>
+#include <QCheckBox>
 #include <QColorDialog>
 #include <QFrame>
+#include <QHash>
+#include <QLabel>
 #include <QObject>
+#include <QPushButton>
 #include <QTimer>
 #include <QVector>
 #include <QWidget>
-#include <QLabel>
-#include <QCheckBox>
-#include <QPushButton>
 
 #include <QEActionRequests.h>
 #include <QEFloatingArray.h>
@@ -270,7 +271,7 @@ private:
 
 
    enum DataPlotKinds { NotInUse,          // blank  - not in use - no data - no plot
-                        DataPlot,          // use specified PV to provide plot data
+                        DataPVPlot,        // use specified PV to provide plot data
                         CalculationPlot }; // "= ..." - use given calculation for plot data
 
    enum SizePlotKinds { NotSpecified,      // blank - use maximum, available no. points
@@ -302,6 +303,8 @@ private:
       QEExpressionEvaluation* calculator;
       bool dataIsConnected;
       bool sizeIsConnected;
+      QCaAlarmInfo dataAlarmInfo;
+      QCaAlarmInfo sizeAlarmInfo;
       int fixedSize;           // size set by user/designer
       int dbSize;              // size as defined by PV.
       QEFloatingArray data;
@@ -336,6 +339,11 @@ private:
    //
    DataSets xy [1 + NUMBER_OF_PLOTS];
 
+   // Allows an int, i.e. slot number, to be associated with any arbitary
+   // object, and in this case a widget.
+   //
+   typedef QHash <const QObject*, int> ObjectToIntLookup;
+   ObjectToIntLookup widgetToSlot;
 
    void createSlotWidgets (const int slot);
    void createInternalWidgets ();
@@ -434,6 +442,7 @@ private:
    int  slotOf      (const unsigned int vi) { return (vi / 2); }
 
    void updateLabel (const int slot);
+   void setToolTipSummary ();
    void runDataDialog (const int slot, QWidget* control);
 
 private slots:
