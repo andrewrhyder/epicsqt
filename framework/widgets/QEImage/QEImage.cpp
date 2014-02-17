@@ -1879,7 +1879,8 @@ void QEImage::displayImage()
             switch( bitDepth )
             {
                 default:
-                // Pixel data is 1 to 8 bits wide. Extract the fist byte. For less than 8 bits assume rest of byte is zero
+                // Pixel data is 1 to 8 bits wide. Extract the fist byte. For less than 8 bits assume rest of byte is zero.
+                // (Assumtion is safe as even if incorrect range will still be 0-255 which is OK as an index into the pixelLookup table)
                 case 1:
                 case 2:
                 case 4:
@@ -1894,31 +1895,34 @@ void QEImage::displayImage()
                 }
 
                 // Pixel data is 10 bits wide - extract as 16 bit and use the top 8 bits of the first 10 bits
+                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
                 case 10:
                 {
                     LOOP_START
                         unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
-                        dataOut[buffIndex] = pixelLookup[inPixel>>2];
+                        dataOut[buffIndex] = pixelLookup[(inPixel&0x03ff)>>2];
                     LOOP_END
                     break;
                 }
 
                 // Pixel data is 12 bits wide - extract as 16 bit and use the top 8 bits of the first 12 bits
+                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
                 case 12:
                 {
                     LOOP_START
                         unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
-                        dataOut[buffIndex] = pixelLookup[inPixel>>4];
+                        dataOut[buffIndex] = pixelLookup[(inPixel&0x0fff)>>4];
                     LOOP_END
                     break;
                 }
 
                 // Pixel data is 14 bits wide - extract as 16 bit and use the top 8 bits of the first 14 bits
+                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
                 case 14:
                 {
                     LOOP_START
                         unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
-                        dataOut[buffIndex] = pixelLookup[inPixel>>6];
+                        dataOut[buffIndex] = pixelLookup[(inPixel&0x03fff)>>6];
                     LOOP_END
                     break;
                 }
@@ -1934,33 +1938,36 @@ void QEImage::displayImage()
                 }
 
                 // Pixel data is 18 bits wide - extract as 32 bit and use the top 8 bits of the first 18 bits
+                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
                 case 18:
                     {
                         LOOP_START
                             // Pixel data is 18 bits wide - use the top 8 bits
                             quint32 inPixel = *(quint32*)(&dataIn[dataIndex*bytesPerPixel]);
-                            dataOut[buffIndex] = pixelLookup[inPixel>>10];
+                            dataOut[buffIndex] = pixelLookup[(inPixel&0x03ffff)>>10];
                         LOOP_END
                         break;
                     }
 
                 // Pixel data is 20 bits wide - extract as 32 bit and use the top 8 bits of the first 20 bits
+                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
                 case 20:
                     {
                         LOOP_START
                             quint32 inPixel = *(quint32*)(&dataIn[dataIndex*bytesPerPixel]);
-                            dataOut[buffIndex] = pixelLookup[inPixel>>12];
+                            dataOut[buffIndex] = pixelLookup[(inPixel&0x0fffff)>>12];
                         LOOP_END
                         break;
                     }
 
                 // Pixel data is 22 bits wide - extract as 32 bit and use the top 8 bits of the first 22 bits
+                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
                 case 22:
                     {
                         LOOP_START
                             // Pixel data is 22 bits wide - use the top 8 bits
                             quint32 inPixel = *(quint32*)(&dataIn[dataIndex*bytesPerPixel]);
-                            dataOut[buffIndex] = pixelLookup[inPixel>>14];
+                            dataOut[buffIndex] = pixelLookup[(inPixel&0x03fffff)>>14];
                         LOOP_END
                         break;
                     }
@@ -1976,31 +1983,34 @@ void QEImage::displayImage()
                     }
 
                 // Pixel data is 26 bits wide - extract as 32 bit and use the top 8 bits of the first 26 bits
+                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
                 case 26:
                     {
                         LOOP_START
                             unsigned long inPixel = *(unsigned long*)(&dataIn[dataIndex*bytesPerPixel]);
-                            dataOut[buffIndex] = pixelLookup[inPixel>>18];
+                            dataOut[buffIndex] = pixelLookup[(inPixel&0x03ffffff)>>18];
                         LOOP_END
                         break;
                     }
 
                 // Pixel data is 28 bits wide - extract as 32 bit and use the top 8 bits of the first 28 bits
+                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
                 case 28:
                     {
                         LOOP_START
                             unsigned long inPixel = *(unsigned long*)(&dataIn[dataIndex*bytesPerPixel]);
-                            dataOut[buffIndex] = pixelLookup[inPixel>>20];
+                            dataOut[buffIndex] = pixelLookup[(inPixel&0x0fffffff)>>20];
                         LOOP_END
                         break;
                     }
 
                 // Pixel data is 30 bits wide - extract as 32 bit and use the top 8 bits of the first 30 bits
+                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
                 case 30:
                     {
                         LOOP_START
                             unsigned long inPixel = *(unsigned long*)(&dataIn[dataIndex*bytesPerPixel]);
-                            dataOut[buffIndex] = pixelLookup[inPixel>>22];
+                            dataOut[buffIndex] = pixelLookup[(inPixel&0x03fffffff)>>22];
                         LOOP_END
                         break;
                     }
