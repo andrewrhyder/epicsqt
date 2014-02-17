@@ -43,6 +43,7 @@
 #include <QEByteArray.h>
 #include <QEInteger.h>
 #include <QEFloating.h>
+#include <QEString.h>
 #include <imageContextMenu.h>
 #include <windowCustomisation.h>
 
