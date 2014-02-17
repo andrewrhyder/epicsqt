@@ -96,6 +96,20 @@ public:
 
     void setLocalEnumerations (const QString & localEnumerations);
     QString getLocalEnumerations ();
+
+    /// Enumrations values used to select the button style.
+    /// Whereas check box buttons can/do work, this option not provided as check
+    /// boxes are not assoicated with the radio button, i.e. one and only one
+    /// selected, paradigm.
+    //
+    enum ButtonStyles { Radio,      ///< Use radio buttons - the default
+                        Push };     ///< use push buttons.
+
+    Q_ENUMS (ButtonStyles)
+    Q_PROPERTY (ButtonStyles buttonStyle READ getButtonStyle  WRITE setButtonStyle)
+
+    void setButtonStyle (const ButtonStyles & buttonStyle);
+    ButtonStyles getButtonStyle ();
     //
     // End of QERadioGroup specific properties =========================================
 
@@ -135,7 +149,7 @@ protected:
     void setCurrentIndex (int index);
 
 private:
-    typedef QList<QRadioButton *> QRadioButtonList;
+    typedef QList<QAbstractButton *> QRadioButtonList;
     typedef QMap<int, int> QIntToIntMap;
 
     QEIntegerFormatting integerFormatting;
@@ -150,16 +164,19 @@ private:
     QIntToIntMap buttonIndexToValueMap;
     QGridLayout* radioButtonLayout;
     QRadioButtonList radioButtonList;
-    QRadioButton *noSelectionButton;
+    QAbstractButton *noSelectionButton;
 
     bool useDbEnumerations;
     int currentIndex;
     int number;    // number of displayed buttons.
     int rows;
     int cols;
+    ButtonStyles buttonStyle;
     bool isConnected;
     bool isFirstUpdate;
 
+    QAbstractButton* createButton (QWidget* parent);
+    void reCreateAllButtons ();
     void commonSetup ();
     void setButtonText ();
     void setRadioButtonLayout ();
