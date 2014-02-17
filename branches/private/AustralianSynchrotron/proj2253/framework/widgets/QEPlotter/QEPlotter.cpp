@@ -151,6 +151,13 @@ void QEPlotter::createSlotWidgets (const int slot)
    this->xy [slot].itemName = label;
    this->xy [slot].checkBox = box;
 
+   // Setup widget to slot mapping.
+   //
+   this->widgetToSlot.insert (frame, slot);
+   this->widgetToSlot.insert (letter, slot);
+   this->widgetToSlot.insert (label, slot);
+   this->widgetToSlot.insert (box, slot);
+
    // Add spacer at the bottom of the last item.
    //
    if (slot == ARRAY_LENGTH (this->xy) - 1) {
@@ -375,7 +382,7 @@ int QEPlotter::DataSets::actualSize ()
 {
    // use array (waveform) PV size or zero.
    //
-   return (this->dataKind == QEPlotter::DataPlot) ? this->data.size () : 0;
+   return (this->dataKind == QEPlotter::DataPVPlot) ? this->data.size () : 0;
 }
 
 //------------------------------------------------------------------------------
@@ -424,7 +431,7 @@ int QEPlotter::DataSets::effectiveSize ()
                break;
 
 
-            case QEPlotter::DataPlot:
+            case QEPlotter::DataPVPlot:
                // Use size of the specified array (waveform) PV to provide the size.
                //
                result = this->data.size ();
@@ -497,6 +504,7 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
    QCaVariableNamePropertyManager* vpnm;
    int slot;
 
+   this->widgetToSlot.clear();
    this->createInternalWidgets ();
 
    this->setContextMenuPolicy (Qt::CustomContextMenu);
@@ -577,6 +585,7 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
    connect (this->tickTimer, SIGNAL (timeout ()), this, SLOT (tickTimeout ()));
    this->tickTimer->start (50);  // mSec == 0.05 s
 
+   this->setToolTipSummary ();
    this->pushState ();  // baseline state - there is always at least one.
 }
 
@@ -608,7 +617,7 @@ void QEPlotter::updateLabel (const int slot)
       case NotInUse:
          break;
 
-      case DataPlot:
+      case DataPVPlot:
          // If an alias name is defined - use it.
          //
          if (!ds->aliasName.isEmpty()) {
@@ -668,33 +677,36 @@ void QEPlotter::setNewVariableName (QString variableName,
                                     unsigned int variableIndex)
 {
    int slot = this->slotOf (variableIndex);
-   QString pvName;
 
    SLOT_CHECK (slot,);
 
-   this->setVariableNameAndSubstitutions (variableName, variableNameSubstitutions, variableIndex);
-   pvName = this->getSubstitutedVariableName (variableIndex).trimmed ();
-
-   // We need to test for null "PV names" here as the framework does not call
-   // establishConnection in these cases.
+   // First clear out any status - this is a new PV name or cleared PV name.
+   // Note: we must clear the xxxxIsConnect state - we do not get an initial
+   // xxxxConnectionChanged (set not connected) signal.
    //
    if (this->isDataIndex (variableIndex)) {
+      this->xy [slot].dataKind = NotInUse;
+      this->xy [slot].dataIsConnected = false;
+      this->xy [slot].dataAlarmInfo = QCaAlarmInfo ();
+   } else if (this->isSizeIndex (variableIndex)) {
+      this->xy [slot].sizeKind = NotSpecified;
+      this->xy [slot].sizeIsConnected = false;
+      this->xy [slot].sizeAlarmInfo = QCaAlarmInfo ();
+   }
 
-      if (pvName.isEmpty()) {
-         this->xy [slot].dataKind = NotInUse;
-         this->replotIsRequired = true;
-      }
+   // Note: essentially calls createQcaItem.
+   //
+   this->setVariableNameAndSubstitutions (variableName, variableNameSubstitutions, variableIndex);
 
+   if (this->isDataIndex (variableIndex)) {
+      QString pvName;
+      pvName = this->getSubstitutedVariableName (variableIndex).trimmed ();
       this->xy [slot].pvName = pvName;
       this->updateLabel (slot);
-
-   } else if (this->isSizeIndex (variableIndex)) {
-
-      if (pvName.isEmpty()) {
-         this->xy [slot].sizeKind = NotSpecified;
-         this->replotIsRequired = true;
-      }
    }
+
+   this->replotIsRequired = true;
+   this->setToolTipSummary ();
 }
 
 //------------------------------------------------------------------------------
@@ -710,8 +722,8 @@ qcaobject::QCaObject* QEPlotter::createQcaItem (unsigned int variableIndex)
    int slot;
 
    pvName = this->getSubstitutedVariableName (variableIndex).trimmed ();
-
    slot = this->slotOf (variableIndex);
+
    SLOT_CHECK (slot, NULL);
 
    if (this->isDataIndex (variableIndex)) {
@@ -727,7 +739,7 @@ qcaobject::QCaObject* QEPlotter::createQcaItem (unsigned int variableIndex)
          this->xy [slot].expressionIsValid = okay;
 
       } else {
-         this->xy [slot].dataKind = DataPlot;
+         this->xy [slot].dataKind = DataPVPlot;
          result = new QEFloating (pvName, this, &this->floatingFormatting, variableIndex);
       }
 
@@ -800,21 +812,7 @@ void QEPlotter::establishConnection (unsigned int variableIndex)
 //
 int QEPlotter::findSlot (QObject *obj)
 {
-   int result = -1;
-   int slot;
-
-   for (slot = 0 ; slot < ARRAY_LENGTH (this->xy); slot++) {
-      if ((this->xy [slot].letterButton == obj) ||
-          (this->xy [slot].itemName == obj) ||
-          (this->xy [slot].checkBox == obj)) {
-         // found it.
-         //
-         result = slot;
-         break;
-      }
-   }
-
-   return result;
+   return this->widgetToSlot.value (obj, -1);
 }
 
 //------------------------------------------------------------------------------
@@ -1280,7 +1278,7 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
          break;
 
       case QEPlotterNames::PLOTTER_SCALE_TO_MIN_MAX:
-         if ((slot > 0) && (ds->dataKind == DataPlot || ds->dataKind == CalculationPlot)) {
+         if ((slot > 0) && (ds->dataKind == DataPVPlot || ds->dataKind == CalculationPlot)) {
             this->fixedMinY = ds->plottedMin;
             this->fixedMaxY = ds->plottedMax;
             this->yScaleMode = QEPlotterNames::smFixed;
@@ -1288,7 +1286,7 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
          break;
 
       case QEPlotterNames::PLOTTER_SCALE_TO_ZERO_MAX:
-         if ((slot > 0) && (ds->dataKind == DataPlot || ds->dataKind == CalculationPlot)) {
+         if ((slot > 0) && (ds->dataKind == DataPVPlot || ds->dataKind == CalculationPlot)) {
             this->fixedMinY = 0;
             this->fixedMaxY = ds->plottedMax;
             this->yScaleMode = QEPlotterNames::smFixed;
@@ -1798,6 +1796,60 @@ void QEPlotter::addPvNameSet (const QString& pvNameSet)
 }
 
 //------------------------------------------------------------------------------
+//
+void QEPlotter::setToolTipSummary ()
+{
+   int connected = 0;
+   int disconnected = 0;
+   int total;
+   bool no_disconnects;
+   QString customText;
+
+   for (int slot = 0; slot < ARRAY_LENGTH (this->xy); slot++) {
+       DataSets* ds = &this->xy [slot];
+
+       if (ds->dataKind == DataPVPlot) {
+          if (ds->dataIsConnected) {
+             connected++;
+          } else {
+             disconnected++;
+          }
+       }
+
+       if (ds->sizeKind == SizePVName) {
+          if (ds->sizeIsConnected) {
+             connected++;
+          } else {
+             disconnected++;
+          }
+       }
+   }
+
+   total = connected + disconnected;
+
+   // Only disconnected when ALL, if any, aare disconnected.
+   //
+   no_disconnects = ((connected > 0) || (total == 0));
+
+   this->updateConnectionStyle (no_disconnects);   // Is this sensible?
+   this->updateToolTipConnection (true);   //  Hide any  auto " - Disconnected"
+
+   if (total > 0) {
+      if (connected == 0) {
+         customText = "\nAll PVs disconnected";
+      } else if (connected == total) {
+         customText = "\nAll PVs connected";
+      } else {
+         customText = QString ("\n%1 out of %2 PVs connected").arg (connected).arg (total);
+      }
+   } else {
+      customText = "";
+   }
+   this->updateToolTipCustom (customText);
+}
+
+
+//------------------------------------------------------------------------------
 // Slots receiving PV data
 //------------------------------------------------------------------------------
 //
@@ -1807,14 +1859,16 @@ void QEPlotter::dataConnectionChanged (QCaConnectionInfo& connectionInfo,
    const int slot = this->slotOf (variableIndex);
 
    SLOT_CHECK (slot,);
+
    this->xy [slot].dataIsConnected = connectionInfo.isChannelConnected ();
    this->replotIsRequired = true;
+   this->setToolTipSummary ();
 }
 
 //------------------------------------------------------------------------------
 //
 void QEPlotter::dataArrayChanged (const QVector<double>& values,
-                                  QCaAlarmInfo&,
+                                  QCaAlarmInfo&  alarmInfo,
                                   QCaDateTime&,
                                   const unsigned int& variableIndex)
 {
@@ -1823,7 +1877,9 @@ void QEPlotter::dataArrayChanged (const QVector<double>& values,
    SLOT_CHECK (slot,);
    if (this->isPaused) return;
    this->xy [slot].data = QEFloatingArray (values);
+   this->xy [slot].dataAlarmInfo = alarmInfo;
    this->replotIsRequired = true;
+   this->setToolTipSummary ();
 }
 
 //------------------------------------------------------------------------------
@@ -1836,12 +1892,13 @@ void QEPlotter::sizeConnectionChanged (QCaConnectionInfo& connectionInfo,
    SLOT_CHECK (slot,);
    this->xy [slot].sizeIsConnected = connectionInfo.isChannelConnected ();
    this->replotIsRequired = true;
+   this->setToolTipSummary ();
 }
 
 //------------------------------------------------------------------------------
 //
 void QEPlotter::sizeValueChanged (const long& value,
-                                  QCaAlarmInfo&,
+                                  QCaAlarmInfo& alarmInfo,
                                   QCaDateTime&,
                                   const unsigned int& variableIndex)
 {
@@ -1850,7 +1907,9 @@ void QEPlotter::sizeValueChanged (const long& value,
    SLOT_CHECK (slot,);
    if (this->isPaused) return;
    this->xy [slot].dbSize = value;
+   this->xy [slot].sizeAlarmInfo = alarmInfo;
    this->replotIsRequired = true;
+   this->setToolTipSummary ();
 }
 
 
@@ -2144,7 +2203,7 @@ void QEPlotter::doAnyCalculations ()
          }
          break;
 
-      case DataPlot:
+      case DataPVPlot:
          // Leave as the data, if any, as supplied by the specified PV.
          break;
 
@@ -2164,7 +2223,7 @@ void QEPlotter::doAnyCalculations ()
    //
    for (slot = 1; slot < ARRAY_LENGTH (this->xy); slot++) {
       ys = &this->xy [slot];
-      if (ys->dataKind == DataPlot) {
+      if (ys->dataKind == DataPVPlot) {
          ys->dyByDx = ys->data.calcDyByDx (xs->data);
       }
    }
