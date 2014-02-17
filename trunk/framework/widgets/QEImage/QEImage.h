@@ -42,6 +42,7 @@
 #include <brightnessContrast.h>
 #include <applicationLauncher.h>
 
+#include <QEStringFormatting.h>
 #include <QEPluginLibrary_global.h>
 #include <QEIntegerFormatting.h>
 #include <QEFloatingFormatting.h>

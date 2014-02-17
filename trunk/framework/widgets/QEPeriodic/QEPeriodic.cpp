@@ -40,6 +40,7 @@
 
 #include <QEScaling.h>
 #include <QEPeriodic.h>
+#include <QEString.h>
 #include <PeriodicDialog.h>
 #include <math.h>
 #include <QSizePolicy>
