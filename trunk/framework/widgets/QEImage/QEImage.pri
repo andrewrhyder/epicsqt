@@ -47,7 +47,8 @@ HEADERS += \
     widgets/QEImage/brightnessContrast.h \
     widgets/QEImage/QEImageOptionsDialog.h \
     widgets/QEImage/QEImageMarkupThickness.h \
-    widgets/QEImage/fullScreenWindow.h
+    widgets/QEImage/fullScreenWindow.h \
+    widgets/QEImage/imageDataFormats.h
 
 isEmpty( _QE_FFMPEG ) {
 

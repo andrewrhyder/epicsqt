@@ -17,30 +17,26 @@
  *  Copyright (c) 2014
  *
  *  Author:
+ *    Andrew Rhyder
  *    Initial code copied by Andrew Rhyder from parts of ffmpegWidget.cpp (Author anonymous, part of EPICS area detector ffmpegViwer project)
+ *
  *  Contact details:
  *    andrew.rhyder@synchrotron.org.au
  */
 
+/*
+ * This class connects to a MJPEG stream and delivers data to the QEImage widget via a QByteArray
+ * containing image data in the same format as data delivered over CA, allowing a user to interact
+ * with it in the QEImage widget.
+ */
 
 
 #include <QtDebug>
-//#include <QToolTip>
-#include "mpeg.h"
-//#include <QColorDialog>
-//#include "colorMaps.h"
-//#include <QX11Info>
-//#include <assert.h>
-//#include <QImage>
-//#include <QPainter>
-
 #include <QByteArray>
 
+#include "mpeg.h"
 
-
-
-
-
+// Colour format conversion macros
 
 #define CLIP(X) ( (X) > 255 ? 255 : (X) < 0 ? 0 : X)
 
@@ -58,6 +54,20 @@
 #define YUV2G(Y, U, V) CLIP(( 298 * C(Y) - 100 * D(U) - 208 * E(V) + 128) >> 8)
 #define YUV2B(Y, U, V) CLIP(( 298 * C(Y) + 516 * D(U)              + 128) >> 8)
 
+// RGB -> YUVJ
+#define RGB2YJ(R, G, B) CLIP(( (  66 * (R) + 129 * (G) +  25 * (B) + 128) >> 8) )
+#define RGB2UJ(R, G, B) CLIP(( ( -38 * (R) -  74 * (G) + 112 * (B) + 128) >> 8) + 128)
+#define RGB2VJ(R, G, B) CLIP(( ( 112 * (R) -  94 * (G) -  18 * (B) + 128) >> 8) + 128)
+
+// YUVJ -> RGB
+#define CJ(Y) ( (Y) )
+#define DJ(U) ( (U) - 128 )
+#define EJ(V) ( (V) - 128 )
+
+#define YUVJ2R(Y, U, V) CLIP(( 298 * CJ(Y)               + 409 * EJ(V) + 128) >> 8)
+#define YUVJ2G(Y, U, V) CLIP(( 298 * CJ(Y) - 100 * DJ(U) - 208 * EJ(V) + 128) >> 8)
+#define YUVJ2B(Y, U, V) CLIP(( 298 * CJ(Y) + 516 * DJ(U)               + 128) >> 8)
+
 // RGB -> YCbCr
 #define CRGB2Y(R, G, B) CLIP((19595 * R + 38470 * G + 7471 * B ) >> 16)
 #define CRGB2Cb(R, G, B) CLIP((36962 * (B - CLIP((19595 * R + 38470 * G + 7471 * B ) >> 16) ) >> 16) + 128)
@@ -67,11 +77,6 @@
 #define CYCbCr2R(Y, Cb, Cr) CLIP( Y + ( 91881 * Cr >> 16 ) - 179 )
 #define CYCbCr2G(Y, Cb, Cr) CLIP( Y - (( 22544 * Cb + 46793 * Cr ) >> 16) + 135)
 #define CYCbCr2B(Y, Cb, Cr) CLIP( Y + (116129 * Cb >> 16 ) - 226 )
-
-
-
-
-
 
 
 /* global switch for fallback mode */
@@ -384,39 +389,66 @@ void mpegSource::updateImage(FFBuffer *newbuf) {
     //  trailing 40 bytes of value 128 before start of pixel on next line)
     char* buffPtr = buff;
 
-    /*
+    // Set up default image information
+    unsigned long dataSize = 1;
+    unsigned long depth = 8;
+    unsigned long elementsPerPixel = 1;
+    imageDataFormats::formatOptions format = imageDataFormats::MONO;
+
 // older version does not have 'format'
 //widgets/QEImage/mpeg.cpp: In member function 'void mpegSource::updateImage(FFBuffer*)':
 //widgets/QEImage/mpeg.cpp:387: error: 'struct AVFrame' has no member named 'format'
+
+    // Format the data in a CA like QByteArray
     switch( newbuf->pFrame->format )
     {
     case PIX_FMT_YUVJ420P:
         {
+            //!!! Since the QEImage widget handles (or should handle) CA image data in all the formats that are expected in this mpeg stream
+            //!!! perhaps this formatting here should be simply packaging the data in a QbyteArray and delivering it, rather than perform any conversion.
+
+            // Set up the image information
+            dataSize = 1;
+            depth = 8;
+            elementsPerPixel = 3;
+            format = imageDataFormats::RGB1;
+
             const unsigned char* linePtrY = (const unsigned char*)(newbuf->pFrame->data[0]);
             const unsigned char* linePtrU = (const unsigned char*)(newbuf->pFrame->data[1]);
             const unsigned char* linePtrV = (const unsigned char*)(newbuf->pFrame->data[2]);
 
+            // For each row...
             for( int i = 0; i < newbuf->height; i++ )
             {
+                // For each pixel...
                 for( int j = 0; j < newbuf->width; j++ )
                 {
                     unsigned char y,u,v;
                     unsigned char r,g,b;
 
+                    // Use U and V values for every pair of pixels
                     int uv = j/2;
+
+                    // Get YUV values
                     y = linePtrY[j];
                     u = linePtrU[uv];
                     v = linePtrV[uv];
 
-                    r = YUV2R(y, u, v);
-                    g = YUV2G(y, u, v);
-                    b = YUV2B(y, u, v);
+                    // Convert to RGB
+                    r = YUVJ2R(y, u, v);
+                    g = YUVJ2G(y, u, v);
+                    b = YUVJ2B(y, u, v);
 
+                    // Save RGB result
                     *buffPtr++ = r;
                     *buffPtr++ = g;
                     *buffPtr++ = b;
                 }
+
+                // Step on to new Y data for every line
                 linePtrY += newbuf->pFrame->linesize[0];
+
+                // Step onto new U and V data every two lines
                 if( i & 1 )
                 {
                     linePtrU += newbuf->pFrame->linesize[1];
@@ -427,8 +459,14 @@ void mpegSource::updateImage(FFBuffer *newbuf) {
         break;
 
     default:
-*/
         {
+            // Set up the image information
+            dataSize = 1;
+            depth = 8;
+            elementsPerPixel = 1;
+            format = imageDataFormats::MONO;
+
+            // Package the data in a CA like QByteArray
             const char* linePtr = (const char*)(newbuf->pFrame->data[0]);
             for( int i = 0; i < newbuf->height; i++ )
             {
@@ -437,8 +475,8 @@ void mpegSource::updateImage(FFBuffer *newbuf) {
                 linePtr += newbuf->pFrame->linesize[0];
             }
         }
-//        break;
-//    }
+        break;
+    }
 
 
     // Deliver image update
@@ -448,7 +486,8 @@ void mpegSource::updateImage(FFBuffer *newbuf) {
 #else
     ba = QByteArray::fromRawData( buff, buffSize );
 #endif
-    setImage( ba, 1, newbuf->width, newbuf->height );
+
+    setImage( ba, dataSize, elementsPerPixel, newbuf->width, newbuf->height, format, depth );
 
     // Unlock buffer
     newbuf->release();

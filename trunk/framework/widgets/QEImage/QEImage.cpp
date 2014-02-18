@@ -91,7 +91,7 @@ void QEImage::setup() {
     initialVertScrollPos = 0;
     initScrollPosSet = false;
 
-    mFormatOption = MONO;
+    mFormatOption = imageDataFormats::MONO;
     bitDepth = 8;
 
     paused = false;
@@ -860,18 +860,18 @@ void QEImage::setWidthHeightFromDimensions()
  */
 void QEImage::setFormat( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& )
 {
-    formatOptions previousFormatOption = mFormatOption;
+    imageDataFormats::formatOptions previousFormatOption = mFormatOption;
 
     // Update image format
     // Area detector formats
-    if     ( !text.compare( "Mono" ) )         mFormatOption = MONO;
-    else if( !text.compare( "Bayer" ) )        mFormatOption = BAYER;
-    else if( !text.compare( "RGB1" ) )         mFormatOption = RGB1;
-    else if( !text.compare( "RGB2" ) )         mFormatOption = RGB2;
-    else if( !text.compare( "RGB3" ) )         mFormatOption = RGB3;
-    else if( !text.compare( "YUV444" ) )       mFormatOption = YUV444;
-    else if( !text.compare( "YUV422" ) )       mFormatOption = YUV422;
-    else if( !text.compare( "YUV421" ) )       mFormatOption = YUV421;
+    if     ( !text.compare( "Mono" ) )         mFormatOption = imageDataFormats::MONO;
+    else if( !text.compare( "Bayer" ) )        mFormatOption = imageDataFormats::BAYER;
+    else if( !text.compare( "RGB1" ) )         mFormatOption = imageDataFormats::RGB1;
+    else if( !text.compare( "RGB2" ) )         mFormatOption = imageDataFormats::RGB2;
+    else if( !text.compare( "RGB3" ) )         mFormatOption = imageDataFormats::RGB3;
+    else if( !text.compare( "YUV444" ) )       mFormatOption = imageDataFormats::YUV444;
+    else if( !text.compare( "YUV422" ) )       mFormatOption = imageDataFormats::YUV422;
+    else if( !text.compare( "YUV421" ) )       mFormatOption = imageDataFormats::YUV421;
     else
     {
         // !!! warn unexpected format
@@ -1443,15 +1443,20 @@ void QEImage::useAllMarkupData()
 }
 
 // Update image from non CA souce (no associated CA timestamp or alarm info available)
-void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long width, unsigned long height )
+void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long elements, unsigned long width, unsigned long height, imageDataFormats::formatOptions format, unsigned int depth )
 {
-    //!!! Should the bit depth, width and height be clobered like this? (especially where we are altering properties, like bitDepth)
+    //!!! Should the format, bit depth, width and height be clobered like this? (especially where we are altering properties, like bitDepth)
     //!!! Perhaps CA delivered and MPEG delivered images should maintain their own attributes?
+
+    // set the format
+    setFormatOption( format );
 
     //!!! should also set format as delivered with image from mpeg source???
 
     // Set the image bit depth
-    bitDepth = 8;
+    bitDepth = depth;
+
+    elementsPerPixel = elements;
 
     // Set the image dimensions to match the image size
     imageBuffWidth = width;
@@ -1875,7 +1880,7 @@ void QEImage::displayImage()
     // Note, for speed, the switch on format is outside the loop. The loop is duplicated in each case using macros which.
     switch( mFormatOption )
     {
-        case MONO:
+        case imageDataFormats::MONO:
         {
             switch( bitDepth )
             {
@@ -2030,7 +2035,7 @@ void QEImage::displayImage()
             break;
         }
 
-        case BAYER:
+        case imageDataFormats::BAYER:
         {
             int TLOffset = (-(int)(imageBuffWidth)-1)*(int)(bytesPerPixel);
             int  TOffset = -(int)(imageBuffWidth)*(int)(bytesPerPixel);
@@ -2427,11 +2432,12 @@ void QEImage::displayImage()
             break;
         }
 
-        case RGB1:
+        case imageDataFormats::RGB1:
         {
             //unsigned int rOffset = 0*imageDataSize;
             unsigned int gOffset = imageDataSize;
             unsigned int bOffset = 2*imageDataSize;
+            int temp = 0;
             LOOP_START
                 unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
                 dataOut[buffIndex].p[0] = pixelLookup[inPixel[bOffset]].p[0];
@@ -2442,23 +2448,7 @@ void QEImage::displayImage()
             break;
         }
 
-        case RGB2:
-        {
-            //!!! not done yet - this is a copy of RGB1
-            //unsigned int rOffset = 0*imageDataSize;
-            unsigned int gOffset = imageDataSize;
-            unsigned int bOffset = 2*imageDataSize;
-            LOOP_START
-                unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
-                dataOut[buffIndex].p[0] = pixelLookup[inPixel[bOffset]].p[0];
-                dataOut[buffIndex].p[1] = pixelLookup[inPixel[gOffset]].p[0];
-                dataOut[buffIndex].p[2] = pixelLookup[*inPixel].p[0];
-                dataOut[buffIndex].p[3] = 0xff;
-            LOOP_END
-            break;
-        }
-
-        case RGB3:
+        case imageDataFormats::RGB2:
         {
             //!!! not done yet - this is a copy of RGB1
             //unsigned int rOffset = 0*imageDataSize;
@@ -2474,7 +2464,7 @@ void QEImage::displayImage()
             break;
         }
 
-        case YUV444:
+        case imageDataFormats::RGB3:
         {
             //!!! not done yet - this is a copy of RGB1
             //unsigned int rOffset = 0*imageDataSize;
@@ -2490,7 +2480,7 @@ void QEImage::displayImage()
             break;
         }
 
-        case YUV422:
+        case imageDataFormats::YUV444:
         {
             //!!! not done yet - this is a copy of RGB1
             //unsigned int rOffset = 0*imageDataSize;
@@ -2506,7 +2496,23 @@ void QEImage::displayImage()
             break;
         }
 
-        case YUV421:
+        case imageDataFormats::YUV422:
+        {
+            //!!! not done yet - this is a copy of RGB1
+            //unsigned int rOffset = 0*imageDataSize;
+            unsigned int gOffset = imageDataSize;
+            unsigned int bOffset = 2*imageDataSize;
+            LOOP_START
+                unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
+                dataOut[buffIndex].p[0] = pixelLookup[inPixel[bOffset]].p[0];
+                dataOut[buffIndex].p[1] = pixelLookup[inPixel[gOffset]].p[0];
+                dataOut[buffIndex].p[2] = pixelLookup[*inPixel].p[0];
+                dataOut[buffIndex].p[3] = 0xff;
+            LOOP_END
+            break;
+        }
+
+        case imageDataFormats::YUV421:
         {
             //!!! not done yet - this is a copy of RGB1
             //unsigned int rOffset = 0*imageDataSize;
@@ -2627,7 +2633,8 @@ void QEImage::setImageFile( QString name )
     scrollArea->setEnabled( true );
     imageBuffWidth = stdImage.width();
     imageBuffHeight = stdImage.height();
-    setFormatOption( RGB1 );
+    setFormatOption( imageDataFormats::RGB1 );
+    bitDepth = 8;
     setImageBuff();
 
     // Use the image data just like it came from a waveform variable
@@ -3161,7 +3168,7 @@ void QEImage::paste( QVariant v )
 
 
 // Allow user to set the video format
-void QEImage::setFormatOption( formatOptions formatOptionIn )
+void QEImage::setFormatOption( imageDataFormats::formatOptions formatOptionIn )
 {
     if( mFormatOption != formatOptionIn )
     {
@@ -3172,7 +3179,7 @@ void QEImage::setFormatOption( formatOptions formatOptionIn )
     mFormatOption = formatOptionIn;
 }
 
-QEImage::formatOptions QEImage::getFormatOption()
+imageDataFormats::formatOptions QEImage::getFormatOption()
 {
     return mFormatOption;
 }
@@ -4129,20 +4136,20 @@ double QEImage::maxPixelValue()
 
     switch( mFormatOption )
     {
-        case BAYER:
-        case MONO:
+        case imageDataFormats::BAYER:
+        case imageDataFormats::MONO:
             result = (1<<bitDepth)-1;
             break;
 
-        case RGB1:
-        case RGB2:
-        case RGB3:
+        case imageDataFormats::RGB1:
+        case imageDataFormats::RGB2:
+        case imageDataFormats::RGB3:
             result = (1<<8)-1; //???!!! not done yet probably correct
             break;
 
-        case YUV444:
-        case YUV422:
-        case YUV421:
+        case imageDataFormats::YUV444:
+        case imageDataFormats::YUV422:
+        case imageDataFormats::YUV421:
             result = (1<<8)-1; //???!!! not done yet probably correct
             break;
     }
@@ -4824,8 +4831,8 @@ int QEImage::getPixelValueFromData( const unsigned char* ptr )
     // Case the data to the correct size, then return the data as a floating point number.
     switch( mFormatOption )
     {
-        case BAYER:
-        case MONO:
+        case imageDataFormats::BAYER:
+        case imageDataFormats::MONO:
             {
                 unsigned int usableDepth = bitDepth;
                 if( bitDepth > (imageDataSize*8) )
@@ -4838,14 +4845,14 @@ int QEImage::getPixelValueFromData( const unsigned char* ptr )
                 return (*((quint32*)ptr))&mask;
             }
 
-        case RGB1:
+        case imageDataFormats::RGB1:
             {
                 // for RGB, average all colors
                 unsigned int pixel = *(unsigned int*)ptr;
                 return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
             }
 
-        case RGB2:
+        case imageDataFormats::RGB2:
             //!!! not done - copy of RGB1
             {
                 // for RGB, average all colors
@@ -4853,7 +4860,7 @@ int QEImage::getPixelValueFromData( const unsigned char* ptr )
                 return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
             }
 
-        case RGB3:
+        case imageDataFormats::RGB3:
             //!!! not done - copy of RGB1
             {
                 // for RGB, average all colors
@@ -4861,7 +4868,7 @@ int QEImage::getPixelValueFromData( const unsigned char* ptr )
                 return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
             }
 
-        case YUV444:
+        case imageDataFormats::YUV444:
             //!!! not done - copy of RGB1
             {
                 // for RGB, average all colors
@@ -4869,7 +4876,7 @@ int QEImage::getPixelValueFromData( const unsigned char* ptr )
                 return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
             }
 
-        case YUV422:
+        case imageDataFormats::YUV422:
             //!!! not done - copy of RGB1
             {
                 // for RGB, average all colors
@@ -4877,7 +4884,7 @@ int QEImage::getPixelValueFromData( const unsigned char* ptr )
                 return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
             }
 
-        case YUV421:
+        case imageDataFormats::YUV421:
             //!!! not done - copy of RGB1
             {
                 // for RGB, average all colors
@@ -5356,14 +5363,14 @@ void QEImage::showImageAboutDialog()
     QString name;
     switch( mFormatOption )
     {
-        case MONO:        name = "Monochrome";    break;
-        case BAYER:       name = "Bayer";         break;
-        case RGB1:        name = "8 bit RGB";     break;
-        case RGB2:        name = "RGB2???";       break;
-        case RGB3:        name = "RGB3???";       break;
-        case YUV444:      name = "???bit YUV444"; break;
-        case YUV422:      name = "???bit YUV422"; break;
-        case YUV421:      name = "???bit YUV421"; break;
+        case imageDataFormats::MONO:        name = "Monochrome";    break;
+        case imageDataFormats::BAYER:       name = "Bayer";         break;
+        case imageDataFormats::RGB1:        name = "8 bit RGB";     break;
+        case imageDataFormats::RGB2:        name = "RGB2???";       break;
+        case imageDataFormats::RGB3:        name = "RGB3???";       break;
+        case imageDataFormats::YUV444:      name = "???bit YUV444"; break;
+        case imageDataFormats::YUV422:      name = "???bit YUV422"; break;
+        case imageDataFormats::YUV421:      name = "???bit YUV421"; break;
     }
 
     about.append( QString( "\nExpected format: " ).append( name ));

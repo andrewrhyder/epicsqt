@@ -418,6 +418,16 @@ void MainWindow::on_actionUser_Level_triggered()
     app->login( this );
 }
 
+int MainWindow::countWindows()
+{
+    int count = 0;
+    for( int i = 0; i < guiList.count(); i++ )
+    {
+        count += guiList[i].countWindows();
+    }
+    return count;
+}
+
 // Close this window event
 void MainWindow::closeEvent(QCloseEvent *event)
  {
@@ -429,15 +439,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 
     // If there is only one GUI open (max), just exit
-    int count = 0;
-    for( int i = 0; i < guiList.count(); i++ )
-    {
-        if( !guiList[i].getIsDock() )
-        {
-            count++;
-        }
-    }
-    if( count <= 1 )
+    if( countWindows() <= 1 )
     {
         event->accept();
     }
