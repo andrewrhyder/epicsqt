@@ -33,6 +33,10 @@
 #include <QAbstractItemModel>
 #include <QTreeView>
 #include <QItemSelectionModel>
+#include <QVBoxLayout>
+#include <QCheckBox>
+#include <QLabel>
+#include <QProgressBar>
 
 #include <QCaObject.h>
 #include <QEFrame.h>

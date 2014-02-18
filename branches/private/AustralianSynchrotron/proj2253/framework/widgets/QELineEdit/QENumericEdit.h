@@ -107,7 +107,6 @@ public:
 public:
     double getNumericValue ();
 
-protected:
     // Property set and get functions.
     void setAutoScale (const bool value);
     bool getAutoScale ();
@@ -181,6 +180,10 @@ private:
    Separators mSeparator;
    double mValue;
 
+   // local copy of testAndClearIsFirstUpdate() call.
+   //
+   bool firstNumericUpdate;
+
    void commonConstructor ();
 
    QString imageOfValue ();         // Generate image of the current value - excludes any EGU.
@@ -189,7 +192,7 @@ private:
    bool showSign ();
    bool cursorOverSign ();
 
-   void setNumericValue (const double value);
+   void setNumericValue (const double value, const bool userUpdate);  // as opposed to system update
 
    void setNumericText ();          // Calls parent class setText using string from imageOfValue.
    void setDigitSelection ();       // high-lights selected digit

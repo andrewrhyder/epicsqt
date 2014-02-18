@@ -22,6 +22,12 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
+#include <QLineEdit>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QLayout>
+#include <QHeaderView>
+#include <QFileDialog>
 #include <QEScript.h>
 
 

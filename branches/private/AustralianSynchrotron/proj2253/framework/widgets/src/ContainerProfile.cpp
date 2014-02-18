@@ -644,7 +644,9 @@ void ContainerProfile::setUserLevel( userLevelTypes::userLevels level )
 // Qt only provides a platform directory separator (\ or /)
 QChar ContainerProfile::platformSeperator()
 {
-    return (QDir::separator () == '/' )?':':';';
+    // If directory seperator is '/' platform is linux, path seperator is ':'
+    // else (directory seperator is '\') platform assumed windows, path seperator is ';'
+    return( QDir::separator() == '/' )?':':';';
 }
 
 

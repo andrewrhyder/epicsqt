@@ -28,6 +28,9 @@
   It is tighly integrated with the base class QEWidget. Refer to QEWidget.cpp for details
  */
 
+#include <QGridLayout>
+#include <QMessageBox>
+#include <QGroupBox>
 #include <QELogin.h>
 
 // ============================================================

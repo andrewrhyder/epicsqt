@@ -63,13 +63,13 @@ public:
 
 
     void setConsumer (QObject *consumer);               // Set the consumer of the signal generted by this object
-
-    enum contextMenuOptions{ CM_NONE,                   // Menu options
+    enum contextMenuOptions{ CM_NOOPTION,
                              CM_COPY_VARIABLE, CM_COPY_DATA, CM_PASTE,
                              CM_DRAG_VARIABLE, CM_DRAG_DATA,
                              CM_SHOW_PV_PROPERTIES,
                              CM_ADD_TO_STRIPCHART,
                              CM_ADD_TO_SCRATCH_PAD,
+                             CM_GENERAL_PV_EDIT,
                              CM_SPECIFIC_WIDGETS_START_HERE };
     void setupContextMenu();                            // Set up the standard QE context menu for a QE widget (conextMenu class is a base class for all QE widgets, but a menu is only available to users if this is called)
     bool isDraggingVariable();                          // Return the global 'is dragging variable' flag (Dragging variable is true, draging data if false)
@@ -80,8 +80,10 @@ public:
     virtual QString copyVariable(){ return ""; }        // Function a widget may implement to perform a 'copy variable' operation
     virtual QVariant copyData(){ return ""; }           // Function a widget may implement to perform a 'copy data' operation
     virtual void paste( QVariant ){}                    // Function a widget may implement to perform a 'paste' operation
-    QAction* showContextMenu( const QPoint& pos );          // Present the context menu
-    QAction* showContextMenu( QMenu* menu, const QPoint& pos ); // Present a context menu already created by a call to buildContextMenu()
+    QAction* showContextMenuGlobal( const QPoint& globalPos );              // Create and present a context menu given a global co-ordinate
+    QAction* showContextMenu( const QPoint& pos );                          // Create and present a context menu given a co-ordinate relative to the QE widget
+    QAction* showContextMenuGlobal( QMenu* menu, const QPoint& globalPos ); // Present an existing context menu given a global co-ordinate
+    QAction* showContextMenu( QMenu* menu, const QPoint& pos );             // Present an existing context menu given a co-ordinate relative to the QE widget
 
     void addMenuItem( QMenu* menu, const QString& title, const bool checkable, const bool checked, const int option );
 
@@ -93,6 +95,7 @@ private:
     void doShowPvProperties();                          // 'Show Properties' was selected from the menu
     void doAddToStripChart();                           // 'Add to strip chart' was selected from the menu
     void doAddToScratchPad();                           // 'Add to scratch pad' was selected from the menu
+    void doGeneralPVEdit();                             // 'Add to scratch pad' was selected from the menu
     static bool draggingVariable;                       // Global 'dragging variable' flag (dragging data if false)
     QEWidget* qew;                                      // QEWidget associated with this instance
     bool hasConsumer;                                   // A launch consumer has been set (it is ok to present menu options that require application support to receive signals to, for example, start a strip chart

@@ -31,7 +31,7 @@
 #ifndef VIDEOWIDGET_H
 #define VIDEOWIDGET_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <imageMarkup.h>
 
 class VideoWidget : public QWidget, public imageMarkup
@@ -52,6 +52,7 @@ public:
 
     QImage getImage(){ return refImage; }
     QSize getImageSize();
+    bool hasCurrentImage(){ return !currentImage.isNull(); }                 // Return true if displaying an image
 
 
 

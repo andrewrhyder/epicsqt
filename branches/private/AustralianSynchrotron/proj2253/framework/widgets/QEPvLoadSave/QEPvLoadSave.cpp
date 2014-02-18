@@ -26,6 +26,10 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QModelIndex>
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QHeaderView>
+#include <QApplication>
 
 #include <QECommon.h>
 #include <QEScaling.h>
@@ -753,15 +757,15 @@ void QEPvLoadSave::treeMenuSelected (QAction* action)
          break;
 
       case TCM_SHOW_PV_PROPERTIES:
-         emit this->requestAction (QEActionRequests ("PV Properties...", nodeName));
+         emit this->requestAction (QEActionRequests (QEActionRequests::actionPvProperties (), nodeName));
          break;
 
       case TCM_ADD_TO_STRIPCHART:
-         emit this->requestAction (QEActionRequests ("Strip Chart...", nodeName));
+         emit this->requestAction (QEActionRequests (QEActionRequests::actionStripChart (), nodeName));
          break;
 
       case TCM_ADD_TO_SCRATCH_PAD:
-         emit this->requestAction (QEActionRequests ("Scratch Pad...", nodeName));
+         emit this->requestAction (QEActionRequests (QEActionRequests::actionScratchPad (), nodeName));
          break;
 
       default:

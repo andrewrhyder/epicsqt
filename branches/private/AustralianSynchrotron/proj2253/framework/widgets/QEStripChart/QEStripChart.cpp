@@ -41,6 +41,7 @@
 #include <QScrollArea>
 #include <QStringList>
 #include <QToolButton>
+#include <QApplication>
 
 #include <qwt_plot.h>
 #include <qwt_plot_canvas.h>
@@ -188,7 +189,6 @@ static QEPVNameLists predefinedPVNameList;
 void QEStripChart::createInternalWidgets ()
 {
    unsigned int slot;
-   int x, y;
    QAction* action;
 
    // Create dialog.
@@ -241,16 +241,19 @@ void QEStripChart::createInternalWidgets ()
    this->pvFrame = new QFrame ();  // this will become parented by pvScrollArea
    this->pvFrame->setFixedHeight (PV_FRAME_HEIGHT);
 
+   this->pvGridLayout = new QGridLayout (this->pvFrame);
+   this->pvGridLayout->setContentsMargins (2, 2, 2, 2);
+   this->pvGridLayout->setHorizontalSpacing (8);
+   this->pvGridLayout->setVerticalSpacing (2);
+
    // Create widgets (parented by chart) and chart item that manages these.
    //
    for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
       QEStripChartItem * chartItem  = new QEStripChartItem (this, slot, this->pvFrame);
 
-      x = 4 + (slot % 2) * 492;
-      y = 4 + (slot / 2) * PV_DELTA_HEIGHT;
-
-      chartItem->setGeometry (x, y, 476, PV_DELTA_HEIGHT);
-
+      // Add to grid.
+      //
+      this->pvGridLayout->addWidget (chartItem, slot / 2, slot %2);
       this->items [slot] = chartItem;
    }
 
@@ -520,7 +523,6 @@ void QEStripChart::plotOriginToPoint ()
       this->plotArea->plotSelectedRight (false);
    }
 }
-
 
 //------------------------------------------------------------------------------
 //
@@ -845,14 +847,14 @@ void QEStripChart::nextState ()
 //------------------------------------------------------------------------------
 // Constructor
 //
-QEStripChart::QEStripChart (QWidget * parent) : QFrame (parent), QEWidget (this)
+QEStripChart::QEStripChart (QWidget * parent) : QEFrame (parent)
 {
    // Configure the panel and create contents
    //
    this->setFrameShape (QFrame::Panel);
    this->setFrameShadow (QFrame::Plain);
 
-   this->setMinimumSize (1032, 400);   // keep this and sizeHint consistant
+   this->setMinimumSize (1080, 400);   // keep this and sizeHint consistant
 
    this->timeZoneSpec = Qt::LocalTime;
    this->duration = 600;  // ten minutes.
@@ -905,7 +907,7 @@ QEStripChart::~QEStripChart ()
 //
 QSize QEStripChart::sizeHint () const
 {
-   return QSize (1032, 400);
+   return QSize (1080, 400);
 }
 
 //------------------------------------------------------------------------------
@@ -1028,6 +1030,10 @@ void QEStripChart::tickTimeout ()
    if (this->recalcIsRequired) {
       this->recalculateData ();
    }
+
+   // Progress any on-going chart rescaling.
+   //
+   this->plotArea->doDynamicRescaling ();
 
    if ((this->tickTimerCount % 20) == 0) {
       // 20th update, i.e. 1 second has passed - must replot.

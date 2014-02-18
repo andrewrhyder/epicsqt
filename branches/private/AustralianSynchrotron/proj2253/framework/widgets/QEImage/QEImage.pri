@@ -43,9 +43,18 @@ HEADERS += \
     widgets/QEImage/markupRegion.h \
     widgets/QEImage/markupTarget.h \
     widgets/QEImage/markupText.h \
+    widgets/QEImage/markupEllipse.h \
     widgets/QEImage/brightnessContrast.h \
     widgets/QEImage/QEImageOptionsDialog.h \
-#    widgets/QEImage/mpeg.h
+    widgets/QEImage/QEImageMarkupThickness.h \
+    widgets/QEImage/fullScreenWindow.h \
+    widgets/QEImage/imageDataFormats.h
+
+isEmpty( _QE_FFMPEG ) {
+
+} else {
+    HEADERS += widgets/QEImage/mpeg.h
+}
 
 SOURCES += \
     widgets/QEImage/QEImage.cpp \
@@ -66,9 +75,16 @@ SOURCES += \
     widgets/QEImage/markupRegion.cpp \
     widgets/QEImage/markupTarget.cpp \
     widgets/QEImage/markupText.cpp \
+    widgets/QEImage/markupEllipse.cpp \
     widgets/QEImage/brightnessContrast.cpp \
     widgets/QEImage/QEImageOptionsDialog.cpp \
-#    widgets/QEImage/mpeg.cpp
+    widgets/QEImage/QEImageMarkupThickness.cpp \
+    widgets/QEImage/fullScreenWindow.cpp
+
+isEmpty( _QE_FFMPEG ) {
+} else {
+    SOURCES += widgets/QEImage/mpeg.cpp
+}
 
 INCLUDEPATH += \
     widgets/QEImage
@@ -76,4 +92,5 @@ INCLUDEPATH += \
 # end
 
 FORMS += \
-    widgets/QEImage/QEImageOptionsDialog.ui
+    widgets/QEImage/QEImageOptionsDialog.ui \
+    widgets/QEImage/QEImageMarkupThickness.ui

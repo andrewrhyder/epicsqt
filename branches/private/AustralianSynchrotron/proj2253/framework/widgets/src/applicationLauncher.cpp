@@ -1,4 +1,5 @@
-/*
+/*  applicationLauncher.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -27,11 +28,81 @@
  snapshot of the current image in another application.
  */
 
+#include <iostream>
 #include <QTemporaryFile>
+#include <QMessageBox>
 #include "applicationLauncher.h"
 
 #define FILE_KEYWORD "<FILENAME>"
 
+
+//==============================================================================
+// processManager
+//==============================================================================
+//
+processManager::processManager( bool logOutput, bool useStandardIo, QTemporaryFile* tempFileIn )
+{
+    tempFile = tempFileIn;
+
+    // Catch when the process can be deleted
+    QObject::connect( this, SIGNAL( finished(int, QProcess::ExitStatus) ),
+                      this, SLOT( doFinished(int, QProcess::ExitStatus) ) );
+
+    // Catch output if required.
+    // Note: we do not expect both logOutput and useStandardIo to be true
+    if( logOutput )
+    {
+        QObject::connect( this, SIGNAL( readyReadStandardOutput() ),
+                          this, SLOT( doRead() ) );
+        QObject::connect( this, SIGNAL( readyReadStandardError() ),
+                          this, SLOT( doRead() ) );
+    }
+
+    if( useStandardIo )
+    {
+        QObject::connect( this, SIGNAL( readyReadStandardOutput() ),
+                          this, SLOT(    doReadToStandardOutput() ) );
+        QObject::connect( this, SIGNAL( readyReadStandardError() ),
+                          this, SLOT(    doReadToStandardError() ) );
+    }
+
+}
+
+processManager::~processManager()
+{
+    // qDebug() << "processManager destructor called";
+    if( tempFile )
+    {
+        delete tempFile;
+    }
+}
+
+void processManager::doRead()
+{
+    message.sendMessage( readAll() );
+}
+
+void processManager::doReadToStandardOutput()
+{
+    std::cout << readAllStandardOutput().data();
+}
+
+void processManager::doReadToStandardError()
+{
+    std::cerr << readAllStandardError().data();
+}
+
+void processManager::doFinished( int /*exitCode*/, QProcess::ExitStatus /*exitStatus*/ )
+{
+    emit processCompleted();
+    deleteLater();
+}
+
+
+//==============================================================================
+// applicationLauncher
+//==============================================================================
+//
 applicationLauncher::applicationLauncher()
 {
     programStartupOption = PSO_NONE;
@@ -53,18 +124,24 @@ void applicationLauncher::launchImage( VariableNameManager* variableNameManager,
     // Create a temporary file containing the image
     QTemporaryFile* tempFile = new QTemporaryFile;
     tempFile->open();
-    image.save( tempFile, "TIFF");
+    if( !image.save( tempFile, "TIFF") )
+    {
+        QMessageBox msgBox;
+        msgBox.setText("Can't start application. There is no image available.");
+        msgBox.exec();
+        return;
+    }
 
     // Launch the program
     launchCommon( variableNameManager, tempFile );
 }
 
-void applicationLauncher::launch( VariableNameManager* variableNameManager )
+void applicationLauncher::launch( VariableNameManager* variableNameManager, QObject* receiver )
 {
-    launchCommon( variableNameManager );
+    launchCommon( variableNameManager, NULL, receiver );
 }
 
-void applicationLauncher::launchCommon( VariableNameManager* variableNameManager, QTemporaryFile* tempFile )
+void applicationLauncher::launchCommon( VariableNameManager* variableNameManager, QTemporaryFile* tempFile, QObject* receiver )
 {
     // Do nothing if no program to run
     if( program.isEmpty() )
@@ -74,7 +151,15 @@ void applicationLauncher::launchCommon( VariableNameManager* variableNameManager
 
     // Create a new process to run the program
     // (It will be up to the processManager to delete the temporary file if present)
-    processManager* process = new processManager( programStartupOption == PSO_LOGOUTPUT, tempFile );
+    processManager* process = new processManager( programStartupOption == PSO_LOGOUTPUT,
+                                                  programStartupOption == PSO_STDOUTPUT,
+                                                  tempFile );
+
+    // Connect to caller if a recipient has been provided
+    if( receiver )
+    {
+        QObject::connect( process, SIGNAL( processCompleted() ), receiver, SLOT( programCompletedSlot() ) );
+    }
 
     // Apply substitutions to the arguments
     QStringList substitutedArguments = arguments;
@@ -126,6 +211,7 @@ void applicationLauncher::launchCommon( VariableNameManager* variableNameManager
     }
 
     // Run the program
+    message.sendMessage( QString( "Launching: " ).append( prog ), "Application launcher" );
     process->start( prog );
 
     // Alternate (and cleaner) way to run the program without building a string containing the program and arguments.
@@ -133,3 +219,5 @@ void applicationLauncher::launchCommon( VariableNameManager* variableNameManager
     //  way EDM checks all arguments are identical when the '-one' switch is present?)
     //process->start( substituteThis( program ), substitutedArguments );
 }
+
+// end

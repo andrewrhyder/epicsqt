@@ -179,7 +179,7 @@ public:
     /// This convenience function updates the alarm tool tip, and alarm status style if the displayAlarmState
     /// property is set to true - assumes the widget uses standard properties. This function is perhaps
     /// most usefull for single-variable widgets.
-    void processAlarmInfo( QCaAlarmInfo& alarmInfo );
+    void processAlarmInfo( QCaAlarmInfo& alarmInfo, const unsigned int variableIndex = 0 );
 
     /// Perform a single shot read on all variables (Usefull when not subscribing by default)
     ///

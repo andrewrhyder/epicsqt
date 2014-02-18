@@ -43,6 +43,7 @@
 #include <QEWidget.h>
 #include <QEScaling.h>
 #include <QAction>
+#include <ContainerProfile.h>
 
 // Flag common to all context menus.
 // true if 'dragging the variable
@@ -51,8 +52,15 @@ bool contextMenu::draggingVariable = true;
 
 //======================================================
 // Methods for QObject based contextMenuObject class
-void contextMenuObject::contextMenuTriggeredSlot( QAction* selectedItem ){ menu->contextMenuTriggered( selectedItem->data().toInt() ); }
-void contextMenuObject::showContextMenuSlot( const QPoint& pos ){ menu->showContextMenu( pos ); }
+void contextMenuObject::contextMenuTriggeredSlot( QAction* selectedItem )
+{
+   menu->contextMenuTriggered( selectedItem->data().toInt() );
+}
+
+void contextMenuObject::showContextMenuSlot( const QPoint& pos )
+{
+   menu->showContextMenu( pos );
+}
 
 //======================================================
 
@@ -114,6 +122,17 @@ QMenu* contextMenu::buildContextMenu()
     a = new QAction( "Drag data",              menu ); a->setCheckable( true );  a->setData( CM_DRAG_DATA );          menu->addAction( a );
     a->setChecked( !draggingVariable );
 
+    // Add edit PV menu if and only if we are using the engineer use level.
+    bool inEngineeringMode = qew->getUserLevel () == userLevelTypes::USERLEVEL_ENGINEER;
+    if ( inEngineeringMode )
+    {
+       menu->addSeparator();
+       a = new QAction( "Edit PV", menu );
+       a->setCheckable( false );
+       a->setData( CM_GENERAL_PV_EDIT );
+       menu->addAction( a );
+    }
+
     menu->setTitle( "Use..." );
 
     QObject::connect( menu, SIGNAL( triggered ( QAction* ) ), object, SLOT( contextMenuTriggeredSlot( QAction* )) );
@@ -125,7 +144,16 @@ QMenu* contextMenu::buildContextMenu()
     return menu;
 }
 
-// Present the context menu
+// Create and present a context menu given a global co-ordinate
+QAction* contextMenu::showContextMenuGlobal( const QPoint& globalPos )
+{
+    QMenu* menu = buildContextMenu();
+    QAction* action = showContextMenuGlobal( menu, globalPos );
+    delete menu;
+    return action;
+}
+
+// Create and present a context menu given a co-ordinate relative to the QE widget
 QAction* contextMenu::showContextMenu( const QPoint& pos )
 {
     QMenu* menu = buildContextMenu();
@@ -134,8 +162,14 @@ QAction* contextMenu::showContextMenu( const QPoint& pos )
     return action;
 }
 
-// Present the context menu
-QAction* contextMenu::showContextMenu(  QMenu* menu, const QPoint& pos )
+// Present an existing context menu given a global co-ordinate
+QAction* contextMenu::showContextMenuGlobal( QMenu* menu, const QPoint& globalPos )
+{
+    return menu->exec( globalPos );
+}
+
+// Present an existing context menu given a co-ordinate relative to the QE widget
+QAction* contextMenu::showContextMenu( QMenu* menu, const QPoint& pos )
 {
     QPoint globalPos = qew->getQWidget()->mapToGlobal( pos );
     return menu->exec( globalPos );
@@ -174,7 +208,7 @@ void contextMenu::contextMenuTriggered( int optionNum )
     switch( (contextMenuOptions)(optionNum) )
     {
         default:
-        case contextMenu::CM_NONE:
+        case contextMenu::CM_NOOPTION:
             break;
 
         case contextMenu::CM_COPY_VARIABLE:
@@ -207,6 +241,10 @@ void contextMenu::contextMenuTriggered( int optionNum )
 
         case  contextMenu::CM_ADD_TO_SCRATCH_PAD:
             doAddToScratchPad();
+            break;
+
+       case  contextMenu::CM_GENERAL_PV_EDIT:
+            doGeneralPVEdit();
             break;
     }
 }
@@ -257,7 +295,7 @@ void contextMenu::doPaste()
 void contextMenu::doShowPvProperties ()
 {
     QString pvName = copyVariable();
-    QEActionRequests request( "PV Properties...", pvName );
+    QEActionRequests request( QEActionRequests::actionPvProperties(), pvName );
     object->sendRequestAction( request );
 }
 
@@ -265,7 +303,7 @@ void contextMenu::doShowPvProperties ()
 void contextMenu::doAddToStripChart ()
 {
     QString pvName = copyVariable();
-    QEActionRequests request( "Strip Chart...", pvName );
+    QEActionRequests request( QEActionRequests::actionStripChart(), pvName );
     object->sendRequestAction( request );
 }
 
@@ -273,7 +311,15 @@ void contextMenu::doAddToStripChart ()
 void contextMenu::doAddToScratchPad()
 {
    QString pvName = copyVariable();
-   QEActionRequests request( "Scratch Pad...", pvName );
+   QEActionRequests request( QEActionRequests::actionScratchPad(), pvName );
+   object->sendRequestAction( request );
+}
+
+// Request mini general PV edit form.
+void contextMenu::doGeneralPVEdit()
+{
+   QString pvName = copyVariable();
+   QEActionRequests request( QEActionRequests::actionGeneralPvEdit(), pvName );
    object->sendRequestAction( request );
 }
 

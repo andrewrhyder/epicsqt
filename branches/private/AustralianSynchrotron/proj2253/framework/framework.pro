@@ -39,16 +39,38 @@ win32QMAKE_LFLAGS += -Wl,-enable-auto-import
 
 #===========================================================
 # Project configuration
-QT += core gui xml network
+
+# Qt 4 configuration
+equals( QT_MAJOR_VERSION, 4 ) {
+    CONFIG += plugin debug_and_release uitools designer qwt
+    QT += core gui xml network
+}
+
+# Qt 5 configuration
+equals( QT_MAJOR_VERSION, 5 ) {
+    CONFIG += plugin debug_and_release qwt
+    QT += core gui xml network uitools designer
+}
+
 TEMPLATE = lib
-CONFIG += plugin \
-    uitools \
-    designer \
-    debug_and_release \
-    qwt
+
 DEFINES += QEPLUGIN_LIBRARY
 DESTDIR = designer
 TARGET = QEPlugin
+
+DEFINES += QWT_DLL=TRUE
+
+#===========================================================
+# Include MPEG streaming into QEImage widget
+# If mpeg streaming is required, define environment variable QE_FFMPEG (on windows, this must point to the FFMPEG directory)
+
+_QE_FFMPEG = $$(QE_FFMPEG)
+isEmpty( _QE_FFMPEG ) {
+    warning( "MPEG viewer will NOT be included in QEImage. If you want MPEG support install FFmpeg and define environment variable QE_FFMPEG. This can be defined as anything on linux, but must point to the FFmpeg directory on windows" )
+} else {
+    warning( "MPEG viewer will be included in QEImage. FFmpeg libraries will be expected. On windows the environment variable QE_FFMPEG must point to the FFmpeg directory. Remove environment variable QE_FFMPEG if you don't want this" )
+    DEFINES += QE_USE_MPEG
+}
 
 #===========================================================
 # Project files
@@ -73,6 +95,7 @@ include (widgets/QEFileImage/QEFileImage.pri)
 include (widgets/QEForm/QEForm.pri)
 include (widgets/QEFormGrid/QEFormGrid.pri)
 include (widgets/QEFrame/QEFrame.pri)
+include (widgets/QEGeneralEdit/QEGeneralEdit.pri)
 include (widgets/QEGroupBox/QEGroupBox.pri)
 include (widgets/QEImage/QEImage.pri)
 include (widgets/QELabel/QELabel.pri)
@@ -98,9 +121,7 @@ include (widgets/QEStripChart/QEStripChart.pri)
 include (widgets/QESubstitutedLabel/QESubstitutedLabel.pri)
 include (widgets/deprecated/deprecated.pri)
 
-HEADERS +=
-SOURCES +=
-
+OTHER_FILES += analogindicator.json
 
 #===========================================================
 # Extra targets
@@ -161,21 +182,35 @@ isEmpty( _QWT_INCLUDE_PATH ) {
 # qwt was not installed fully, with qwt available as a Qt 'feature'.
 # When installed as a Qt 'feature' all that is needed is CONFIG += qwt (above)
 INCLUDEPATH += $$(QWT_INCLUDE_PATH)
-#LIBS += -LC:\Qwt-6.0.1\lib
+#win32:LIBS += -LC:/qwt-6.0.1/lib
+win32:LIBS += -LC:/qwt-6.1.0/lib
 
 # Depending on build, the qwt library below may need to be -lqwt or -lqwt6
-LIBS += -lqwt
+win32 {
+    debug {
+        LIBS += -lqwtd
+    }
+    release {
+        LIBS += -lqwt
+    }
+}
+
+unix {
+    LIBS += -lqwt
+}
 
 # ffmpeg stuff
-#INCLUDEPATH += /usr/local/include
-#LIBS += -L/usr/local/lib/
-#LIBS += -lavdevice -lavformat -lavcodec -lavutil -lbz2 -lswscale -lz
-#LIBS += -lX11
-#DEFINES += __STDC_CONSTANT_MACROS
+isEmpty( _QE_FFMPEG ) {
+} else {
+    unix:INCLUDEPATH += /usr/local/include
+    unix:LIBS += -L/usr/local/lib/
 
-# xvideo stuff
-#LIBS += -lXv
+    win32:INCLUDEPATH += $$_QE_FFMPEG/include
+    win32:LIBS += -L$$_QE_FFMPEG/lib
 
+    LIBS += -lavutil -lavcodec -lavformat
+    unix:DEFINES += __STDC_CONSTANT_MACROS
+}
 
 #
 # end

@@ -23,7 +23,10 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
+#include <QDebug>
 #include "QEToolTip.h"
+
+#define DEBUG qDebug () << "QEToolTip" << __FUNCTION__ << __LINE__
 
 QEToolTip::QEToolTip(  QWidget* ownerIn )
 {
@@ -37,13 +40,12 @@ QEToolTip::QEToolTip(  QWidget* ownerIn )
     // Keep a handle on the underlying QWidget of the QE widgets
     owner = ownerIn;
 
-    isConnected = false;
-
+    number = 0;
     variableAsToolTip = true;
 }
 
 // Property set: variable as tool tip
-void QEToolTip::setVariableAsToolTip( bool variableAsToolTipIn )
+void QEToolTip::setVariableAsToolTip( const bool variableAsToolTipIn )
 {
 
     // Set the new tool tip type
@@ -54,24 +56,44 @@ void QEToolTip::setVariableAsToolTip( bool variableAsToolTipIn )
 }
 
 // Property get: variable as tool tip
-bool QEToolTip::getVariableAsToolTip()
+bool QEToolTip::getVariableAsToolTip() const
 {
     return variableAsToolTip;
 }
 
+// Ensures list are large enough.
+//
+void QEToolTip::setNumberToolTipVariables (const unsigned int numberIn)
+{
+    number = numberIn;
+
+    while (toolTipVariable.count()    < (int) number) toolTipVariable << "";
+    while (toolTipAlarm.count()       < (int) number) toolTipAlarm << "";
+    while (toolTipIsConnected.count() < (int) number) toolTipIsConnected << false;
+
+    while (toolTipVariable.count()    > (int) number) toolTipVariable.removeLast();
+    while (toolTipAlarm.count()       > (int) number) toolTipAlarm.removeLast();
+    while (toolTipIsConnected.count() > (int) number) toolTipIsConnected.removeLast();
+}
+
 // Update the variable used in the tool tip
 // (Used when displaying a dynamic tool tip only)
-void QEToolTip::updateToolTipVariable ( const QString& variable ) {
-    toolTipVariable = variable;
-    displayToolTip();
+void QEToolTip::updateToolTipVariable ( const QString& variable, const unsigned int variableIndex )
+{
+    if ((int) variableIndex < toolTipVariable.count ()) {
+        toolTipVariable.replace( variableIndex, variable );
+        displayToolTip();
+    }
 }
 
 // Update the variable alarm status used in the tool tip
 // (Used when displaying a dynamic tool tip only)
-void QEToolTip::updateToolTipAlarm ( const QString& alarm )
+void QEToolTip::updateToolTipAlarm ( const QString& alarm, const unsigned int variableIndex )
 {
-    toolTipAlarm = alarm;
-    displayToolTip();
+    if ((int) variableIndex < toolTipAlarm.count ()) {
+        toolTipAlarm .replace( variableIndex, alarm );
+        displayToolTip();
+    }
 }
 
 // Update the variable custom information used in the tool tip
@@ -84,11 +106,14 @@ void QEToolTip::updateToolTipCustom ( const QString& custom )
 
 // Update the variable connection status used in the tool tip
 // (Used when displaying a dynamic tool tip only)
-void QEToolTip::updateToolTipConnection ( bool isConnectedIn )
+void QEToolTip::updateToolTipConnection ( bool isConnectedIn, const unsigned int variableIndex )
 {
-    isConnected = isConnectedIn;
-    displayToolTip();
+    if ((int) variableIndex < toolTipIsConnected.count ()) {
+        toolTipIsConnected.replace (variableIndex, isConnectedIn);
+        displayToolTip();
+    }
 }
+
 
 // Build and display the tool tip from the name and state if dynamic
 void QEToolTip::displayToolTip()
@@ -96,18 +121,36 @@ void QEToolTip::displayToolTip()
     // If using the variable name as the tool tip, build the tool tip
     if( variableAsToolTip )
     {
-        QString toolTip( toolTipVariable );
+        int count = 0;
+        QString toolTip = "";
 
-        if( toolTipAlarm.size() )
-            toolTip.append( " - " ).append( toolTipAlarm );
+        for (unsigned int j = 0; j < number; j++) {
+            QString pvName = toolTipVariable.value (j, "");
+            if( pvName.size() ) {
+                if (count > 0) {
+                    toolTip.append( "\n" );
+                }
+                count++;
+                toolTip.append( pvName );
 
-        if( !isConnected )
-            toolTip.append( " - Disconnected" );
+                if( toolTipIsConnected.value (j, false ) ) {
+                    // Only connected PVs have an alarm state.
+                    if( toolTipAlarm [j].size() )
+                        toolTip.append( " - " ).append( toolTipAlarm.value (j, "") );
 
+                } else {
+                    toolTip.append( " - Disconnected" );
+                }
+            }
+        }
+        if (count == 0) {
+            toolTip = "No variables defined";
+        }
         if( toolTipCustom.size() )
-           toolTip.append( " - " ).append( toolTipCustom );
+            toolTip.append( " - " ).append( toolTipCustom );
 
         owner->setToolTip( toolTip );
     }
 }
 
+// end

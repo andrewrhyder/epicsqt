@@ -36,6 +36,7 @@
     markupLine
     markupRegion
     markupText
+    markupEllipse
  All these classes are are included in this module
 
  This module draws markups when interacting with the user, and also when the image changes.
@@ -98,6 +99,7 @@ public:
                      MARKUP_ID_TARGET,
                      MARKUP_ID_BEAM,
                      MARKUP_ID_TIMESTAMP,
+                     MARKUP_ID_ELLIPSE,
                      MARKUP_ID_COUNT,  // must be second last
                      MARKUP_ID_NONE }; // must be last
 
@@ -118,6 +120,8 @@ public:
     void markupLineProfileChange( QPoint start, QPoint end, bool displayMarkups );   // Arbitrary profile data has changed. Change markups to match
     void markupTargetValueChange( QPoint point, bool displayMarkups );               // Target position data has changed. Change markup to match
     void markupBeamValueChange( QPoint point, bool displayMarkups );                 // Beam position data has changed. Change markup to match
+    void markupEllipseValueChange( QPoint point1, QPoint point2, bool displayMarkups ); // Ellipse position data has changed. Change markup to match
+
     void markupValueChange( int markup, bool displayMarkups, QPoint p1, QPoint p2 = QPoint() ); // A markup related value has changed. Change markups to match
 
     // The following are only public so they may be accessed by (internal) markup items.
@@ -134,6 +138,12 @@ public:
     virtual void markupSetCursor( QCursor cursor )=0;           // Inform the VideoWidget that that the cursor should change
     QFont legendFont;                                           // Font used to notate markups (and for time)
     QFontMetrics* legendFontMetrics;                            // Size info about legendFont;
+
+    void setMarkupLegend( markupIds mode, QString legend );     // Set the markup legend (for example, area 1 markup might be called 'ROI 1')
+    QString getMarkupLegend( markupIds mode );                  // Get the markup legend
+    void clearMarkup( markupIds markupId );                     // Hide a markup
+    void showMarkup( markupIds markupId );                      // Reveal a markup
+
 
 protected:
     void drawMarkups( QPainter& p, const QRect& rect );         // The image has changed, redraw the markups if any
@@ -153,7 +163,10 @@ protected:
     virtual void markupAction( markupIds mode, bool complete, bool clearing, QPoint point1, QPoint point2, unsigned int thickness )=0;     // There is an application task to do in response to user interaction with the markups
 
 private:
-    void setActiveItem( const QPoint& pos );    // // Determine if the user clicked over an interactive, visible item
+    void setActiveItem( const QPoint& pos );                            // Determine if the user clicked over an interactive, visible item
+    void setThickness( markupIds markupId, unsigned int newThickness ); // Set a markup to a thickness
+    void setSinglePixelThickness( markupIds markupId );                 // Set a markup to signel pixel thickness
+
     markupIds activeItem;                       // Current markup being interacted with
     markupIds mode;                             // Current operation
     void redrawActiveItemHere( QPoint pos );    // The active item has moved to a new position. Redraw it.

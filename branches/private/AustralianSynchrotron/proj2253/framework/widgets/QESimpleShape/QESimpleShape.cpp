@@ -64,6 +64,7 @@ void QESimpleShape::setup ()
    this->textFormat = FixedText;
    this->fixedText = "";
    this->textImage = "";
+   this->isStaticValue = false;
 
    for (j = 0; j < 16; j++) {
       this->colourList[j] = QColor (200, 200, 200, 255);
@@ -140,32 +141,39 @@ void QESimpleShape::paintEvent (QPaintEvent * /* event */ )
    QRect rect;
    QPoint polygon[8];
    QColor colour;
-   qcaobject::QCaObject* qca;
+   qcaobject::QCaObject* qca = NULL;
    QString text;
    int x0, x1, x2;
    int y0, y1, y2;
 
-
-   // Associated qca object - test if connected but also avoid the segmentation fault.
-   //
-   qca = this->getQcaItem (0);
-   if (qca && this->isConnected) {
-      if (this->getDisplayAlarmState ()) {
-         // Use alarm colour
-         //
-         QCaAlarmInfo ai = qca->getAlarmInfo ();        // 1st param is & mode - cannot use a function.
-         colour = this->getColor (ai, 255);
-      } else {
-         // Use value to index colour table.
-         //
-         colour = this->getColourProperty (this->getModuloValue ());
-      }
-      pen.setColor (QColor (0, 0, 0, 255));   // black
-   } else {
-      // Not connected - use washed-out gray.
+   if (this->isStaticValue) {
+      // Use value to index colour table.
       //
-      colour = QColor (220, 220, 220, 255);
-      pen.setColor (QColor (140, 140, 140, 255));
+      colour = this->getColourProperty (this->getModuloValue ());
+   } else {
+
+      // Associated qca object - test if connected but also avoid the segmentation fault.
+      //
+      qca = this->getQcaItem (0);
+
+      if (qca && this->isConnected) {
+         if (this->getDisplayAlarmState ()) {
+            // Use alarm colour
+            //
+            QCaAlarmInfo ai = qca->getAlarmInfo ();        // 1st param is & mode - cannot use a function.
+            colour = this->getColor (ai, 255);
+         } else {
+            // Use value to index colour table.
+            //
+            colour = this->getColourProperty (this->getModuloValue ());
+         }
+         pen.setColor (QColor (0, 0, 0, 255));   // black
+      } else {
+         // Not connected - use washed-out gray.
+         //
+         colour = QColor (220, 220, 220, 255);
+         pen.setColor (QColor (140, 140, 140, 255));
+      }
    }
 
    pen.setWidth (1);
@@ -387,18 +395,52 @@ void QESimpleShape::paintEvent (QPaintEvent * /* event */ )
 }
 
 //------------------------------------------------------------------------------
+// Update variable name etc.
+//
+void QESimpleShape::useNewVariableNameProperty (QString variableNameIn,
+                                                QString variableNameSubstitutionsIn,
+                                                unsigned int variableIndex)
+{
+   this->isStaticValue = false;
+
+   // Note: essentially calls createQcaItem - provided expanded pv name is not empty.
+   //
+   this->setVariableNameAndSubstitutions (variableNameIn,
+                                          variableNameSubstitutionsIn,
+                                          variableIndex);
+
+   this->update ();       // causes a paint event.
+}
+
+//------------------------------------------------------------------------------
 // Implementation of QEWidget's virtual funtion to create the specific type of QCaObject required.
 // For shape, a QCaObject that streams integers is required.
 //
 qcaobject::QCaObject * QESimpleShape::createQcaItem (unsigned int variableIndex)
 {
-
-   qcaobject::QCaObject * result;
+   qcaobject::QCaObject* result = NULL;
+   QString pvName;
+   int number;
+   bool okay;
 
    if (variableIndex == 0) {
-      result = new QEInteger (getSubstitutedVariableName (variableIndex), this, &integerFormatting, variableIndex);
+      pvName = this->getSubstitutedVariableName (variableIndex);
+      number = pvName.toInt (&okay) & 0x0F;
+      // Has designer/user just set an integer (as opposed to a PV name)?.
+      // Note: no sensible PV names are just integers.
+      //
+      if (okay) {
+         this->isStaticValue = true;
+         this->value = number;
+         this->setTextImage ();
+      } else {
+         // Assume it is a PV.
+         //
+         result = new QEInteger (pvName, this, &this->integerFormatting, variableIndex);
+      }
+
    } else {
-      result = NULL;            // Unexpected
+      result = NULL;         // Unexpected
    }
 
    return result;
@@ -441,14 +483,14 @@ void QESimpleShape::establishConnection (unsigned int variableIndex)
 //
 void QESimpleShape::connectionChanged (QCaConnectionInfo & connectionInfo)
 {
-    // Note the connected state
-    isConnected = connectionInfo.isChannelConnected();
+   // Note the connected state
+   isConnected = connectionInfo.isChannelConnected();
 
-    // Display the connected state
-    updateToolTipConnection( isConnected );
-    updateConnectionStyle( isConnected );
+   // Display the connected state
+   updateToolTipConnection( isConnected );
+   updateConnectionStyle( isConnected );
 
-    this->isFirstUpdate = true;  // more trob. than it's worth to check if connect or disconnect.
+   this->isFirstUpdate = true;  // more trob. than it's worth to check if connect or disconnect.
 
    this->update ();
 }
@@ -535,16 +577,6 @@ void QESimpleShape::setShapeValues (const QVector<long> & values,
 {
    int slot = 0;
    this->setShapeValue (values.value (slot), alarmInfo, dateTime, variableIndex);
-}
-
-//------------------------------------------------------------------------------
-//  Update variable name etc.
-//
-void QESimpleShape::useNewVariableNameProperty (QString variableNameIn,
-                                                QString variableNameSubstitutionsIn,
-                                                unsigned int variableIndex)
-{
-   this->setVariableNameAndSubstitutions (variableNameIn, variableNameSubstitutionsIn, variableIndex);
 }
 
 //------------------------------------------------------------------------------
@@ -679,10 +711,10 @@ void QESimpleShape::setDrop (QVariant drop)
 //
 QVariant QESimpleShape::getDrop ()
 {
-    if( isDraggingVariable() )
-        return QVariant( copyVariable() );
-    else
-        return copyData();
+   if( isDraggingVariable() )
+      return QVariant( copyVariable() );
+   else
+      return copyData();
 }
 
 //==============================================================================
@@ -702,10 +734,10 @@ QVariant QESimpleShape::copyData ()
 
 void QESimpleShape::paste( QVariant v )
 {
-    if( getAllowDrop() )
-    {
-        setDrop( v );
-    }
+   if( getAllowDrop() )
+   {
+      setDrop( v );
+   }
 }
 
 // end

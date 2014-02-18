@@ -168,7 +168,10 @@ void VideoWidget::paintEvent(QPaintEvent* event )
     painter.drawImage( event->rect(), refImage, event->rect() );
 
     // Update any markups
-    drawMarkups( painter, event->rect() );
+    if( !currentImage.isNull() )
+    {
+        drawMarkups( painter, event->rect() );
+    }
 
     // Report position for pixel info logging
     emit currentPixelInfo( pixelInfoPos );
@@ -178,16 +181,19 @@ void VideoWidget::paintEvent(QPaintEvent* event )
 void VideoWidget::resizeEvent( QResizeEvent *event )
 {
     // Ignore resizes from nothing (there are no markups and scaling calculations go weird)
-    if( event->oldSize().width() == 0 || event->oldSize().height() == 0 )
+    if( event->oldSize().width() <= 0 || event->oldSize().height() <= 0 )
     {
         return;
     }
 
-    emit redraw();
+    // If there is a current image, redraw it and recalculate the markup dimensions
+    if( !currentImage.isNull() )
+    {
+        emit redraw();
+    }
 
     // Ensure the markups match the new size
     markupResize( event->size(), event->oldSize(), getScale() );
-
 }
 
 // Act on a markup change

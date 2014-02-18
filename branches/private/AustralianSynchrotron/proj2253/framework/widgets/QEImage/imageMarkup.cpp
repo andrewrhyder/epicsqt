@@ -34,6 +34,8 @@
 #include <markupLine.h>
 #include <markupRegion.h>
 #include <markupText.h>
+#include <markupEllipse.h>
+#include <QEImageMarkupThickness.h>
 
 #include <imageContextMenu.h>
 
@@ -58,6 +60,7 @@ imageMarkup::imageMarkup()
     items[MARKUP_ID_TARGET]    = new markupTarget( this, true,  true, "target" );
     items[MARKUP_ID_BEAM]      = new markupBeam(   this, true,  true, "beam" );
     items[MARKUP_ID_TIMESTAMP] = new markupText(   this, false, false, "" );
+    items[MARKUP_ID_ELLIPSE]   = new markupEllipse(this, false, false, "Centroid" );
 
     markupAreasStale = true;
 
@@ -251,7 +254,7 @@ bool imageMarkup::markupMousePressEvent(QMouseEvent *event, bool panning)
 }
 
 // Manage the markups as the mouse moves
-bool imageMarkup::markupMouseMoveEvent( QMouseEvent* event, bool panning )
+bool imageMarkup::markupMouseMoveEvent( QMouseEvent* event, bool /*panning*/ )
 {
     // If no button is down, ensure the cursor reflects what it is over
     // (once the button is pressed, this doesn't need to be assesed again)
@@ -270,8 +273,8 @@ bool imageMarkup::markupMouseMoveEvent( QMouseEvent* event, bool panning )
             }
         }
 
-        // If not panning and not over any item, set the default markup cursor
-        if( !panning && i == n /*loop completed without finding an item under the cursor*/ )
+        // If not over any item, set the default markup cursor
+        if( i == n /*loop completed without finding an item under the cursor*/ )
         {
             markupSetCursor( getDefaultMarkupCursor() );
         }
@@ -377,6 +380,13 @@ void imageMarkup::markupVProfileChange( int x, bool displayMarkups )
 void imageMarkup::markupLineProfileChange( QPoint start, QPoint end, bool displayMarkups )
 {
     markupValueChange( MARKUP_ID_LINE, displayMarkups, start, end );
+}
+
+// An ellipse markup value has changed.
+// Update the markup
+void imageMarkup::markupEllipseValueChange( QPoint start, QPoint end, bool displayMarkups )
+{
+    markupValueChange( MARKUP_ID_ELLIPSE, displayMarkups, start, end );
 }
 
 // A target value has changed.
@@ -535,7 +545,7 @@ void imageMarkup::markupResize( const QSize& newSize, const QSize& oldSize, cons
         {
             changedAreas.append( item->area );
 
-            markupAction( (markupIds)i, false, false, item->getPoint1(), item->getPoint2(), item->getThickness() );
+//            markupAction( (markupIds)i, false, false, item->getPoint1(), item->getPoint2(), item->getThickness() );
         }
     }
 
@@ -559,6 +569,41 @@ bool imageMarkup::anyVisibleMarkups()
         }
     }
     return false;
+}
+
+// Set the legend for a given mode.
+// For example, area 1 markup might be called 'ROI 1'
+void imageMarkup::setMarkupLegend( markupIds mode, QString legendIn )
+{
+    // Do nothing if mode is invalid
+    if( mode < 0 || mode >= MARKUP_ID_NONE )
+    {
+        return ;
+    }
+
+    // Save the new markup legend
+    items[mode]->setLegend( legendIn );
+
+    // If the item is visible, redraw it with the new legend
+    QVector<QRect> changedAreas;
+    if( items[mode]->visible )
+    {
+        changedAreas.append( items[mode]->area );
+        markupChange( changedAreas );
+    }
+}
+
+// Return the legend for a given mode.
+QString imageMarkup::getMarkupLegend( markupIds mode )
+{
+    // Do nothing if mode is invalid
+    if( mode < 0 || mode >= MARKUP_ID_NONE )
+    {
+        return QString();
+    }
+
+    // Return the markup legend
+    return items[mode]->getLegend();
 }
 
 // Set the color for a given mode.
@@ -673,43 +718,19 @@ bool imageMarkup::showMarkupMenu( const QPoint& pos, const QPoint& globalPos )
             break;
 
         case imageContextMenu::ICM_CLEAR_MARKUP:
-        {
-            items[activeItem]->visible = false;
-            QVector<QRect> changedAreas;
-            changedAreas.append( items[activeItem]->area );
-            markupChange( changedAreas );
-
-            markupAction( activeItem, false, true, QPoint(), QPoint(), 0 );
-
-            activeItem = MARKUP_ID_NONE;
+            clearMarkup( activeItem );
             break;
-        }
-
 
         case imageContextMenu::ICM_THICKNESS_ONE_MARKUP:
-        {
-            markupItem* item = items[activeItem];
-
-            // Start a list of affected areas
-            QVector<QRect> changedAreas;
-
-            // Include the area of the item before its thickness changes
-            changedAreas.append( item->area );
-
-            // set the thickness of the item
-            item->setThickness( 1 );
-
-            // Include the area of the item after its thickness has changed
-            changedAreas.append( item->area );
-
-            // Repaint
-            markupChange( changedAreas );
-
-            markupAction( activeItem, false, false, item->getPoint1(), item->getPoint2(), item->getThickness() );
+            setSinglePixelThickness( activeItem );
             break;
-        }
 
         case imageContextMenu::ICM_THICKNESS_SELECT_MARKUP:
+            // Get a new thickness from the user
+            QEImageMarkupThickness thicknessDialog;
+            thicknessDialog.setThickness( items[activeItem]->getThickness() );
+            thicknessDialog.exec();
+            setThickness( activeItem, thicknessDialog.getThickness() );
             break;
     }
 
@@ -731,6 +752,101 @@ void imageMarkup::setActiveItem( const QPoint& pos )
             activeItem = (markupIds)i;
             grabOffset = pos - items[i]->origin();
             break;
+        }
+    }
+}
+
+// Hide a markup
+void imageMarkup::clearMarkup( markupIds markupId )
+{
+    items[markupId]->visible = false;
+    QVector<QRect> changedAreas;
+    changedAreas.append( items[markupId]->area );
+    // Redraw the now hidden item
+    markupChange( changedAreas );
+
+    // Take the appropriate user action for a markup being hidden
+    markupAction( markupId, false, true, QPoint(), QPoint(), 0 );
+
+    // If the hidden markup was the current markup being manipulated, change to 'no current markup'
+    if( activeItem == markupId )
+    {
+        activeItem = MARKUP_ID_NONE;
+    }
+}
+
+// Reveal a markup
+// (Only if it has any size)
+void imageMarkup::showMarkup( markupIds markupId )
+{
+    markupItem* item = items[markupId];
+    QRect area = item->area;
+    if( ( item->getPoint1().x() != item->getPoint2().x() ) ||
+        ( item->getPoint1().y() != item->getPoint2().y() ) )
+    {
+        QVector<QRect> changedAreas;
+        changedAreas.append( area );
+        item->visible = true;
+
+        // Redraw the now visible item
+        markupChange( changedAreas );
+
+        // Don't call markupAction() as nothing has actually happened. The markup has not been changed
+        // markupAction( markupId, true, false, items[markupId]->getPoint1(), items[markupId]->getPoint2(), items[markupId]->thickness );
+    }
+}
+
+// Set a markup to signel pixel thickness.
+// Initially used for profile line markups.
+void imageMarkup::setSinglePixelThickness( markupIds markupId )
+{
+    markupItem* item = items[markupId];
+
+    // Include the area of the item before its thickness changes
+    QVector<QRect> changedAreas;
+    changedAreas.append( item->area );
+
+    // set the thickness of the item
+    item->setThickness( 1 );
+
+    // Apply the markup change if visible
+    if( item->visible )
+    {
+        // Include the area of the item after its thickness has changed
+        changedAreas.append( item->area );
+
+        // Repaint
+        markupChange( changedAreas );
+
+        // Use the changed markup
+        markupAction( markupId, false, false, item->getPoint1(), item->getPoint2(), item->getThickness() );
+    }
+}
+
+// Set a markup to a thickness.
+// Initially used for profile line markups.
+void imageMarkup::setThickness( markupIds markupId, unsigned int newThickness )
+{
+    markupItem* item = items[markupId];
+
+    // Update the item if the thickness has changed
+    if( newThickness != item->getThickness() )
+    {
+        // Change the thickness
+        QVector<QRect> changedAreas;
+        item->setThickness( newThickness );
+
+        // Apply the markup change if visible
+        if( item->visible )
+        {
+            // Include the area of the item after its thickness has changed
+            changedAreas.append( item->area );
+
+            // Repaint
+            markupChange( changedAreas );
+
+            // Use the changed markup
+            markupAction( markupId, false, false, item->getPoint1(), item->getPoint2(), item->getThickness() );
         }
     }
 }

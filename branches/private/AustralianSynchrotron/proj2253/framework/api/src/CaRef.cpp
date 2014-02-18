@@ -49,6 +49,8 @@ static epicsMutexId accessMutex = createMutex();
 static CaRef* carefListHead = NULL;
 static CaRef* carefListTail = NULL;
 
+unsigned int CaRef::nextSequence = 0;
+
 // Get exclusive access
 void CaRef::accessLock()
 {
@@ -95,6 +97,8 @@ CaRef* CaRef::getCaRef( void* ownerIn, bool ownerIsCaObjectIn )
 // Don't use directly. Called by getCaRef() if none available for reuse
 CaRef::CaRef( void* ownerIn, bool ownerIsCaObjectIn )
 {
+    usageCount = 0;
+    sequence = nextSequence++;
     init( ownerIn, ownerIsCaObjectIn );
 }
 
@@ -108,6 +112,7 @@ void CaRef::init( void* ownerIn, bool ownerIsCaObjectIn )
     next = NULL;
     idleTime = 0;
     ownerIsCaObject = ownerIsCaObjectIn;
+    usageCount++;
 //    dumpList();
 }
 
@@ -148,7 +153,7 @@ void* CaRef::getRef( void* channelIn )
     // Sanity check - was the CA user data really a CaRef pointer
     if( magic != CAREF_MAGIC )
     {
-        printf( "CaRef::getRef() called the CA user data was not really a CaRef pointer. (magic number is bad).  CA user data: %ld\n", (long)this );
+        printf( "CaRef::getRef() called but the CA user data was not really a CaRef pointer. (magic number is bad).  CA user data: %ld\n", (long)this );
         return NULL;
     }
 

@@ -25,6 +25,7 @@
 
 #include <QDebug>
 #include <QColor>
+#include <QApplication>
 
 #include <QECommon.h>
 #include <QEPvPropertiesUtilities.h>

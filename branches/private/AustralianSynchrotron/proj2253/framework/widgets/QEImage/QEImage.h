@@ -31,6 +31,7 @@
 #include <videowidget.h>
 #include <QVBoxLayout>
 #include <QGridLayout>
+#include <QToolBar>
 #include <profilePlot.h>
 #include <zoomMenu.h>
 #include <flipRotateMenu.h>
@@ -40,11 +41,26 @@
 #include <imageInfo.h>
 #include <brightnessContrast.h>
 #include <applicationLauncher.h>
+#include "imageDataFormats.h"
 
+#include <QEStringFormatting.h>
 #include <QEPluginLibrary_global.h>
 #include <QEIntegerFormatting.h>
 #include <QEFloatingFormatting.h>
-//#include <mpeg.h>
+#include <fullScreenWindow.h>
+
+// Only include the mpeg stuff if required.
+// To include mpeg stuff, don't define QE_USE_MPEG directly, define environment variable
+// QE_FFMPEG to be processed by framework.pro
+#ifdef QE_USE_MPEG
+#include <mpeg.h>
+#else
+// Define a stub mpegSource class in place of the class defined when mpeg.h is included.
+// this is reauired as mpegSource is a base class for QEImage
+class mpegSource
+{
+};
+#endif // QE_USE_MPEG
 
 // Class to keep track of a rectangular area such as region of interest or profile line information
 // As data arrives, this class is used to record it.
@@ -122,8 +138,7 @@ class pointInfo
         bool haveY;
 };
 
-
-class QEPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QEWidget, public imageInfo/*, mpegSource*/ {
+class QEPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QEWidget, public imageInfo, private mpegSource {
     Q_OBJECT
 
   public:
@@ -165,21 +180,8 @@ public:
     void setBitDepth( unsigned int bitDepthIn );                        ///< Access function for #bitDepth property - refer to #bitDepth property for details
     unsigned int getBitDepth();                                         ///< Access function for #bitDepth property - refer to #bitDepth property for details
 
-    // Video format options
-    /// \enum formatOptions
-    /// Video format options
-    enum formatOptions{ MONO,           ///< Grey scale
-                        BAYER,          ///< Colour (Bayer)
-                        RGB1,           ///< Colour (RGB ???)
-                        RGB2,           ///< Colour (RGB ???)
-                        RGB3,           ///< Colour (RGB ???)
-                        YUV444,         ///< Colour (???)
-                        YUV422,         ///< Colour (???)
-                        YUV421          ///< Colour (???)
-                      };
-
-    void setFormatOption( formatOptions formatOption );                 ///< Access function for #formatOption property - refer to #formatOption property for details
-    formatOptions getFormatOption();                                    ///< Access function for #formatOption property - refer to #formatOption property for details
+    void setFormatOption( imageDataFormats::formatOptions formatOption );                 ///< Access function for #formatOption property - refer to #formatOption property for details
+    imageDataFormats::formatOptions getFormatOption();                                    ///< Access function for #formatOption property - refer to #formatOption property for details
 
     // Size options
     /// \enum resizeOptions
@@ -244,6 +246,9 @@ public:
     void setTimeMarkupColor(QColor pValue);                             ///< Access function for #timeColor property - refer to #timeColor property for details
     QColor getTimeMarkupColor();                                        ///< Access function for #timeColor property - refer to #timeColor property for details
 
+    void setEllipseMarkupColor(QColor markupColor );                    ///< Access function for ellipseColor property - refer to #ellipseColor property for details
+    QColor getEllipseMarkupColor();                                     ///< Access function for #ellipseColor property - refer to #ellipseColor property for details
+
     void setDisplayCursorPixelInfo( bool displayCursorPixelInfo );      ///< Access function for #displayCursorPixelInfo property - refer to #displayCursorPixelInfo property for details
     bool getDisplayCursorPixelInfo();                                   ///< Access function for #displayCursorPixelInfo property - refer to #displayCursorPixelInfo property for details
 
@@ -307,6 +312,31 @@ public:
     applicationLauncher::programStartupOptions getProgramStartupOption2();                            ///< Access function for #programStartupOption2 property - refer to #programStartupOption2 property for details
 
 
+    QString getHozSliceLegend();                       ///< Access function for #hozSliceLegend property - refer to #hozSliceLegend property for details
+    void setHozSliceLegend( QString legend );           ///< Access function for #hozSliceLegend property - refer to #hozSliceLegend property for details
+    QString getVertSliceLegend();                      ///< Access function for #vertSliceLegend property - refer to #vertSliceLegend property for details
+    void setVertSliceLegend( QString legend );          ///< Access function for #vertSliceLegend property - refer to #vertSliceLegend property for details
+    QString getprofileLegend();                        ///< Access function for #profileLegend property - refer to #profileLegend property for details
+    void setProfileLegend( QString legend );            ///< Access function for #profileLegend property - refer to #profileLegend property for details
+    QString getAreaSelection1Legend();                 ///< Access function for #areaSelection1Legend property - refer to #areaSelection1Legend property for details
+    void setAreaSelection1Legend( QString legend );     ///< Access function for #areaSelection1Legend property - refer to #areaSelection1Legend property for details
+    QString getAreaSelection2Legend();                 ///< Access function for #areaSelection2Legend property - refer to #areaSelection2Legend property for details
+    void setAreaSelection2Legend( QString legend );     ///< Access function for #areaSelection2Legend property - refer to #areaSelection2Legend property for details
+    QString getAreaSelection3Legend();                 ///< Access function for #areaSelection3Legend property - refer to #areaSelection3Legend property for details
+    void setAreaSelection3Legend( QString legend );     ///< Access function for #areaSelection3Legend property - refer to #areaSelection3Legend property for details
+    QString getAreaSelection4Legend();                 ///< Access function for #areaSelection4Legend property - refer to #areaSelection4Legend property for details
+    void setAreaSelection4Legend( QString legend );     ///< Access function for #areaSelection4Legend property - refer to #areaSelection4Legend property for details
+    QString getTargetLegend();                         ///< Access function for #targetLegend property - refer to #targetLegend property for details
+    void setTargetLegend( QString legend );             ///< Access function for #targetLegend property - refer to #targetLegend property for details
+    QString getBeamLegend();                           ///< Access function for #beamLegend property - refer to #beamLegend property for details
+    void setBeamLegend( QString legend );               ///< Access function for #beamLegend property - refer to #beamLegend property for details
+    QString getEllipseLegend();                        ///< Access function for #ellipseLegend property - refer to #ellipseLegend property for details
+    void setEllipseLegend( QString legend );            ///< Access function for #ellipseLegend property - refer to #ellipseLegend property for details
+
+    bool getFullScreen();                               ///< Access function for #fullScreen property - refer to #fullScreen property for details
+    void setFullScreen( bool fullScreenIn );            ///< Access function for #fullScreen property - refer to #fullScreen property for details
+
+
   protected:
     QEStringFormatting stringFormatting;     // String formatting options.
     QEIntegerFormatting integerFormatting;   // Integer formatting options.
@@ -327,9 +357,12 @@ public:
                           BEAM_X_VARIABLE, BEAM_Y_VARIABLE,
                           TARGET_TRIGGER_VARIABLE,
                           CLIPPING_ONOFF_VARIABLE, CLIPPING_LOW_VARIABLE, CLIPPING_HIGH_VARIABLE,
-                          PROFILE_H_VARIABLE, PROFILE_V_VARIABLE,
-                          LINE_PROFILE_X1_VARIABLE, LINE_PROFILE_Y1_VARIABLE, LINE_PROFILE_X2_VARIABLE, LINE_PROFILE_Y2_VARIABLE,
+                          PROFILE_H_VARIABLE, PROFILE_H_THICKNESS_VARIABLE,
+                          PROFILE_V_VARIABLE, PROFILE_V_THICKNESS_VARIABLE,
+                          LINE_PROFILE_X1_VARIABLE, LINE_PROFILE_Y1_VARIABLE, LINE_PROFILE_X2_VARIABLE, LINE_PROFILE_Y2_VARIABLE, LINE_PROFILE_THICKNESS_VARIABLE,
                           PROFILE_H_ARRAY, PROFILE_V_ARRAY, PROFILE_LINE_ARRAY,
+                          ELLIPSE_X1_VARIABLE, ELLIPSE_Y1_VARIABLE, ELLIPSE_X2_VARIABLE, ELLIPSE_Y2_VARIABLE,
+
                           QEIMAGE_NUM_VARIABLES /*Must be last*/ };
 
     resizeOptions resizeOption; // Resize option. (zoom or fit)
@@ -347,7 +380,8 @@ public:
 private slots:
     // QCa data update slots
     void connectionChanged( QCaConnectionInfo& connectionInfo );
-    void setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long width, unsigned long height );
+//    void setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long width, unsigned long height );
+    void setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long elements, unsigned long width, unsigned long height, imageDataFormats::formatOptions format, unsigned int depth );
     void setImage( const QByteArray& image, unsigned long dataSize, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
     void setFormat( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& );
     void setBitDepth( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
@@ -356,6 +390,7 @@ private slots:
     void setROI( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
     void setProfile( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
     void setTargeting( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
+    void setEllipse( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
 
     // Menu choice slots
     void vSliceSelectModeClicked();
@@ -385,6 +420,7 @@ private slots:
     void currentPixelInfo( QPoint pos );
     void pan( QPoint pos );
     void redraw();
+    void showImageContextMenuFullScreen( const QPoint& pos );
     void showImageContextMenu( const QPoint& );
     void selectMenuTriggered( QAction* selectedItem );
     void zoomMenuTriggered( QAction* selectedItem );
@@ -401,6 +437,12 @@ private slots:
     void setHSliceControlsNotVisible();
     void setLineProfileControlsVisible();
     void setLineProfileControlsNotVisible();
+
+    void useAllMarkupData();
+
+    void raiseFullScreen();         // Ensure the full screen main window is in front of the application.
+
+    void resizeFullScreen();        // Resize full screen once it has been managed
 
 public slots:
     void setImageFile( QString name );
@@ -440,8 +482,12 @@ public slots:
 
     void componentHostRequest( const QEActionRequests& request );
 
-
   private:
+    void useTargetingData();
+//    void useAllMarkupData();
+    void useROIData( const unsigned int& variableIndex );
+    void useProfileData( const unsigned int& variableIndex );
+    void useEllipseData();
 
     void roi1Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
     void roi2Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
@@ -457,6 +503,9 @@ public slots:
 
 
     void emitComponentHostRequest( const QEActionRequests& request ){ emit componentHostRequest( request ); }
+
+    QSize getVedioDestinationSize();                // Get the size of the widget where the image is being displayed (either a scroll widget within the QEImage widget, or a full screen main window)
+    void showImageContextMenuCommon( const QPoint& pos, const QPoint& globalPos );  // Common support for showImageContextMenu() and showImageContextMenuFullScreen()
 
     void setup();
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
@@ -485,6 +534,9 @@ public slots:
     void presentControls();
 
     bool displayMarkups;
+
+    bool fullScreen;                            // True if in full screen mode
+    fullScreenWindow* fullScreenMainWindow;     // Main window used to present image in full screen mode. Only present when in full screen mode
 
     // Button widgets
     QPushButton* pauseButton;
@@ -522,7 +574,7 @@ public slots:
     bool enableProfilePresentation;
 
     // Options
-    formatOptions mFormatOption;
+    imageDataFormats::formatOptions mFormatOption;
     unsigned int bitDepth;
 
     // Image and related information
@@ -557,6 +609,7 @@ public slots:
     unsigned int hSliceThickness;
 
     areaInfo lineProfileInfo;
+    areaInfo ellipseInfo;
     QPoint profileLineStart;
     QPoint profileLineEnd;
     unsigned int profileThickness;
@@ -583,6 +636,9 @@ public slots:
 
 
     // Private methods
+    void generateVSliceUnscaled( int unscaledX, unsigned int unscaledThickness );           // Generate a profile along a line down an image at a given unscaled X position
+    void generateHSliceUnscaled( int unscaledY, unsigned int unscaledThickness );           // Generate a profile along a line across an image at a given unscaled Y position
+    void generateProfileUnscaled( QPoint unscaledPoint1, QPoint unscaledPoint2, unsigned int unscaledThickness );   // Generate a profile along an arbitrary line through an image given unscaled positions.
     void generateVSlice( int x, unsigned int thickness );                           // Generate a profile along a line down an image at a given X position
     void generateHSlice( int y, unsigned int thickness );                           // Generate a profile along a line across an image at a given Y position
     void generateProfile( QPoint point1, QPoint point2, unsigned int thickness );   // Generate a profile along an arbitrary line through an image.
@@ -855,43 +911,78 @@ protected:
 
     VARIABLE_PROPERTY_ACCESS(34)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector vertical profile.
-    Q_PROPERTY(QString profileVertVariable READ getVariableName34Property WRITE setVariableName34Property)
+    /// This variable is used to write the areadetector horizontal profile thickness.
+    Q_PROPERTY(QString profileHozThicknessVariable READ getVariableName34Property WRITE setVariableName34Property)
 
     VARIABLE_PROPERTY_ACCESS(35)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector arbitrary line profile start X.
-    Q_PROPERTY(QString lineProfileX1Variable READ getVariableName35Property WRITE setVariableName35Property)
+    /// This variable is used to write the areadetector vertical profile.
+    Q_PROPERTY(QString profileVertVariable READ getVariableName35Property WRITE setVariableName35Property)
 
     VARIABLE_PROPERTY_ACCESS(36)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector arbitrary line profile start Y.
-    Q_PROPERTY(QString lineProfileY1Variable READ getVariableName36Property WRITE setVariableName36Property)
+    /// This variable is used to write the areadetector vertical profile.
+    Q_PROPERTY(QString profileVertThicknessVariable READ getVariableName36Property WRITE setVariableName36Property)
 
     VARIABLE_PROPERTY_ACCESS(37)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector arbitrary line profile end X.
-    Q_PROPERTY(QString lineProfileX2Variable READ getVariableName37Property WRITE setVariableName37Property)
+    /// This variable is used to write the areadetector arbitrary line profile start X.
+    Q_PROPERTY(QString lineProfileX1Variable READ getVariableName37Property WRITE setVariableName37Property)
 
     VARIABLE_PROPERTY_ACCESS(38)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector arbitrary line profile end Y.
-    Q_PROPERTY(QString lineProfileY2Variable READ getVariableName38Property WRITE setVariableName38Property)
+    /// This variable is used to write the areadetector arbitrary line profile start Y.
+    Q_PROPERTY(QString lineProfileY1Variable READ getVariableName38Property WRITE setVariableName38Property)
 
     VARIABLE_PROPERTY_ACCESS(39)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector horizontal profile array.
-    Q_PROPERTY(QString profileHozArrayVariable READ getVariableName39Property WRITE setVariableName39Property)
+    /// This variable is used to write the areadetector arbitrary line profile end X.
+    Q_PROPERTY(QString lineProfileX2Variable READ getVariableName39Property WRITE setVariableName39Property)
 
     VARIABLE_PROPERTY_ACCESS(40)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector vertical profile array.
-    Q_PROPERTY(QString profileVertArrayVariable READ getVariableName40Property WRITE setVariableName40Property)
+    /// This variable is used to write the areadetector arbitrary line profile end Y.
+    Q_PROPERTY(QString lineProfileY2Variable READ getVariableName40Property WRITE setVariableName40Property)
 
     VARIABLE_PROPERTY_ACCESS(41)
     /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector arbitrary line profile end Y.
+    Q_PROPERTY(QString lineProfileThicknessVariable READ getVariableName41Property WRITE setVariableName41Property)
+
+    VARIABLE_PROPERTY_ACCESS(42)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector horizontal profile array.
+    Q_PROPERTY(QString profileHozArrayVariable READ getVariableName42Property WRITE setVariableName42Property)
+
+    VARIABLE_PROPERTY_ACCESS(43)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector vertical profile array.
+    Q_PROPERTY(QString profileVertArrayVariable READ getVariableName43Property WRITE setVariableName43Property)
+
+    VARIABLE_PROPERTY_ACCESS(44)
+    /// EPICS variable name (CA PV).
     /// This variable is used to write the areadetector arbitrary line profile array.
-    Q_PROPERTY(QString lineProfileArrayVariable READ getVariableName41Property WRITE setVariableName41Property)
+    Q_PROPERTY(QString lineProfileArrayVariable READ getVariableName44Property WRITE setVariableName44Property)
+
+    VARIABLE_PROPERTY_ACCESS(45)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to read an ellipse start X.
+    Q_PROPERTY(QString ellipseX1Variable READ getVariableName45Property WRITE setVariableName45Property)
+
+    VARIABLE_PROPERTY_ACCESS(46)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to read an ellipse start Y.
+    Q_PROPERTY(QString ellipseY1Variable READ getVariableName46Property WRITE setVariableName46Property)
+
+    VARIABLE_PROPERTY_ACCESS(47)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to read an ellipse end X.
+    Q_PROPERTY(QString ellipseX2Variable READ getVariableName47Property WRITE setVariableName47Property)
+
+    VARIABLE_PROPERTY_ACCESS(48)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to read an ellipse end Y.
+    Q_PROPERTY(QString ellipseY2Variable READ getVariableName48Property WRITE setVariableName48Property)
 
     /// Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1[,] NAME2=VALUE2... Values may be quoted strings. For example, 'CAM=1, NAME = "Image 1"'
     /// These substitutions are applied to all the variable names.
@@ -1006,16 +1097,16 @@ public:
 
     /// \enum FormatOptions
     /// User friendly enumerations for #formatOption property - refer to #formatOption property and #formatOptions enumeration for details.
-    enum FormatOptions { Mono     = QEImage::MONO,      ///< Grey scale
-                         Bayer    = QEImage::BAYER,     ///< Colour (Bayer)
-                         rgb1     = QEImage::RGB1,      ///< Colour (24 bit RGB)
-                         rgb2     = QEImage::RGB2,      ///< Colour (??? bit RGB)
-                         rgb3     = QEImage::RGB3,      ///< Colour (??? bit RGB)
-                         yuv444   = QEImage::YUV444,    ///< Colour (???)
-                         yuv422   = QEImage::YUV422,    ///< Colour (???)
-                         yuv421   = QEImage::YUV421 };  ///< Colour (???)
+    enum FormatOptions { Mono     = imageDataFormats::MONO,      ///< Grey scale
+                         Bayer    = imageDataFormats::BAYER,     ///< Colour (Bayer)
+                         rgb1     = imageDataFormats::RGB1,      ///< Colour (24 bit RGB)
+                         rgb2     = imageDataFormats::RGB2,      ///< Colour (??? bit RGB)
+                         rgb3     = imageDataFormats::RGB3,      ///< Colour (??? bit RGB)
+                         yuv444   = imageDataFormats::YUV444,    ///< Colour (???)
+                         yuv422   = imageDataFormats::YUV422,    ///< Colour (???)
+                         yuv421   = imageDataFormats::YUV421 };  ///< Colour (???)
 
-    void setFormatOptionProperty( FormatOptions formatOption ){ setFormatOption( (QEImage::formatOptions)formatOption ); }  ///< Access function for #formatOption property - refer to #formatOption property for details
+    void setFormatOptionProperty( FormatOptions formatOption ){ setFormatOption( (imageDataFormats::formatOptions)formatOption ); }  ///< Access function for #formatOption property - refer to #formatOption property for details
     FormatOptions getFormatOptionProperty(){ return (FormatOptions)getFormatOption(); }                                     ///< Access function for #formatOption property - refer to #formatOption property for details
 
     // Mono format option bit depths
@@ -1068,6 +1159,40 @@ public:
     /// current beam position. This can be used for automatic beam positioning.
     Q_PROPERTY(bool enableTargetSelection READ getEnableTargetSelection WRITE setEnableTargetSelection)
 
+    //=========
+
+    /// Name of horizontal slice profile markup
+    Q_PROPERTY(QString hozSliceLegend READ getHozSliceLegend WRITE setHozSliceLegend)
+
+    /// Name of vertical slice profile markup
+    Q_PROPERTY(QString vertSliceLegend READ getVertSliceLegend WRITE setVertSliceLegend)
+
+    /// Name of arbitrary priofile markup
+    Q_PROPERTY(QString profileLegend READ getprofileLegend WRITE setProfileLegend)
+
+    /// Name of area selection 1 markup
+    Q_PROPERTY(QString areaSelection1Legend READ getAreaSelection1Legend WRITE setAreaSelection1Legend)
+
+    /// Name of area selection 2 markup
+    Q_PROPERTY(QString areaSelection2Legend READ getAreaSelection2Legend WRITE setAreaSelection2Legend)
+
+    /// Name of area selection 3 markup
+    Q_PROPERTY(QString areaSelection3Legend READ getAreaSelection3Legend WRITE setAreaSelection3Legend)
+
+    /// Name of area selection 4 markup
+    Q_PROPERTY(QString areaSelection4Legend READ getAreaSelection4Legend WRITE setAreaSelection4Legend)
+
+    /// Name of target markup
+    Q_PROPERTY(QString targetLegend READ getTargetLegend WRITE setTargetLegend)
+
+    /// Name of beam markup
+    Q_PROPERTY(QString beamLegend READ getBeamLegend WRITE setBeamLegend)
+
+    /// Name of ellipse markup
+    Q_PROPERTY(QString ellipseLegend READ getEllipseLegend WRITE setEllipseLegend)
+
+    //=========
+
     /// If true, an area will be presented under the image with textual information about the pixel under
     /// the cursor, and for other selections such as selected areas.
     Q_PROPERTY(bool displayCursorPixelInfo READ getDisplayCursorPixelInfo WRITE setDisplayCursorPixelInfo)
@@ -1111,6 +1236,10 @@ public:
     /// Used to select the color of the timestamp.
     ///
     Q_PROPERTY(QColor timeColor READ getTimeMarkupColor WRITE setTimeMarkupColor)
+
+    /// Used to select the color of the ellipse marker.
+    ///
+    Q_PROPERTY(QColor ellipseColor READ getEllipseMarkupColor WRITE setEllipseMarkupColor)
 
 
     Q_ENUMS(ResizeOptions)
@@ -1185,6 +1314,10 @@ public:
     /// If false, the target position markup will only be displayed when in target selection mode and the user selects a point in the image.
     Q_PROPERTY(bool displayMarkups READ getDisplayMarkups WRITE setDisplayMarkups)
 
+    /// If true, show the widget in full screen
+    ///
+    Q_PROPERTY(bool fullScreen READ getFullScreen WRITE setFullScreen)
+
     //=========
     // This grouop of properties should be kept consistant QE Buttons
 
@@ -1200,7 +1333,7 @@ public:
     /// Startup options for the program specified in the 'program1' property.
     /// Just run the command, run the command within a terminal, or display the output in QE message system.
     ///
-    Q_PROPERTY(ProgramStartupOptionNames programStartupOption2 READ getProgramStartupOptionProperty1 WRITE setProgramStartupOptionProperty1)
+    Q_PROPERTY(ProgramStartupOptionNames programStartupOption1 READ getProgramStartupOptionProperty1 WRITE setProgramStartupOptionProperty1)
 
     /// Program to run when a request is made to pass on the current image to the second external application.
     /// No attempt to run a program is made if this property is empty.
@@ -1221,10 +1354,12 @@ public:
 
     /// Startup options. Just run the command, run the command within a terminal, or display the output in QE message system.
     ///
-    enum ProgramStartupOptionNames{ None      = applicationLauncher::PSO_NONE,       ///< Just run the program
-                                    Terminal  = applicationLauncher::PSO_TERMINAL,   ///< Run the program in a termainal (in Windows a command interpreter will also be started, so the program may be a built-in command like 'dir')
-                                    LogOutput = applicationLauncher::PSO_LOGOUTPUT   ///< Run the program, and log the output in the QE message system
-                                  };
+    enum ProgramStartupOptionNames{
+        None      = applicationLauncher::PSO_NONE,       ///< Just run the program
+        Terminal  = applicationLauncher::PSO_TERMINAL,   ///< Run the program in a termainal (in Windows a command interpreter will also be started, so the program may be a built-in command like 'dir')
+        LogOutput = applicationLauncher::PSO_LOGOUTPUT,  ///< Run the program, and log the output in the QE message system
+        StdOutput = applicationLauncher::PSO_STDOUTPUT   ///< Run the program, and send doutput to standard output and standard error
+    };
 
     void setProgramStartupOptionProperty1( ProgramStartupOptionNames programStartupOption ){ setProgramStartupOption1( (applicationLauncher::programStartupOptions)programStartupOption ); }  ///< Access function for #ProgramStartupOptionNames1 property - refer to #ProgramStartupOptionNames1 property for details
     ProgramStartupOptionNames getProgramStartupOptionProperty1(){ return (ProgramStartupOptionNames)getProgramStartupOption1(); }                                                             ///< Access function for #ProgramStartupOptionNames1 property - refer to #ProgramStartupOptionNames1 property for details
@@ -1233,9 +1368,13 @@ public:
 
     //=========
 
-//    /// MPEG stream URL. If this is specified, this will be used as the source of the image in preference to variables (variables defining the image data, width, and height will be ignored)
-//    Q_PROPERTY(QString URL READ getURL WRITE setURL)
-
+// Only include the mpeg stuff if required.
+    // To include mpeg stuff, don't define QE_USE_MPEG directly, define environment variable
+    // QE_FFMPEG to be processed by framework.pro
+#ifdef QE_USE_MPEG
+    /// MPEG stream URL. If this is specified, this will be used as the source of the image in preference to variables (variables defining the image data, width, and height will be ignored)
+    Q_PROPERTY(QString URL READ getURL WRITE setURL)
+#endif // QE_USE_MPEG
 };
 
 #endif // QEIMAGE_H

@@ -157,7 +157,7 @@ static bool fixedRadixValue (const QString& image,
    signIsAllowed = true;
 
    for (j = 0; j < image.length(); j++) {
-      c = image [j].toAscii ();
+      c = image [j].toLatin1 ();
       d = 0;
 
       switch (c) {
@@ -301,12 +301,15 @@ void QENumericEdit::commonConstructor ()
    this->mRadix = Decimal;
    this->mSeparator = None;
 
+   // Ensure sensible auto values
+   //
    this->propertyPrecision = 4;
    this->propertyLeadingZeros = 3;
    this->propertyMinimum = calcLower (this->mRadix, 3, 4);
    this->propertyMaximum = calcUpper (this->mRadix, 3, 4);
 
    // Ensure sensible auto values
+   // Note: these should be re-calcuated when the first update arrives.
    //
    this->autoPrecision = this->propertyPrecision;
    this->autoLeadingZeros = this->propertyLeadingZeros;
@@ -315,8 +318,8 @@ void QENumericEdit::commonConstructor ()
 
    // force setNumericValue to process.
    //
-   this->mValue = 1.0;
-   this->setNumericValue (0.0);
+   this->firstNumericUpdate = true;
+   this->setNumericValue (0.0, false);
 }
 
 //------------------------------------------------------------------------------
@@ -380,6 +383,8 @@ void QENumericEdit::establishConnection (unsigned int variableIndex)
       QObject::connect (qca, SIGNAL (floatingChanged (const double &, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)),
                         this, SLOT  (setDoubleValue  (const double &, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)));
 
+      // The connectionChanged slot is in parent class.
+      //
       QObject::connect (qca, SIGNAL (connectionChanged (QCaConnectionInfo &)),
                         this, SLOT  (connectionChanged (QCaConnectionInfo &)));
    }
@@ -404,11 +409,13 @@ void QENumericEdit::setDoubleValue (const double& valueIn, QCaAlarmInfo& alarmIn
 
    // Check first update.
    //
-   if (this->testAndClearIsFirstUpdate ()) {
+   this->firstNumericUpdate = this->testAndClearIsFirstUpdate ();
+   if (this->firstNumericUpdate) {
 
       // Check for auto scale and avoid the segment fault.
       //
       if (this->getAutoScale () && (qca)) {
+
          // Do the auto scale calculations.
          //
          double ctrlLow;
@@ -509,9 +516,9 @@ void QENumericEdit::keyPressEvent (QKeyEvent * event)
                }
             }
             delta = pow (dblRadix, significance);
-            this->setNumericValue (this->getNumericValue () + delta);
+            this->setNumericValue (this->getNumericValue () + delta, true);
          } else if (this->cursorOverSign ()) {
-            this->setNumericValue (+fabs (this->getNumericValue ()));
+            this->setNumericValue (+fabs (this->getNumericValue ()), true);
          }
          break;
 
@@ -531,9 +538,9 @@ void QENumericEdit::keyPressEvent (QKeyEvent * event)
                }
             }
             delta = pow (dblRadix, significance);
-            this->setNumericValue (this->getNumericValue () - delta);
+            this->setNumericValue (this->getNumericValue () - delta, true);
          } else if (this->cursorOverSign ()) {
-            this->setNumericValue (-fabs (this->getNumericValue ()));
+            this->setNumericValue (-fabs (this->getNumericValue ()), true);
          }
          break;
 
@@ -565,9 +572,9 @@ void QENumericEdit::keyPressEvent (QKeyEvent * event)
       case Qt::Key_Minus:
          if (this->cursorOverSign ()) {
             if (key == Qt::Key_Plus) {
-               this->setNumericValue (+fabs (this->getNumericValue ()));
+               this->setNumericValue (+fabs (this->getNumericValue ()), true);
             } else {
-               this->setNumericValue (-fabs (this->getNumericValue ()));
+               this->setNumericValue (-fabs (this->getNumericValue ()), true);
             }
             this->setCursor (this->getCursor () + 1);
          }
@@ -601,7 +608,7 @@ void QENumericEdit::keyPressEvent (QKeyEvent * event)
             tryThis [index] = QChar (key);
 
             newval = this->valueOfImage (tryThis);
-            this->setNumericValue (newval);
+            this->setNumericValue (newval, true);
             this->setCursor (this->getCursor () + 1);
 
             // If we have moved onto a filler character, then move again.
@@ -614,6 +621,10 @@ void QENumericEdit::keyPressEvent (QKeyEvent * event)
          break;
 
       case Qt::Key_Space:
+         break;
+
+      case Qt::Key_Backspace:
+      case Qt::Key_Delete:
          break;
 
       default:
@@ -726,7 +737,7 @@ void QENumericEdit::setNumericText ()
       }
    }
 
-   // Note: this is an intended side effect.
+   // Note: this has an intended side effect.
    // TODO: Explain this more !!!
    //
    this->setMaxLength (image.length ());
@@ -757,7 +768,7 @@ int QENumericEdit::getCursor ()
 bool QENumericEdit::isRadixDigit (QChar qc)
 {
    bool result;
-   char c = qc.toAscii ();
+   char c = qc.toLatin1 ();
 
    switch (this->getRadix()) {
       case Decimal:
@@ -789,7 +800,7 @@ bool QENumericEdit::isRadixDigit (QChar qc)
 //
 bool QENumericEdit::isSign (QChar qc)
 {
-   char c = qc.toAscii ();
+   char c = qc.toLatin1 ();
 
    return ((c == '+') || (c == '-'));
 }
@@ -803,15 +814,16 @@ bool QENumericEdit::isSignOrDigit (QChar qc)
 
 //------------------------------------------------------------------------------
 //
-void QENumericEdit::setNumericValue (const double value)
+void QENumericEdit::setNumericValue (const double value, const bool userUpdate)
 {
    double limited_value;
 
    limited_value = LIMIT (value, this->getMinimum (), this->getMaximum ());
 
-   if (this->mValue != limited_value) {
+   if (this->mValue != limited_value || this->firstNumericUpdate) {
       this->mValue = limited_value;
       this->setNumericText ();
+      if (userUpdate) this->setModified (true);
    }
 }
 
@@ -1075,7 +1087,7 @@ void QENumericEdit::setValue (const QVariant & value)
 
    d = value.toDouble (&ok);
    if (ok) {
-       this->setNumericValue (d);
+       this->setNumericValue (d, false);
    }
 }
 

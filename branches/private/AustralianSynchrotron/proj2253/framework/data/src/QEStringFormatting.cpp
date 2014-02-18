@@ -247,7 +247,7 @@ QVariant QEStringFormatting::formatValue( const QString& text, bool& ok )
                 {
                     for( int i = 0; i < len; i++ )
                     {
-                        qulonglong ul = unitlessText[i].toAscii();
+                        qulonglong ul = unitlessText[i].toLatin1();
                         list.append( QVariant( ul ));
                     }
 

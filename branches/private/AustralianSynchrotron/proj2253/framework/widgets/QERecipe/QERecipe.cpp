@@ -22,6 +22,9 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
+#include <QInputDialog>
+#include <QMessageBox>
+
 #include <QERecipe.h>
 
 

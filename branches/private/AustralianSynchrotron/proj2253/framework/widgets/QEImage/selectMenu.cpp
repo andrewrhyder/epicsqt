@@ -127,3 +127,32 @@ void selectMenu::setTargetEnabled( bool enableTargetSelection )
     actionBeam->setVisible( enableTargetSelection );
 }
 
+bool selectMenu::getPanEnabled()
+{
+    return actionPan->isVisible();
+}
+
+bool selectMenu::getVSliceEnabled()
+{
+    return actionVSlice->isVisible();
+}
+
+bool selectMenu::getHSliceEnabled()
+{
+    return actionHSlice->isVisible();
+}
+
+bool selectMenu::getAreaEnabled()
+{
+    return actionArea1->isVisible();    // Assumes actionArea1-4 are all the same
+}
+
+bool selectMenu::getProfileEnabled()
+{
+    return actionProfile->isVisible();
+}
+
+bool selectMenu::getTargetEnabled()
+{
+    return actionTarget->isVisible();   // Assumes actionTarget and actionBeam are both the same
+}

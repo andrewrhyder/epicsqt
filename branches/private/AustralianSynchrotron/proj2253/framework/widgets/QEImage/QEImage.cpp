@@ -34,11 +34,16 @@
  */
 
 #include <QIcon>
+#include <QPushButton>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QScrollBar>
 #include <QECommon.h>
 #include <QEImage.h>
 #include <QEByteArray.h>
 #include <QEInteger.h>
 #include <QEFloating.h>
+#include <QEString.h>
 #include <imageContextMenu.h>
 #include <windowCustomisation.h>
 
@@ -86,7 +91,7 @@ void QEImage::setup() {
     initialVertScrollPos = 0;
     initScrollPosSet = false;
 
-    mFormatOption = MONO;
+    mFormatOption = imageDataFormats::MONO;
     bitDepth = 8;
 
     paused = false;
@@ -131,9 +136,11 @@ void QEImage::setup() {
     hostingAppAvailable = false;
 
     receivedImageSize = 0;
-    previousMessageText = "";
 
     displayMarkups = false;
+
+    fullScreen = false;
+    fullScreenMainWindow = NULL;
 
     // With so many variables involved, don't bother alterning the presentation of the widget when any one variable goes into alarm
     setDisplayAlarmState( false );
@@ -165,6 +172,7 @@ void QEImage::setup() {
     setBeamMarkupColor(      QColor(255,   0,   0));
     setTargetMarkupColor(    QColor(  0, 255,   0));
     setTimeMarkupColor(      QColor(255, 255, 255));
+    setEllipseMarkupColor(   QColor(255, 127, 255));
 
     QObject::connect( videoWidget, SIGNAL( userSelection( imageMarkup::markupIds, bool, bool, QPoint, QPoint, unsigned int ) ),
                       this,        SLOT  ( userSelection( imageMarkup::markupIds, bool, bool, QPoint, QPoint, unsigned int )) );
@@ -227,25 +235,16 @@ void QEImage::setup() {
     QObject::connect(profileDisplay, SIGNAL(destroyed(QObject*)), this, SLOT(profileDisplayDestroyed(QObject*)));
     profileDisplay->setVisible( false );
 
-
     graphicsLayout = new QGridLayout();
     graphicsLayout->addWidget( scrollArea,      0, 0 );
     graphicsLayout->addLayout( getInfoWidget(), 1, 0 );
     graphicsLayout->addWidget( vSliceLabel,    1, 1 );
-//    graphicsLayout->addWidget( vSliceDisplay,  0, 1 );
     graphicsLayout->addWidget( hSliceLabel,    2, 0 );
-//    graphicsLayout->addWidget( hSliceDisplay,  3, 0 );
     graphicsLayout->addWidget( profileLabel,   4, 0 );
-//    graphicsLayout->addWidget( profileDisplay, 5, 0 );
-
-//    graphicsLayout->setColumnStretch( 0, 1 );  // display image to take all spare room
-//    graphicsLayout->setRowStretch( 0, 1 );  // display image to take all spare room
-
 
     // Create button group
     int buttonWidth = 28;
     int buttonMenuWidth = 48;
-
 
     buttonGroup = new QFrame;
     QHBoxLayout* buttonLayout = new QHBoxLayout();
@@ -418,7 +417,8 @@ void QEImage::profileDisplayDestroyed( QObject* ){ profileDisplay = NULL; }
 // (within this widget, or hosted by the application containing this widget)
 void QEImage::presentControls()
 {
-    // If components are not being hosted by the application, present them within the widget
+    // If components are being hosted by the application, hide any associated labels within the widget and
+    // hand over the components to the application.
     // (Note, if components are not being hosted, they should always exist, but if something
     //  has gone wrong perhaps the appliction has deleted them, so don't assume they are present)
     if( appHostsControls && hostingAppAvailable )
@@ -429,7 +429,7 @@ void QEImage::presentControls()
         if( localBC )
         {
             mainLayout->removeWidget( localBC );
-            components.append( componentHostListItem( localBC, QEActionRequests::OptionFloatingDockWindow, true, "Brightness / Contrast" ) );
+            components.append( componentHostListItem( localBC, QEActionRequests::OptionTopDockWindow, true, "Brightness / Contrast" ) );
         }
 
         vSliceLabel->setVisible( false );
@@ -439,19 +439,19 @@ void QEImage::presentControls()
         if( vSliceDisplay && enableVertSlicePresentation )
         {
             graphicsLayout->removeWidget( vSliceDisplay );
-            components.append( componentHostListItem( vSliceDisplay,  QEActionRequests::OptionFloatingDockWindow, true, "Vertical Slice Profile" ) );
+            components.append( componentHostListItem( vSliceDisplay,  QEActionRequests::OptionLeftDockWindow, true, "Vertical Slice Profile" ) );
         }
 
         if( hSliceDisplay && enableHozSlicePresentation )
         {
             graphicsLayout->removeWidget( hSliceDisplay );
-            components.append( componentHostListItem( hSliceDisplay,  QEActionRequests::OptionFloatingDockWindow, true, "Horizontal Slice Profile" ) );
+            components.append( componentHostListItem( hSliceDisplay,  QEActionRequests::OptionTopDockWindow, true, "Horizontal Slice Profile" ) );
         }
 
         if( profileDisplay && enableProfilePresentation )
         {
             graphicsLayout->removeWidget( profileDisplay );
-            components.append( componentHostListItem( profileDisplay, QEActionRequests::OptionFloatingDockWindow, true, "Arbitrary Profile" ) );
+            components.append( componentHostListItem( profileDisplay, QEActionRequests::OptionTopDockWindow, true, "Arbitrary Profile" ) );
         }
 */
         enableVertSlicePresentation = false;
@@ -462,6 +462,10 @@ void QEImage::presentControls()
 //        emitComponentHostRequest( QEActionRequests( components ) );
 
     }
+
+    // If components are not being hosted by the application, present them within the widget.
+    // (Note, if components are not being hosted, they should always exist, but if something
+    //  has gone wrong perhaps the appliction has deleted them, so don't assume they are present)
     else
     {
         if( localBC )
@@ -577,11 +581,19 @@ qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
         case CLIPPING_HIGH_VARIABLE:
 
         case PROFILE_H_VARIABLE:
+        case PROFILE_H_THICKNESS_VARIABLE:
         case PROFILE_V_VARIABLE:
+        case PROFILE_V_THICKNESS_VARIABLE:
         case LINE_PROFILE_X1_VARIABLE:
         case LINE_PROFILE_Y1_VARIABLE:
         case LINE_PROFILE_X2_VARIABLE:
         case LINE_PROFILE_Y2_VARIABLE:
+        case LINE_PROFILE_THICKNESS_VARIABLE:
+
+        case ELLIPSE_X1_VARIABLE:
+        case ELLIPSE_Y1_VARIABLE:
+        case ELLIPSE_X2_VARIABLE:
+        case ELLIPSE_Y2_VARIABLE:
 
             return new QEInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
 
@@ -718,11 +730,14 @@ void QEImage::establishConnection( unsigned int variableIndex ) {
 
         // Connect to line profile variables
         case PROFILE_H_VARIABLE:
+        case PROFILE_H_THICKNESS_VARIABLE:
         case PROFILE_V_VARIABLE:
+        case PROFILE_V_THICKNESS_VARIABLE:
         case LINE_PROFILE_X1_VARIABLE:
         case LINE_PROFILE_Y1_VARIABLE:
         case LINE_PROFILE_X2_VARIABLE:
         case LINE_PROFILE_Y2_VARIABLE:
+        case LINE_PROFILE_THICKNESS_VARIABLE:
 
             if(  qca )
             {
@@ -758,6 +773,23 @@ void QEImage::establishConnection( unsigned int variableIndex ) {
         case PROFILE_LINE_ARRAY:
 
             break;
+
+        // Connect to ellipse variables
+        case ELLIPSE_X1_VARIABLE:
+        case ELLIPSE_Y1_VARIABLE:
+        case ELLIPSE_X2_VARIABLE:
+        case ELLIPSE_Y2_VARIABLE:
+            if(  qca )
+            {
+                QObject::connect( qca,  SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+                                  this, SLOT( setEllipse( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
+                QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
+                                  this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
+                QObject::connect( this, SIGNAL( requestResend() ),
+                                  qca, SLOT( resendLastData() ) );
+            }
+            break;
+
      }
 }
 
@@ -771,12 +803,20 @@ void QEImage::connectionChanged( QCaConnectionInfo& connectionInfo )
     // Note the connected state
     isConnected = connectionInfo.isChannelConnected();
 
-    // Display the connected state
-    updateToolTipConnection( isConnected );
-    updateConnectionStyle( isConnected );
+// Don't perform standard connection action (grey out widget and all its dialogs, and place disconnected in tooltip)
+// If
+//    // Display the connected state
+//    updateToolTipConnection( isConnected );
+//    updateConnectionStyle( isConnected );
 
-    // Connection status change - reset message filter.
-    previousMessageText = "";
+// Instead just log the disconnected variables.
+    if( !isConnected )
+    {
+        QString messageText;
+        messageText.append( "Disconnected variable: " ).append( connectionInfo.variable() );
+        sendMessage( messageText, "QEImage" );
+    }
+
 }
 
 // Update the image dimensions (width and height) from the area detector dimension variables.
@@ -824,18 +864,18 @@ void QEImage::setWidthHeightFromDimensions()
  */
 void QEImage::setFormat( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& )
 {
-    formatOptions previousFormatOption = mFormatOption;
+    imageDataFormats::formatOptions previousFormatOption = mFormatOption;
 
     // Update image format
     // Area detector formats
-    if     ( !text.compare( "Mono" ) )         mFormatOption = MONO;
-    else if( !text.compare( "Bayer" ) )        mFormatOption = BAYER;
-    else if( !text.compare( "RGB1" ) )         mFormatOption = RGB1;
-    else if( !text.compare( "RGB2" ) )         mFormatOption = RGB2;
-    else if( !text.compare( "RGB3" ) )         mFormatOption = RGB3;
-    else if( !text.compare( "YUV444" ) )       mFormatOption = YUV444;
-    else if( !text.compare( "YUV422" ) )       mFormatOption = YUV422;
-    else if( !text.compare( "YUV421" ) )       mFormatOption = YUV421;
+    if     ( !text.compare( "Mono" ) )         mFormatOption = imageDataFormats::MONO;
+    else if( !text.compare( "Bayer" ) )        mFormatOption = imageDataFormats::BAYER;
+    else if( !text.compare( "RGB1" ) )         mFormatOption = imageDataFormats::RGB1;
+    else if( !text.compare( "RGB2" ) )         mFormatOption = imageDataFormats::RGB2;
+    else if( !text.compare( "RGB3" ) )         mFormatOption = imageDataFormats::RGB3;
+    else if( !text.compare( "YUV444" ) )       mFormatOption = imageDataFormats::YUV444;
+    else if( !text.compare( "YUV422" ) )       mFormatOption = imageDataFormats::YUV422;
+    else if( !text.compare( "YUV421" ) )       mFormatOption = imageDataFormats::YUV421;
     else
     {
         // !!! warn unexpected format
@@ -1099,36 +1139,76 @@ void QEImage::setROI( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, 
     // markup is visible, update it
     else
     {
-#define USE_ROI_DATA( N, SET_NAME )                                                                   \
-        roiInfo[N].SET_NAME( value );                                                                 \
-        if( roiInfo[N].getStatus() )                                                                  \
-        {                                                                                             \
-            QRect scaledArea = roiInfo[N].getArea();                                                  \
-            scaledArea.setTopLeft( videoWidget->scaleImagePoint( scaledArea.topLeft() ) );            \
-            scaledArea.setBottomRight( videoWidget->scaleImagePoint( scaledArea.bottomRight() ) );    \
-            videoWidget->markupRegionValueChange( N, scaledArea, displayMarkups );                    \
-        }                                                                                             \
-        break;
-
+        // Save the tageting data
         switch( variableIndex )
         {
-            case ROI1_X_VARIABLE:  USE_ROI_DATA( 0, setX )
-            case ROI1_Y_VARIABLE:  USE_ROI_DATA( 0, setY )
-            case ROI1_W_VARIABLE:  USE_ROI_DATA( 0, setW )
-            case ROI1_H_VARIABLE:  USE_ROI_DATA( 0, setH )
-            case ROI2_X_VARIABLE:  USE_ROI_DATA( 1, setX )
-            case ROI2_Y_VARIABLE:  USE_ROI_DATA( 1, setY )
-            case ROI2_W_VARIABLE:  USE_ROI_DATA( 1, setW )
-            case ROI2_H_VARIABLE:  USE_ROI_DATA( 1, setH )
-            case ROI3_X_VARIABLE:  USE_ROI_DATA( 2, setX )
-            case ROI3_Y_VARIABLE:  USE_ROI_DATA( 2, setY )
-            case ROI3_W_VARIABLE:  USE_ROI_DATA( 2, setW )
-            case ROI3_H_VARIABLE:  USE_ROI_DATA( 2, setH )
-            case ROI4_X_VARIABLE:  USE_ROI_DATA( 3, setX )
-            case ROI4_Y_VARIABLE:  USE_ROI_DATA( 3, setY )
-            case ROI4_W_VARIABLE:  USE_ROI_DATA( 3, setW )
-            case ROI4_H_VARIABLE:  USE_ROI_DATA( 3, setH )
+            case ROI1_X_VARIABLE:  roiInfo[0].setX( value ); break;
+            case ROI1_Y_VARIABLE:  roiInfo[0].setY( value ); break;
+            case ROI1_W_VARIABLE:  roiInfo[0].setW( value ); break;
+            case ROI1_H_VARIABLE:  roiInfo[0].setH( value ); break;
+            case ROI2_X_VARIABLE:  roiInfo[1].setX( value ); break;
+            case ROI2_Y_VARIABLE:  roiInfo[1].setY( value ); break;
+            case ROI2_W_VARIABLE:  roiInfo[1].setW( value ); break;
+            case ROI2_H_VARIABLE:  roiInfo[1].setH( value ); break;
+            case ROI3_X_VARIABLE:  roiInfo[2].setX( value ); break;
+            case ROI3_Y_VARIABLE:  roiInfo[2].setY( value ); break;
+            case ROI3_W_VARIABLE:  roiInfo[2].setW( value ); break;
+            case ROI3_H_VARIABLE:  roiInfo[2].setH( value ); break;
+            case ROI4_X_VARIABLE:  roiInfo[3].setX( value ); break;
+            case ROI4_Y_VARIABLE:  roiInfo[3].setY( value ); break;
+            case ROI4_W_VARIABLE:  roiInfo[3].setW( value ); break;
+            case ROI4_H_VARIABLE:  roiInfo[3].setH( value ); break;
         }
+
+        // If there is an image, present the ROI data
+        // (if there is no image, the ROI data will be used when one arrives)
+        if( videoWidget->hasCurrentImage() )
+        {
+            useROIData( variableIndex );
+        }
+    }
+}
+
+// Apply the ROI data.
+// This can be done once all ROI data is available and an image is available
+// (the image is needed to determine scaling)
+void QEImage::useROIData( const unsigned int& variableIndex )
+{
+#define USE_ROI_DATA( N )                                                                         \
+    if( sMenu->getAreaEnabled() && roiInfo[N].getStatus() )                                       \
+    {                                                                                             \
+        QRect scaledArea = roiInfo[N].getArea();                                                  \
+        scaledArea.setTopLeft( videoWidget->scaleImagePoint( scaledArea.topLeft() ) );            \
+        scaledArea.setBottomRight( videoWidget->scaleImagePoint( scaledArea.bottomRight() ) );    \
+        videoWidget->markupRegionValueChange( N, scaledArea, displayMarkups );                    \
+    }                                                                                             \
+    break;
+
+    switch( variableIndex )
+    {
+        case ROI1_X_VARIABLE:
+        case ROI1_Y_VARIABLE:
+        case ROI1_W_VARIABLE:
+        case ROI1_H_VARIABLE:
+            USE_ROI_DATA( 0 )
+
+        case ROI2_X_VARIABLE:
+        case ROI2_Y_VARIABLE:
+        case ROI2_W_VARIABLE:
+        case ROI2_H_VARIABLE:
+            USE_ROI_DATA( 1 )
+
+        case ROI3_X_VARIABLE:
+        case ROI3_Y_VARIABLE:
+        case ROI3_W_VARIABLE:
+        case ROI3_H_VARIABLE:
+            USE_ROI_DATA( 2 )
+
+        case ROI4_X_VARIABLE:
+        case ROI4_Y_VARIABLE:
+        case ROI4_W_VARIABLE:
+        case ROI4_H_VARIABLE:
+            USE_ROI_DATA( 3 )
     }
 }
 
@@ -1143,12 +1223,15 @@ void QEImage::setProfile( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTim
     {
         switch( variableIndex )
         {
-            case PROFILE_H_VARIABLE: vSliceX = 0; break;
-            case PROFILE_V_VARIABLE: hSliceY = 0; break;
-            case LINE_PROFILE_X1_VARIABLE: lineProfileInfo.clearX1(); break;
-            case LINE_PROFILE_Y1_VARIABLE: lineProfileInfo.clearY1(); break;
-            case LINE_PROFILE_X2_VARIABLE: lineProfileInfo.clearX2(); break;
-            case LINE_PROFILE_Y2_VARIABLE: lineProfileInfo.clearY2(); break;
+            case PROFILE_H_VARIABLE:              hSliceY = 0;               break;
+            case PROFILE_V_VARIABLE:              vSliceX = 0;               break;
+            case PROFILE_H_THICKNESS_VARIABLE:    hSliceThickness = 1;       break;
+            case PROFILE_V_THICKNESS_VARIABLE:    vSliceThickness = 1;       break;
+            case LINE_PROFILE_X1_VARIABLE:        lineProfileInfo.clearX1(); break;
+            case LINE_PROFILE_Y1_VARIABLE:        lineProfileInfo.clearY1(); break;
+            case LINE_PROFILE_X2_VARIABLE:        lineProfileInfo.clearX2(); break;
+            case LINE_PROFILE_Y2_VARIABLE:        lineProfileInfo.clearY2(); break;
+            case LINE_PROFILE_THICKNESS_VARIABLE: profileThickness = 1;      break;
         }
     }
 
@@ -1156,35 +1239,118 @@ void QEImage::setProfile( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTim
     // markup is visible, update it
     else
     {
+        // Save the tageting data
         switch( variableIndex )
         {
-            case PROFILE_H_VARIABLE:
-                hSliceY = value;
-                videoWidget->markupHProfileChange(  videoWidget->scaleImageOrdinate( hSliceY ), displayMarkups );
-                break;
-
-            case PROFILE_V_VARIABLE:
-                vSliceX = value;
-                videoWidget->markupVProfileChange(  videoWidget->scaleImageOrdinate( vSliceX ), displayMarkups );
-                break;
-
-#define USE_PROFILE_DATA( SET_NAME )                                                                                        \
-                lineProfileInfo.SET_NAME( value );                                                                          \
-                if( lineProfileInfo.getStatus() )                                                                           \
-                {                                                                                                           \
-                    QRect scaledArea = lineProfileInfo.getArea();                                                           \
-                    scaledArea.setTopLeft( videoWidget->scaleImagePoint( scaledArea.topLeft() ) );                          \
-                    scaledArea.setBottomRight( videoWidget->scaleImagePoint( scaledArea.bottomRight() ) );                  \
-                    videoWidget->markupLineProfileChange( scaledArea.topLeft(), scaledArea.bottomRight(), displayMarkups ); \
-                }                                                                                                           \
-                break;
-            case LINE_PROFILE_X1_VARIABLE: USE_PROFILE_DATA( setX1 );
-            case LINE_PROFILE_Y1_VARIABLE: USE_PROFILE_DATA( setY1 );
-            case LINE_PROFILE_X2_VARIABLE: USE_PROFILE_DATA( setX2 );
-            case LINE_PROFILE_Y2_VARIABLE: USE_PROFILE_DATA( setY2 );
-
-                break;
+            // !!! these next two lines are broken - when called on the initial updates of the scalar values the scaling is not available as there is no image.
+            //     change hSliceY and vSliceX (and infact all other similar variables for regions, targeting, etc) to be ordinates in raw image
+            case PROFILE_H_VARIABLE:              hSliceY = videoWidget->scaleImageOrdinate( value ); break;
+            case PROFILE_V_VARIABLE:              vSliceX = videoWidget->scaleImageOrdinate( value ); break;
+            case PROFILE_H_THICKNESS_VARIABLE:    hSliceThickness = value;                            break;
+            case PROFILE_V_THICKNESS_VARIABLE:    vSliceThickness = value;                            break;
+            case LINE_PROFILE_X1_VARIABLE:        lineProfileInfo.setX1( value );                     break;
+            case LINE_PROFILE_Y1_VARIABLE:        lineProfileInfo.setY1( value );                     break;
+            case LINE_PROFILE_X2_VARIABLE:        lineProfileInfo.setX2( value );                     break;
+            case LINE_PROFILE_Y2_VARIABLE:        lineProfileInfo.setY2( value );                     break;
+            case LINE_PROFILE_THICKNESS_VARIABLE: profileThickness = 1;                               break;
         }
+
+        // If there is an image, present the profile data
+        // (if there is no image, the profile data will be used when one arrives)
+        if( videoWidget->hasCurrentImage() )
+        {
+            useProfileData( variableIndex );
+        }
+    }
+}
+
+// Apply the profile data.
+// This can be done once all profile data is available and an image is available
+// (the image is needed to determine scaling)
+void QEImage::useProfileData( const unsigned int& variableIndex )
+{
+    switch( variableIndex )
+    {
+        case PROFILE_H_VARIABLE:
+            if( sMenu->getHSliceEnabled() )
+            {
+                videoWidget->markupHProfileChange(  videoWidget->scaleOrdinate( hSliceY ), displayMarkups );
+            }
+            break;
+
+        case PROFILE_V_VARIABLE:
+            if( sMenu->getVSliceEnabled() )
+            {
+                videoWidget->markupVProfileChange(  videoWidget->scaleOrdinate( vSliceX ), displayMarkups );
+            }
+            break;
+
+        case LINE_PROFILE_X1_VARIABLE:
+        case LINE_PROFILE_Y1_VARIABLE:
+        case LINE_PROFILE_X2_VARIABLE:
+        case LINE_PROFILE_Y2_VARIABLE:
+            if( sMenu->getProfileEnabled() && lineProfileInfo.getStatus() )
+            {
+                QRect scaledArea = lineProfileInfo.getArea();
+                scaledArea.setTopLeft( videoWidget->scaleImagePoint( scaledArea.topLeft() ) );
+                scaledArea.setBottomRight( videoWidget->scaleImagePoint( scaledArea.bottomRight() ) );
+                videoWidget->markupLineProfileChange( scaledArea.topLeft(), scaledArea.bottomRight(), displayMarkups );
+            }
+            break;
+    }
+}
+
+/*
+    Update the Ellipse displays if any
+    This is the slot used to recieve data updates from a QCaObject based class.
+ */
+void QEImage::setEllipse( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex)
+{
+    // If invalid, mark the appropriate profile info as not present
+    if( alarmInfo.isInvalid() )
+    {
+        switch( variableIndex )
+        {
+            case ELLIPSE_X1_VARIABLE: ellipseInfo.clearX1(); break;
+            case ELLIPSE_Y1_VARIABLE: ellipseInfo.clearY1(); break;
+            case ELLIPSE_X2_VARIABLE: ellipseInfo.clearX2(); break;
+            case ELLIPSE_Y2_VARIABLE: ellipseInfo.clearY2(); break;
+        }
+    }
+
+    // Good data. Save the ellipse data (and note it is present) then if the
+    // markup is visible, update it
+    else
+    {
+        // Save the ellipse data
+        switch( variableIndex )
+        {
+            case ELLIPSE_X1_VARIABLE: ellipseInfo.setX1( value ); break;
+            case ELLIPSE_Y1_VARIABLE: ellipseInfo.setY1( value ); break;
+            case ELLIPSE_X2_VARIABLE: ellipseInfo.setX2( value ); break;
+            case ELLIPSE_Y2_VARIABLE: ellipseInfo.setY2( value ); break;
+        }
+
+        // If there is an image, present the ellipse data
+        // (if there is no image, the profile data will be used when one arrives)
+        if( videoWidget->hasCurrentImage() )
+        {
+            useEllipseData();
+        }
+    }
+}
+
+// Apply the ellipse data.
+// This can be done once all ellipse data is available and an image is available
+// (the image is needed to determine scaling)
+void QEImage::useEllipseData()
+{
+    if( ellipseInfo.getStatus() )
+    {
+        QRect scaledArea = ellipseInfo.getArea();
+        scaledArea.setTopLeft( videoWidget->scaleImagePoint( scaledArea.topLeft() ) );
+        scaledArea.setBottomRight( videoWidget->scaleImagePoint( scaledArea.bottomRight() ) );
+        videoWidget->markupEllipseValueChange( scaledArea.topLeft(), scaledArea.bottomRight(), displayMarkups );
     }
 }
 
@@ -1210,30 +1376,98 @@ void QEImage::setTargeting( const long& value, QCaAlarmInfo& alarmInfo, QCaDateT
     // markup is visible, update it
     else
     {
-#define USE_TARGETING_DATA( VAR, SET_NAME, USE_NAME )                            \
-        VAR.SET_NAME( value );                                                   \
-        if(VAR.getStatus() )                                                     \
-        {                                                                        \
-            QPoint scaledPoint = videoWidget->scaleImagePoint( VAR.getPoint() ); \
-            videoWidget->USE_NAME( scaledPoint, displayMarkups );                \
-        }                                                                        \
-        break;
-
+        // Save the tageting data
         switch( variableIndex )
         {
-            case TARGET_X_VARIABLE:  USE_TARGETING_DATA( targetInfo, setX, markupTargetValueChange )
-            case TARGET_Y_VARIABLE:  USE_TARGETING_DATA( targetInfo, setY, markupTargetValueChange )
-            case BEAM_X_VARIABLE:    USE_TARGETING_DATA( beamInfo, setX, markupBeamValueChange )
-            case BEAM_Y_VARIABLE:    USE_TARGETING_DATA( beamInfo, setY, markupBeamValueChange )
+            case TARGET_X_VARIABLE:  targetInfo.setX( value ); break;
+            case TARGET_Y_VARIABLE:  targetInfo.setY( value ); break;
+            case BEAM_X_VARIABLE:    beamInfo.setX( value );   break;
+            case BEAM_Y_VARIABLE:    beamInfo.setY( value );   break;
+        }
+
+        // If there is an image, present the targeting data
+        // (if there is no image, the targeting data will be used when one arrives)
+        if( videoWidget->hasCurrentImage() )
+        {
+            useTargetingData();
         }
     }
 }
 
-// Update image from non CA souce (no associated CA timestamp or alarm info available)
-void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long width, unsigned long height )
+// Apply the targeting data.
+// This can be done once all targeting data is available and an image is available
+// (the image is needed to determine scaling)
+void QEImage::useTargetingData()
 {
+    if( sMenu->getTargetEnabled() && targetInfo.getStatus() && beamInfo.getStatus() )
+    {
+        QPoint scaledPoint;
+
+        scaledPoint = videoWidget->scaleImagePoint( targetInfo.getPoint() );
+        videoWidget->markupTargetValueChange( scaledPoint, displayMarkups );
+
+        scaledPoint = videoWidget->scaleImagePoint( beamInfo.getPoint() );
+        videoWidget->markupBeamValueChange( scaledPoint, displayMarkups );
+    }
+}
+
+// Display all markup data
+// Used When the first image update occurs to display any
+// markups for which data has arrived, but could not be presented
+// until an image was available to determine scaling
+void QEImage::useAllMarkupData()
+{
+    useROIData( ROI1_X_VARIABLE );
+    useROIData( ROI1_Y_VARIABLE );
+    useROIData( ROI1_W_VARIABLE );
+    useROIData( ROI1_H_VARIABLE );
+    useROIData( ROI2_X_VARIABLE );
+    useROIData( ROI2_Y_VARIABLE );
+    useROIData( ROI2_W_VARIABLE );
+    useROIData( ROI2_H_VARIABLE );
+    useROIData( ROI3_X_VARIABLE );
+    useROIData( ROI3_Y_VARIABLE );
+    useROIData( ROI3_W_VARIABLE );
+    useROIData( ROI3_H_VARIABLE );
+    useROIData( ROI4_X_VARIABLE );
+    useROIData( ROI4_Y_VARIABLE );
+    useROIData( ROI4_W_VARIABLE );
+    useROIData( ROI4_H_VARIABLE );
+
+    useProfileData( PROFILE_H_VARIABLE);
+    useProfileData( PROFILE_V_VARIABLE );
+    useProfileData( LINE_PROFILE_X1_VARIABLE ); //!!! all 4 of these requried???
+    useProfileData( LINE_PROFILE_Y1_VARIABLE );
+    useProfileData( LINE_PROFILE_X2_VARIABLE );
+    useProfileData( LINE_PROFILE_Y2_VARIABLE );
+
+    useTargetingData(); //!!! change this to use each of the targeting
+
+    useEllipseData();
+}
+
+// Update image from non CA souce (no associated CA timestamp or alarm info available)
+void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long elements, unsigned long width, unsigned long height, imageDataFormats::formatOptions format, unsigned int depth )
+{
+    //!!! Should the format, bit depth, width and height be clobered like this? (especially where we are altering properties, like bitDepth)
+    //!!! Perhaps CA delivered and MPEG delivered images should maintain their own attributes?
+
+    // set the format
+    setFormatOption( format );
+
+    //!!! should also set format as delivered with image from mpeg source???
+
+    // Set the image bit depth
+    bitDepth = depth;
+
+    elementsPerPixel = elements;
+
+    // Set the image dimensions to match the image size
     imageBuffWidth = width;
     imageBuffHeight = height;
+
+    // Update the image buffer according to the new size.
+    setImageBuff();
 
     QCaAlarmInfo alarmInfo;
     QCaDateTime dateTime = QCaDateTime( QDateTime::currentDateTime() );
@@ -1273,8 +1507,20 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
     // Note the time of this image
     imageTime = time;
 
+    // Note if the widget already had an image
+    // (Used below to determine if markups data should now be applied)
+    bool hasImage = videoWidget->hasCurrentImage();
+
     // Present the new image
     displayImage();
+
+    // If this is the first image update, use any markup data that may have already arrived
+    // (markup data can't be used until there is an image to determine the current scaling from)
+    // Set of as a timer only to ensure it occurs after the initial paint already queued by displayImage() above.
+    if( !hasImage )
+    {
+        QTimer::singleShot( 0, this, SLOT(useAllMarkupData() ) );
+    }
 
     // Indicate another image has arrived
     freshImage();
@@ -1638,12 +1884,13 @@ void QEImage::displayImage()
     // Note, for speed, the switch on format is outside the loop. The loop is duplicated in each case using macros which.
     switch( mFormatOption )
     {
-        case MONO:
+        case imageDataFormats::MONO:
         {
             switch( bitDepth )
             {
                 default:
-                // Pixel data is 1 to 8 bits wide. Extract the fist byte. For less than 8 bits assume rest of byte is zero
+                // Pixel data is 1 to 8 bits wide. Extract the fist byte. For less than 8 bits assume rest of byte is zero.
+                // (Assumtion is safe as even if incorrect range will still be 0-255 which is OK as an index into the pixelLookup table)
                 case 1:
                 case 2:
                 case 4:
@@ -1658,31 +1905,34 @@ void QEImage::displayImage()
                 }
 
                 // Pixel data is 10 bits wide - extract as 16 bit and use the top 8 bits of the first 10 bits
+                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
                 case 10:
                 {
                     LOOP_START
                         unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
-                        dataOut[buffIndex] = pixelLookup[inPixel>>2];
+                        dataOut[buffIndex] = pixelLookup[(inPixel&0x03ff)>>2];
                     LOOP_END
                     break;
                 }
 
                 // Pixel data is 12 bits wide - extract as 16 bit and use the top 8 bits of the first 12 bits
+                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
                 case 12:
                 {
                     LOOP_START
                         unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
-                        dataOut[buffIndex] = pixelLookup[inPixel>>4];
+                        dataOut[buffIndex] = pixelLookup[(inPixel&0x0fff)>>4];
                     LOOP_END
                     break;
                 }
 
                 // Pixel data is 14 bits wide - extract as 16 bit and use the top 8 bits of the first 14 bits
+                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
                 case 14:
                 {
                     LOOP_START
                         unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
-                        dataOut[buffIndex] = pixelLookup[inPixel>>6];
+                        dataOut[buffIndex] = pixelLookup[(inPixel&0x03fff)>>6];
                     LOOP_END
                     break;
                 }
@@ -1698,33 +1948,36 @@ void QEImage::displayImage()
                 }
 
                 // Pixel data is 18 bits wide - extract as 32 bit and use the top 8 bits of the first 18 bits
+                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
                 case 18:
                     {
                         LOOP_START
                             // Pixel data is 18 bits wide - use the top 8 bits
                             quint32 inPixel = *(quint32*)(&dataIn[dataIndex*bytesPerPixel]);
-                            dataOut[buffIndex] = pixelLookup[inPixel>>10];
+                            dataOut[buffIndex] = pixelLookup[(inPixel&0x03ffff)>>10];
                         LOOP_END
                         break;
                     }
 
                 // Pixel data is 20 bits wide - extract as 32 bit and use the top 8 bits of the first 20 bits
+                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
                 case 20:
                     {
                         LOOP_START
                             quint32 inPixel = *(quint32*)(&dataIn[dataIndex*bytesPerPixel]);
-                            dataOut[buffIndex] = pixelLookup[inPixel>>12];
+                            dataOut[buffIndex] = pixelLookup[(inPixel&0x0fffff)>>12];
                         LOOP_END
                         break;
                     }
 
                 // Pixel data is 22 bits wide - extract as 32 bit and use the top 8 bits of the first 22 bits
+                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
                 case 22:
                     {
                         LOOP_START
                             // Pixel data is 22 bits wide - use the top 8 bits
                             quint32 inPixel = *(quint32*)(&dataIn[dataIndex*bytesPerPixel]);
-                            dataOut[buffIndex] = pixelLookup[inPixel>>14];
+                            dataOut[buffIndex] = pixelLookup[(inPixel&0x03fffff)>>14];
                         LOOP_END
                         break;
                     }
@@ -1740,31 +1993,34 @@ void QEImage::displayImage()
                     }
 
                 // Pixel data is 26 bits wide - extract as 32 bit and use the top 8 bits of the first 26 bits
+                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
                 case 26:
                     {
                         LOOP_START
                             unsigned long inPixel = *(unsigned long*)(&dataIn[dataIndex*bytesPerPixel]);
-                            dataOut[buffIndex] = pixelLookup[inPixel>>18];
+                            dataOut[buffIndex] = pixelLookup[(inPixel&0x03ffffff)>>18];
                         LOOP_END
                         break;
                     }
 
                 // Pixel data is 28 bits wide - extract as 32 bit and use the top 8 bits of the first 28 bits
+                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
                 case 28:
                     {
                         LOOP_START
                             unsigned long inPixel = *(unsigned long*)(&dataIn[dataIndex*bytesPerPixel]);
-                            dataOut[buffIndex] = pixelLookup[inPixel>>20];
+                            dataOut[buffIndex] = pixelLookup[(inPixel&0x0fffffff)>>20];
                         LOOP_END
                         break;
                     }
 
                 // Pixel data is 30 bits wide - extract as 32 bit and use the top 8 bits of the first 30 bits
+                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
                 case 30:
                     {
                         LOOP_START
                             unsigned long inPixel = *(unsigned long*)(&dataIn[dataIndex*bytesPerPixel]);
-                            dataOut[buffIndex] = pixelLookup[inPixel>>22];
+                            dataOut[buffIndex] = pixelLookup[(inPixel&0x03fffffff)>>22];
                         LOOP_END
                         break;
                     }
@@ -1783,16 +2039,16 @@ void QEImage::displayImage()
             break;
         }
 
-        case BAYER:
+        case imageDataFormats::BAYER:
         {
-            int TLOffset = (-imageBuffWidth-1)*bytesPerPixel;
-            int  TOffset = -imageBuffWidth*bytesPerPixel;
-            int TROffset = (-imageBuffWidth+1)*bytesPerPixel;
-            int  LOffset = -bytesPerPixel;
-            int  ROffset = bytesPerPixel;
-            int BLOffset = (+imageBuffWidth-1)*bytesPerPixel;
-            int  BOffset = imageBuffWidth*bytesPerPixel;
-            int BROffset = (+imageBuffWidth+1)*bytesPerPixel;
+            int TLOffset = (-(int)(imageBuffWidth)-1)*(int)(bytesPerPixel);
+            int  TOffset = -(int)(imageBuffWidth)*(int)(bytesPerPixel);
+            int TROffset = (-(int)(imageBuffWidth)+1)*(int)(bytesPerPixel);
+            int  LOffset = -(int)(bytesPerPixel);
+            int  ROffset = (int)(bytesPerPixel);
+            int BLOffset = ((int)(imageBuffWidth)-1)*(int)(bytesPerPixel);
+            int  BOffset = imageBuffWidth*(int)(bytesPerPixel);
+            int BROffset = ((int)(imageBuffWidth)+1)*(int)(bytesPerPixel);
 
             enum regions {REG_TL, REG_T, REG_TR, REG_L, REG_C, REG_R, REG_BL, REG_B, REG_BR};
 
@@ -1828,7 +2084,7 @@ void QEImage::displayImage()
 
             LOOP_START
                 unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
-                unsigned int color = (dataIndex&0b01)|(((dataIndex/imageBuffWidth)&1)<<1);
+                unsigned int color = (dataIndex&1)|(((dataIndex/imageBuffWidth)&1)<<1);
 
                 // Assume Central region
                 region = REG_C;
@@ -2180,7 +2436,7 @@ void QEImage::displayImage()
             break;
         }
 
-        case RGB1:
+        case imageDataFormats::RGB1:
         {
             //unsigned int rOffset = 0*imageDataSize;
             unsigned int gOffset = imageDataSize;
@@ -2195,23 +2451,7 @@ void QEImage::displayImage()
             break;
         }
 
-        case RGB2:
-        {
-            //!!! not done yet - this is a copy of RGB1
-            //unsigned int rOffset = 0*imageDataSize;
-            unsigned int gOffset = imageDataSize;
-            unsigned int bOffset = 2*imageDataSize;
-            LOOP_START
-                unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
-                dataOut[buffIndex].p[0] = pixelLookup[inPixel[bOffset]].p[0];
-                dataOut[buffIndex].p[1] = pixelLookup[inPixel[gOffset]].p[0];
-                dataOut[buffIndex].p[2] = pixelLookup[*inPixel].p[0];
-                dataOut[buffIndex].p[3] = 0xff;
-            LOOP_END
-            break;
-        }
-
-        case RGB3:
+        case imageDataFormats::RGB2:
         {
             //!!! not done yet - this is a copy of RGB1
             //unsigned int rOffset = 0*imageDataSize;
@@ -2227,7 +2467,7 @@ void QEImage::displayImage()
             break;
         }
 
-        case YUV444:
+        case imageDataFormats::RGB3:
         {
             //!!! not done yet - this is a copy of RGB1
             //unsigned int rOffset = 0*imageDataSize;
@@ -2243,7 +2483,7 @@ void QEImage::displayImage()
             break;
         }
 
-        case YUV422:
+        case imageDataFormats::YUV444:
         {
             //!!! not done yet - this is a copy of RGB1
             //unsigned int rOffset = 0*imageDataSize;
@@ -2259,7 +2499,23 @@ void QEImage::displayImage()
             break;
         }
 
-        case YUV421:
+        case imageDataFormats::YUV422:
+        {
+            //!!! not done yet - this is a copy of RGB1
+            //unsigned int rOffset = 0*imageDataSize;
+            unsigned int gOffset = imageDataSize;
+            unsigned int bOffset = 2*imageDataSize;
+            LOOP_START
+                unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
+                dataOut[buffIndex].p[0] = pixelLookup[inPixel[bOffset]].p[0];
+                dataOut[buffIndex].p[1] = pixelLookup[inPixel[gOffset]].p[0];
+                dataOut[buffIndex].p[2] = pixelLookup[*inPixel].p[0];
+                dataOut[buffIndex].p[3] = 0xff;
+            LOOP_END
+            break;
+        }
+
+        case imageDataFormats::YUV421:
         {
             //!!! not done yet - this is a copy of RGB1
             //unsigned int rOffset = 0*imageDataSize;
@@ -2286,6 +2542,24 @@ void QEImage::displayImage()
     updateMarkupData();
 }
 
+// Return the size of the widget where the image will be presented
+// It will be presented in the QEImage's main window used for full screen view,
+// or in QEImage's scroll area
+QSize QEImage::getVedioDestinationSize()
+{
+    // If full screen, return the size of the main window used for this
+    // (sanity check, only do this if the full screen widget is present - it always should be in full screen)
+    if( fullScreen && fullScreenMainWindow )
+    {
+        return fullScreenMainWindow->size();
+    }
+    // Not in full screen, the destination is the scroll area widget
+    else
+    {
+        return scrollArea->size();
+    }
+}
+
 // Set the image buffer used for generating images so it will be large enough to hold the processed image.
 void QEImage::setImageBuff()
 {
@@ -2303,8 +2577,9 @@ void QEImage::setImageBuff()
 
         // Resize the image to fit exactly within the QCaItem
         case RESIZE_OPTION_FIT:
-            double vScale = (double)(scrollArea->size().height()) / (double)(rotatedImageBuffHeight());
-            double hScale = (double)(scrollArea->size().width()) / (double)(rotatedImageBuffWidth());
+            QSize destSize = getVedioDestinationSize();
+            double vScale = (double)(destSize.height()) / (double)(rotatedImageBuffHeight());
+            double hScale = (double)(destSize.width()) / (double)(rotatedImageBuffWidth());
             double scale = (hScale<vScale)?hScale:vScale;
 
             videoWidget->resize( (int)((double)rotatedImageBuffWidth() * scale),
@@ -2361,7 +2636,8 @@ void QEImage::setImageFile( QString name )
     scrollArea->setEnabled( true );
     imageBuffWidth = stdImage.width();
     imageBuffHeight = stdImage.height();
-    setFormatOption( RGB1 );
+    setFormatOption( imageDataFormats::RGB1 );
+    bitDepth = 8;
     setImageBuff();
 
     // Use the image data just like it came from a waveform variable
@@ -2376,15 +2652,15 @@ void QEImage::updateMarkupData()
 {
     if( haveVSliceX )
     {
-        generateVSlice( vSliceX, vSliceThickness );
+        generateVSliceUnscaled( vSliceX, vSliceThickness );
     }
     if( haveHSliceY )
     {
-        generateHSlice( hSliceY, hSliceThickness );
+        generateHSliceUnscaled( hSliceY, hSliceThickness );
     }
     if( haveProfileLine )
     {
-        generateProfile( profileLineStart, profileLineEnd, profileThickness );
+        generateProfileUnscaled( profileLineStart, profileLineEnd, profileThickness );
     }
     if( haveSelectedArea1 )
     {
@@ -2554,6 +2830,9 @@ void QEImage::lineProfileChanged()
     qca = (QEInteger*)getQcaItem( LINE_PROFILE_Y2_VARIABLE );
     if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( profileLineEnd.y() ));
 
+    qca = (QEInteger*)getQcaItem( LINE_PROFILE_THICKNESS_VARIABLE );
+    if( qca ) qca->writeInteger( profileThickness );
+
     return;
 }
 
@@ -2565,6 +2844,9 @@ void QEImage::hozProfileChanged()
     qca = (QEInteger*)getQcaItem( PROFILE_H_VARIABLE );
     if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( hSliceY ));
 
+    qca = (QEInteger*)getQcaItem( PROFILE_H_THICKNESS_VARIABLE );
+    if( qca ) qca->writeInteger( hSliceThickness );
+
     return;
 }
 
@@ -2575,6 +2857,9 @@ void QEImage::vertProfileChanged()
     QEInteger *qca;
     qca = (QEInteger*)getQcaItem( PROFILE_V_VARIABLE );
     if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( vSliceX ));
+
+    qca = (QEInteger*)getQcaItem( PROFILE_V_THICKNESS_VARIABLE );
+    if( qca ) qca->writeInteger( vSliceThickness );
 
     return;
 }
@@ -2643,10 +2928,19 @@ void QEImage::saveClicked()
     QString filename;
     bool result;
 
-    qFileDialog = new QFileDialog(this, "Save displayed image", QString());
+    qFileDialog = new QFileDialog(this, "Save displayed image", QDir::currentPath().append( QDir::separator() ).append("image.png") );
     filterList << "Tagged Image File Format (*.tiff)" << "Portable Network Graphics (*.png)" << "Windows Bitmap (*.bmp)" << "Joint Photographics Experts Group (*.jpg)";
-    qFileDialog->setFilters(filterList);
+    qFileDialog->setNameFilters(filterList);
     qFileDialog->setAcceptMode(QFileDialog::AcceptSave);
+
+// Don't set default suffix since the filename as entered is checked for existance (and
+// replacement confirmed with the user), then the filename with suffix is returned!
+// this means a file may be overwritten without warning, or warning may be given,
+// then a different file created
+//    qFileDialog->setDefaultSuffix( "png" );
+
+// Don't avoid native dialog as they are much richer.
+//    qFileDialog->setOption ( QFileDialog::DontUseNativeDialog, true );
 
     if (qFileDialog->exec())
     {
@@ -2725,10 +3019,18 @@ void QEImage::doEnableVertSliceSelection( bool enableVSliceSelection )
     sMenu->setVSliceEnabled( enableVSliceSelection );
 
     // If disabling, and it is the current mode, then default to panning
-    if( !enableVSliceSelection && getSelectionOption() == SO_VSLICE )
+    if( !enableVSliceSelection )
     {
-        sMenu->setChecked( QEImage::SO_PANNING );
-        panModeClicked();
+        if( getSelectionOption() == SO_VSLICE )
+        {
+            sMenu->setChecked( QEImage::SO_PANNING );
+            panModeClicked();
+        }
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_V_SLICE );
+    }
+    else
+    {
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_V_SLICE );
     }
 }
 
@@ -2738,10 +3040,18 @@ void QEImage::doEnableHozSliceSelection( bool enableHSliceSelection )
     sMenu->setHSlicetEnabled( enableHSliceSelection );
 
     // If disabling, and it is the current mode, then default to panning
-    if( !enableHSliceSelection && getSelectionOption() == SO_HSLICE )
+    if( !enableHSliceSelection )
     {
-        sMenu->setChecked( QEImage::SO_PANNING );
-        panModeClicked();
+        if( getSelectionOption() == SO_HSLICE )
+        {
+            sMenu->setChecked( QEImage::SO_PANNING );
+            panModeClicked();
+        }
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_H_SLICE );
+    }
+    else
+    {
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_H_SLICE );
     }
 }
 
@@ -2751,14 +3061,27 @@ void QEImage::doEnableAreaSelection( bool enableAreaSelection )
     sMenu->setAreaEnabled( enableAreaSelection );
 
     // If disabling, and it is the current mode, then default to panning
-    if( !enableAreaSelection &&
-        ( ( getSelectionOption() == SO_AREA1 ) ||
-          ( getSelectionOption() == SO_AREA2 ) ||
-          ( getSelectionOption() == SO_AREA3 ) ||
-          ( getSelectionOption() == SO_AREA4 )))
+    if( !enableAreaSelection )
     {
-        sMenu->setChecked( QEImage::SO_PANNING );
-        panModeClicked();
+        if( ( ( getSelectionOption() == SO_AREA1 ) ||
+            ( getSelectionOption() == SO_AREA2 ) ||
+            ( getSelectionOption() == SO_AREA3 ) ||
+            ( getSelectionOption() == SO_AREA4 )))
+        {
+            sMenu->setChecked( QEImage::SO_PANNING );
+            panModeClicked();
+        }
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_REGION1 );
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_REGION2 );
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_REGION3 );
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_REGION4 );
+    }
+    else
+    {
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_REGION1 );
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_REGION2 );
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_REGION3 );
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_REGION4 );
     }
 }
 
@@ -2768,10 +3091,18 @@ void QEImage::doEnableProfileSelection( bool enableProfileSelection )
     sMenu->setProfileEnabled( enableProfileSelection );
 
     // If disabling, and it is the current mode, then default to panning
-    if( !enableProfileSelection && getSelectionOption() == SO_PROFILE )
+    if( !enableProfileSelection )
     {
-        sMenu->setChecked( QEImage::SO_PANNING );
-        panModeClicked();
+        if( getSelectionOption() == SO_PROFILE )
+        {
+            sMenu->setChecked( QEImage::SO_PANNING );
+            panModeClicked();
+        }
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_LINE );
+    }
+    else
+    {
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_LINE );
     }
 }
 
@@ -2782,10 +3113,20 @@ void QEImage::doEnableTargetSelection( bool enableTargetSelection )
     targetButton->setVisible( enableTargetSelection );
 
     // If disabling, and it is the current mode, then default to panning
-    if( !enableTargetSelection && ( getSelectionOption() == SO_TARGET || getSelectionOption() == SO_BEAM ))
+    if( !enableTargetSelection )
     {
-        sMenu->setChecked( QEImage::SO_PANNING );
-        panModeClicked();
+        if( ( getSelectionOption() == SO_TARGET || getSelectionOption() == SO_BEAM ))
+        {
+            sMenu->setChecked( QEImage::SO_PANNING );
+            panModeClicked();
+        }
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_TARGET );
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_BEAM );
+    }
+    else
+    {
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_TARGET );
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_BEAM );
     }
 }
 
@@ -2830,7 +3171,7 @@ void QEImage::paste( QVariant v )
 
 
 // Allow user to set the video format
-void QEImage::setFormatOption( formatOptions formatOptionIn )
+void QEImage::setFormatOption( imageDataFormats::formatOptions formatOptionIn )
 {
     if( mFormatOption != formatOptionIn )
     {
@@ -2841,7 +3182,7 @@ void QEImage::setFormatOption( formatOptions formatOptionIn )
     mFormatOption = formatOptionIn;
 }
 
-QEImage::formatOptions QEImage::getFormatOption()
+imageDataFormats::formatOptions QEImage::getFormatOption()
 {
     return mFormatOption;
 }
@@ -3108,6 +3449,17 @@ QColor QEImage::getBeamMarkupColor()
     return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_BEAM );
 }
 
+// Ellipse markup colour
+void QEImage::setEllipseMarkupColor(QColor markupColor )
+{
+    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_ELLIPSE, markupColor );
+}
+
+QColor QEImage::getEllipseMarkupColor()
+{
+    return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_ELLIPSE );
+}
+
 // Display the button bar
 void QEImage::setDisplayButtonBar( bool displayButtonBar )
 {
@@ -3294,6 +3646,107 @@ applicationLauncher::programStartupOptions QEImage::getProgramStartupOption1(){ 
 void QEImage::setProgramStartupOption2( applicationLauncher::programStartupOptions programStartupOption ){ programLauncher2.setProgramStartupOption( programStartupOption ); }
 applicationLauncher::programStartupOptions QEImage::getProgramStartupOption2(){ return programLauncher2.getProgramStartupOption(); }
 
+// Legends
+QString QEImage::getHozSliceLegend()                     { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_H_SLICE );        }
+void    QEImage::setHozSliceLegend      ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_H_SLICE, legend ); }
+QString QEImage::getVertSliceLegend()                    { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_V_SLICE );        }
+void    QEImage::setVertSliceLegend     ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_V_SLICE, legend ); }
+QString QEImage::getprofileLegend()                      { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_LINE );           }
+void    QEImage::setProfileLegend       ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_LINE,    legend ); }
+QString QEImage::getAreaSelection1Legend()               { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_REGION1 );        }
+void    QEImage::setAreaSelection1Legend( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_REGION1, legend ); }
+QString QEImage::getAreaSelection2Legend()               { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_REGION2 );        }
+void    QEImage::setAreaSelection2Legend( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_REGION2, legend ); }
+QString QEImage::getAreaSelection3Legend()               { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_REGION3 );        }
+void    QEImage::setAreaSelection3Legend( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_REGION3, legend ); }
+QString QEImage::getAreaSelection4Legend()               { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_REGION4 );        }
+void    QEImage::setAreaSelection4Legend( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_REGION4, legend ); }
+QString QEImage::getTargetLegend()                       { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_TARGET );         }
+void    QEImage::setTargetLegend        ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_TARGET,  legend ); }
+QString QEImage::getBeamLegend()                         { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_BEAM );           }
+void    QEImage::setBeamLegend          ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_BEAM,    legend ); }
+QString QEImage::getEllipseLegend()                       { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_ELLIPSE );       }
+void    QEImage::setEllipseLegend       ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_ELLIPSE, legend ); }
+
+// Full Screen property set/get
+bool QEImage::getFullScreen()
+{
+    return fullScreen;
+}
+
+void QEImage::setFullScreen( bool fullScreenIn )
+{
+    // Save the current full screen state
+    fullScreen = fullScreenIn;
+
+    // Enter full screen
+    if( fullScreen )
+    {
+        // Only do anything if not in designer, and no full screen window has been created already
+        if( !inDesigner() && !fullScreenMainWindow )
+        {
+            // Create full screen window
+            // (and set up context sensitive menu (right click menu))
+            fullScreenMainWindow = new fullScreenWindow( this );
+            fullScreenMainWindow->setContextMenuPolicy( Qt::CustomContextMenu );
+            connect( fullScreenMainWindow, SIGNAL( customContextMenuRequested( const QPoint& )), this, SLOT( showImageContextMenuFullScreen( const QPoint& )));
+            connect( fullScreenMainWindow, SIGNAL( fullScreenResize()), this, SLOT( fullScreenResize()));
+
+            // Move the video widget into the full screen window and present it in full screen
+            QWidget* w = scrollArea->takeWidget();
+            fullScreenMainWindow->setCentralWidget( w );
+            fullScreenMainWindow->showFullScreen();
+
+            // Raise in front of whatever application the QEImage widget is in, and resize it
+            // This is only required when the QEWidget is created before being loaded into
+            // some other application widget hierarchy.
+            // For example, when QEGui opens a .ui file containing a QEImage widget:
+            //    - The QEImage is created when the .ui file is loaded (and on creation creates and uses the full screen widget here)
+            //    - QEGui inserts the widgets created from the .ui file and presents it's main window (over the top of the QEImage's full screen window)
+            // Note, a timer event is used to to wait for any particular elapsed time,
+            //       but to ensure raising the full screen window occurs after an application creating
+            //       this QEImage widget has finished doing whatever it is doing (which may include
+            //       showing itself over the top of the full screen window.
+            QTimer::singleShot( 0, this, SLOT(raiseFullScreen() ) );
+        }
+    }
+
+    // Leave full screen
+    else
+    {
+        // Only do anything if already presenting in full screen
+        if( fullScreenMainWindow )
+        {
+            // Move the video widget back into the scroll area within the QEImage
+            QWidget* w = fullScreenMainWindow->centralWidget();
+            scrollArea->setWidget( w );
+
+            // Destroy the fullscreen main window
+            delete fullScreenMainWindow;
+            fullScreenMainWindow = NULL;
+        }
+    }
+}
+
+// Ensure the full screen main window is in front of the application that created the QEImage widget,
+// and resized to fit the screen.
+// This is called as a timer event, not to create a delay (time is zero) but to ensure it is called after back in event loop
+void QEImage::raiseFullScreen()
+{
+    if( fullScreenMainWindow )
+    {
+        fullScreenMainWindow->activateWindow();
+        fullScreenMainWindow->raise();
+        fullScreenMainWindow->setFocus();
+    }
+}
+
+// Resize full screen once it has been managed
+void QEImage::resizeFullScreen()
+{
+    setResizeOption( RESIZE_OPTION_FIT );
+}
+
 //=================================================================================================
 
 void QEImage::panModeClicked()
@@ -3389,7 +3842,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 if( enableVertSlicePresentation )
                 {
                     QTimer::singleShot( 0, this, SLOT(setVSliceControlsVisible() ) );
-                    generateVSlice(  vSliceX, vSliceThickness );
+                    generateVSliceUnscaled(  vSliceX, vSliceThickness );
                 }
                 vertProfileChanged();
                 break;
@@ -3401,7 +3854,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 if( enableHozSlicePresentation )
                 {
                     QTimer::singleShot( 0, this, SLOT(setHSliceControlsVisible() ) );
-                    generateHSlice( hSliceY, hSliceThickness );
+                    generateHSliceUnscaled( hSliceY, hSliceThickness );
                 }
                 hozProfileChanged();
                 break;
@@ -3484,7 +3937,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 if( enableProfilePresentation )
                 {
                     QTimer::singleShot( 0, this, SLOT(setLineProfileControlsVisible() ) );
-                    generateProfile( profileLineStart, profileLineEnd, profileThickness );
+                    generateProfileUnscaled( profileLineStart, profileLineEnd, profileThickness );
                 }
 
                 lineProfileChanged();
@@ -3492,15 +3945,15 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
 
             case imageMarkup::MARKUP_ID_TARGET:
                 {
-                    targetInfo.setPoint( point1 );
+                    targetInfo.setPoint( videoWidget->scalePoint( point1 ) );
 
                     // Write the target variables.
                     QEInteger *qca;
                     qca = (QEInteger*)getQcaItem( TARGET_X_VARIABLE );
-                    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( targetInfo.getPoint().x() ));
+                    if( qca ) qca->writeInteger( targetInfo.getPoint().x() );
 
                     qca = (QEInteger*)getQcaItem( TARGET_Y_VARIABLE );
-                    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( targetInfo.getPoint().y() ));
+                    if( qca ) qca->writeInteger( targetInfo.getPoint().y() );
 
                     // Display textual info
                     infoUpdateTarget( targetInfo.getPoint().x(), targetInfo.getPoint().y() );
@@ -3509,15 +3962,15 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
 
             case imageMarkup::MARKUP_ID_BEAM:
                 {
-                    beamInfo.setPoint( point1 );
+                    beamInfo.setPoint( videoWidget->scalePoint( point1 ) );
 
                     // Write the beam variables.
                     QEInteger *qca;
                     qca = (QEInteger*)getQcaItem( BEAM_X_VARIABLE );
-                    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( beamInfo.getPoint().x() ));
+                    if( qca ) qca->writeInteger( beamInfo.getPoint().x() );
 
                     qca = (QEInteger*)getQcaItem( BEAM_Y_VARIABLE );
-                    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( beamInfo.getPoint().y() ));
+                    if( qca ) qca->writeInteger( beamInfo.getPoint().y() );
 
                     // Display textual info
                     infoUpdateBeam( beamInfo.getPoint().x(), beamInfo.getPoint().y() );
@@ -3686,20 +4139,20 @@ double QEImage::maxPixelValue()
 
     switch( mFormatOption )
     {
-        case BAYER:
-        case MONO:
+        case imageDataFormats::BAYER:
+        case imageDataFormats::MONO:
             result = (1<<bitDepth)-1;
             break;
 
-        case RGB1:
-        case RGB2:
-        case RGB3:
+        case imageDataFormats::RGB1:
+        case imageDataFormats::RGB2:
+        case imageDataFormats::RGB3:
             result = (1<<8)-1; //???!!! not done yet probably correct
             break;
 
-        case YUV444:
-        case YUV422:
-        case YUV421:
+        case imageDataFormats::YUV444:
+        case imageDataFormats::YUV422:
+        case imageDataFormats::YUV421:
             result = (1<<8)-1; //???!!! not done yet probably correct
             break;
     }
@@ -3848,8 +4301,10 @@ void QEImage::brightnessContrastAutoImageRequest()
 //=====================================================================
 
 // Generate a profile along a line down an image at a given X position
+// Input ordinates are at the resolution of the displayed image (not scaled to the source image data)
 // The profile contains values for each pixel intersected by the line.
-void QEImage::generateVSlice( int xUnscaled, unsigned int thicknessUnscaled )
+// See generateVSlice() below for further details
+void QEImage::generateVSliceUnscaled( int xUnscaled, unsigned int thicknessUnscaled )
 {
     if( !vSliceDisplay )
     {
@@ -3862,6 +4317,20 @@ void QEImage::generateVSlice( int xUnscaled, unsigned int thicknessUnscaled )
     // Scale the thickness to the original image data. (thickness of 1 pixel is not scaled, 1 is the minimum)
     // Note, thickness is not an ordinate, but scaleOrdinate
     unsigned int thickness = (thicknessUnscaled>1)?std::max(1,videoWidget->scaleOrdinate( thicknessUnscaled )):1;
+
+    // Generate the profile
+    generateVSlice( x, thickness );
+}
+
+// Generate a profile along a line down an image at a given X position
+// Input ordinates are scaled to the source image data.
+// The profile contains values for each pixel intersected by the line.
+void QEImage::generateVSlice( int x, unsigned int thickness )
+{
+    if( !vSliceDisplay )
+    {
+        return;
+    }
 
     // Display textual info
     infoUpdateVertProfile( x, thickness );
@@ -3953,8 +4422,10 @@ void QEImage::generateVSlice( int xUnscaled, unsigned int thicknessUnscaled )
 }
 
 // Generate a profile along a line across an image at a given Y position
+// Input ordinates are at the resolution of the displayed image (not scaled to the source image data)
 // The profile contains values for each pixel intersected by the line.
-void QEImage::generateHSlice( int yUnscaled, unsigned int thicknessUnscaled )
+// See generateHSlice() below for further details
+void QEImage::generateHSliceUnscaled( int yUnscaled, unsigned int thicknessUnscaled )
 {
     if( !hSliceDisplay )
     {
@@ -3967,6 +4438,20 @@ void QEImage::generateHSlice( int yUnscaled, unsigned int thicknessUnscaled )
     // Scale the thickness to the original image data. (thickness of 1 pixel is not scaled, 1 is the minimum)
     // Note, thickness is not an ordinate, but scaleOrdinate
     unsigned int thickness = (thicknessUnscaled>1)?std::max(1,videoWidget->scaleOrdinate( thicknessUnscaled )):1;
+
+    // Generate the profile
+    generateHSlice( y, thickness );
+}
+
+// Generate a profile along a line across an image at a given Y position
+// Input ordinates are at the resolution of the source image data
+// The profile contains values for each pixel intersected by the line.
+void QEImage::generateHSlice( int y, unsigned int thickness )
+{
+    if( !hSliceDisplay )
+    {
+        return;
+    }
 
     // Display textual info
     infoUpdateHozProfile( y, thickness );
@@ -4058,6 +4543,29 @@ void QEImage::generateHSlice( int yUnscaled, unsigned int thicknessUnscaled )
 }
 
 // Generate a profile along an arbitrary line through an image.
+// Input ordinates are at the resolution of the displayed image (not scaled to the source image data)
+// See generateProfile() below for further details
+void QEImage::generateProfileUnscaled( QPoint point1Unscaled, QPoint point2Unscaled, unsigned int thicknessUnscaled )
+{
+    if( !profileDisplay )
+    {
+        return;
+    }
+
+    // Scale the coordinates to the original image data
+    QPoint point1 = videoWidget->scalePoint( point1Unscaled );
+    QPoint point2 = videoWidget->scalePoint( point2Unscaled );
+
+    // Scale the thickness to the original image data. (thickness of 1 pixel is not scaled, 1 is the minimum)
+    // Note, thickness is not an ordinate, but scaleOrdinate
+    unsigned int thickness = (thicknessUnscaled>1)?std::max(1,videoWidget->scaleOrdinate( thicknessUnscaled )):1;
+
+    // Generate the profile
+    generateProfile( point1, point2, thickness );
+}
+
+// Generate a profile along an arbitrary line through an image.
+// Input ordinates are scaled to the source image data.
 // The profile contains values one pixel length along the line.
 // Except where the line is vertical or horizontal points one pixel
 // length along the line will not line up with actual pixels.
@@ -4118,20 +4626,12 @@ void QEImage::generateHSlice( int yUnscaled, unsigned int thicknessUnscaled )
 // angles to the line by a 'pixel' distance up to the line thickness.
 // The results are then averaged.
 //
-void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled, unsigned int thicknessUnscaled )
+void QEImage::generateProfile( QPoint point1, QPoint point2, unsigned int thickness )
 {
     if( !profileDisplay )
     {
         return;
     }
-
-    // Scale the coordinates to the original image data
-    QPoint point1 = videoWidget->scalePoint( point1Unscaled );
-    QPoint point2 = videoWidget->scalePoint( point2Unscaled );
-
-    // Scale the thickness to the original image data. (thickness of 1 pixel is not scaled, 1 is the minimum)
-    // Note, thickness is not an ordinate, but scaleOrdinate
-    unsigned int thickness = (thicknessUnscaled>1)?std::max(1,videoWidget->scaleOrdinate( thicknessUnscaled )):1;
 
     // Display textual information
     infoUpdateProfile( point1, point2, thickness );
@@ -4334,8 +4834,8 @@ int QEImage::getPixelValueFromData( const unsigned char* ptr )
     // Case the data to the correct size, then return the data as a floating point number.
     switch( mFormatOption )
     {
-        case BAYER:
-        case MONO:
+        case imageDataFormats::BAYER:
+        case imageDataFormats::MONO:
             {
                 unsigned int usableDepth = bitDepth;
                 if( bitDepth > (imageDataSize*8) )
@@ -4348,14 +4848,14 @@ int QEImage::getPixelValueFromData( const unsigned char* ptr )
                 return (*((quint32*)ptr))&mask;
             }
 
-        case RGB1:
+        case imageDataFormats::RGB1:
             {
                 // for RGB, average all colors
                 unsigned int pixel = *(unsigned int*)ptr;
                 return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
             }
 
-        case RGB2:
+        case imageDataFormats::RGB2:
             //!!! not done - copy of RGB1
             {
                 // for RGB, average all colors
@@ -4363,7 +4863,7 @@ int QEImage::getPixelValueFromData( const unsigned char* ptr )
                 return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
             }
 
-        case RGB3:
+        case imageDataFormats::RGB3:
             //!!! not done - copy of RGB1
             {
                 // for RGB, average all colors
@@ -4371,7 +4871,7 @@ int QEImage::getPixelValueFromData( const unsigned char* ptr )
                 return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
             }
 
-        case YUV444:
+        case imageDataFormats::YUV444:
             //!!! not done - copy of RGB1
             {
                 // for RGB, average all colors
@@ -4379,7 +4879,7 @@ int QEImage::getPixelValueFromData( const unsigned char* ptr )
                 return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
             }
 
-        case YUV422:
+        case imageDataFormats::YUV422:
             //!!! not done - copy of RGB1
             {
                 // for RGB, average all colors
@@ -4387,7 +4887,7 @@ int QEImage::getPixelValueFromData( const unsigned char* ptr )
                 return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
             }
 
-        case YUV421:
+        case imageDataFormats::YUV421:
             //!!! not done - copy of RGB1
             {
                 // for RGB, average all colors
@@ -4641,11 +5141,25 @@ void QEImage::redraw()
 
 //=================================================================================================
 // Present the context menu
+// (When in full screen)
+void QEImage::showImageContextMenuFullScreen( const QPoint& pos )
+{
+    QPoint globalPos = fullScreenMainWindow->mapToGlobal( pos );
+    showImageContextMenuCommon( pos, globalPos );
+}
+
+// Present the context menu
+// (When not in full screen)
 void QEImage::showImageContextMenu( const QPoint& pos )
 {
-    // Get the overall position on the display
     QPoint globalPos = mapToGlobal( pos );
+    showImageContextMenuCommon( pos, globalPos );
+}
 
+// Present the context menu
+// (full screen and not full screen)
+void QEImage::showImageContextMenuCommon( const QPoint& pos, const QPoint& globalPos )
+{
     // If the markup system wants to put up a menu, let it do so
     // For example, if the user has clicked over a markup, it may offer the user a menu
     if( videoWidget->showMarkupMenu( videoWidget->mapFrom( this, pos ), globalPos ) )
@@ -4679,13 +5193,16 @@ void QEImage::showImageContextMenu( const QPoint& pos )
         frMenu->setChecked( rotation, flipHoz, flipVert );
         cm->addMenu( frMenu );
 
+        // Add 'full scree' item
+        addMenuItem( cm,      "Full Screen",                   true,      fullScreen,                 imageContextMenu::ICM_FULL_SCREEN              );
+
         // Add option... dialog
         addMenuItem( cm,      "Options...",                    false,     false,                      imageContextMenu::ICM_OPTIONS                  );
 
         // Present the menu
         imageContextMenu::imageContextMenuOptions option;
         bool checked;
-        QAction* selectedItem = showContextMenu( cm, pos );
+        QAction* selectedItem = showContextMenuGlobal( cm, globalPos );
         if( selectedItem )
         {
             option = (imageContextMenu::imageContextMenuOptions)(selectedItem->data().toInt());
@@ -4703,7 +5220,7 @@ void QEImage::showImageContextMenu( const QPoint& pos )
     }
     else
     {
-        showContextMenu( pos );
+        showContextMenuGlobal( globalPos );
     }
 
 }
@@ -4729,6 +5246,7 @@ void QEImage::optionAction( imageContextMenu::imageContextMenuOptions option, bo
         case imageContextMenu::ICM_ENABLE_TARGET:               doEnableTargetSelection   ( checked ); break;
         case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:          buttonGroup->setVisible   ( checked ); break;
         case imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST: doEnableBrightnessContrast( checked ); break;
+        case imageContextMenu::ICM_FULL_SCREEN:                 setFullScreen             ( checked ); break;
         case imageContextMenu::ICM_OPTIONS:                     optionsDialog->exec( this );           break;
 
         // Note, zoom options caught by zoom menu signal
@@ -4848,14 +5366,14 @@ void QEImage::showImageAboutDialog()
     QString name;
     switch( mFormatOption )
     {
-        case MONO:        name = "Monochrome";    break;
-        case BAYER:       name = "Bayer";         break;
-        case RGB1:        name = "8 bit RGB";     break;
-        case RGB2:        name = "RGB2???";       break;
-        case RGB3:        name = "RGB3???";       break;
-        case YUV444:      name = "???bit YUV444"; break;
-        case YUV422:      name = "???bit YUV422"; break;
-        case YUV421:      name = "???bit YUV421"; break;
+        case imageDataFormats::MONO:        name = "Monochrome";    break;
+        case imageDataFormats::BAYER:       name = "Bayer";         break;
+        case imageDataFormats::RGB1:        name = "8 bit RGB";     break;
+        case imageDataFormats::RGB2:        name = "RGB2???";       break;
+        case imageDataFormats::RGB3:        name = "RGB3???";       break;
+        case imageDataFormats::YUV444:      name = "???bit YUV444"; break;
+        case imageDataFormats::YUV422:      name = "???bit YUV422"; break;
+        case imageDataFormats::YUV421:      name = "???bit YUV421"; break;
     }
 
     about.append( QString( "\nExpected format: " ).append( name ));
@@ -4898,6 +5416,15 @@ void QEImage::showImageAboutDialog()
                                                             .arg( (unsigned char)(imageBuff[i+3]) ));
         }
     }
+
+// Note if mpeg stuff if included.
+// To include mpeg stuff, don't define QE_USE_MPEG directly, define environment variable
+// QE_FFMPEG to be processed by framework.pro
+#ifdef QE_USE_MPEG
+    about.append( "\n\nImage MPEG URL: " ).append( (!getURL().isEmpty())?getURL():"No URL" );
+#else
+    about.append( "\n\nImage MPEG URL: ---MPEG source not enabled in this build---" );
+#endif // QE_USE_MPEG
 
     qcaobject::QCaObject *qca;
 
@@ -5072,6 +5599,15 @@ void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool ini
         if( !initialise )
         {
             programLauncher2.launchImage( this, copyImage() );
+        }
+    }
+
+    // Show in fullscreen mode
+    else if( action == "Full Screen" )
+    {
+        if( !initialise )
+        {
+            setFullScreen( true );
         }
     }
 

@@ -26,14 +26,17 @@
 
 #include <alarm.h>
 
+#include <QApplication>
 #include <QColor>
+#include <QColorDialog>
+#include <QFileDialog>
+#include <QVariantList>
+
 #include <QCaObject.h>
 #include <QEArchiveInterface.h>
-#include <QColorDialog>
-
 #include <QECommon.h>
-#include <QEScaling.h>
 #include <QEGraphic.h>
+#include <QEScaling.h>
 #include "QEStripChartItem.h"
 #include "QEStripChartContextMenu.h"
 #include "QEStripChartStatistics.h"
@@ -89,16 +92,9 @@ QEStripChartItem::QEStripChartItem (QEStripChart* chartIn,
    this->expression = "";
    this->expressionIsValid = false;
 
-   // Set geometry
-   //
-   this->pvSlotLetter->setGeometry (  0, 0,  16, 15); // x, y, w, h
-   this->pvName->setGeometry       ( 16, 0, 328, 15);
-   this->caLabel->setGeometry      (348, 0, 128, 15);
-
    // Set up other properties.
    //
    this->pvSlotLetter->setStyleSheet (letterStyle);
-   this->pvSlotLetter->setAlignment(Qt::AlignHCenter);
 
    this->pvName->setIndent (6);
    this->pvName->setToolTip (regularTip);
@@ -114,8 +110,14 @@ QEStripChartItem::QEStripChartItem (QEStripChart* chartIn,
 
    // Setup QELabel properties.
    //
-   this->caLabel->setIndent (6);
    this->caLabel->setAlignment (Qt::AlignRight);
+
+   // We have to be general here.
+   //
+   this->caLabel->setPrecision (9);
+   this->caLabel->setUseDbPrecision (false);
+   this->caLabel->setNotationProperty (QELabel::Automatic);
+
    QFont font = this->caLabel->font ();
    font.setFamily ("Monospace");
    this->caLabel->setFont (font);
@@ -162,11 +164,16 @@ QEStripChartItem::QEStripChartItem (QEStripChart* chartIn,
    this->connect (this->emptyMenu, SIGNAL (contextMenuSelected (const QEStripChartNames::ContextMenuOptions)),
                   this,            SLOT   (contextMenuSelected (const QEStripChartNames::ContextMenuOptions)));
 
+   // Connect letter button
+   //
+   QObject::connect (this->pvSlotLetter, SIGNAL ( clicked (bool)),
+                     this,   SLOT   ( letterButtonClicked (bool)));
 
    this->hostSlotAvailable = false;
 
    // Prepare to interact with whatever application is hosting this widget.
    // For example, the QEGui application can host docks and toolbars for QE widgets
+   // Needed to lauch the PV Statistics window.
    //
    if (this->isProfileDefined ()) {
       // Setup a signal to request component hosting.
@@ -195,9 +202,26 @@ void QEStripChartItem::createInternalWidgets ()
 
    letter.clear ();
    letter.append (char (int ('A') + this->slot));
-   this->pvSlotLetter = new QLabel (letter, this);
+
+   this->layout = new QHBoxLayout (this);
+   this->layout->setSpacing (4);
+   this->layout->setContentsMargins (1, 1, 1, 1);
+
+   this->pvSlotLetter = new QPushButton (letter, this);
+   this->pvSlotLetter->setMinimumSize (QSize (16, 15));
+   this->pvSlotLetter->setMaximumSize (QSize (16, 15));
+   layout->addWidget (this->pvSlotLetter);
+
    this->pvName = new QLabel (this);
+   this->pvName->setMinimumSize (QSize (328, 15));
+   this->pvName->setMaximumSize (QSize (328, 15));
+   layout->addWidget (this->pvName);
+
    this->caLabel = new QELabel (this);
+   this->caLabel->setMinimumSize (QSize (100, 15));
+   this->caLabel->setMaximumSize (QSize (1600, 15));
+   this->layout->addWidget (this->caLabel);
+
    this->colourDialog = new QColorDialog (this);
    this->inUseMenu = new QEStripChartContextMenu (true, this);
    this->emptyMenu = new QEStripChartContextMenu (false, this);
@@ -666,11 +690,24 @@ void QEStripChartItem::setDataConnection (QCaConnectionInfo& connectionInfo)
 //
 void QEStripChartItem::setDataValue (const QVariant& value, QCaAlarmInfo& alarm, QCaDateTime& datetime)
 {
+   QVariant input;
    double y;
    bool okay;
    QCaDataPoint point;
 
-   y = value.toDouble (&okay);
+   // Do something sensible with array PVs.
+   //
+   if (value.type () == QVariant::List) {
+      QVariantList list = value.toList ();
+      // Use first element. Consdider some mechanism to all the element to
+      // be selected buy the user.
+      //
+      input = list.value (0);
+   } else {
+      input = value;  // use as is
+   }
+
+   y = input.toDouble (&okay);
    if (okay) {
       // Conversion went okay - use this point.
       //
@@ -923,13 +960,10 @@ bool QEStripChartItem::eventFilter (QObject *obj, QEvent *event)
 
    switch (type) {
 
-      case QEvent::MouseButtonPress:
       case QEvent::MouseButtonDblClick:
          mouseEvent = static_cast<QMouseEvent *> (event);
          if (obj == this->pvName && (mouseEvent->button () == Qt::LeftButton)) {
-            // Leverage of existing context menu handler.
-            //
-            this->contextMenuSelected (QEStripChartNames::SCCM_PV_EDIT_NAME);
+            this->runSelectNameDialog (this->pvName);
             return true;  // we have handled double click
          }
          break;
@@ -1038,6 +1072,34 @@ void QEStripChartItem::generateStatistics ()
       pvStatistics->setWindowTitle (this->getPvName () + " Statistics");
       pvStatistics->show ();
    }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChartItem::runSelectNameDialog (QWidget* control)
+{
+   int n;
+
+   this->chart->pvNameSelectDialog->setPvName (this->getPvName ());
+   n = this->chart->pvNameSelectDialog->exec (control ? control : this);
+   if (n == 1) {
+      // User has selected okay.
+      //
+      if (this->getPvName () != this->chart->pvNameSelectDialog->getPvName ()) {
+         this->setPvName (this->chart->pvNameSelectDialog->getPvName (), "");
+      }
+      // and replot the data
+      //
+      this->chart->setReplotIsRequired ();
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChartItem::letterButtonClicked (bool)
+{
+   QWidget* from = dynamic_cast <QWidget*> (sender ());
+   this->runSelectNameDialog (from);
 }
 
 //------------------------------------------------------------------------------
@@ -1174,18 +1236,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
 
       case QEStripChartNames::SCCM_PV_ADD_NAME:
       case QEStripChartNames::SCCM_PV_EDIT_NAME:
-         this->chart->pvNameSelectDialog->setPvName (this->getPvName ());
-         n = this->chart->pvNameSelectDialog->exec (this->pvName);
-         if (n == 1) {
-            // User has selected okay.
-            //
-            if (this->getPvName () != this->chart->pvNameSelectDialog->getPvName ()) {
-               this->setPvName (this->chart->pvNameSelectDialog->getPvName (), "");
-            }
-            // and replot the data
-            //
-            this->chart->setReplotIsRequired ();
-         }
+         this->runSelectNameDialog (this->pvName);
          break;
 
       case QEStripChartNames::SCCM_PV_PASTE_NAME:

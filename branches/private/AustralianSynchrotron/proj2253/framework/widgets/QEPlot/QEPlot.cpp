@@ -215,7 +215,7 @@ void QEPlot::setPlotData( const double value, QCaAlarmInfo& alarmInfo, QCaDateTi
 
     // Remove any old data
     QDateTime oldest = QDateTime::currentDateTime();
-    oldest = oldest.addSecs( -timeSpan );
+    oldest = oldest.addSecs( -(int)(timeSpan) );
     while( tr->timeStamps.count() > 1 )
     {
         if( tr->timeStamps[1] < oldest )

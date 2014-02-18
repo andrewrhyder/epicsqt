@@ -1,14 +1,83 @@
-#include <QtDebug>
-//#include <QToolTip>
-#include "mpeg.h"
-//#include <QColorDialog>
-//#include "colorMaps.h"
-//#include <QX11Info>
-//#include <assert.h>
-//#include <QImage>
-//#include <QPainter>
+/*
+ *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
+ *
+ *  The EPICS QT Framework is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  The EPICS QT Framework is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Copyright (c) 2014
+ *
+ *  Author:
+ *    Andrew Rhyder
+ *    Initial code copied by Andrew Rhyder from parts of ffmpegWidget.cpp (Author anonymous, part of EPICS area detector ffmpegViwer project)
+ *
+ *  Contact details:
+ *    andrew.rhyder@synchrotron.org.au
+ */
 
+/*
+ * This class connects to a MJPEG stream and delivers data to the QEImage widget via a QByteArray
+ * containing image data in the same format as data delivered over CA, allowing a user to interact
+ * with it in the QEImage widget.
+ */
+
+
+#include <QtDebug>
 #include <QByteArray>
+
+#include "mpeg.h"
+
+// Colour format conversion macros
+
+#define CLIP(X) ( (X) > 255 ? 255 : (X) < 0 ? 0 : X)
+
+// RGB -> YUV
+#define RGB2Y(R, G, B) CLIP(( (  66 * (R) + 129 * (G) +  25 * (B) + 128) >> 8) +  16)
+#define RGB2U(R, G, B) CLIP(( ( -38 * (R) -  74 * (G) + 112 * (B) + 128) >> 8) + 128)
+#define RGB2V(R, G, B) CLIP(( ( 112 * (R) -  94 * (G) -  18 * (B) + 128) >> 8) + 128)
+
+// YUV -> RGB
+#define C(Y) ( (Y) - 16  )
+#define D(U) ( (U) - 128 )
+#define E(V) ( (V) - 128 )
+
+#define YUV2R(Y, U, V) CLIP(( 298 * C(Y)              + 409 * E(V) + 128) >> 8)
+#define YUV2G(Y, U, V) CLIP(( 298 * C(Y) - 100 * D(U) - 208 * E(V) + 128) >> 8)
+#define YUV2B(Y, U, V) CLIP(( 298 * C(Y) + 516 * D(U)              + 128) >> 8)
+
+// RGB -> YUVJ
+#define RGB2YJ(R, G, B) CLIP(( (  66 * (R) + 129 * (G) +  25 * (B) + 128) >> 8) )
+#define RGB2UJ(R, G, B) CLIP(( ( -38 * (R) -  74 * (G) + 112 * (B) + 128) >> 8) + 128)
+#define RGB2VJ(R, G, B) CLIP(( ( 112 * (R) -  94 * (G) -  18 * (B) + 128) >> 8) + 128)
+
+// YUVJ -> RGB
+#define CJ(Y) ( (Y) )
+#define DJ(U) ( (U) - 128 )
+#define EJ(V) ( (V) - 128 )
+
+#define YUVJ2R(Y, U, V) CLIP(( 298 * CJ(Y)               + 409 * EJ(V) + 128) >> 8)
+#define YUVJ2G(Y, U, V) CLIP(( 298 * CJ(Y) - 100 * DJ(U) - 208 * EJ(V) + 128) >> 8)
+#define YUVJ2B(Y, U, V) CLIP(( 298 * CJ(Y) + 516 * DJ(U)               + 128) >> 8)
+
+// RGB -> YCbCr
+#define CRGB2Y(R, G, B) CLIP((19595 * R + 38470 * G + 7471 * B ) >> 16)
+#define CRGB2Cb(R, G, B) CLIP((36962 * (B - CLIP((19595 * R + 38470 * G + 7471 * B ) >> 16) ) >> 16) + 128)
+#define CRGB2Cr(R, G, B) CLIP((46727 * (R - CLIP((19595 * R + 38470 * G + 7471 * B ) >> 16) ) >> 16) + 128)
+
+// YCbCr -> RGB
+#define CYCbCr2R(Y, Cb, Cr) CLIP( Y + ( 91881 * Cr >> 16 ) - 179 )
+#define CYCbCr2G(Y, Cb, Cr) CLIP( Y - (( 22544 * Cb + 46793 * Cr ) >> 16) + 135)
+#define CYCbCr2B(Y, Cb, Cr) CLIP( Y + (116129 * Cb >> 16 ) - 226 )
+
 
 /* global switch for fallback mode */
 int fallback = 0;
@@ -21,7 +90,6 @@ static QMutex *ffmutex;
 
 // An FFBuffer contains an AVFrame, a mutex for access and some data
 FFBuffer::FFBuffer() {
-    qDebug() << "FFBuffer::FFBuffer()";
     this->mutex = new QMutex();
     this->refs = 0;
     this->pFrame = avcodec_alloc_frame();
@@ -29,13 +97,11 @@ FFBuffer::FFBuffer() {
 }
 
 FFBuffer::~FFBuffer() {
-    qDebug() << "FFBuffer::~FFBuffer()";
     av_free(this->pFrame);
     free(this->mem);
 }
 
 bool FFBuffer::grabFree() {
-    qDebug() << "FFBuffer::grabFree()";
     if (this->mutex->tryLock()) {
         if (this->refs == 0) {
             this->refs += 1;
@@ -51,17 +117,15 @@ bool FFBuffer::grabFree() {
 }
 
 void FFBuffer::reserve() {
-    qDebug() << "FFBuffer::reserve()";
     this->mutex->lock();
     this->refs += 1;
-    this->mutex->unlock();    
+    this->mutex->unlock();
 }
 
 void FFBuffer::release() {
-    qDebug() << "FFBuffer::release()";
     this->mutex->lock();
     this->refs -= 1;
-    this->mutex->unlock();    
+    this->mutex->unlock();
 }
 
 // List of FFBuffers to use for raw frames
@@ -72,13 +136,12 @@ static FFBuffer outbuffers[NBUFFERS];
 
 // find a free FFBuffer
 FFBuffer * findFreeBuffer(FFBuffer* source) {
-    qDebug() << "findFreeBuffer";
     for (int i = 0; i < NBUFFERS; i++) {
         // if we can lock it and it has a 0 refcount, we can use it!
         if (source[i].mutex->tryLock()) {
             if (source[i].refs == 0) {
                 source[i].refs += 1;
-                source[i].mutex->unlock();    
+                source[i].mutex->unlock();
                 return &source[i];
             } else {
                 source[i].mutex->unlock();    
@@ -94,9 +157,8 @@ FFBuffer * findFreeBuffer(FFBuffer* source) {
 FFThread::FFThread (const QString &url, QObject* parent)
     : QThread (parent)
 {
-    qDebug() << "FFThread::FFThread";
     // this is the url to read the stream from
-    strcpy(this->url, url.toAscii().data());
+    strcpy(this->url, url.toLatin1().data());
     // set this to 1 to finish
     this->stopping = 0;
     // initialise the ffmpeg library once only
@@ -113,14 +175,12 @@ FFThread::FFThread (const QString &url, QObject* parent)
 
 // destroy widget
 FFThread::~FFThread() {
-    qDebug() << "FFThread::~FFThread()";
 }
 
 // run the FFThread
 void FFThread::run()
 {
-    qDebug() << "FFThread::run()";
-    AVFormatContext     *pFormatCtx;
+    AVFormatContext     *pFormatCtx = NULL;
     int                 videoStream;
     AVCodecContext      *pCodecCtx;
     AVCodec             *pCodec;
@@ -128,8 +188,12 @@ void FFThread::run()
     int                 frameFinished, len;
 
     // Open video file
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(53, 2, 0)
     if (av_open_input_file(&pFormatCtx, this->url, NULL, 0, NULL)!=0) {
-        printf("Opening input '%s' failed\n", this->url);
+#else
+    if (avformat_open_input(&pFormatCtx, this->url, NULL, NULL)!=0) {
+#endif
+        qDebug() << QString( "Opening input '%1' failed" ).arg( url );
         return;
     }
 
@@ -142,7 +206,7 @@ void FFThread::run()
         }
     }
     if( videoStream==-1) {
-        printf("Finding video stream in '%s' failed\n", this->url);
+        qDebug() << QString( "Finding video stream in '%1' failed" ).arg( url );
         return;
     }
 
@@ -152,14 +216,18 @@ void FFThread::run()
     // Find the decoder for the video stream
     pCodec=avcodec_find_decoder(pCodecCtx->codec_id);
     if(pCodec==NULL) {
-        printf("Could not find decoder for '%s'\n", this->url);
+        qDebug() << QString( "Could not find decoder for '%1'" ).arg( url );
         return;
     }
 
     // Open codec
     ffmutex->lock();
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(53, 2, 0)
     if(avcodec_open(pCodecCtx, pCodec)<0) {
-        printf("Could not open codec for '%s'\n", this->url);
+#else
+    if(avcodec_open2(pCodecCtx, pCodec, NULL)<0) {
+#endif
+        qDebug() << QString( "Could not open codec for '%1'" ).arg( url );
         return;
     }
     ffmutex->unlock();
@@ -170,7 +238,7 @@ void FFThread::run()
         // Is this a packet from the video stream?
         if (packet.stream_index!=videoStream) {
             // Free the packet if not
-            printf("Non video packet. Shouldn't see this...\n");
+            qDebug() << "Non video packet. Shouldn't see this...";
             av_free_packet(&packet);
             continue;
         }
@@ -178,31 +246,25 @@ void FFThread::run()
         // grab a buffer to decode into
         FFBuffer *raw = findFreeBuffer(rawbuffers);        
         if (raw == NULL) {
-            printf("Couldn't get a free buffer, skipping packet\n");
+            qDebug() << "Couldn't get a free buffer, skipping packet";
             av_free_packet(&packet);
             continue;
         }
         
-        // Tell the codec to use this bit of memory
-        pCodecCtx->internal_buffer = raw->mem;
-
         // Decode video frame
         len = avcodec_decode_video2(pCodecCtx, raw->pFrame, &frameFinished,
             &packet);
         if (!frameFinished) {
-            printf("Frame not finished. Shouldn't see this...\n");
+            qDebug() << "Frame not finished. Shouldn't see this...";
             av_free_packet(&packet);
             raw->release();
             continue;
         }
         
-        // Set the internal buffer back to null so that we don't accidentally free it
-        pCodecCtx->internal_buffer = NULL;
-        
         // Fill in the output buffer
         raw->pix_fmt = pCodecCtx->pix_fmt;         
         raw->height = pCodecCtx->height;
-        raw->width = pCodecCtx->width;                
+        raw->width = pCodecCtx->width;
 
         // Emit and free
         emit updateSignal(raw);
@@ -225,19 +287,16 @@ void FFThread::run()
 
 mpegSourceObject::mpegSourceObject( mpegSource* msIn )
 {
-    qDebug() << "mpegSourceObject::mpegSourceObject(";
     ms = msIn;
 }
 
 mpegSourceObject::~mpegSourceObject()
 {
-    qDebug() << "mpegSourceObject::~mpegSourceObject()";
 
 }
 
 void mpegSourceObject::sentAboutToQuit()
 {
-    qDebug() << "mpegSourceObject::sentAboutToQuit()";
     emit aboutToQuit();
 }
 
@@ -245,32 +304,33 @@ void mpegSourceObject::sentAboutToQuit()
 
 mpegSource::mpegSource()
 {
-    qDebug() << "mpegSource::mpegSource()";
     ff = NULL;
-    rawbuf = NULL;
-    fullbuf = NULL;
-    ctx = NULL;
     mso = new mpegSourceObject( this );
 
-
+    buff = NULL;
+    buffSize=0;
 }
 
 mpegSource::~mpegSource()
 {
-    qDebug() << "mpegSource::~mpegSource()";
+    // Ensure the thread is dead
+    ffQuit();
 }
 
 QString mpegSource::getURL()
 {
-    qDebug() << "mpegSource::getURL()";
     return url;
 }
 
 void mpegSource::setURL( QString urlIn )
 {
+    // don't do anything if URL is not changing
+    if( urlIn == url )
+    {
+        return;
+    }
     ffQuit();
 
-    qDebug() << "mpegSource::setURL";
     url = urlIn;
 
     /* create the ffmpeg thread */
@@ -285,7 +345,6 @@ void mpegSource::setURL( QString urlIn )
 }
 
 void mpegSource::ffQuit() {
-    qDebug() << "mpegSource::ffQuit()";
     // Tell the ff thread to stop
     if (ff==NULL) return;
     mso->sentAboutToQuit();
@@ -300,106 +359,136 @@ void mpegSource::ffQuit() {
 
 void mpegSourceObject::updateImage(FFBuffer *newbuf)
 {
-    qDebug() << "mpegSourceObject::updateImage";
     ms->updateImage( newbuf );
+    newbuf->release();
 }
 
 void mpegSource::updateImage(FFBuffer *newbuf) {
-    qDebug() << "mpegSource::updateImage";
 
-    // store the buffer
-    if (this->rawbuf) this->rawbuf->release();
-    this->rawbuf = newbuf;
+    newbuf->reserve();
 
-    // make the frame the right format
-    makeFullFrame();
-
-    if ( fullbuf )
+    // Ensure an adequate buffer to hold the image data with no line gaps is allocated.
+    // (re)allocate if not present of not the right size
+    int newBuffSize = newbuf->width * newbuf->height * 3;   //!!!??? * 3 for color only
+    if( buffSize != newBuffSize )
     {
-        QByteArray ba;
+        // Free last buffer, if re-allocating
+        if( buff )
+        {
+            free( buff );
+        }
 
-        newbuf->reserve();
-//for( int i = 0; i < 100; i++ )
-//{
-//    qDebug() << newbuf->pFrame->data[0][i];
-//    qDebug() << newbuf->pFrame->data[1][i];
-//    qDebug() << newbuf->pFrame->data[2][i];
-//}
+        // Allocate buffer
+        buffSize = newBuffSize;
+        buff = (char*)malloc( newBuffSize );
+    }
+
+    // Populate buffer with no line gaps
+    // (Each horizontal line of pixels in in a larger horizontal line of storage.
+    //  Observed example: each line was 1624 pixels stored in 1664 bytes with
+    //  trailing 40 bytes of value 128 before start of pixel on next line)
+    char* buffPtr = buff;
+
+    // Set up default image information
+    unsigned long dataSize = 1;
+    unsigned long depth = 8;
+    unsigned long elementsPerPixel = 1;
+    imageDataFormats::formatOptions format = imageDataFormats::MONO;
+
+// older version does not have 'format'
+//widgets/QEImage/mpeg.cpp: In member function 'void mpegSource::updateImage(FFBuffer*)':
+//widgets/QEImage/mpeg.cpp:387: error: 'struct AVFrame' has no member named 'format'
+
+    // Format the data in a CA like QByteArray
+    switch( newbuf->pix_fmt )
+    {
+    case PIX_FMT_YUVJ420P:
+        {
+            //!!! Since the QEImage widget handles (or should handle) CA image data in all the formats that are expected in this mpeg stream
+            //!!! perhaps this formatting here should be simply packaging the data in a QbyteArray and delivering it, rather than perform any conversion.
+
+            // Set up the image information
+            dataSize = 1;
+            depth = 8;
+            elementsPerPixel = 3;
+            format = imageDataFormats::RGB1;
+
+            const unsigned char* linePtrY = (const unsigned char*)(newbuf->pFrame->data[0]);
+            const unsigned char* linePtrU = (const unsigned char*)(newbuf->pFrame->data[1]);
+            const unsigned char* linePtrV = (const unsigned char*)(newbuf->pFrame->data[2]);
+
+            // For each row...
+            for( int i = 0; i < newbuf->height; i++ )
+            {
+                // For each pixel...
+                for( int j = 0; j < newbuf->width; j++ )
+                {
+                    unsigned char y,u,v;
+                    unsigned char r,g,b;
+
+                    // Use U and V values for every pair of pixels
+                    int uv = j/2;
+
+                    // Get YUV values
+                    y = linePtrY[j];
+                    u = linePtrU[uv];
+                    v = linePtrV[uv];
+
+                    // Convert to RGB
+                    r = YUVJ2R(y, u, v);
+                    g = YUVJ2G(y, u, v);
+                    b = YUVJ2B(y, u, v);
+
+                    // Save RGB result
+                    *buffPtr++ = r;
+                    *buffPtr++ = g;
+                    *buffPtr++ = b;
+                }
+
+                // Step on to new Y data for every line
+                linePtrY += newbuf->pFrame->linesize[0];
+
+                // Step onto new U and V data every two lines
+                if( i & 1 )
+                {
+                    linePtrU += newbuf->pFrame->linesize[1];
+                    linePtrV += newbuf->pFrame->linesize[2];
+                }
+            }
+        }
+        break;
+
+    default:
+        {
+            // Set up the image information
+            dataSize = 1;
+            depth = 8;
+            elementsPerPixel = 1;
+            format = imageDataFormats::MONO;
+
+            // Package the data in a CA like QByteArray
+            const char* linePtr = (const char*)(newbuf->pFrame->data[0]);
+            for( int i = 0; i < newbuf->height; i++ )
+            {
+                memcpy( buffPtr, linePtr, newbuf->width );
+                buffPtr += newbuf->width;
+                linePtr += newbuf->pFrame->linesize[0];
+            }
+        }
+        break;
+    }
+
+
+    // Deliver image update
+    QByteArray ba;
 #if QT_VERSION >= 0x040700
-        ba.setRawData( (const char*)(newbuf->pFrame->data[0]), fullbuf->width * fullbuf->height );
+    ba.setRawData( (const char*)(buff), buffSize );
 #else
-        ba = QByteArray::fromRawData( fullbuf->pFrame->data[0], fullbuf->width * fullbuf->height );
+    ba = QByteArray::fromRawData( buff, buffSize );
 #endif
-qDebug() <<  newbuf->width << newbuf->height;
-        setImage( ba, 1, newbuf->width, newbuf->height );
-        newbuf->release();
-    }
+
+    setImage( ba, dataSize, elementsPerPixel, newbuf->width, newbuf->height, format, depth );
+
+    // Unlock buffer
+    newbuf->release();
 }
-
-void mpegSource::makeFullFrame() {
-    qDebug() << "mpegSource::makeFullFrame()";
-    PixelFormat pix_fmt;
-
-    // make sure we have a raw buffer
-    if (this->rawbuf == NULL || this->rawbuf->width <= 0 || this->rawbuf->height <= 0) {
-        return;
-    }
-
-    // if we have a raw buffer then decompress it
-    this->rawbuf->reserve();
-
-    // if we've got an image that's too big, force RGB
-//    if (this->ff_fmt == PIX_FMT_YUVJ420P && (this->rawbuf->width > maxW || this->rawbuf->height > maxH)) {
-//        printf("Image too big, using QImage fallback mode\n");
-        pix_fmt = PIX_FMT_RGB24;
-//    } else {
-//        pix_fmt = this->ff_fmt;
-//    }
-
-    // release any full frame we might have
-    if (this->fullbuf) this->fullbuf->release();
-
-//    // Format the decoded frame as we've been asked
-//    if (_fcol) {
-//        // make it false colour
-//        this->fullbuf = this->falseFrame(this->rawbuf, pix_fmt);
-//    } else {
-//        // pass out frame through sw_scale
-        this->fullbuf = this->formatFrame(this->rawbuf, pix_fmt);
-//    }
-    this->rawbuf->release();
-
-    // Check we got a buffer
-    if (this->fullbuf == NULL) {
-        printf("Couldn't get a free buffer, skipping frame\n");
-        return;
-    }
-}
-
-
-// take a buffer and swscale it to the requested dimensions
-FFBuffer * mpegSource::formatFrame(FFBuffer *src, PixelFormat pix_fmt) {
-    qDebug() << "mpegSource::formatFrame";
-    FFBuffer *dest = findFreeBuffer(outbuffers);
-    // make sure we got a buffer
-    if (dest == NULL) return NULL;
-    // fill in multiples of 8 that we can cope with
-    dest->width = src->width - src->width % 8;
-    dest->height = src->height - src->height % 2;
-    dest->pix_fmt = pix_fmt;
-    // see if we have a suitable cached context
-    // note that we use the original values of width and height
-    this->ctx = sws_getCachedContext(this->ctx,
-        dest->width, dest->height, src->pix_fmt,
-        dest->width, dest->height, dest->pix_fmt,
-        SWS_BICUBIC, NULL, NULL, NULL);
-    // Assign appropriate parts of buffer->mem to planes in buffer->pFrame
-    qDebug() << "size of image data" << avpicture_fill((AVPicture *) dest->pFrame, dest->mem,
-        dest->pix_fmt, dest->width, dest->height);
-
-    // do the software scale
-    qDebug() << "height of slice" << sws_scale(this->ctx, src->pFrame->data, src->pFrame->linesize, 0,
-        src->height, dest->pFrame->data, dest->pFrame->linesize);
-    return dest;
-}
-

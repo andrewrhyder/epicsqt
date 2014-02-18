@@ -25,7 +25,9 @@
 #ifndef QECONFIGUREDLAYOUT_H
 #define QECONFIGUREDLAYOUT_H
 
+#include <QDialog>
 #include <QDomDocument>
+#include <QVBoxLayout>
 #include <QELabel.h>
 #include <QEBitStatus.h>
 #include <QEPushButton.h>

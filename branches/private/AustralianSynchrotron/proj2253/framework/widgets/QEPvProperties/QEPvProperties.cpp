@@ -28,6 +28,7 @@
 #include <QTableWidgetItem>
 #include <QComboBox>
 #include <QFrame>
+#include <QHeaderView>
 
 #include <QEScaling.h>
 #include <QECommon.h>
@@ -254,12 +255,23 @@ QEPvProperties::QEPvProperties (const QString & variableName, QWidget * parent) 
 //
 QEPvProperties::~QEPvProperties ()
 {
-   QEString *qca;
-
    // Free up all allocated QEString objects.
    //
+   // Ensure the standardRecordType and alternateRecordType QEString objects
+   // are deleted as well as the field QEString objects.
+   //
+   if (this->standardRecordType) {
+      delete this->standardRecordType;
+      this->standardRecordType = NULL;
+   }
+
+   if (this->alternateRecordType) {
+      delete this->alternateRecordType;
+      this->alternateRecordType = NULL;
+   }
+
    while (!this->fieldChannels.isEmpty ()) {
-      qca = this->fieldChannels.takeFirst ();
+      QEString *qca = this->fieldChannels.takeFirst ();
       if (qca) {
          delete qca;
       }
@@ -328,7 +340,6 @@ void QEPvProperties::common_setup ()
 
    style = "QWidget { background-color: #F0F0F0; }";
 
-   this->valueLabel->setIndent (4);
    this->valueLabel->setStyleSheet (style);
    // We have to be general here
    this->valueLabel->setPrecision (9);
