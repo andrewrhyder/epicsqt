@@ -338,6 +338,7 @@ private:
     QString getTextImage ();   // text image to be used.
 
     QColor colourList [16];
+    bool isStaticValue;   // as opposed to is PV value.
     int value;
     bool isConnected;
     bool isFirstUpdate;
@@ -357,15 +358,18 @@ private:
     QColor getColourProperty (int slot);
 
 private slots:
-    void connectionChanged( QCaConnectionInfo& connectionInfo );
+    void connectionChanged (QCaConnectionInfo& connectionInfo);
 
-    void setShapeValue( const long& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
+    void setShapeValue (const long& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int&);
 
     // Just in case hooked up to an array PV.
     //
-    void setShapeValues ( const QVector<long>& values, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
+    void setShapeValues (const QVector<long>& values, QCaAlarmInfo&,
+                         QCaDateTime&, const unsigned int&);
 
-    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );  // !! move into Standard Properties section??
+    void useNewVariableNameProperty (QString variableNameIn,
+                                     QString variableNameSubstitutionsIn,
+                                     unsigned int variableIndex );
 
 signals:
     // Note, the following signals are common to many QE widgets,
