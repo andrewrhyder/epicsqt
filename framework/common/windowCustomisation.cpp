@@ -42,6 +42,7 @@
 #include <QToolBar>
 #include <QEWidget.h>
 #include <QDockWidget>
+#include <QEScaling.h>
 
 //==============================================================================================
 // windowCustomisationItem
@@ -594,7 +595,9 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuPlaceholder( QDo
         return NULL;
 
     // Add details for a placeholder (where the applicaiton can add menu items) to customisation set
-    windowCustomisationMenuItem* item = new windowCustomisationMenuItem( menuHierarchy, name, windowCustomisationMenuItem::MENU_PLACEHOLDER, requiresSeparator( itemElement ) );
+    windowCustomisationMenuItem* item = new windowCustomisationMenuItem( menuHierarchy, name,
+                                                                         windowCustomisationMenuItem::MENU_PLACEHOLDER,
+                                                                         requiresSeparator( itemElement ) );
     return item;
 }
 
@@ -944,6 +947,7 @@ QMenu* windowCustomisationList::buildMenuPath( windowCustomisationInfo* customis
 
             // Create the menu
             QMenu* newMenu = new QMenu( menuHierarchy.at(i) );
+            QEScaling::applyToWidget( newMenu );
 
             // Add it to the next level up (if any)
             if( menuPoint )
@@ -1253,3 +1257,4 @@ void windowCustomisationList::useDock( QDockWidget* dock )
     }
 }
 
+// end

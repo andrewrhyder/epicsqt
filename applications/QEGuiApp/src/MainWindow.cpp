@@ -309,9 +309,15 @@ void MainWindow::setupPlaceholderMenus()
     {
         recentMenu->clear();
     }
+
     windowMenu = customisationInfo.placeholderMenus.value( "Windows", NULL );
+    QEScaling::applyToWidget( windowMenu );
+
     recentMenu = customisationInfo.placeholderMenus.value( "Recent", NULL );
+    QEScaling::applyToWidget( recentMenu );
+
     editMenu = customisationInfo.placeholderMenus.value( "Edit", NULL );
+    QEScaling::applyToWidget( editMenu );
 
     // Populate the 'Windows' menu to include all current guis in any main window
     buildWindowsMenu();
