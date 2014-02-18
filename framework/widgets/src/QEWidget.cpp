@@ -302,7 +302,7 @@ QColor QEWidget::getColor( QCaAlarmInfo& alarmInfo, int saturation )
 /*
   Provides default (and consistant) alarm handling for all QE widgets.
  */
-void QEWidget::processAlarmInfo( QCaAlarmInfo& alarmInfo )
+void QEWidget::processAlarmInfo( QCaAlarmInfo& alarmInfo, const unsigned int variableIndex )
 {
     // Gather the current info
     QCAALARMINFO_SEVERITY severity = alarmInfo.getSeverity();
@@ -326,11 +326,8 @@ void QEWidget::processAlarmInfo( QCaAlarmInfo& alarmInfo )
     }
 
     // Regardless of whether we are displaying the alarm state in the widget, update the
-    // tool tip to reflect current alarm state
-    if( severity != lastSeverity )
-    {
-        updateToolTipAlarm( alarmInfo.severityName() );
-    }
+    // tool tip to reflect current alarm state.
+    updateToolTipAlarm( alarmInfo.severityName(), variableIndex );
 
     // Save state for processing next update.
     lastSeverity = severity;
@@ -340,40 +337,13 @@ void QEWidget::processAlarmInfo( QCaAlarmInfo& alarmInfo )
 // Update the variable name list used in tool tips if requried
 void QEWidget::setToolTipFromVariableNames()
 {
-    // Set the variable name that will be used as the tool tip if required
-    // Determine what seperator to place between variable names. To avoid long tool tips, use line breaks if over two variables
-    QString seperator;
-    if( numVariables > 2 )
-    {
-        seperator = "\n";
-    }
-    else
-    {
-        seperator = " ";
-    }
-
-    // Build tip
-    QString tip;
+    // Set tip info
+    setNumberToolTipVariables( numVariables );
     for( unsigned int i = 0; i < numVariables; i++ ) {
         // If a variable name is present, add it to the tip
         QString variableName = getSubstitutedVariableName( i );
-        if( variableName.size() ) {
-            // Add a seperator between variable names
-            if( tip.size() > 0 ) {
-                tip.append( seperator );
-            }
-            // Add the variable name to the tip
-            tip.append( variableName );
-        }
+        updateToolTipVariable( variableName, i );
     }
-
-    // If no variables, note that fact in the tip
-    if( tip.size() == 0 ) {
-        tip = "No variables defined";
-    }
-
-    // Update the top variable names (will only take effect if variable names are actually being used as the tool tip.
-    updateToolTipVariable( tip );
 }
 
 // Returns true if running within the Qt Designer application.
@@ -427,6 +397,7 @@ void QEWidget::setVariableNameAndSubstitutions( QString variableNameIn, QString 
 {
     setVariableNameSubstitutions( variableNameSubstitutionsIn );
     setVariableName( variableNameIn, variableIndex );
+    updateToolTipConnection ( false, variableIndex );  // disconnected until we explicitly connect.
     if( !getDontActivateYet() )
     {
         establishConnection( variableIndex );
