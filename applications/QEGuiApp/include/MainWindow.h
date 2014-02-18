@@ -66,6 +66,17 @@ public:
     QString     getCustomisationName(){ return customisationName; }     // Get the window customisations name
     bool        getIsDock(){ return isDock; }                           // Get the 'is a dock' flag
     void        deleteAction(){ if( action ){ delete action; } action = NULL; }  // Delete the action
+    int         countWindows()  {
+                                    // Count this one if not a dock
+                                    int count = getIsDock()?0:1;
+                                    for( int i = 0; i < guiList.count(); i++ )
+                                    {
+                                        count += guiList[i].countWindows();
+                                    }
+                                    return count;
+                                }
+
+    QList<guiListItem> guiList;         // List of child windows
 
 private:
     QEForm*     form;                  // QEForm implementing the GUI
@@ -185,6 +196,8 @@ private:
     QDockWidget* getGuiDock( QWidget* gui );    // Determine the dock widget containing a docked GUI
 
     QList<guiListItem> guiList;
+    int countWindows();
+
 
     Qt::DockWidgetArea creationOptionToDockLocation( QEActionRequests::Options createOption ); // Translate a creation option to a dock location.
     QEActionRequests::Options dockLocationToCreationOption( Qt::DockWidgetArea dockLocation, bool tabbed ); // Translate a dock location to a creation option.

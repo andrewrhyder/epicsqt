@@ -17,7 +17,9 @@
  *  Copyright (c) 2014
  *
  *  Author:
+ *    Andrew Rhyder
  *    Initial code copied by Andrew Rhyder from parts of ffmpegWidget.h (Author anonymous, part of EPICS area detector ffmpegViwer project)
+ *
  *  Contact details:
  *    andrew.rhyder@synchrotron.org.au
  */
@@ -35,6 +37,8 @@ extern "C" {
 //#include "libswscale/swscale.h"
 #include "libavutil/avutil.h"
 }
+
+#include "imageDataFormats.h"
 
 // max width of any input image
 #define MAXWIDTH 4000
@@ -123,7 +127,7 @@ private:
     mpegSourceObject* mso;
     QString url;
     FFThread* ff;
-    virtual void setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long width, unsigned long height ) = 0;
+    virtual void setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long elements, unsigned long width, unsigned long height, imageDataFormats::formatOptions format, unsigned int depth ) = 0;
 
     char* buff;     // Buffer to use to build image without line gaps
     int buffSize;   // Size of 'buff'

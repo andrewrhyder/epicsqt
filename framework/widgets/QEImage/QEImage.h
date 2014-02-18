@@ -41,6 +41,7 @@
 #include <imageInfo.h>
 #include <brightnessContrast.h>
 #include <applicationLauncher.h>
+#include "imageDataFormats.h"
 
 #include <QEStringFormatting.h>
 #include <QEPluginLibrary_global.h>
@@ -179,21 +180,8 @@ public:
     void setBitDepth( unsigned int bitDepthIn );                        ///< Access function for #bitDepth property - refer to #bitDepth property for details
     unsigned int getBitDepth();                                         ///< Access function for #bitDepth property - refer to #bitDepth property for details
 
-    // Video format options
-    /// \enum formatOptions
-    /// Video format options
-    enum formatOptions{ MONO,           ///< Grey scale
-                        BAYER,          ///< Colour (Bayer)
-                        RGB1,           ///< Colour (RGB ???)
-                        RGB2,           ///< Colour (RGB ???)
-                        RGB3,           ///< Colour (RGB ???)
-                        YUV444,         ///< Colour (???)
-                        YUV422,         ///< Colour (???)
-                        YUV421          ///< Colour (???)
-                      };
-
-    void setFormatOption( formatOptions formatOption );                 ///< Access function for #formatOption property - refer to #formatOption property for details
-    formatOptions getFormatOption();                                    ///< Access function for #formatOption property - refer to #formatOption property for details
+    void setFormatOption( imageDataFormats::formatOptions formatOption );                 ///< Access function for #formatOption property - refer to #formatOption property for details
+    imageDataFormats::formatOptions getFormatOption();                                    ///< Access function for #formatOption property - refer to #formatOption property for details
 
     // Size options
     /// \enum resizeOptions
@@ -392,7 +380,8 @@ public:
 private slots:
     // QCa data update slots
     void connectionChanged( QCaConnectionInfo& connectionInfo );
-    void setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long width, unsigned long height );
+//    void setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long width, unsigned long height );
+    void setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long elements, unsigned long width, unsigned long height, imageDataFormats::formatOptions format, unsigned int depth );
     void setImage( const QByteArray& image, unsigned long dataSize, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
     void setFormat( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& );
     void setBitDepth( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
@@ -585,7 +574,7 @@ public slots:
     bool enableProfilePresentation;
 
     // Options
-    formatOptions mFormatOption;
+    imageDataFormats::formatOptions mFormatOption;
     unsigned int bitDepth;
 
     // Image and related information
@@ -1108,16 +1097,16 @@ public:
 
     /// \enum FormatOptions
     /// User friendly enumerations for #formatOption property - refer to #formatOption property and #formatOptions enumeration for details.
-    enum FormatOptions { Mono     = QEImage::MONO,      ///< Grey scale
-                         Bayer    = QEImage::BAYER,     ///< Colour (Bayer)
-                         rgb1     = QEImage::RGB1,      ///< Colour (24 bit RGB)
-                         rgb2     = QEImage::RGB2,      ///< Colour (??? bit RGB)
-                         rgb3     = QEImage::RGB3,      ///< Colour (??? bit RGB)
-                         yuv444   = QEImage::YUV444,    ///< Colour (???)
-                         yuv422   = QEImage::YUV422,    ///< Colour (???)
-                         yuv421   = QEImage::YUV421 };  ///< Colour (???)
+    enum FormatOptions { Mono     = imageDataFormats::MONO,      ///< Grey scale
+                         Bayer    = imageDataFormats::BAYER,     ///< Colour (Bayer)
+                         rgb1     = imageDataFormats::RGB1,      ///< Colour (24 bit RGB)
+                         rgb2     = imageDataFormats::RGB2,      ///< Colour (??? bit RGB)
+                         rgb3     = imageDataFormats::RGB3,      ///< Colour (??? bit RGB)
+                         yuv444   = imageDataFormats::YUV444,    ///< Colour (???)
+                         yuv422   = imageDataFormats::YUV422,    ///< Colour (???)
+                         yuv421   = imageDataFormats::YUV421 };  ///< Colour (???)
 
-    void setFormatOptionProperty( FormatOptions formatOption ){ setFormatOption( (QEImage::formatOptions)formatOption ); }  ///< Access function for #formatOption property - refer to #formatOption property for details
+    void setFormatOptionProperty( FormatOptions formatOption ){ setFormatOption( (imageDataFormats::formatOptions)formatOption ); }  ///< Access function for #formatOption property - refer to #formatOption property for details
     FormatOptions getFormatOptionProperty(){ return (FormatOptions)getFormatOption(); }                                     ///< Access function for #formatOption property - refer to #formatOption property for details
 
     // Mono format option bit depths
