@@ -2437,7 +2437,6 @@ void QEImage::displayImage()
             //unsigned int rOffset = 0*imageDataSize;
             unsigned int gOffset = imageDataSize;
             unsigned int bOffset = 2*imageDataSize;
-            int temp = 0;
             LOOP_START
                 unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
                 dataOut[buffIndex].p[0] = pixelLookup[inPixel[bOffset]].p[0];

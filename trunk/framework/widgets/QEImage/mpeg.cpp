@@ -400,7 +400,7 @@ void mpegSource::updateImage(FFBuffer *newbuf) {
 //widgets/QEImage/mpeg.cpp:387: error: 'struct AVFrame' has no member named 'format'
 
     // Format the data in a CA like QByteArray
-    switch( newbuf->pFrame->format )
+    switch( newbuf->pix_fmt )
     {
     case PIX_FMT_YUVJ420P:
         {
