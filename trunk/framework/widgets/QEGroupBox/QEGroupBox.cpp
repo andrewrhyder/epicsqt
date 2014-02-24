@@ -61,3 +61,51 @@ QSize QEGroupBox::sizeHint () const {
 }
 
 // end
+
+//==============================================================================
+// Property convenience functions
+
+
+// label text (prior to substitution)
+void QEGroupBox::setSubstitutedTitleProperty( QString substitutedTitleIn )
+{
+    bool wasBlank = substitutedTitle.isEmpty();
+    substitutedTitle = substitutedTitleIn;
+
+    // Update the group box'x title.
+    // But don't do it if the title was already displaying something and the
+    // text-to-be-substituted is just being re-set to blank). This behaviour will
+    // mean the normal label 'title' property can be used if text substitution is
+    // not required. Without this the user would always have to use the substitutedTitle property.
+    if (!( !title().isEmpty() && wasBlank && substitutedTitleIn.isEmpty() ))
+    {
+        setTitle( substituteThis( substitutedTitleIn ));
+    }
+}
+
+QString QEGroupBox::getSubstitutedTitleProperty()
+{
+    return substitutedTitle;
+}
+
+// title text substitutions
+void QEGroupBox::setSubstitutionsProperty( QString macroSubstitutionsIn )
+{
+    // Set the substitutions
+    setVariableNameSubstitutions( macroSubstitutionsIn );
+
+    // Update the group box's title to use the new substitutions.
+    // But don't do it if the title was already displaying something and the
+    // text-to-be-substituted is just being re-set to blank). This behaviour will
+    // mean the normal label 'title' property can be used if text substitution is
+    // not required. Without this the user would always have to use the substitutedTitle property.
+    if (!( !title().isEmpty() && substitutedTitle.isEmpty() ))
+    {
+        setTitle( substituteThis( substitutedTitle ));
+    }
+}
+
+QString QEGroupBox::getSubstitutionsProperty()
+{
+    return getVariableNameSubstitutions();
+}

@@ -120,6 +120,14 @@ public:
     /// will do nothing for widgets that don't display data.
     Q_PROPERTY(bool displayAlarmState READ getDisplayAlarmState WRITE setDisplayAlarmState)
 
+    /// Group box title text to be substituted.
+    /// This text will be copied to the group box title text after applying any macro substitutions from the textSubstitutions property
+    Q_PROPERTY(QString substitutedTitle READ getSubstitutedTitleProperty WRITE setSubstitutedTitleProperty)
+
+    /// Text substitutions.
+    /// These substitutions are applied to the 'substitutedTitle' property prior to copying it to the label text.
+    Q_PROPERTY(QString textSubstitutions READ getSubstitutionsProperty WRITE setSubstitutionsProperty)
+
 public:
     // END-STANDARD-PROPERTIES ========================================================
 
@@ -129,6 +137,14 @@ public:
 
     virtual ~QEGroupBox ();
     QSize sizeHint () const;
+
+private:
+    void setSubstitutedTitleProperty( QString substitutedTitleIn );
+    QString getSubstitutedTitleProperty();
+    void setSubstitutionsProperty( QString macroSubstitutionsIn );
+    QString getSubstitutionsProperty();
+
+    QString substitutedTitle;
 
 };
 
