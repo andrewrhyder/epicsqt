@@ -194,7 +194,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEShape : public QWidget, public QEWidget {
     void establishConnection( unsigned int variableIndex );     // Create a CA connection and initiates updates if required
 
   private slots:
-    void connectionChanged( QCaConnectionInfo& connectionInfo );
+    void connectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex );
     void setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex );
     // !! move this functionality into QEWidget???
     // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
