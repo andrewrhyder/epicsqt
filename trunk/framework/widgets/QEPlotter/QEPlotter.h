@@ -201,6 +201,8 @@ protected:
    void restoreConfiguration (PersistanceManager* pm, restorePhases restorePhase);
 
    int findSlot (QObject *obj);
+   QString getXYExpandedDataPV (const int slot);
+   QString getXYExpandedSizePV (const int slot);
 
 private:
    // Internal widgets.
@@ -303,8 +305,6 @@ private:
       QEExpressionEvaluation* calculator;
       bool dataIsConnected;
       bool sizeIsConnected;
-      QCaAlarmInfo dataAlarmInfo;
-      QCaAlarmInfo sizeAlarmInfo;
       int fixedSize;           // size set by user/designer
       int dbSize;              // size as defined by PV.
       QEFloatingArray data;
