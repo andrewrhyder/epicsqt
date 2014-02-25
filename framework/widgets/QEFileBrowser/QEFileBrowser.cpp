@@ -71,6 +71,7 @@ QEFileBrowser::QEFileBrowser(QWidget *pParent):QWidget(pParent), QEWidget( this 
 
     setShowFileExtension(true);
     setFileFilter("");
+    setFileDialogDirectoriesOnly(true);
     setDetailsLayout(TOP);
 
 }
@@ -301,6 +302,24 @@ bool QEFileBrowser::getShowFileExtension()
 
 
 
+void QEFileBrowser::setFileDialogDirectoriesOnly(bool pValue)
+{
+
+    fileDialogDirectoriesOnly = pValue;
+
+}
+
+
+
+bool QEFileBrowser::getFileDialogDirectoriesOnly()
+{
+
+    return fileDialogDirectoriesOnly;
+
+}
+
+
+
 void QEFileBrowser::setDetailsLayout(int pValue)
 {
 
@@ -387,7 +406,7 @@ void QEFileBrowser::buttonDirectoryBrowserClicked()
     QString result;
 
 
-    if (qTableWidgetFileBrowser->isVisible())
+    if (fileDialogDirectoriesOnly)
     {
         result = QFileDialog::getExistingDirectory(this, "Select directory", qeLineEditDirectoryPath->text(), QFileDialog::ShowDirsOnly);
     }

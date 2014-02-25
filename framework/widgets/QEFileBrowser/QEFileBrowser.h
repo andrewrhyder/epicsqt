@@ -89,6 +89,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEFileBrowser:public QWidget, public QEWidget
         _QTableWidgetFileBrowser *qTableWidgetFileBrowser;
         QString fileFilter;
         bool showFileExtension;
+        bool fileDialogDirectoriesOnly;
         int detailsLayout;
 
 
@@ -132,7 +133,10 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEFileBrowser:public QWidget, public QEWidget
         bool getShowFileExtension();
 
         void setFileFilter(QString pValue);
-        QString getFileFilter();
+        QString getFileFilter();        
+
+        void setFileDialogDirectoriesOnly(bool pValue);
+        bool getFileDialogDirectoriesOnly();
 
         void setDetailsLayout(int pValue);
         int getDetailsLayout();
@@ -161,6 +165,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEFileBrowser:public QWidget, public QEWidget
         Q_PROPERTY(bool showColumnFilename READ getShowColumnFilename WRITE setShowColumnFilename)
 
         Q_PROPERTY(bool showFileExtension READ getShowFileExtension WRITE setShowFileExtension)
+
+        Q_PROPERTY(bool fileDialogDirectoriesOnly READ getFileDialogDirectoriesOnly WRITE setFileDialogDirectoriesOnly)
 
         Q_PROPERTY(QString fileFilter READ getFileFilter WRITE setFileFilter)
 
