@@ -196,8 +196,8 @@ void QEShape::establishConnection( unsigned int variableIndex ) {
 //        setValue( 0, QCaAlarmInfo(), QCaDateTime(), variableIndex );  //??? should this be moved up before the create connection? if create connection fails, then any previous data should be cleared? do for all types if required
         QObject::connect( qca,  SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
                           this, SLOT( setValue( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
-        QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
-                          this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
+        QObject::connect( qca,  SIGNAL( integerConnectionChanged( QCaConnectionInfo&, const unsigned int&  ) ),
+                          this, SLOT( connectionChanged( QCaConnectionInfo&, const unsigned int&  ) ) );
     }
 }
 
@@ -206,13 +206,13 @@ void QEShape::establishConnection( unsigned int variableIndex ) {
     Change how the label looks and change the tool tip
     This is the slot used to recieve connection updates from a QCaObject based class.
  */
-void QEShape::connectionChanged( QCaConnectionInfo& connectionInfo )
+void QEShape::connectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex )
 {
     // Note the connected state
     isConnected = connectionInfo.isChannelConnected();
 
     // Display the connected state
-    updateToolTipConnection( isConnected );
+    updateToolTipConnection( isConnected, variableIndex);
     updateConnectionStyle( isConnected );
 }
 
@@ -370,8 +370,7 @@ void QEShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&
     }
 
     // Invoke common alarm handling processing.
-    // TODO: Aggregate all channel severities into a single alarm state.
-    processAlarmInfo( alarmInfo );
+    processAlarmInfo( alarmInfo, variableIndex );
 
     // Force the shape to be redrawn
     update();
@@ -754,3 +753,4 @@ double QEShape::getArcLength()
     return arcLength;
 }
 
+// end
