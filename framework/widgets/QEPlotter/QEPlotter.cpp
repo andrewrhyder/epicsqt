@@ -1717,28 +1717,27 @@ void QEPlotter::saveConfiguration (PersistanceManager* pm)
    PMElement pvListElement = formElement.addElement ("PV_List");
 
    for (int slot = 0; slot < ARRAY_LENGTH (this->xy); slot++) {
-      DataSets* ds = &(this->xy [slot]);
-      QString strValue;
+      QString strData = this->getXYExpandedDataPV (slot);
+      QString strSize = this->getXYExpandedSizePV (slot);
+      QString strAlias = this->getXYAlias (slot);
 
-      if (ds->isInUse ()) {
+      // If at least one sub-item is defined then create the PV element.
+      //
+      if ((!strData.isEmpty ()) || (!strSize.isEmpty ()) || (!strAlias.isEmpty ()) ) {
          PMElement pvElement = pvListElement.addElement ("PV");
          pvElement.addAttribute ("id", slot);
 
-         strValue = this->getXYExpandedDataPV (slot);
-         if (!strValue.isEmpty()) {
-            pvElement.addValue ("Data",strValue );
+         if (!strData.isEmpty ()) {
+            pvElement.addValue ("Data", strData);
          }
 
-         strValue = this->getXYExpandedSizePV (slot);
-         if (!strValue.isEmpty()) {
-            pvElement.addValue ("Size",strValue );
+         if (!strSize.isEmpty ()) {
+            pvElement.addValue ("Size", strSize);
          }
 
-         strValue = this->getXYAlias (slot);
-         if (!strValue.isEmpty()) {
-            pvElement.addValue ("Alais",strValue );
+         if (!strAlias.isEmpty ()) {
+            pvElement.addValue ("Alias", strAlias);
          }
-
       }
    }
 }
@@ -1776,7 +1775,7 @@ void QEPlotter::restoreConfiguration (PersistanceManager* pm, restorePhases rest
          this->setXYSizePV (slot, strValue);
       }
 
-      status = pvElement.getValue ("Alais", strValue);
+      status = pvElement.getValue ("Alias", strValue);
       if (status) {
          this->setXYAlias(slot, strValue);
       }
