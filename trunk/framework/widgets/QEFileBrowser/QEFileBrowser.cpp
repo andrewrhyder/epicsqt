@@ -386,6 +386,7 @@ void QEFileBrowser::buttonDirectoryBrowserClicked()
 
     QString result;
 
+
     if (qTableWidgetFileBrowser->isVisible())
     {
         result = QFileDialog::getExistingDirectory(this, "Select directory", qeLineEditDirectoryPath->text(), QFileDialog::ShowDirsOnly);
@@ -395,9 +396,11 @@ void QEFileBrowser::buttonDirectoryBrowserClicked()
         result = QFileDialog::getOpenFileName(this, "Select file", qeLineEditDirectoryPath->text());
     }
 
+
     if (result != NULL)
     {
         qeLineEditDirectoryPath->setText(result);
+        qeLineEditDirectoryPath->writeNow();
     }
 
 }
