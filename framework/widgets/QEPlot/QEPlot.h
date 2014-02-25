@@ -151,7 +151,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPlot : public QwtPlot, public QEWidget {
     void establishConnection( unsigned int variableIndex );
 
   private slots:
-    void connectionChanged( QCaConnectionInfo& connectionInfo );
+    void connectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int & );
     void setPlotData( const QVector<double>& values, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
     void setPlotData( const double value, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
     void tickTimeout();
@@ -180,7 +180,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPlot : public QwtPlot, public QEWidget {
 
     QTimer* tickTimer;          // Timer to keep strip chart scrolling
     void setPlotDataCommon( const unsigned int variableIndex );
-    void setalarmInfoCommon( QCaAlarmInfo& alarmInfo );
+    void setalarmInfoCommon( QCaAlarmInfo& alarmInfo, const unsigned int variableIndex );
 
 
     // General plot properties
