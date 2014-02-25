@@ -289,7 +289,8 @@ protected:
     virtual QVariant getValue() = 0;
     virtual bool writeData( const QVariant & value, QString& message ) = 0;
 
-    /// Write the value now.
+public:
+    // write the text value (of the underlying QLineEdit object) into the PV immediately
     void writeNow ();
 
     // Drag and Drop
