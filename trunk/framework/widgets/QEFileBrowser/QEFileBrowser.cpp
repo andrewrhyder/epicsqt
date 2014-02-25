@@ -97,7 +97,7 @@ QString QEFileBrowser::getVariableName()
 void QEFileBrowser::setVariableNameSubstitutions(QString pValue)
 {
 
-    qeLineEditDirectoryPath->setVariableNameSubstitutions(pValue);
+    qeLineEditDirectoryPath->setVariableNameSubstitutionsProperty(pValue);
 
 }
 
@@ -106,7 +106,7 @@ void QEFileBrowser::setVariableNameSubstitutions(QString pValue)
 QString QEFileBrowser::getVariableNameSubstitutions()
 {
 
-    return qeLineEditDirectoryPath->getVariableNameSubstitutions();
+    return qeLineEditDirectoryPath->getVariableNameSubstitutionsProperty();
 
 }
 
