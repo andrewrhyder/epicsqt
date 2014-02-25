@@ -28,6 +28,7 @@
 #include <QFileDialog>
 #include <QHeaderView>
 #include <QEFileBrowser.h>
+#include <QELineEdit.h>
 
 
 
@@ -39,13 +40,13 @@ QEFileBrowser::QEFileBrowser(QWidget *pParent):QWidget(pParent), QEWidget( this 
 
     QFont qFont;
 
-    qlineEditDirectoryPath = new QLineEdit(this);
+    qeLineEditDirectoryPath = new QELineEdit(this);
     qPushButtonDirectoryBrowser = new QPushButton(this);
     qPushButtonRefresh = new QPushButton(this);
     qTableWidgetFileBrowser = new _QTableWidgetFileBrowser(this);
 
-    qlineEditDirectoryPath->setToolTip("Specify the directory where to browse for files");
-    QObject::connect(qlineEditDirectoryPath, SIGNAL(textChanged(QString)), this, SLOT(lineEditDirectoryPathChanged(QString)));
+    qeLineEditDirectoryPath->setToolTip("Specify the directory where to browse for files");
+    QObject::connect(qeLineEditDirectoryPath, SIGNAL(textChanged(QString)), this, SLOT(lineEditDirectoryPathChanged(QString)));
 
     qPushButtonDirectoryBrowser->setText("...");
     qPushButtonDirectoryBrowser->setToolTip("Browse for a directory");
@@ -75,12 +76,47 @@ QEFileBrowser::QEFileBrowser(QWidget *pParent):QWidget(pParent), QEWidget( this 
 }
 
 
+void QEFileBrowser::setVariableName(QString pValue)
+{
+
+    qeLineEditDirectoryPath->setVariableNameProperty(pValue);
+
+}
+
+
+
+QString QEFileBrowser::getVariableName()
+{
+
+    return qeLineEditDirectoryPath->getVariableNameProperty();
+
+}
+
+
+
+void QEFileBrowser::setVariableNameSubstitutions(QString pValue)
+{
+
+    qeLineEditDirectoryPath->setVariableNameSubstitutions(pValue);
+
+}
+
+
+
+QString QEFileBrowser::getVariableNameSubstitutions()
+{
+
+    return qeLineEditDirectoryPath->getVariableNameSubstitutions();
+
+}
+
+
 
 
 void QEFileBrowser::setDirectoryPath(QString pValue)
 {
 
-    qlineEditDirectoryPath->setText(pValue);
+    qeLineEditDirectoryPath->setText(pValue);
 
 }
 
@@ -89,7 +125,7 @@ void QEFileBrowser::setDirectoryPath(QString pValue)
 QString QEFileBrowser::getDirectoryPath()
 {
 
-    return qlineEditDirectoryPath->text();
+    return qeLineEditDirectoryPath->text();
 
 }
 
@@ -100,7 +136,7 @@ QString QEFileBrowser::getDirectoryPath()
 void QEFileBrowser::setShowDirectoryPath(bool pValue)
 {
 
-    qlineEditDirectoryPath->setVisible(pValue);
+    qeLineEditDirectoryPath->setVisible(pValue);
 
 }
 
@@ -109,7 +145,7 @@ void QEFileBrowser::setShowDirectoryPath(bool pValue)
 bool QEFileBrowser::getShowDirectoryPath()
 {
 
-    return qlineEditDirectoryPath->isVisible();
+    return qeLineEditDirectoryPath->isVisible();
 
 }
 
@@ -166,6 +202,24 @@ QString QEFileBrowser::getFileFilter()
 {
 
     return fileFilter;
+
+}
+
+
+
+void QEFileBrowser::setShowTable(bool pValue)
+{
+
+    qTableWidgetFileBrowser->setVisible(pValue);
+
+}
+
+
+
+bool QEFileBrowser::getShowTable()
+{
+
+    return qTableWidgetFileBrowser->isVisible();
 
 }
 
@@ -262,7 +316,7 @@ void QEFileBrowser::setDetailsLayout(int pValue)
             detailsLayout = TOP;
             qLayoutMain = new QVBoxLayout(this);
             qLayoutChild = new QHBoxLayout();
-            qLayoutChild->addWidget(qlineEditDirectoryPath);
+            qLayoutChild->addWidget(qeLineEditDirectoryPath);
             qLayoutChild->addWidget(qPushButtonDirectoryBrowser);
             qLayoutChild->addWidget(qPushButtonRefresh);
             qLayoutMain->addItem(qLayoutChild);
@@ -274,7 +328,7 @@ void QEFileBrowser::setDetailsLayout(int pValue)
             qLayoutMain = new QVBoxLayout(this);
             qLayoutMain->addWidget(qTableWidgetFileBrowser);
             qLayoutChild = new QHBoxLayout();
-            qLayoutChild->addWidget(qlineEditDirectoryPath);
+            qLayoutChild->addWidget(qeLineEditDirectoryPath);
             qLayoutChild->addWidget(qPushButtonDirectoryBrowser);
             qLayoutChild->addWidget(qPushButtonRefresh);
             qLayoutMain->addItem(qLayoutChild);
@@ -284,7 +338,7 @@ void QEFileBrowser::setDetailsLayout(int pValue)
             detailsLayout = LEFT;
             qLayoutMain = new QHBoxLayout(this);
             qLayoutChild = new QVBoxLayout();
-            qLayoutChild->addWidget(qlineEditDirectoryPath);
+            qLayoutChild->addWidget(qeLineEditDirectoryPath);
             qLayoutChild->addWidget(qPushButtonDirectoryBrowser);
             qLayoutChild->addWidget(qPushButtonRefresh);
             qLayoutMain->addItem(qLayoutChild);
@@ -295,7 +349,7 @@ void QEFileBrowser::setDetailsLayout(int pValue)
             detailsLayout = RIGHT;
             qLayoutMain = new QHBoxLayout(this);
             qLayoutChild = new QVBoxLayout();
-            qLayoutChild->addWidget(qlineEditDirectoryPath);
+            qLayoutChild->addWidget(qeLineEditDirectoryPath);
             qLayoutChild->addWidget(qPushButtonDirectoryBrowser);
             qLayoutChild->addWidget(qPushButtonRefresh);
             qLayoutMain->addWidget(qTableWidgetFileBrowser);
@@ -330,12 +384,20 @@ void QEFileBrowser::lineEditDirectoryPathChanged(QString)
 void QEFileBrowser::buttonDirectoryBrowserClicked()
 {
 
-    QString directory;
+    QString result;
 
-    directory = QFileDialog::getExistingDirectory(this, "Select directory", qlineEditDirectoryPath->text(), QFileDialog::ShowDirsOnly);
-    if (directory != NULL)
+    if (qTableWidgetFileBrowser->isVisible())
     {
-        qlineEditDirectoryPath->setText(directory);
+        result = QFileDialog::getExistingDirectory(this, "Select directory", qeLineEditDirectoryPath->text(), QFileDialog::ShowDirsOnly);
+    }
+    else
+    {
+        result = QFileDialog::getOpenFileName(this, "Select file", qeLineEditDirectoryPath->text());
+    }
+
+    if (result != NULL)
+    {
+        qeLineEditDirectoryPath->setText(result);
     }
 
 }
@@ -364,13 +426,13 @@ void QEFileBrowser::itemActivated(QTableWidgetItem *)
     selectedRows = qTableWidgetFileBrowser->selectionModel()->selectedRows();
     data = qTableWidgetFileBrowser->item(selectedRows.at(0).row(), 2)->text();
 
-    if (qlineEditDirectoryPath->text().endsWith(QDir::separator()))
+    if (qeLineEditDirectoryPath->text().endsWith(QDir::separator()))
     {
-        filename = qlineEditDirectoryPath->text() + data;
+        filename = qeLineEditDirectoryPath->text() + data;
     }
     else
     {
-        filename = qlineEditDirectoryPath->text() + QDir::separator() + data;
+        filename = qeLineEditDirectoryPath->text() + QDir::separator() + data;
     }
 
     emit selected(filename);
@@ -390,7 +452,7 @@ void QEFileBrowser::updateTable()
     int j;
 
     qTableWidgetFileBrowser->setRowCount(0);
-    directory.setPath(qlineEditDirectoryPath->text());
+    directory.setPath(qeLineEditDirectoryPath->text());
     directory.setFilter(QDir::Files);
     if (fileFilter.isEmpty() == false)
     {
