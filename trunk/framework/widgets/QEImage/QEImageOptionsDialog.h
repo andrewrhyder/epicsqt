@@ -54,8 +54,12 @@ private:
     Ui::QEImageOptionsDialog *ui;
 
 private slots:
+    void on_checkBoxArea4Selection_clicked(bool checked);
+    void on_checkBoxArea3Selection_clicked(bool checked);
+    void on_checkBoxArea2Selection_clicked(bool checked);
+    void on_checkBoxArea1Selection_clicked(bool checked);
     void on_checkBoxTarget_clicked(bool checked);
-    void on_checkBoxAreaSelection_clicked(bool checked);
+    void on_checkBoxBeam_clicked(bool checked);
     void on_checkBoxInfo_clicked(bool checked);
     void on_checkBoxTime_clicked(bool checked);
     void on_checkBoxBrightnessContrast_clicked(bool checked);

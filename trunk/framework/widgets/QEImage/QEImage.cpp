@@ -202,6 +202,10 @@ void QEImage::setup() {
     sMenu = new selectMenu();
     QObject::connect( sMenu, SIGNAL( triggered ( QAction* ) ), this,  SLOT  ( selectMenuTriggered( QAction* )) );
 
+    // Create and setup the markup display menu
+    mdMenu = new markupDisplayMenu();
+    QObject::connect( mdMenu, SIGNAL( triggered ( QAction* ) ), this,  SLOT  ( markupDisplayMenuTriggered( QAction* )) );
+
     // Add the video destination to the widget
     scrollArea = new QScrollArea;
     scrollArea->setFrameStyle( QFrame::NoFrame );
@@ -280,6 +284,13 @@ void QEImage::setup() {
     selectModeButton->setToolTip("Choose selection and pan modes");
     selectModeButton->setMenu( sMenu );
 
+    markupDisplayButton = new QPushButton(buttonGroup);
+    markupDisplayButton->setMinimumWidth( buttonMenuWidth );
+    QIcon markupDisplayButtonIcon( ":/qe/image/markupDisplay.png" );
+    markupDisplayButton->setIcon( markupDisplayButtonIcon );
+    markupDisplayButton->setToolTip("Hide or reveal markups");
+    markupDisplayButton->setMenu( mdMenu );
+
     zoomButton = new QPushButton(buttonGroup);
     zoomButton->setMinimumWidth( buttonMenuWidth );
     QIcon zoomButtonIcon( ":/qe/image/zoom.png" );
@@ -295,12 +306,13 @@ void QEImage::setup() {
     flipRotateButton->setMenu( frMenu );
 
 
-    buttonLayout->addWidget( pauseButton,      0);
-    buttonLayout->addWidget( saveButton,       1);
-    buttonLayout->addWidget( targetButton,     2);
-    buttonLayout->addWidget( selectModeButton, 3);
-    buttonLayout->addWidget( zoomButton,       4);
-    buttonLayout->addWidget( flipRotateButton, 5);
+    buttonLayout->addWidget( pauseButton,         0);
+    buttonLayout->addWidget( saveButton,          1);
+    buttonLayout->addWidget( targetButton,        2);
+    buttonLayout->addWidget( selectModeButton,    3);
+    buttonLayout->addWidget( markupDisplayButton, 4);
+    buttonLayout->addWidget( zoomButton,          5);
+    buttonLayout->addWidget( flipRotateButton,    6);
     buttonLayout->addStretch();
 
 
@@ -1170,8 +1182,8 @@ void QEImage::setROI( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, 
 // (the image is needed to determine scaling)
 void QEImage::useROIData( const unsigned int& variableIndex )
 {
-#define USE_ROI_DATA( N )                                                                         \
-    if( sMenu->getAreaEnabled() && roiInfo[N].getStatus() )                                       \
+#define USE_ROI_DATA( GET_ENABLED, AREA, N )                                                      \
+    if( sMenu->GET_ENABLED() && mdMenu->isDisplayed( imageContextMenu::AREA ) && roiInfo[N].getStatus() )         \
     {                                                                                             \
         QRect scaledArea = roiInfo[N].getArea();                                                  \
         scaledArea.setTopLeft( videoWidget->scaleImagePoint( scaledArea.topLeft() ) );            \
@@ -1186,25 +1198,25 @@ void QEImage::useROIData( const unsigned int& variableIndex )
         case ROI1_Y_VARIABLE:
         case ROI1_W_VARIABLE:
         case ROI1_H_VARIABLE:
-            USE_ROI_DATA( 0 )
+            USE_ROI_DATA( getArea1Enabled, ICM_DISPLAY_AREA1, 0 )
 
         case ROI2_X_VARIABLE:
         case ROI2_Y_VARIABLE:
         case ROI2_W_VARIABLE:
         case ROI2_H_VARIABLE:
-            USE_ROI_DATA( 1 )
+            USE_ROI_DATA( getArea2Enabled,  ICM_DISPLAY_AREA2, 1 )
 
         case ROI3_X_VARIABLE:
         case ROI3_Y_VARIABLE:
         case ROI3_W_VARIABLE:
         case ROI3_H_VARIABLE:
-            USE_ROI_DATA( 2 )
+            USE_ROI_DATA( getArea3Enabled,  ICM_DISPLAY_AREA3, 2 )
 
         case ROI4_X_VARIABLE:
         case ROI4_Y_VARIABLE:
         case ROI4_W_VARIABLE:
         case ROI4_H_VARIABLE:
-            USE_ROI_DATA( 3 )
+            USE_ROI_DATA( getArea4Enabled,  ICM_DISPLAY_AREA4, 3 )
     }
 }
 
@@ -3013,6 +3025,7 @@ void QEImage::doContrastReversal( bool /*contrastReversal*/ )
 void QEImage::doEnableVertSliceSelection( bool enableVSliceSelection )
 {
     sMenu->setVSliceEnabled( enableVSliceSelection );
+    mdMenu->enable( imageContextMenu::ICM_DISPLAY_VSLICE, enableVSliceSelection );
 
     // If disabling, and it is the current mode, then default to panning
     if( !enableVSliceSelection )
@@ -3034,6 +3047,7 @@ void QEImage::doEnableVertSliceSelection( bool enableVSliceSelection )
 void QEImage::doEnableHozSliceSelection( bool enableHSliceSelection )
 {
     sMenu->setHSlicetEnabled( enableHSliceSelection );
+    mdMenu->enable( imageContextMenu::ICM_DISPLAY_HSLICE, enableHSliceSelection );
 
     // If disabling, and it is the current mode, then default to panning
     if( !enableHSliceSelection )
@@ -3052,9 +3066,17 @@ void QEImage::doEnableHozSliceSelection( bool enableHSliceSelection )
 }
 
 // Enable area selection (used for ROI and zoom)
-void QEImage::doEnableAreaSelection( bool enableAreaSelection )
+void QEImage::doEnableAreaSelection( /*imageContextMenu::imageContextMenuOptions area,*/ bool enableAreaSelection )
 {
-    sMenu->setAreaEnabled( enableAreaSelection );
+///!!!
+    sMenu->setArea1Enabled( enableAreaSelection );
+    sMenu->setArea2Enabled( enableAreaSelection );
+    sMenu->setArea3Enabled( enableAreaSelection );
+    sMenu->setArea4Enabled( enableAreaSelection );
+    mdMenu->enable( imageContextMenu::ICM_DISPLAY_AREA1, enableAreaSelection );
+    mdMenu->enable( imageContextMenu::ICM_DISPLAY_AREA2, enableAreaSelection );
+    mdMenu->enable( imageContextMenu::ICM_DISPLAY_AREA3, enableAreaSelection );
+    mdMenu->enable( imageContextMenu::ICM_DISPLAY_AREA4, enableAreaSelection );
 
     // If disabling, and it is the current mode, then default to panning
     if( !enableAreaSelection )
@@ -3085,6 +3107,7 @@ void QEImage::doEnableAreaSelection( bool enableAreaSelection )
 void QEImage::doEnableProfileSelection( bool enableProfileSelection )
 {
     sMenu->setProfileEnabled( enableProfileSelection );
+    mdMenu->enable( imageContextMenu::ICM_DISPLAY_PROFILE, enableProfileSelection );
 
     // If disabling, and it is the current mode, then default to panning
     if( !enableProfileSelection )
@@ -3106,22 +3129,44 @@ void QEImage::doEnableProfileSelection( bool enableProfileSelection )
 void QEImage::doEnableTargetSelection( bool enableTargetSelection )
 {
     sMenu->setTargetEnabled( enableTargetSelection );
+    mdMenu->enable( imageContextMenu::ICM_DISPLAY_TARGET, enableTargetSelection );
+
     targetButton->setVisible( enableTargetSelection );
 
     // If disabling, and it is the current mode, then default to panning
     if( !enableTargetSelection )
     {
-        if( ( getSelectionOption() == SO_TARGET || getSelectionOption() == SO_BEAM ))
+        if( getSelectionOption() == SO_TARGET )
         {
             sMenu->setChecked( QEImage::SO_PANNING );
             panModeClicked();
         }
         videoWidget->clearMarkup( imageMarkup::MARKUP_ID_TARGET );
-        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_BEAM );
     }
     else
     {
         videoWidget->showMarkup( imageMarkup::MARKUP_ID_TARGET );
+    }
+}
+
+// Manage beam selection
+void QEImage::doEnableBeamSelection( bool enableBeamSelection )
+{
+    sMenu->setBeamEnabled( enableBeamSelection );
+    mdMenu->enable( imageContextMenu::ICM_DISPLAY_BEAM, enableBeamSelection );
+
+    // If disabling, and it is the current mode, then default to panning
+    if( !enableBeamSelection )
+    {
+        if( getSelectionOption() == SO_BEAM )
+        {
+            sMenu->setChecked( QEImage::SO_PANNING );
+            panModeClicked();
+        }
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_BEAM );
+    }
+    else
+    {
         videoWidget->showMarkup( imageMarkup::MARKUP_ID_BEAM );
     }
 }
@@ -3511,15 +3556,48 @@ bool QEImage::getEnableHozSliceSelection()
     return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_HOZ );
 }
 
-// Enable area selection (used for ROI and zoom)
-void QEImage::setEnableAreaSelection( bool enableAreaSelection )
+// Enable area 1 selection (used for ROI and zoom)
+void QEImage::setEnableArea1Selection( bool enableAreaSelection )
 {
-    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_AREA, enableAreaSelection );
+    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_AREA1, enableAreaSelection );
 }
 
-bool QEImage::getEnableAreaSelection()
+bool QEImage::getEnableArea1Selection()
 {
-    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_AREA );
+    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_AREA1 );
+}
+
+// Enable area 2 selection (used for ROI and zoom)
+void QEImage::setEnableArea2Selection( bool enableAreaSelection )
+{
+    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_AREA2, enableAreaSelection );
+}
+
+bool QEImage::getEnableArea2Selection()
+{
+    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_AREA2 );
+}
+
+// Enable area 3 selection (used for ROI and zoom)
+void QEImage::setEnableArea3Selection( bool enableAreaSelection )
+{
+    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_AREA3, enableAreaSelection );
+}
+
+bool QEImage::getEnableArea3Selection()
+{
+    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_AREA3 );
+}
+
+// Enable area 4 selection (used for ROI and zoom)
+void QEImage::setEnableArea4Selection( bool enableAreaSelection )
+{
+    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_AREA4, enableAreaSelection );
+}
+
+bool QEImage::getEnableArea4Selection()
+{
+    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_AREA4 );
 }
 
 // Enable profile selection
@@ -3532,6 +3610,31 @@ bool QEImage::getEnableProfileSelection()
 {
     return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_LINE );
 }
+
+// Enable target selection
+void QEImage::setEnableTargetSelection( bool enableTargetSelection )
+{
+    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_TARGET, enableTargetSelection );
+}
+
+bool QEImage::getEnableTargetSelection()
+{
+    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_TARGET );
+}
+
+// Enable beam selection
+void QEImage::setEnableBeamSelection( bool enableBeamSelection )
+{
+    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_BEAM, enableBeamSelection );
+}
+
+bool QEImage::getEnableBeamSelection()
+{
+    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_BEAM );
+}
+
+//=====================
+
 
 // Enable profile presentation
 void QEImage::setEnableProfilePresentation( bool enableProfilePresentationIn )
@@ -3566,16 +3669,122 @@ bool QEImage::getEnableVertSlicePresentation()
     return enableVertSlicePresentation;
 }
 
-// Enable target selection
-void QEImage::setEnableTargetSelection( bool enableTargetSelection )
+//=====================
+
+// Display vertical slice selection
+void QEImage::setDisplayVertSliceSelection( bool displayVSliceSelection )
 {
-    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_TARGET, enableTargetSelection );
+    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_V_SLICE, displayVSliceSelection );
 }
 
-bool QEImage::getEnableTargetSelection()
+bool QEImage::getDisplayVertSliceSelection()
 {
-    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_TARGET );
+    return videoWidget->isMarkupVisible( imageMarkup::MARKUP_ID_V_SLICE );
 }
+
+// Display horizontal slice selection
+void QEImage::setDisplayHozSliceSelection( bool displayHSliceSelection )
+{
+    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_H_SLICE, displayHSliceSelection );
+}
+
+bool QEImage::getDisplayHozSliceSelection()
+{
+    return videoWidget->isMarkupVisible( imageMarkup::MARKUP_ID_H_SLICE );
+}
+
+// Display area 1 selection (used for ROI and zoom)
+void QEImage::setDisplayArea1Selection( bool displayAreaSelection )
+{
+    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_REGION1, displayAreaSelection );
+}
+
+bool QEImage::getDisplayArea1Selection()
+{
+    return videoWidget->isMarkupVisible( imageMarkup::MARKUP_ID_REGION1 );
+}
+
+// Display area 2 selection (used for ROI and zoom)
+void QEImage::setDisplayArea2Selection( bool displayAreaSelection )
+{
+    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_REGION2, displayAreaSelection );
+}
+
+bool QEImage::getDisplayArea2Selection()
+{
+    return videoWidget->isMarkupVisible( imageMarkup::MARKUP_ID_REGION2 );
+}
+
+// Display area 3 selection (used for ROI and zoom)
+void QEImage::setDisplayArea3Selection( bool displayAreaSelection )
+{
+    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_REGION3, displayAreaSelection );
+}
+
+bool QEImage::getDisplayArea3Selection()
+{
+    return videoWidget->isMarkupVisible( imageMarkup::MARKUP_ID_REGION3 );
+}
+
+// Display area 4 selection (used for ROI and zoom)
+void QEImage::setDisplayArea4Selection( bool displayAreaSelection )
+{
+    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_REGION4, displayAreaSelection );
+}
+
+bool QEImage::getDisplayArea4Selection()
+{
+    return videoWidget->isMarkupVisible( imageMarkup::MARKUP_ID_REGION4 );
+}
+
+// Display profile selection
+void QEImage::setDisplayProfileSelection( bool displayProfileSelection )
+{
+    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_LINE, displayProfileSelection );
+}
+
+bool QEImage::getDisplayProfileSelection()
+{
+    return videoWidget->isMarkupVisible( imageMarkup::MARKUP_ID_LINE );
+}
+
+// Display target selection
+void QEImage::setDisplayTargetSelection( bool displayTargetSelection )
+{
+    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_TARGET, displayTargetSelection );
+}
+
+bool QEImage::getDisplayTargetSelection()
+{
+    return videoWidget->isMarkupVisible( imageMarkup::MARKUP_ID_TARGET );
+}
+
+// Display beam selection
+void QEImage::setDisplayBeamSelection( bool displayBeamSelection )
+{
+    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_BEAM, displayBeamSelection);
+}
+
+bool QEImage::getDisplayBeamSelection()
+{
+    return videoWidget->isMarkupVisible( imageMarkup::MARKUP_ID_BEAM );
+}
+
+// Display ellipse
+void QEImage::setDisplayEllipse( bool displayEllipse )
+{
+    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_ELLIPSE, displayEllipse );
+}
+
+bool QEImage::getDisplayEllipse()
+{
+    return videoWidget->isMarkupVisible( imageMarkup::MARKUP_ID_ELLIPSE );
+}
+
+
+//videoWidget->displayMarkup( imageMarkup::MARKUP_ID_TIMESTAMP, selectedItem->isChecked() );
+
+//==================
 
 // Enable local brightness and contrast controls if required
 void QEImage::setEnableBrightnessContrast( bool enableBrightnessContrast )
@@ -5172,6 +5381,7 @@ void QEImage::showImageContextMenuCommon( const QPoint& pos, const QPoint& globa
         cm->addSeparator();
         sMenu->setChecked( getSelectionOption() );
         cm->addMenu( sMenu );
+        cm->addMenu( mdMenu );
 
         // Add menu items
 
@@ -5237,9 +5447,13 @@ void QEImage::optionAction( imageContextMenu::imageContextMenuOptions option, bo
         case imageContextMenu::ICM_ENABLE_TIME:                 videoWidget->setShowTime  ( checked ); break;
         case imageContextMenu::ICM_ENABLE_VERT:                 doEnableVertSliceSelection( checked ); break;
         case imageContextMenu::ICM_ENABLE_HOZ:                  doEnableHozSliceSelection ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_AREA:                 doEnableAreaSelection     ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_AREA1:                doEnableAreaSelection     ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_AREA2:                doEnableAreaSelection     ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_AREA3:                doEnableAreaSelection     ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_AREA4:                doEnableAreaSelection     ( checked ); break;
         case imageContextMenu::ICM_ENABLE_LINE:                 doEnableProfileSelection  ( checked ); break;
         case imageContextMenu::ICM_ENABLE_TARGET:               doEnableTargetSelection   ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_BEAM:                 doEnableBeamSelection     ( checked ); break;
         case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:          buttonGroup->setVisible   ( checked ); break;
         case imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST: doEnableBrightnessContrast( checked ); break;
         case imageContextMenu::ICM_FULL_SCREEN:                 setFullScreen             ( checked ); break;
@@ -5307,15 +5521,39 @@ void QEImage::selectMenuTriggered( QAction* selectedItem )
         case imageContextMenu::ICM_SELECT_PAN:          panModeClicked();           break;
         case imageContextMenu::ICM_SELECT_VSLICE:       vSliceSelectModeClicked();  break;
         case imageContextMenu::ICM_SELECT_HSLICE:       hSliceSelectModeClicked();  break;
-        case imageContextMenu::ICM_SELECT_AREA1:        area1SelectModeClicked();    break;
-        case imageContextMenu::ICM_SELECT_AREA2:        area2SelectModeClicked();    break;
-        case imageContextMenu::ICM_SELECT_AREA3:        area3SelectModeClicked();    break;
-        case imageContextMenu::ICM_SELECT_AREA4:        area4SelectModeClicked();    break;
+        case imageContextMenu::ICM_SELECT_AREA1:        area1SelectModeClicked();   break;
+        case imageContextMenu::ICM_SELECT_AREA2:        area2SelectModeClicked();   break;
+        case imageContextMenu::ICM_SELECT_AREA3:        area3SelectModeClicked();   break;
+        case imageContextMenu::ICM_SELECT_AREA4:        area4SelectModeClicked();   break;
         case imageContextMenu::ICM_SELECT_PROFILE:      profileSelectModeClicked(); break;
         case imageContextMenu::ICM_SELECT_TARGET:       targetSelectModeClicked();  break;
         case imageContextMenu::ICM_SELECT_BEAM:         beamSelectModeClicked();    break;
     }
 }
+
+// Act on a selection from the markup display menu
+void QEImage::markupDisplayMenuTriggered( QAction* selectedItem )
+{
+    switch( (imageContextMenu::imageContextMenuOptions)(selectedItem->data().toInt()) )
+    {
+        default:
+        case imageContextMenu::ICM_NONE: break;
+
+        case imageContextMenu::ICM_DISPLAY_VSLICE:     videoWidget->displayMarkup( imageMarkup::MARKUP_ID_V_SLICE,   selectedItem->isChecked() ); break;
+        case imageContextMenu::ICM_DISPLAY_HSLICE:     videoWidget->displayMarkup( imageMarkup::MARKUP_ID_H_SLICE,   selectedItem->isChecked() ); break;
+        case imageContextMenu::ICM_DISPLAY_AREA1:      videoWidget->displayMarkup( imageMarkup::MARKUP_ID_REGION1,   selectedItem->isChecked() ); break;
+        case imageContextMenu::ICM_DISPLAY_AREA2:      videoWidget->displayMarkup( imageMarkup::MARKUP_ID_REGION2,   selectedItem->isChecked() ); break;
+        case imageContextMenu::ICM_DISPLAY_AREA3:      videoWidget->displayMarkup( imageMarkup::MARKUP_ID_REGION3,   selectedItem->isChecked() ); break;
+        case imageContextMenu::ICM_DISPLAY_AREA4:      videoWidget->displayMarkup( imageMarkup::MARKUP_ID_REGION4,   selectedItem->isChecked() ); break;
+        case imageContextMenu::ICM_DISPLAY_PROFILE:    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_LINE,      selectedItem->isChecked() ); break;
+        case imageContextMenu::ICM_DISPLAY_TARGET:     videoWidget->displayMarkup( imageMarkup::MARKUP_ID_TARGET,    selectedItem->isChecked() ); break;
+        case imageContextMenu::ICM_DISPLAY_BEAM:       videoWidget->displayMarkup( imageMarkup::MARKUP_ID_BEAM,      selectedItem->isChecked() ); break;
+        case imageContextMenu::ICM_DISPLAY_TIMESTAMP:  videoWidget->displayMarkup( imageMarkup::MARKUP_ID_TIMESTAMP, selectedItem->isChecked() ); break;
+        case imageContextMenu::ICM_DISPLAY_ELLIPSE:    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_ELLIPSE,   selectedItem->isChecked() ); break;
+    }
+}
+
+
 
 // Get the current selection option
 QEImage::selectOptions QEImage::getSelectionOption()
@@ -5542,6 +5780,15 @@ void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool ini
         if( initialise )
         {
             originator->setMenu( sMenu );
+        }
+    }
+
+    // Markup display menu
+    else if( action == "Markup Display" )
+    {
+        if( initialise )
+        {
+            originator->setMenu( mdMenu );
         }
     }
 

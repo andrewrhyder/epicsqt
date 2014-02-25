@@ -48,8 +48,12 @@ void QEImageOptionsDialog::initialise()
     optionSet( imageContextMenu::ICM_ENABLE_HOZ,                  false );
     optionSet( imageContextMenu::ICM_ENABLE_VERT,                 false );
     optionSet( imageContextMenu::ICM_ENABLE_LINE,                 false );
-    optionSet( imageContextMenu::ICM_ENABLE_AREA,                 true );
+    optionSet( imageContextMenu::ICM_ENABLE_AREA1,                 true );
+    optionSet( imageContextMenu::ICM_ENABLE_AREA2,                 true );
+    optionSet( imageContextMenu::ICM_ENABLE_AREA3,                 true );
+    optionSet( imageContextMenu::ICM_ENABLE_AREA4,                 true );
     optionSet( imageContextMenu::ICM_ENABLE_TARGET,               false );
+    optionSet( imageContextMenu::ICM_ENABLE_BEAM,                 false );
     optionSet( imageContextMenu::ICM_DISPLAY_BUTTON_BAR,          false );
     optionSet( imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST, false );
 }
@@ -70,8 +74,12 @@ void QEImageOptionsDialog::optionSet( imageContextMenu::imageContextMenuOptions 
         case imageContextMenu::ICM_ENABLE_HOZ:                  ui->checkBoxHorizontalProfile ->setChecked( checked ); break;
         case imageContextMenu::ICM_ENABLE_VERT:                 ui->checkBoxVerticalProfile   ->setChecked( checked ); break;
         case imageContextMenu::ICM_ENABLE_LINE:                 ui->checkBoxArbitraryProfile  ->setChecked( checked ); break;
-        case imageContextMenu::ICM_ENABLE_AREA:                 ui->checkBoxAreaSelection     ->setChecked( checked ); break;
+        case imageContextMenu::ICM_ENABLE_AREA1:                ui->checkBoxArea1Selection    ->setChecked( checked ); break;
+        case imageContextMenu::ICM_ENABLE_AREA2:                ui->checkBoxArea2Selection    ->setChecked( checked ); break;
+        case imageContextMenu::ICM_ENABLE_AREA3:                ui->checkBoxArea3Selection    ->setChecked( checked ); break;
+        case imageContextMenu::ICM_ENABLE_AREA4:                ui->checkBoxArea4Selection    ->setChecked( checked ); break;
         case imageContextMenu::ICM_ENABLE_TARGET:               ui->checkBoxTarget            ->setChecked( checked ); break;
+        case imageContextMenu::ICM_ENABLE_BEAM:                 ui->checkBoxBeam              ->setChecked( checked ); break;
         case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:          ui->checkBoxButtonBar         ->setChecked( checked ); break;
         case imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST: ui->checkBoxBrightnessContrast->setChecked( checked ); break;
 
@@ -95,8 +103,12 @@ bool QEImageOptionsDialog::optionGet( imageContextMenu::imageContextMenuOptions 
         case imageContextMenu::ICM_ENABLE_HOZ:                  return ui->checkBoxHorizontalProfile ->isChecked();
         case imageContextMenu::ICM_ENABLE_VERT:                 return ui->checkBoxVerticalProfile   ->isChecked();
         case imageContextMenu::ICM_ENABLE_LINE:                 return ui->checkBoxArbitraryProfile  ->isChecked();
-        case imageContextMenu::ICM_ENABLE_AREA:                 return ui->checkBoxAreaSelection     ->isChecked();
+        case imageContextMenu::ICM_ENABLE_AREA1:                return ui->checkBoxArea1Selection    ->isChecked();
+        case imageContextMenu::ICM_ENABLE_AREA2:                return ui->checkBoxArea2Selection    ->isChecked();
+        case imageContextMenu::ICM_ENABLE_AREA3:                return ui->checkBoxArea3Selection    ->isChecked();
+        case imageContextMenu::ICM_ENABLE_AREA4:                return ui->checkBoxArea4Selection    ->isChecked();
         case imageContextMenu::ICM_ENABLE_TARGET:               return ui->checkBoxTarget            ->isChecked();
+        case imageContextMenu::ICM_ENABLE_BEAM:                 return ui->checkBoxBeam              ->isChecked();
         case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:          return ui->checkBoxButtonBar         ->isChecked();
         case imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST: return ui->checkBoxBrightnessContrast->isChecked();
 
@@ -114,5 +126,9 @@ void QEImageOptionsDialog::on_checkBoxButtonBar_clicked         (bool checked) {
 void QEImageOptionsDialog::on_checkBoxBrightnessContrast_clicked(bool checked) { emit optionChange( imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST, checked ); }
 void QEImageOptionsDialog::on_checkBoxTime_clicked              (bool checked) { emit optionChange( imageContextMenu::ICM_ENABLE_TIME,                 checked ); }
 void QEImageOptionsDialog::on_checkBoxInfo_clicked              (bool checked) { emit optionChange( imageContextMenu::ICM_ENABLE_CURSOR_PIXEL,         checked ); }
-void QEImageOptionsDialog::on_checkBoxAreaSelection_clicked     (bool checked) { emit optionChange( imageContextMenu::ICM_ENABLE_AREA,                 checked ); }
+void QEImageOptionsDialog::on_checkBoxArea1Selection_clicked    (bool checked) { emit optionChange( imageContextMenu::ICM_ENABLE_AREA1,                checked ); }
+void QEImageOptionsDialog::on_checkBoxArea2Selection_clicked    (bool checked) { emit optionChange( imageContextMenu::ICM_ENABLE_AREA2,                checked ); }
+void QEImageOptionsDialog::on_checkBoxArea3Selection_clicked    (bool checked) { emit optionChange( imageContextMenu::ICM_ENABLE_AREA3,                checked ); }
+void QEImageOptionsDialog::on_checkBoxArea4Selection_clicked    (bool checked) { emit optionChange( imageContextMenu::ICM_ENABLE_AREA4,                checked ); }
 void QEImageOptionsDialog::on_checkBoxTarget_clicked            (bool checked) { emit optionChange( imageContextMenu::ICM_ENABLE_TARGET,               checked ); }
+void QEImageOptionsDialog::on_checkBoxBeam_clicked              (bool checked) { emit optionChange( imageContextMenu::ICM_ENABLE_BEAM,                 checked ); }

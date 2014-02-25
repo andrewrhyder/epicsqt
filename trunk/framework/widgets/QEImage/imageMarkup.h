@@ -143,7 +143,8 @@ public:
     QString getMarkupLegend( markupIds mode );                  // Get the markup legend
     void clearMarkup( markupIds markupId );                     // Hide a markup
     void showMarkup( markupIds markupId );                      // Reveal a markup
-
+    void displayMarkup( markupIds markupId, bool state );       // Hide or reveal a markup
+    bool isMarkupVisible( markupIds mode );                     // Is a specified markup visible
 
 protected:
     void drawMarkups( QPainter& p, const QRect& rect );         // The image has changed, redraw the markups if any

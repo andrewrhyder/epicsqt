@@ -571,6 +571,12 @@ bool imageMarkup::anyVisibleMarkups()
     return false;
 }
 
+// Return true if a specified markup is visible.
+bool imageMarkup::isMarkupVisible( markupIds mode )
+{
+    return items[mode]->visible;
+}
+
 // Set the legend for a given mode.
 // For example, area 1 markup might be called 'ROI 1'
 void imageMarkup::setMarkupLegend( markupIds mode, QString legendIn )
@@ -755,6 +761,20 @@ void imageMarkup::setActiveItem( const QPoint& pos )
         }
     }
 }
+
+// show or hide a markup
+void imageMarkup::displayMarkup( markupIds markupId, bool state )
+{
+    if( state )
+    {
+        showMarkup( markupId );
+    }
+    else
+    {
+        clearMarkup( markupId );
+    }
+}
+
 
 // Hide a markup
 void imageMarkup::clearMarkup( markupIds markupId )
