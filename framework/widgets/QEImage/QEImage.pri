@@ -19,7 +19,8 @@ OTHER_FILES += \
     widgets/QEImage/vLineCursor.png \
     widgets/QEImage/hLineCursor.png \
     widgets/QEImage/lineCursor.png \
-    widgets/QEImage/regionCursor.png
+    widgets/QEImage/regionCursor.png \
+    widgets/QEImage/markupDisplay.png
 
 RESOURCES += \
     widgets/QEImage/QEImage.qrc
@@ -48,7 +49,8 @@ HEADERS += \
     widgets/QEImage/QEImageOptionsDialog.h \
     widgets/QEImage/QEImageMarkupThickness.h \
     widgets/QEImage/fullScreenWindow.h \
-    widgets/QEImage/imageDataFormats.h
+    widgets/QEImage/imageDataFormats.h \
+    widgets/QEImage/markupDisplayMenu.h
 
 isEmpty( _QE_FFMPEG ) {
 
@@ -79,7 +81,8 @@ SOURCES += \
     widgets/QEImage/brightnessContrast.cpp \
     widgets/QEImage/QEImageOptionsDialog.cpp \
     widgets/QEImage/QEImageMarkupThickness.cpp \
-    widgets/QEImage/fullScreenWindow.cpp
+    widgets/QEImage/fullScreenWindow.cpp \
+    widgets/QEImage/markupDisplayMenu.cpp
 
 isEmpty( _QE_FFMPEG ) {
 } else {

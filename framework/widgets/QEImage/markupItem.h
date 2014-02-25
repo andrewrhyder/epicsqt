@@ -120,6 +120,10 @@ private:
     QSize        legendSize;                            // Size of legend (according to legend font)
     bool         hasLegend();                           // Returns true if legend text is present
     QPoint       legendPos;                             // Last drawn legend position
+/*
+    QAction* enabledAction;                     // Action used to set the markup enabled or disabled
+    QAction* displayedAction;                   // Action used to set the markup displayed or not
+*/
 };
 
 #endif // MARKUPITEM_H

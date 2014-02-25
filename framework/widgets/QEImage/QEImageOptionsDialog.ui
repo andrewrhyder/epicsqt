@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>472</width>
-    <height>220</height>
+    <height>289</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -44,16 +44,37 @@
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="checkBoxAreaSelection">
+         <widget class="QCheckBox" name="checkBoxArea1Selection">
           <property name="text">
-           <string>Area selection</string>
+           <string>Area 1 selection</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBoxArea2Selection">
+          <property name="text">
+           <string>Area 2 selection</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBoxArea3Selection">
+          <property name="text">
+           <string>Area 3 selection</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBoxArea4Selection">
+          <property name="text">
+           <string>Area 4 selection</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QCheckBox" name="checkBoxTarget">
           <property name="text">
-           <string>Target and Beam selection</string>
+           <string>Target selection</string>
           </property>
          </widget>
         </item>
@@ -69,6 +90,13 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBoxBeam">
+          <property name="text">
+           <string>Beam selection</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
