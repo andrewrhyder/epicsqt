@@ -117,7 +117,8 @@ void QEPlot::setup() {
     for( int i = 0; i < QEPLOT_NUM_VARIABLES; i++ )
     {
         variableNamePropertyManagers[i].setVariableIndex( i );
-        QObject::connect( &variableNamePropertyManagers[i], SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ), this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int ) ) );
+        QObject::connect( &variableNamePropertyManagers[i], SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ),
+                          this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int ) ) );
     }
 }
 
@@ -171,8 +172,8 @@ void QEPlot::establishConnection( unsigned int variableIndex ) {
                           this, SLOT( setPlotData( const QVector<double>&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
         QObject::connect( qca,  SIGNAL( floatingChanged( const double, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
                           this, SLOT( setPlotData( const double, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
-        QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
-                          this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
+        QObject::connect( qca,  SIGNAL( floatingConnectionChanged( QCaConnectionInfo& , const unsigned int & ) ),
+                          this, SLOT( connectionChanged( QCaConnectionInfo&, const unsigned int &  ) ) );
     }
 }
 
@@ -182,13 +183,13 @@ void QEPlot::establishConnection( unsigned int variableIndex ) {
     Change how the strip chart looks and change the tool tip
     This is the slot used to recieve connection updates from a QCaObject based class.
  */
-void QEPlot::connectionChanged( QCaConnectionInfo& connectionInfo )
+void QEPlot::connectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int & variableIndex)
 {
     // Note the connected state
     isConnected = connectionInfo.isChannelConnected();
 
     // Display the connected state
-    updateToolTipConnection( isConnected );
+    updateToolTipConnection( isConnected, variableIndex);
 }
 
 /*
@@ -235,7 +236,7 @@ void QEPlot::setPlotData( const double value, QCaAlarmInfo& alarmInfo, QCaDateTi
 
     // The data is now ready to plot
     setPlotDataCommon( variableIndex );
-    setalarmInfoCommon( alarmInfo );
+    setalarmInfoCommon( alarmInfo, variableIndex );
 }
 
 /*
@@ -273,8 +274,7 @@ void QEPlot::setPlotData( const QVector<double>& values, QCaAlarmInfo& alarmInfo
 
     // The data is now ready to plot
     setPlotDataCommon( variableIndex );
-    setalarmInfoCommon( alarmInfo );
-
+    setalarmInfoCommon( alarmInfo, variableIndex );
 }
 
 // Update the plot with new data.
@@ -305,11 +305,11 @@ void QEPlot::setPlotDataCommon( const unsigned int variableIndex )
     replot();
 }
 
-void QEPlot::setalarmInfoCommon( QCaAlarmInfo& alarmInfo )
+void QEPlot::setalarmInfoCommon( QCaAlarmInfo& alarmInfo, const unsigned int variableIndex )
 {
    // Invoke common alarm handling processing.
    // TODO: Aggregate all channel severities into a single alarm state.
-   processAlarmInfo( alarmInfo );
+   processAlarmInfo( alarmInfo, variableIndex );
 }
 
 /*
