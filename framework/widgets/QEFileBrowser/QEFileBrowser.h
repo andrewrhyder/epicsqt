@@ -28,6 +28,7 @@
 #include <QTableWidget>
 #include <QPushButton>
 #include <QEWidget.h>
+#include <QELineEdit.h>
 
 
 enum details
@@ -82,7 +83,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEFileBrowser:public QWidget, public QEWidget
 
 
     protected:
-        QLineEdit *qlineEditDirectoryPath;
+        QELineEdit *qeLineEditDirectoryPath;
         QPushButton *qPushButtonDirectoryBrowser;
         QPushButton *qPushButtonRefresh;
         _QTableWidgetFileBrowser *qTableWidgetFileBrowser;
@@ -96,6 +97,13 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEFileBrowser:public QWidget, public QEWidget
         QEFileBrowser(QWidget *pParent = 0);
         virtual ~QEFileBrowser(){}
 
+
+        void setVariableName(QString pValue);
+        QString getVariableName();
+
+        void setVariableNameSubstitutions(QString pValue);
+        QString getVariableNameSubstitutions();
+
         void setDirectoryPath(QString pValue);
         QString getDirectoryPath();
 
@@ -107,6 +115,9 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEFileBrowser:public QWidget, public QEWidget
 
         void setShowRefresh(bool pValue);
         bool getShowRefresh();
+
+        void setShowTable(bool pValue);
+        bool getShowTable();
 
         void setShowColumnTime(bool pValue);
         bool getShowColumnTime();
@@ -129,6 +140,10 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEFileBrowser:public QWidget, public QEWidget
         void updateTable();
 
 
+        Q_PROPERTY(QString variable READ getVariableName WRITE setVariableName)
+
+        Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutions WRITE setVariableNameSubstitutions)
+
         Q_PROPERTY(QString directoryPath READ getDirectoryPath WRITE setDirectoryPath)
 
         Q_PROPERTY(bool showDirectoryPath READ getShowDirectoryPath WRITE setShowDirectoryPath)
@@ -136,6 +151,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEFileBrowser:public QWidget, public QEWidget
         Q_PROPERTY(bool showDirectoryBrowser READ getShowDirectoryBrowser WRITE setShowDirectoryBrowser)
 
         Q_PROPERTY(bool showRefresh READ getShowRefresh WRITE setShowRefresh)
+
+        Q_PROPERTY(bool showTable READ getShowTable WRITE setShowTable)
 
         Q_PROPERTY(bool showColumnTime READ getShowColumnTime WRITE setShowColumnTime)
 
