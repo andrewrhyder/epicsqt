@@ -54,14 +54,15 @@ public:
     /// These substitutions are applied to variable names for all QE widgets. In some widgets are are also used for other purposes.
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
 
+    void    setVariableNameProperty( QString variableName ){ variableNamePropertyManager.setVariableNameProperty( variableName ); }///< Access function for #variable property - refer to #variable property for details
+    QString getVariableNameProperty(){ return variableNamePropertyManager.getVariableNameProperty(); }                             ///< Access function for #variable property - refer to #variable property for details
+
+    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }///< Access function for #variableSubstitutions property - refer to #variableSubstitutions property for details
+    QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManager.getSubstitutionsProperty(); }                                                       ///< Access function for #variableSubstitutions property - refer to #variableSubstitutions property for details
+
 private:
-    void    setVariableNameProperty( QString variableName ){ variableNamePropertyManager.setVariableNameProperty( variableName ); }
-    QString getVariableNameProperty(){ return variableNamePropertyManager.getVariableNameProperty(); }
-
-    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }
-    QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManager.getSubstitutionsProperty(); }
-
     QCaVariableNamePropertyManager variableNamePropertyManager;
+
 public:
     // END-SINGLE-VARIABLE-PROPERTIES =================================================
 
