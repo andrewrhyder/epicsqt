@@ -168,8 +168,8 @@ void QEGenericButton::establishConnection( unsigned int variableIndex ) {
         }
 
         // Get conection status changes always (subscribing or not)
-        QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
-                          getButtonQObject(), SLOT( connectionChanged( QCaConnectionInfo& ) ) );
+        QObject::connect( qca,  SIGNAL( stringConnectionChanged( QCaConnectionInfo&, const unsigned int& ) ),
+                          getButtonQObject(), SLOT( connectionChanged( QCaConnectionInfo&, const unsigned int&) ) );
     }
 }
 
@@ -178,19 +178,19 @@ void QEGenericButton::establishConnection( unsigned int variableIndex ) {
     Change how the label looks and change the tool tip
     This is the slot used to recieve connection updates from a QCaObject based class.
  */
-void QEGenericButton::connectionChanged( QCaConnectionInfo& connectionInfo )
+void QEGenericButton::connectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex )
 {
     // Do nothing if no variable name, but there is a program to run or a new gui to open.
     // Most widgets will be dissabled at this point if there is no good connection to a PV,
     // but this widget may be doing other stuff (running a program of starting a GUI)
-    if( getSubstitutedVariableName( 0 ).isEmpty() )
+    if( getSubstitutedVariableName( variableIndex ).isEmpty() )
         return;
 
     // Note the connected state
     isConnected = connectionInfo.isChannelConnected();
 
     // Display the connected state
-    updateToolTipConnection( isConnected );
+    updateToolTipConnection( isConnected, variableIndex );
     updateConnectionStyle( isConnected );
 }
 
@@ -237,7 +237,7 @@ void QEGenericButton::setGenericButtonText( const QString& text, QCaAlarmInfo& a
     }
 
     // Invoke common alarm handling processing.
-    processAlarmInfo( alarmInfo );
+    processAlarmInfo( alarmInfo, variableIndex );
 }
 
 /*

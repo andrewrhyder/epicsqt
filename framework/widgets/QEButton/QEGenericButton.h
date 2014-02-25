@@ -178,7 +178,7 @@ class QEGenericButton : public QEWidget, public managePixmaps, public QEStringFo
 
 
 protected:
-    void connectionChanged( QCaConnectionInfo& connectionInfo );
+    void connectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex );
     void setGenericButtonText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex );
     void userPressed();
     void userReleased();
