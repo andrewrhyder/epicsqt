@@ -687,11 +687,9 @@ void QEPlotter::setNewVariableName (QString variableName,
    if (this->isDataIndex (variableIndex)) {
       this->xy [slot].dataKind = NotInUse;
       this->xy [slot].dataIsConnected = false;
-      this->xy [slot].dataAlarmInfo = QCaAlarmInfo ();
    } else if (this->isSizeIndex (variableIndex)) {
       this->xy [slot].sizeKind = NotSpecified;
       this->xy [slot].sizeIsConnected = false;
-      this->xy [slot].sizeAlarmInfo = QCaAlarmInfo ();
    }
 
    // Note: essentially calls createQcaItem.
@@ -813,6 +811,20 @@ void QEPlotter::establishConnection (unsigned int variableIndex)
 int QEPlotter::findSlot (QObject *obj)
 {
    return this->widgetToSlot.value (obj, -1);
+}
+
+//------------------------------------------------------------------------------
+//
+QString QEPlotter::getXYExpandedDataPV (const int slot)
+{
+   return this->getSubstitutedVariableName (2*slot);
+}
+
+//------------------------------------------------------------------------------
+//
+QString QEPlotter::getXYExpandedSizePV (const int slot)
+{
+   return this->getSubstitutedVariableName (2*slot + 1);
 }
 
 //------------------------------------------------------------------------------
@@ -986,9 +998,11 @@ void QEPlotter::runDataDialog (const int slot, QWidget* control)
    SLOT_CHECK (slot,);
    int n;
 
-   this->dataDialog->setFieldInformation (this->getXYDataPV (slot),
-                                          this->getXYAlias  (slot),
-                                          this->getXYSizePV (slot));
+   // Note: we populate the dialog with the expanded variable name.
+   //
+   this->dataDialog->setFieldInformation (this->getXYExpandedDataPV (slot),
+                                          this->getXYAlias (slot),
+                                          this->getXYExpandedSizePV (2*slot + 1));
 
    n = this->dataDialog->exec (control ? control: this);
    if (n == 1) {
@@ -1201,13 +1215,17 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
 
 
       case QEPlotterNames::PLOTTER_COPY_DATA_VARIABLE:
-         copyText = this->getXYDataPV (slot);
+         // Note: we copy the expanded variable name.
+         //
+         copyText = this->getSubstitutedVariableName (2 * slot);
          cb = QApplication::clipboard ();
          cb->setText (copyText);
          break;
 
       case QEPlotterNames::PLOTTER_COPY_SIZE_VARIABLE:
-         copyText = this->getXYSizePV (slot);
+         // Note: we copy the expanded variable name.
+         //
+         copyText = this->getSubstitutedVariableName (2 * slot + 1);
          cb = QApplication::clipboard ();
          cb->setText (copyText);
          break;
@@ -1227,45 +1245,45 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
 
 
       case QEPlotterNames::PLOTTER_SHOW_DATA_PV_PROPERTIES:
-         pvName = this->getXYDataPV (slot);
+         pvName = this->getXYExpandedDataPV (slot);
          this->sendRequestAction (QEActionRequests::actionPvProperties (), pvName);
          break;
 
       case QEPlotterNames::PLOTTER_SHOW_SIZE_PV_PROPERTIES:
-         pvName = this->getXYSizePV (slot);
+         pvName = this->getXYExpandedSizePV (slot);
          this->sendRequestAction (QEActionRequests::actionPvProperties (), pvName);
          break;
 
 
       case QEPlotterNames::PLOTTER_ADD_DATA_PV_TO_STRIPCHART:
-         pvName = this->getXYDataPV (slot);
+         pvName = this->getXYExpandedDataPV (slot);
          this->sendRequestAction (QEActionRequests::actionStripChart (), pvName);
          break;
 
       case QEPlotterNames::PLOTTER_ADD_SIZE_PV_TO_STRIPCHART:
-         pvName = this->getXYSizePV (slot);
+         pvName = this->getXYExpandedSizePV (slot);
          this->sendRequestAction (QEActionRequests::actionStripChart (), pvName);
          break;
 
 
       case QEPlotterNames::PLOTTER_ADD_DATA_PV_TO_SCRATCH_PAD:
-         pvName = this->getXYDataPV (slot);
+         pvName = this->getXYExpandedDataPV (slot);
          this->sendRequestAction (QEActionRequests::actionScratchPad (), pvName);
          break;
 
       case QEPlotterNames::PLOTTER_ADD_SIZE_PV_TO_SCRATCH_PAD:
-         pvName = this->getXYSizePV (slot);
+         pvName = this->getXYExpandedSizePV (slot);
          this->sendRequestAction (QEActionRequests::actionScratchPad (), pvName);
          break;
 
 
       case QEPlotterNames::PLOTTER_GENERAL_DATA_PV_EDIT:
-         pvName = this->getXYDataPV (slot);
+         pvName = this->getXYExpandedDataPV (slot);
          this->sendRequestAction (QEActionRequests::actionGeneralPvEdit (), pvName);
          break;
 
       case QEPlotterNames::PLOTTER_GENERAL_SIZE_PV_EDIT:
-         pvName = this->getXYSizePV (slot);
+         pvName = this->getXYExpandedSizePV (slot);
          this->sendRequestAction (QEActionRequests::actionGeneralPvEdit (), pvName);
          break;
 
@@ -1706,12 +1724,12 @@ void QEPlotter::saveConfiguration (PersistanceManager* pm)
          PMElement pvElement = pvListElement.addElement ("PV");
          pvElement.addAttribute ("id", slot);
 
-         strValue = this->getXYDataPV (slot);
+         strValue = this->getXYExpandedDataPV (slot);
          if (!strValue.isEmpty()) {
             pvElement.addValue ("Data",strValue );
          }
 
-         strValue = this->getXYSizePV (slot);
+         strValue = this->getXYExpandedSizePV (slot);
          if (!strValue.isEmpty()) {
             pvElement.addValue ("Size",strValue );
          }
@@ -1832,7 +1850,6 @@ void QEPlotter::setToolTipSummary ()
    no_disconnects = ((connected > 0) || (total == 0));
 
    this->updateConnectionStyle (no_disconnects);   // Is this sensible?
-   this->updateToolTipConnection (true);   //  Hide any  auto " - Disconnected"
 
    if (total > 0) {
       if (connected == 0) {
@@ -1845,6 +1862,7 @@ void QEPlotter::setToolTipSummary ()
    } else {
       customText = "";
    }
+
    this->updateToolTipCustom (customText);
 }
 
@@ -1861,6 +1879,7 @@ void QEPlotter::dataConnectionChanged (QCaConnectionInfo& connectionInfo,
    SLOT_CHECK (slot,);
 
    this->xy [slot].dataIsConnected = connectionInfo.isChannelConnected ();
+   this->updateToolTipConnection (this->xy [slot].dataIsConnected, variableIndex);
    this->replotIsRequired = true;
    this->setToolTipSummary ();
 }
@@ -1868,7 +1887,7 @@ void QEPlotter::dataConnectionChanged (QCaConnectionInfo& connectionInfo,
 //------------------------------------------------------------------------------
 //
 void QEPlotter::dataArrayChanged (const QVector<double>& values,
-                                  QCaAlarmInfo&  alarmInfo,
+                                  QCaAlarmInfo& alarmInfo,
                                   QCaDateTime&,
                                   const unsigned int& variableIndex)
 {
@@ -1877,8 +1896,8 @@ void QEPlotter::dataArrayChanged (const QVector<double>& values,
    SLOT_CHECK (slot,);
    if (this->isPaused) return;
    this->xy [slot].data = QEFloatingArray (values);
-   this->xy [slot].dataAlarmInfo = alarmInfo;
    this->replotIsRequired = true;
+   this->processAlarmInfo (alarmInfo, variableIndex);
    this->setToolTipSummary ();
 }
 
@@ -1891,6 +1910,7 @@ void QEPlotter::sizeConnectionChanged (QCaConnectionInfo& connectionInfo,
 
    SLOT_CHECK (slot,);
    this->xy [slot].sizeIsConnected = connectionInfo.isChannelConnected ();
+   this->updateToolTipConnection (this->xy [slot].sizeIsConnected, variableIndex);
    this->replotIsRequired = true;
    this->setToolTipSummary ();
 }
@@ -1907,8 +1927,8 @@ void QEPlotter::sizeValueChanged (const long& value,
    SLOT_CHECK (slot,);
    if (this->isPaused) return;
    this->xy [slot].dbSize = value;
-   this->xy [slot].sizeAlarmInfo = alarmInfo;
    this->replotIsRequired = true;
+   this->processAlarmInfo (alarmInfo, variableIndex);
    this->setToolTipSummary ();
 }
 
