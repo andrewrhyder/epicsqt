@@ -294,33 +294,33 @@ void contextMenu::doPaste()
 // 'Show Properties' was selected from the menu
 void contextMenu::doShowPvProperties ()
 {
-    QString pvName = copyVariable();
+    QString pvName = copyVariable().trimmed();
     QEActionRequests request( QEActionRequests::actionPvProperties(), pvName );
-    object->sendRequestAction( request );
+    if( !pvName.isEmpty() ) object->sendRequestAction( request );
 }
 
 // 'Add to strip chart' wasselected from the menu
 void contextMenu::doAddToStripChart ()
 {
-    QString pvName = copyVariable();
+    QString pvName = copyVariable().trimmed();
     QEActionRequests request( QEActionRequests::actionStripChart(), pvName );
-    object->sendRequestAction( request );
+    if( !pvName.isEmpty() ) object->sendRequestAction( request );
 }
 
 // 'Add to scratch pad' was selected from the menu
 void contextMenu::doAddToScratchPad()
 {
-   QString pvName = copyVariable();
+   QString pvName = copyVariable().trimmed();
    QEActionRequests request( QEActionRequests::actionScratchPad(), pvName );
-   object->sendRequestAction( request );
+   if( !pvName.isEmpty() ) object->sendRequestAction( request );
 }
 
 // Request mini general PV edit form.
 void contextMenu::doGeneralPVEdit()
 {
-   QString pvName = copyVariable();
+   QString pvName = copyVariable().trimmed();
    QEActionRequests request( QEActionRequests::actionGeneralPvEdit(), pvName );
-   object->sendRequestAction( request );
+   if( !pvName.isEmpty() ) object->sendRequestAction( request );
 }
 
 // Add a menu item to the either the context menu, or one of its sub menus
