@@ -42,6 +42,38 @@ QEDisplayRanges::QEDisplayRanges (const double minIn, const double maxIn)
    this->setRange (minIn, maxIn);
 }
 
+
+//------------------------------------------------------------------------------
+//
+bool QEDisplayRanges::operator == (const QEDisplayRanges& other) const
+{
+   bool result;
+
+   if (this->isDefined == other.isDefined) {
+      // Both defined or both not defined.
+      //
+      if (this->isDefined) {
+         // Both defined.
+         result = (this->minimum == other.minimum) && (this->maximum == other.maximum);
+      } else {
+         // Both undefined.
+         result = true;
+      }
+   } else {
+      result = false;
+   }
+
+   return result;
+}
+
+//------------------------------------------------------------------------------
+// Define != as not == , this ensures consistancy as is only sensible definition.
+//
+bool QEDisplayRanges::operator != (const QEDisplayRanges& other) const
+{
+   return !(*this == other);
+}
+
 //------------------------------------------------------------------------------
 //
 void QEDisplayRanges::clear ()
@@ -79,39 +111,39 @@ void QEDisplayRanges::merge (const double d)
 
 //------------------------------------------------------------------------------
 //
-void QEDisplayRanges::merge (const QEDisplayRanges &that)
+void QEDisplayRanges::merge (const QEDisplayRanges &other)
 {
-   if ((this->isDefined) && (that.isDefined)) {
+   if ((this->isDefined) && (other.isDefined)) {
       // both are defined
-      this->minimum = MIN (this->minimum, that.minimum);
-      this->maximum = MAX (this->maximum, that.maximum);
+      this->minimum = MIN (this->minimum, other.minimum);
+      this->maximum = MAX (this->maximum, other.maximum);
    } else {
-      // only this or that or neither are defined, but not both.
-      if (that.isDefined) {
+      // only this or other or neither are defined, but not both.
+      if (other.isDefined) {
          this->isDefined = true;
-         this->minimum = that.minimum;
-         this->maximum = that.maximum;
+         this->minimum = other.minimum;
+         this->maximum = other.maximum;
       }
    }
 }
 
 //------------------------------------------------------------------------------
 //
-bool QEDisplayRanges::getIsDefined ()
+bool QEDisplayRanges::getIsDefined () const
 {
    return this->isDefined;
 }
 
 //------------------------------------------------------------------------------
 //
-double QEDisplayRanges::getMinimum ()
+double QEDisplayRanges::getMinimum () const
 {
    return this->minimum;
 }
 
 //------------------------------------------------------------------------------
 //
-double QEDisplayRanges::getMaximum ()
+double QEDisplayRanges::getMaximum () const
 {
    return this->maximum;
 }

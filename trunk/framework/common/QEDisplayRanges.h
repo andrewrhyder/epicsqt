@@ -37,15 +37,20 @@ public:
    explicit QEDisplayRanges ();
    explicit QEDisplayRanges (const double min, const double max);
 
+   // Equality operators.
+   //
+   bool operator == (const QEDisplayRanges& other) const;
+   bool operator != (const QEDisplayRanges& other) const;
+
    void clear ();
 
    void setRange (const double min, const double max);
    void merge (const double d);               // defines/extends range to include d.
-   void merge (const QEDisplayRanges& that);  // defines/extends range to include that.
+   void merge (const QEDisplayRanges& other); // defines/extends range to include other.
 
-   bool getIsDefined ();
-   double getMinimum ();
-   double getMaximum ();
+   bool getIsDefined () const;
+   double getMinimum () const;
+   double getMaximum () const;
 
    // returns true if range is defined together with min and max.
    //

@@ -37,6 +37,7 @@
 #include <qwt_plot_grid.h>
 
 #include <QEPluginLibrary_global.h>
+#include <QEDisplayRanges.h>
 
 #ifndef QE_GRAPHIC_H
 #define QE_GRAPHIC_H
@@ -183,12 +184,6 @@ protected:
    bool eventFilter (QObject *obj, QEvent *event);
 
 private:
-
-   struct DisplayRanges {
-      double minimum;
-      double maximum;
-   };
-
    // Handle each axis in own class.
    //
    class Axis {
@@ -198,7 +193,7 @@ private:
       void setRange (const double min, const double max,
                      const AxisMajorIntervalModes mode, const int value);
       bool doDynamicRescaling ();
-      void determineAxis (const QEGraphic::DisplayRanges& current);
+      void determineAxis (const QEDisplayRanges& current);
 
       // Converts between pixel coords to real world coords taking into
       // account any scaling and/or logarithic scaling.
@@ -220,8 +215,8 @@ private:
    private:
       QwtPlot* plot;
       int axisId;
-      DisplayRanges source;
-      DisplayRanges target;
+      QEDisplayRanges source;
+      QEDisplayRanges target;
       AxisMajorIntervalModes intervalMode;
       int intervalValue;
       int transitionCount;
@@ -237,15 +232,9 @@ private:
 
    // Steps go from NUMBER_TRANISTION_STEPS (at start) down to 0 (at finish).
    //
-   static DisplayRanges calcTransitionPoint (const DisplayRanges& start,
-                                             const DisplayRanges& finish,
-                                             const int step);
-
-   static void adjustLogMinMax (const DisplayRanges& useRnge,
-                                double& minOut, double& maxOut, double& majorOut);
-
-   static void adjustMinMax (const DisplayRanges& useRnge, const int number,
-                             double& minOut, double& maxOut, double& majorOut);
+   static QEDisplayRanges calcTransitionPoint (const QEDisplayRanges& start,
+                                               const QEDisplayRanges& finish,
+                                               const int step);
 
    Axis* xAxis;
    Axis* yAxis;
