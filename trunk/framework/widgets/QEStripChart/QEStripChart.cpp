@@ -444,7 +444,7 @@ void QEStripChart::setNormalBackground (bool isNormalVideoIn)
 void QEStripChart::calcDisplayMinMax ()
 {
    int slot;
-   TrackRange tr;
+   QEDisplayRanges tr;
    double min;
    double max;
 

@@ -101,7 +101,7 @@ void QEStripChartAdjustPVDialog::setValueScaling (const ValueScaling & valueScal
 
 //------------------------------------------------------------------------------
 //
-ValueScaling QEStripChartAdjustPVDialog::getValueScaling ()
+ValueScaling QEStripChartAdjustPVDialog::getValueScaling () const
 {
    return this->valueScale;
 }
@@ -109,9 +109,9 @@ ValueScaling QEStripChartAdjustPVDialog::getValueScaling ()
 //------------------------------------------------------------------------------
 //
 void QEStripChartAdjustPVDialog::setSupport (const double minIn, const double maxIn,
-                                             const TrackRange& loprHoprIn,
-                                             const TrackRange& plottedIn,
-                                             const TrackRange& buffereInd)
+                                             const QEDisplayRanges& loprHoprIn,
+                                             const QEDisplayRanges& plottedIn,
+                                             const QEDisplayRanges& buffereInd)
 {
    // Current chart display range.
    //
@@ -128,7 +128,7 @@ void QEStripChartAdjustPVDialog::setSupport (const double minIn, const double ma
 
 //------------------------------------------------------------------------------
 //
-void QEStripChartAdjustPVDialog::useSelectedRange (const TrackRange& selectedRange)
+void QEStripChartAdjustPVDialog::useSelectedRange (const QEDisplayRanges& selectedRange)
 {
    ValueScaling preset;
    bool status;

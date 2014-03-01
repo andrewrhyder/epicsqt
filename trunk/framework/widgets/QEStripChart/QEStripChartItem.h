@@ -50,6 +50,8 @@
 #include <QEWidget.h>
 #include <QEActionRequests.h>
 #include <QEExpressionEvaluation.h>
+#include <QEDisplayRanges.h>
+
 #include "QEStripChart.h"
 #include "QEStripChartNames.h"
 #include "QEStripChartAdjustPVDialog.h"
@@ -93,9 +95,9 @@ public:
    // return range item is scaled using the current PV scale. When false, the "raw"
    // value is returned.
    //
-   TrackRange getLoprHopr (bool doScale);          // returns CA specified operating range
-   TrackRange getDisplayedMinMax (bool doScale);   // returns range of values currently plotted
-   TrackRange getBufferedMinMax (bool doScale);    // returns range of values that could be plotted
+   QEDisplayRanges getLoprHopr (bool doScale);          // returns CA specified operating range
+   QEDisplayRanges getDisplayedMinMax (bool doScale);   // returns range of values currently plotted
+   QEDisplayRanges getBufferedMinMax (bool doScale);    // returns range of values that could be plotted
    QCaDataPointList determinePlotPoints ();
 
    void readArchive ();
@@ -125,7 +127,7 @@ private:
    QPen getPen ();
    void plotDataPoints (const QCaDataPointList& dataPoints,
                         const bool isRealTime,
-                        TrackRange& plottedTrackRange);
+                        QEDisplayRanges& plottedTrackRange);
 
    // Perform a pvNameDropEvent 'drop'.
    //
@@ -147,12 +149,12 @@ private:
 
    QCaDataPointList historicalTimeDataPoints;
    QCaDataPointList realTimeDataPoints;
-   TrackRange historicalMinMax;
-   TrackRange realTimeMinMax;
+   QEDisplayRanges historicalMinMax;
+   QEDisplayRanges realTimeMinMax;
 
    bool firstPointIsDefined;
    QCaDataPoint firstPoint;
-   TrackRange displayedMinMax;
+   QEDisplayRanges displayedMinMax;
 
    QEArchiveAccess archiveAccess;
 
