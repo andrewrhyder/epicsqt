@@ -32,6 +32,7 @@
 #include <QEDialog.h>
 #include <QDateTime>
 
+#include <QEDisplayRanges.h>
 #include <QEStripChartUtilities.h>
 
 namespace Ui {
@@ -53,30 +54,30 @@ public:
    ~QEStripChartAdjustPVDialog ();
 
     void setValueScaling (const ValueScaling & valueScale);
-    ValueScaling getValueScaling ();
+    ValueScaling getValueScaling () const;
 
     // Support data for scaling scalculations.
     //
     void setSupport (const double min, const double max,
-                     const TrackRange& loprHopr,
-                     const TrackRange& plotted,
-                     const TrackRange& buffered);
+                     const QEDisplayRanges& loprHopr,
+                     const QEDisplayRanges& plotted,
+                     const QEDisplayRanges& buffered);
 
 private:
    Ui::QEStripChartAdjustPVDialog *ui;
 
    ValueScaling valueScale;
 
-   TrackRange loprHopr;
-   TrackRange plotted;
-   TrackRange buffered;
+   QEDisplayRanges loprHopr;
+   QEDisplayRanges plotted;
+   QEDisplayRanges buffered;
 
    double chartMinimum;
    double chartMaximum;
    bool returnIsMasked;
 
    // local utility conveniance function
-   void useSelectedRange (const TrackRange& selectedRange);
+   void useSelectedRange (const QEDisplayRanges& selectedRange);
 
 private slots:
    void originReturnPressed ();

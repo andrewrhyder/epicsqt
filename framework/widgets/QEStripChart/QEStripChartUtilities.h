@@ -31,28 +31,10 @@
 #include <QDateTime>
 #include <persistanceManager.h>
 
+#include <QEDisplayRanges.h>
+
 //==============================================================================
 // Utility classes
-//==============================================================================
-// Tracks the minimum and maximum range of a value.
-//
-class TrackRange {
-public:
-   TrackRange ();
-   void clear ();
-   void merge (const double d);           // defines/extends range to include d.
-   void merge (const TrackRange &that);   // defines/extends range to include that.
-
-   // returns true if range is defined together with min and max.
-   //
-   bool getMinMax (double & min, double& max) const;
-private:
-   double minimum;
-   double maximum;
-   bool isDefined;
-};
-
-
 //==============================================================================
 // Allows PV points to be scaled as:  y' = (y - d)*m + c
 // This is useful whem comparing values with disparate ranages.
@@ -66,22 +48,23 @@ public:
    void reset ();
    void assign (const ValueScaling & s);
    void set (const double dIn, const double mIn, const double cIn);
-   void get (double &dOut, double &mOut, double &cOut);
+   void get (double &dOut, double &mOut, double &cOut) const;
 
-   // Find d, m and c such that the from values map to the to values,
+   // Find annd set d, m and c such that the from values map to the to values,
    // e.g a PVs HOPR/LOPR values map to current chart range values.
    //
    void map (const double fromLower, const double fromUpper,
              const double toLower,   const double toUpper);
 
-   bool isScaled ();
+   bool isScaled () const;
 
-   inline double value (const double x) {
+   inline double value (const double x) const {
       return (x - d) * m + c;
    }
-   TrackRange value (const TrackRange & x);
 
-   void saveConfiguration (PMElement & parentElement);
+   QEDisplayRanges value (const QEDisplayRanges& x) const;
+
+   void saveConfiguration (PMElement & parentElement) const;
    void restoreConfiguration (PMElement & parentElement);
 
 private:

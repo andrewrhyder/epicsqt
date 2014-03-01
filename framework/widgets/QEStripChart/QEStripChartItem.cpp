@@ -360,9 +360,9 @@ bool QEStripChartItem::isCalculation ()
 
 //------------------------------------------------------------------------------
 //
-TrackRange QEStripChartItem::getLoprHopr (bool doScale)
+QEDisplayRanges QEStripChartItem::getLoprHopr (bool doScale)
 {
-   TrackRange result;
+   QEDisplayRanges result;
    qcaobject::QCaObject *qca;
    double lopr;
    double hopr;
@@ -394,9 +394,9 @@ TrackRange QEStripChartItem::getLoprHopr (bool doScale)
 
 //------------------------------------------------------------------------------
 //
-TrackRange QEStripChartItem::getDisplayedMinMax (bool doScale)
+QEDisplayRanges QEStripChartItem::getDisplayedMinMax (bool doScale)
 {
-   TrackRange result;
+   QEDisplayRanges result;
 
    result = this->displayedMinMax;
    if (doScale) {
@@ -408,9 +408,9 @@ TrackRange QEStripChartItem::getDisplayedMinMax (bool doScale)
 
 //------------------------------------------------------------------------------
 //
-TrackRange QEStripChartItem::getBufferedMinMax (bool doScale)
+QEDisplayRanges QEStripChartItem::getBufferedMinMax (bool doScale)
 {
-   TrackRange result;
+   QEDisplayRanges result;
 
    result = this->historicalMinMax;
    result.merge (this->realTimeMinMax);
@@ -425,7 +425,7 @@ TrackRange QEStripChartItem::getBufferedMinMax (bool doScale)
 //
 void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
                                        const bool isRealTime,
-                                       TrackRange & plottedTrackRange)
+                                       QEDisplayRanges & plottedTrackRange)
 {
 
 // macro functions to convert real-world values to a plot values, doing safe log conversion if required.
@@ -622,7 +622,7 @@ QCaDataPointList QEStripChartItem::determinePlotPoints ()
 //
 void QEStripChartItem::plotData ()
 {
-   TrackRange temp;
+   QEDisplayRanges temp;
 
    this->displayedMinMax.clear ();
    this->firstPointIsDefined = false;
@@ -1129,7 +1129,7 @@ void QEStripChartItem::contextMenuRequested (const QPoint & pos)
 //
 void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenuOptions option)
 {
-   TrackRange range;
+   QEDisplayRanges range;
    double min, max;
    double midway;
    bool status;
