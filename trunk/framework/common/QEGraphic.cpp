@@ -125,7 +125,7 @@ void QEGraphic::Axis::determineAxis (const QEDisplayRanges& current)
    int number;
 
    if (this->isLogarithmic) {
-      QEDisplayRanges::adjustLogMinMax (current, useMin, useMax, useStep);
+      current.adjustLogMinMax (useMin, useMax, useStep);
    } else {
       if (this->intervalMode == QEGraphic::SelectBySize) {
          switch (this->axisId) {
@@ -148,7 +148,12 @@ void QEGraphic::Axis::determineAxis (const QEDisplayRanges& current)
       } else {
          number = this->intervalValue;
       }
-      QEDisplayRanges::adjustMinMax (current, number, useMin, useMax, useStep);
+      current.adjustMinMax (number, false, useMin, useMax, useStep);
+
+      // Subtract/add tolerance as Qwt Axis ploting of minor ticks a bit slack.
+      //
+      useMin = useMin - (0.01 * useStep);
+      useMax = useMax + (0.01 * useStep);
    }
 
    this->plot->setAxisScale (this->axisId, useMin, useMax , useStep);
