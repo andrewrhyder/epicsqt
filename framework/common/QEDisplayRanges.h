@@ -58,11 +58,9 @@ public:
 
    // Useful for setting up axies.
    //
-   static void adjustLogMinMax (const QEDisplayRanges& useRange,
-                                double& minOut, double& maxOut, double& majorOut);
-
-   static void adjustMinMax (const QEDisplayRanges& useRange, const int number,
-                             double& minOut, double& maxOut, double& majorOut);
+   void adjustLogMinMax (double& minOut, double& maxOut, double& majorOut) const;
+   void adjustMinMax    (const int number, const bool roundToMajor,
+                         double& minOut, double& maxOut, double& majorOut) const;
 
 private:
    double minimum;
