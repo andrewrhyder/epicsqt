@@ -108,11 +108,23 @@ void selectMenu::setHSlicetEnabled( bool enableHSliceSelection )
     actionHSlice->setVisible( enableHSliceSelection );
 }
 
-void selectMenu::setAreaEnabled( bool enableAreaSelection )
+void selectMenu::setArea1Enabled( bool enableAreaSelection )
 {
     actionArea1->setVisible( enableAreaSelection );
+}
+
+void selectMenu::setArea2Enabled( bool enableAreaSelection )
+{
     actionArea2->setVisible( enableAreaSelection );
+}
+
+void selectMenu::setArea3Enabled( bool enableAreaSelection )
+{
     actionArea3->setVisible( enableAreaSelection );
+}
+
+void selectMenu::setArea4Enabled( bool enableAreaSelection )
+{
     actionArea4->setVisible( enableAreaSelection );
 }
 
@@ -124,7 +136,11 @@ void selectMenu::setProfileEnabled( bool enableProfileSelection )
 void selectMenu::setTargetEnabled( bool enableTargetSelection )
 {
     actionTarget->setVisible( enableTargetSelection );
-    actionBeam->setVisible( enableTargetSelection );
+}
+
+void selectMenu::setBeamEnabled( bool enableBeamSelection )
+{
+    actionBeam->setVisible( enableBeamSelection );
 }
 
 bool selectMenu::getPanEnabled()
@@ -142,9 +158,24 @@ bool selectMenu::getHSliceEnabled()
     return actionHSlice->isVisible();
 }
 
-bool selectMenu::getAreaEnabled()
+bool selectMenu::getArea1Enabled()
 {
-    return actionArea1->isVisible();    // Assumes actionArea1-4 are all the same
+    return actionArea1->isVisible();
+}
+
+bool selectMenu::getArea2Enabled()
+{
+    return actionArea1->isVisible();
+}
+
+bool selectMenu::getArea3Enabled()
+{
+    return actionArea1->isVisible();
+}
+
+bool selectMenu::getArea4Enabled()
+{
+    return actionArea1->isVisible();
 }
 
 bool selectMenu::getProfileEnabled()
@@ -154,5 +185,10 @@ bool selectMenu::getProfileEnabled()
 
 bool selectMenu::getTargetEnabled()
 {
-    return actionTarget->isVisible();   // Assumes actionTarget and actionBeam are both the same
+    return actionTarget->isVisible();
+}
+
+bool selectMenu::getBeamEnabled()
+{
+    return actionBeam->isVisible();
 }

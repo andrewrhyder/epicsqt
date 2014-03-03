@@ -63,11 +63,14 @@
 #ifndef IMAGEMARKUP_H
 #define IMAGEMARKUP_H
 
+//#include <QObject>
 #include <QCaDateTime.h>
 
 #include <markupItem.h>
 #include <QMouseEvent>
 #include <QCursor>
+
+//#include <markupDisplayMenu.h>
 
 #include <QDebug>
 
@@ -83,7 +86,10 @@
 //    -
 
 
-class imageMarkup {
+class imageMarkup {//: public QObject {
+
+//    Q_OBJECT
+
 public:
     imageMarkup();
     virtual ~imageMarkup();
@@ -143,7 +149,8 @@ public:
     QString getMarkupLegend( markupIds mode );                  // Get the markup legend
     void clearMarkup( markupIds markupId );                     // Hide a markup
     void showMarkup( markupIds markupId );                      // Reveal a markup
-
+    void displayMarkup( markupIds markupId, bool state );       // Hide or reveal a markup
+    bool isMarkupVisible( markupIds mode );                     // Is a specified markup visible
 
 protected:
     void drawMarkups( QPainter& p, const QRect& rect );         // The image has changed, redraw the markups if any
@@ -182,6 +189,12 @@ private:
     QCursor hLineCursor;                        // Used as default cursor when in horizontal slicemode
     QCursor lineCursor;                         // Used as default cursor when in line profile mode
     QCursor regionCursor;                       // Used as default cursor when in area selection mode
+
+//    markupDisplayMenu* mdMenu;
+
+//private slots:
+//    void markupDisplayMenuTriggered( QAction* selectedItem );
+
 };
 
 #endif // IMAGEMARKUP_H

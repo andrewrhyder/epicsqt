@@ -36,6 +36,7 @@
 #include <zoomMenu.h>
 #include <flipRotateMenu.h>
 #include <selectMenu.h>
+#include <markupDisplayMenu.h>
 #include <QEImageOptionsDialog.h>
 #include <QCaVariableNamePropertyManager.h>
 #include <imageInfo.h>
@@ -261,14 +262,26 @@ public:
     void setEnableHozSliceSelection( bool enableHSliceSelection );      ///< Access function for #enableHozSliceSelection property - refer to #enableHozSliceSelection property for details
     bool getEnableHozSliceSelection();                                  ///< Access function for #enableHozSliceSelection property - refer to #enableHozSliceSelection property for details
 
-    void setEnableAreaSelection( bool enableAreaSelectionIn );          ///< Access function for #enableAreaSelection property - refer to #enableAreaSelection property for details
-    bool getEnableAreaSelection();                                      ///< Access function for #enableAreaSelection property - refer to #enableAreaSelection property for details
+    void setEnableArea1Selection( bool enableAreaSelectionIn );          ///< Access function for #enableArea1Selection property - refer to #enableArea1Selection property for details
+    bool getEnableArea1Selection();                                      ///< Access function for #enableArea1Selection property - refer to #enableArea1Selection property for details
+
+    void setEnableArea2Selection( bool enableAreaSelectionIn );          ///< Access function for #enableArea2Selection property - refer to #enableArea2Selection property for details
+    bool getEnableArea2Selection();                                      ///< Access function for #enableArea2Selection property - refer to #enableArea2Selection property for details
+
+    void setEnableArea3Selection( bool enableAreaSelectionIn );          ///< Access function for #enableArea3Selection property - refer to #enableArea3Selection property for details
+    bool getEnableArea3Selection();                                      ///< Access function for #enableArea3Selection property - refer to #enableArea3Selection property for details
+
+    void setEnableArea4Selection( bool enableAreaSelectionIn );          ///< Access function for #enableArea4Selection property - refer to #enableArea4Selection property for details
+    bool getEnableArea4Selection();                                      ///< Access function for #enableArea4Selection property - refer to #enableArea4Selection property for details
 
     void setEnableProfileSelection( bool enableProfileSelectionIn );    ///< Access function for #enableProfileSelection property - refer to #enableProfileSelection property for details
     bool getEnableProfileSelection();                                   ///< Access function for #enableProfileSelection property - refer to #enableProfileSelection property for details
 
     void setEnableTargetSelection( bool enableTargetSelectionIn );      ///< Access function for #enableTargetSelection property - refer to #enableTargetSelection property for details
     bool getEnableTargetSelection();                                    ///< Access function for #enableTargetSelection property - refer to #enableTargetSelection property for details
+
+    void setEnableBeamSelection( bool enableBeamSelectionIn );          ///< Access function for #enableBeamSelection property - refer to #enableBeamSelection property for details
+    bool getEnableBeamSelection();                                      ///< Access function for #enableBeamSelection property - refer to #enableBeamSelection property for details
 
     void setEnableBrightnessContrast( bool enableBrightnessContrastIn );///< Access function for #enableBrightnessContrast property - refer to #enableBrightnessContrast property for details
     bool getEnableBrightnessContrast();                                 ///< Access function for #enableBrightnessContrast property - refer to #enableBrightnessContrast property for details
@@ -290,6 +303,38 @@ public:
 
     void setEnableVertSlicePresentation( bool enableVertSlicePresentationIn ); ///< Access function for #enableVertSlicePresentation property - refer to #enableVertSlicePresentation property for details
     bool getEnableVertSlicePresentation();                                     ///< Access function for #enableVertSlicePresentation property - refer to #enableVertSlicePresentation property for details
+
+
+
+    void setDisplayVertSliceSelection( bool displayVSliceSelection );         ///< Access function for #displayVertSliceSelection property - refer to #displayVertSliceSelection property for details
+    bool getDisplayVertSliceSelection();                                        ///< Access function for #displayVertSliceSelection property - refer to #displayVertSliceSelection property for details
+
+    void setDisplayHozSliceSelection( bool displayHSliceSelection );            ///< Access function for #displayHozSliceSelection property - refer to #displayHozSliceSelection property for details
+    bool getDisplayHozSliceSelection();                                         ///< Access function for #displayHozSliceSelection property - refer to #displayHozSliceSelection property for details
+
+    void setDisplayArea1Selection( bool displayAreaSelection );                 ///< Access function for #displayArea1Selection property - refer to #displayArea1Selection property for details
+    bool getDisplayArea1Selection();                                            ///< Access function for #displayArea1Selection property - refer to #displayArea1Selection property for details
+
+    void setDisplayArea2Selection( bool displayAreaSelection );                 ///< Access function for #displayArea2Selection property - refer to #displayArea2Selection property for details
+    bool getDisplayArea2Selection();                                            ///< Access function for #displayArea2Selection property - refer to #displayArea2Selection property for details
+
+    void setDisplayArea3Selection( bool displayAreaSelection );                 ///< Access function for #displayArea3Selection property - refer to #displayArea3Selection property for details
+    bool getDisplayArea3Selection();                                            ///< Access function for #displayArea3Selection property - refer to #displayArea3Selection property for details
+
+    void setDisplayArea4Selection( bool displayAreaSelection );                 ///< Access function for #displayArea4Selection property - refer to #displayArea4Selection property for details
+    bool getDisplayArea4Selection();                                            ///< Access function for #displayArea4Selection property - refer to #displayArea4Selection property for details
+
+    void setDisplayProfileSelection( bool displayProfileSelection );            ///< Access function for #displayProfileSelection property - refer to #displayProfileSelection property for details
+    bool getDisplayProfileSelection();                                          ///< Access function for #displayProfileSelection property - refer to #displayProfileSelection property for details
+
+    void setDisplayTargetSelection( bool displayTargetSelection );              ///< Access function for #displayTargetSelection property - refer to #displayTargetSelection property for details
+    bool getDisplayTargetSelection();                                           ///< Access function for #displayTargetSelection property - refer to #displayTargetSelection property for details
+
+    void setDisplayBeamSelection( bool displayBeamSelection );                  ///< Access function for #displayBeamSelection property - refer to #displayBeamSelection property for details
+    bool getDisplayBeamSelection();                                             ///< Access function for #displayBeamSelection property - refer to #displayBeamSelection property for details
+
+    void setDisplayEllipse( bool displayEllipse );                              ///< Access function for #displayEllipse property - refer to #displayEllipse property for details
+    bool getDisplayEllipse();                                                   ///< Access function for #displayEllipse property - refer to #displayEllipse property for details
 
     void setDisplayMarkups( bool displayMarkupsIn );                    ///< Access function for #displayMarkups property - refer to #displayMarkups property for details
     bool getDisplayMarkups();                                           ///< Access function for #displayMarkups property - refer to #displayMarkups property for details
@@ -336,6 +381,8 @@ public:
     bool getFullScreen();                               ///< Access function for #fullScreen property - refer to #fullScreen property for details
     void setFullScreen( bool fullScreenIn );            ///< Access function for #fullScreen property - refer to #fullScreen property for details
 
+    void setSubstitutedUrl( QString urlIn );            ///< Access function for #URL property - refer to #URL property for deta
+    QString getSubstitutedUrl();                        ///< Access function for #URL property - refer to #URL property for deta
 
   protected:
     QEStringFormatting stringFormatting;     // String formatting options.
@@ -423,6 +470,7 @@ private slots:
     void showImageContextMenuFullScreen( const QPoint& pos );
     void showImageContextMenu( const QPoint& );
     void selectMenuTriggered( QAction* selectedItem );
+    void markupDisplayMenuTriggered( QAction* selectedItem );
     void zoomMenuTriggered( QAction* selectedItem );
     void flipRotateMenuTriggered( QAction* selectedItem );
     void showImageAboutDialog();
@@ -525,6 +573,7 @@ public slots:
     bool initScrollPosSet;
 
     VideoWidget* videoWidget;
+//    imageMarkup* markups;
 
     bool appHostsControls;
     bool hostingAppAvailable;
@@ -544,6 +593,7 @@ public slots:
     QPushButton* targetButton;
     QPushButton* zoomButton;
     QPushButton* selectModeButton;
+    QPushButton* markupDisplayButton;
     QPushButton* flipRotateButton;
 
     // External actions optionally provided by the application creating this widget
@@ -563,6 +613,7 @@ public slots:
     zoomMenu*       zMenu;
     flipRotateMenu* frMenu;
     selectMenu*     sMenu;
+    markupDisplayMenu* mdMenu;
 
     QEImageOptionsDialog* optionsDialog;
 
@@ -654,8 +705,9 @@ public slots:
 
     void displayImage();                                    // Display a new image.
     int getScanOption();                                    // Determine the way the input pixel data must be scanned to accommodate the required rotate and flip options.
-    QPoint rotateFlipPoint( QPoint& pos );                  // Transform the point according to current rotation and flip options.
-    QRect rotateFlipRectangle( QPoint& pos1, QPoint& pos2 );// Transform the rectangle according to current rotation and flip options
+    QPoint rotateFlipToDataPoint( QPoint& pos );                  // Transform the point according to current rotation and flip options.
+    QRect rotateFlipToDataRectangle( QPoint& pos1, QPoint& pos2 );// Transform the rectangle according to current rotation and flip options
+    QRect rotateFlipToDataRectangle( QRect& rect );               // Transform the rectangle according to current rotation and flip options
 
     const unsigned char* getImageDataPtr( QPoint& pos );    // Return a pointer to pixel data in the original image data.
 
@@ -698,12 +750,15 @@ public slots:
     void doContrastReversal( bool contrastReversal );
     void doEnableVertSliceSelection( bool enableVSliceSelection );
     void doEnableHozSliceSelection( bool enableHSliceSelection );
-    void doEnableAreaSelection( bool enableAreaSelection );
+    void doEnableAreaSelection( /*imageContextMenu::imageContextMenuOptions area,*/ bool enableAreaSelection );
     void doEnableProfileSelection( bool enableProfileSelection );
     void doEnableTargetSelection( bool enableTargetSelection );
+    void doEnableBeamSelection( bool enableBeamSelection );
 
     applicationLauncher programLauncher1;
     applicationLauncher programLauncher2;
+
+    QString url;                            // URL (before macro substitutions) used when sourcing images from an MPEG stream
 
     // Drag and Drop
 protected:
@@ -1118,6 +1173,8 @@ public:
     void setBitDepthProperty( unsigned int bitDepth ){ setBitDepth( bitDepth ); }                                           ///< Access function for #bitDepth property - refer to #bitDepth property for details
     unsigned int getBitDepthProperty(){ return getBitDepth(); }                                                             ///< Access function for #bitDepth property - refer to #bitDepth property for details
 
+    //=========
+
     /// If true, the option to select a vertical slice through the image will be available to the user.
     /// This will be used to generate a horizontal pixel profile, and write the position of the slice to the optional variable specified by the #profileVertVariable property.
     /// The profile will only be presented to the user if #enableVertSlicePresentation property is true.
@@ -1151,13 +1208,29 @@ public:
 
     //=========
 
-    /// If true, the user will be able to select areas. These are used for selection of Region of Interests,
-    /// and for zooming to a particular area
-    Q_PROPERTY(bool enableAreaSelection READ getEnableAreaSelection WRITE setEnableAreaSelection)
+    /// If true, the user will be able to select area 1. These are used for selection of Region of Interests,
+    /// and for zooming to area 1
+    Q_PROPERTY(bool enableArea1Selection READ getEnableArea1Selection WRITE setEnableArea1Selection)
 
-    /// If true, the user will be able to select points on the image to mark a target position and the
-    /// current beam position. This can be used for automatic beam positioning.
+    /// If true, the user will be able to select area 2. These are used for selection of Region of Interests,
+    /// and for zooming to area 2
+    Q_PROPERTY(bool enableArea2Selection READ getEnableArea2Selection WRITE setEnableArea2Selection)
+
+    /// If true, the user will be able to select area 3. These are used for selection of Region of Interests,
+    /// and for zooming to area 3
+    Q_PROPERTY(bool enableArea3Selection READ getEnableArea3Selection WRITE setEnableArea3Selection)
+
+    /// If true, the user will be able to select area 4. These are used for selection of Region of Interests,
+    /// and for zooming to area 4
+    Q_PROPERTY(bool enableArea4Selection READ getEnableArea4Selection WRITE setEnableArea4Selection)
+
+    /// If true, the user will be able to select points on the image to mark a target position.
+    /// This can be used for automatic beam positioning.
     Q_PROPERTY(bool enableTargetSelection READ getEnableTargetSelection WRITE setEnableTargetSelection)
+
+    /// If true, the user will be able to select points on the image to mark a beam position.
+    /// This can be used for automatic beam positioning.
+    Q_PROPERTY(bool enableBeamSelection READ getEnableBeamSelection WRITE setEnableBeamSelection)
 
     //=========
 
@@ -1190,6 +1263,50 @@ public:
 
     /// Name of ellipse markup
     Q_PROPERTY(QString ellipseLegend READ getEllipseLegend WRITE setEllipseLegend)
+
+    //=========
+
+    //=========
+
+    /// If true, the selected vertical slice will be displayed on the image. Note, this property is ignored unless the #enableVertSliceSelection property is true.
+    ///
+    Q_PROPERTY(bool displayVertSliceSelection READ getDisplayVertSliceSelection WRITE setDisplayVertSliceSelection)
+
+    /// If true, the selected horizontal slice will be displayed on the image. Note, this property is ignored unless the #enableHozSliceSelection property is true.
+    ///
+    Q_PROPERTY(bool displayHozSliceSelection READ getDisplayHozSliceSelection WRITE setDisplayHozSliceSelection)
+
+    /// If true, the selected arbirtary line will be displayed on the image. Note, this property is ignored unless the #enableProfileSelection property is true.
+    ///
+    Q_PROPERTY(bool displayProfileSelection READ getDisplayProfileSelection WRITE setDisplayProfileSelection)
+
+    /// If true, selected area 1 will be displayed on the image. Note, this property is ignored unless the #enableArea1Selection property is true.
+    ///
+    Q_PROPERTY(bool displayArea1Selection READ getDisplayArea1Selection WRITE setDisplayArea1Selection)
+
+    /// If true, selected area 2 will be displayed on the image. Note, this property is ignored unless the #enableArea2Selection property is true.
+    ///
+    Q_PROPERTY(bool displayArea2Selection READ getDisplayArea2Selection WRITE setDisplayArea2Selection)
+
+    /// If true, selected area 3 will be displayed on the image. Note, this property is ignored unless the #enableArea3Selection property is true.
+    ///
+    Q_PROPERTY(bool displayArea3Selection READ getDisplayArea3Selection WRITE setDisplayArea3Selection)
+
+    /// If true, selected area 4 will be displayed on the image. Note, this property is ignored unless the #enableArea4Selection property is true.
+    ///
+    Q_PROPERTY(bool displayArea4Selection READ getDisplayArea4Selection WRITE setDisplayArea4Selection)
+
+    /// If true, target selection will be displayed on the image. Note, this property is ignored unless the #enableTargetSelection property is true.
+    ///
+    Q_PROPERTY(bool displayTargetSelection READ getDisplayTargetSelection WRITE setDisplayTargetSelection)
+
+    /// If true, beam selection will be displayed on the image. Note, this property is ignored unless the #enableBeamSelection property is true.
+    ///
+    Q_PROPERTY(bool displayBeamSelection READ getDisplayBeamSelection WRITE setDisplayBeamSelection)
+
+    /// If true, the ellipse markup will be displayed on the image.
+    ///
+    Q_PROPERTY(bool displayEllipse READ getDisplayEllipse WRITE setDisplayEllipse)
 
     //=========
 
@@ -1368,13 +1485,9 @@ public:
 
     //=========
 
-// Only include the mpeg stuff if required.
-    // To include mpeg stuff, don't define QE_USE_MPEG directly, define environment variable
-    // QE_FFMPEG to be processed by framework.pro
-#ifdef QE_USE_MPEG
-    /// MPEG stream URL. If this is specified, this will be used as the source of the image in preference to variables (variables defining the image data, width, and height will be ignored)
-    Q_PROPERTY(QString URL READ getURL WRITE setURL)
-#endif // QE_USE_MPEG
+    /// MPEG stream URL. If this is specified, this will be used as the source of the image in preference to variables
+    /// (variables defining the image data, width, and height will be ignored)
+    Q_PROPERTY(QString URL READ getSubstitutedUrl WRITE setSubstitutedUrl)
 };
 
 #endif // QEIMAGE_H

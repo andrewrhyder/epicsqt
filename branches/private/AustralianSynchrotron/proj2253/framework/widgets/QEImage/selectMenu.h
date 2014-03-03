@@ -46,16 +46,24 @@ public:
     void setPanEnabled( bool enablePan );
     void setVSliceEnabled( bool enableVSliceSelection );
     void setHSlicetEnabled( bool enableHSliceSelection );
-    void setAreaEnabled( bool enableAreaSelection );
+    void setArea1Enabled( bool enableAreaSelection );
+    void setArea2Enabled( bool enableAreaSelection );
+    void setArea3Enabled( bool enableAreaSelection );
+    void setArea4Enabled( bool enableAreaSelection );
     void setProfileEnabled( bool enableProfileSelection );
     void setTargetEnabled( bool enableTargetSelection );
+    void setBeamEnabled( bool enableBeamSelection );
 
     bool getPanEnabled();
     bool getVSliceEnabled();
     bool getHSliceEnabled();
-    bool getAreaEnabled();
+    bool getArea1Enabled();
+    bool getArea2Enabled();
+    bool getArea3Enabled();
+    bool getArea4Enabled();
     bool getProfileEnabled();
     bool getTargetEnabled();
+    bool getBeamEnabled();
 
 signals:
 

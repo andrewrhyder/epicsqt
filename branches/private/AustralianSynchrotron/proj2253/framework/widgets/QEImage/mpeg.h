@@ -131,6 +131,7 @@ private:
 
     char* buff;     // Buffer to use to build image without line gaps
     int buffSize;   // Size of 'buff'
+    bool stopImageUpdate;
 
 };
 

@@ -302,7 +302,7 @@ void mpegSourceObject::sentAboutToQuit()
 
 
 
-mpegSource::mpegSource()
+mpegSource::mpegSource(): stopImageUpdate(false)
 {
     ff = NULL;
     mso = new mpegSourceObject( this );
@@ -313,6 +313,7 @@ mpegSource::mpegSource()
 
 mpegSource::~mpegSource()
 {
+    stopImageUpdate = true;
     // Ensure the thread is dead
     ffQuit();
 }
@@ -364,6 +365,8 @@ void mpegSourceObject::updateImage(FFBuffer *newbuf)
 }
 
 void mpegSource::updateImage(FFBuffer *newbuf) {
+    // check stop flag
+    if (stopImageUpdate) return;
 
     newbuf->reserve();
 
