@@ -24,6 +24,7 @@
  */
 
 #include <QDebug>
+#include <QPushButton>
 #include <QECommon.h>
 
 #include "QERadioGroup.h"
