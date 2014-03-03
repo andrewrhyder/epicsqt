@@ -381,6 +381,8 @@ public:
     bool getFullScreen();                               ///< Access function for #fullScreen property - refer to #fullScreen property for details
     void setFullScreen( bool fullScreenIn );            ///< Access function for #fullScreen property - refer to #fullScreen property for details
 
+    void setSubstitutedUrl( QString urlIn );            ///< Access function for #URL property - refer to #URL property for deta
+    QString getSubstitutedUrl();                        ///< Access function for #URL property - refer to #URL property for deta
 
   protected:
     QEStringFormatting stringFormatting;     // String formatting options.
@@ -571,6 +573,7 @@ public slots:
     bool initScrollPosSet;
 
     VideoWidget* videoWidget;
+//    imageMarkup* markups;
 
     bool appHostsControls;
     bool hostingAppAvailable;
@@ -753,6 +756,8 @@ public slots:
 
     applicationLauncher programLauncher1;
     applicationLauncher programLauncher2;
+
+    QString url;                            // URL (before macro substitutions) used when sourcing images from an MPEG stream
 
     // Drag and Drop
 protected:
@@ -1479,13 +1484,9 @@ public:
 
     //=========
 
-// Only include the mpeg stuff if required.
-    // To include mpeg stuff, don't define QE_USE_MPEG directly, define environment variable
-    // QE_FFMPEG to be processed by framework.pro
-#ifdef QE_USE_MPEG
-    /// MPEG stream URL. If this is specified, this will be used as the source of the image in preference to variables (variables defining the image data, width, and height will be ignored)
-    Q_PROPERTY(QString URL READ getURL WRITE setURL)
-#endif // QE_USE_MPEG
+    /// MPEG stream URL. If this is specified, this will be used as the source of the image in preference to variables
+    /// (variables defining the image data, width, and height will be ignored)
+    Q_PROPERTY(QString URL READ getSubstitutedUrl WRITE setSubstitutedUrl)
 };
 
 #endif // QEIMAGE_H

@@ -17,8 +17,6 @@ public:
 
 signals:
 
-public slots:
-
 private:
 
     QAction* getAction( imageContextMenu::imageContextMenuOptions option );

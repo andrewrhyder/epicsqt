@@ -90,6 +90,9 @@ imageMarkup::imageMarkup()
 
     // Don't show time on image by default
     showTime = false;
+
+    // Create and setup the markup display menu
+//    mdMenu = new markupDisplayMenu();
 }
 
 // Destructor
