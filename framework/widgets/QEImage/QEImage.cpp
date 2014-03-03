@@ -3873,6 +3873,25 @@ void    QEImage::setBeamLegend          ( QString legend ){        videoWidget->
 QString QEImage::getEllipseLegend()                       { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_ELLIPSE );       }
 void    QEImage::setEllipseLegend       ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_ELLIPSE, legend ); }
 
+// MPEG image source URL
+void QEImage::setSubstitutedUrl( QString urlIn )
+{
+    url = urlIn;
+// Only include the mpeg stuff if required.
+// To include mpeg stuff, don't define QE_USE_MPEG directly, define environment variable
+// QE_FFMPEG to be processed by framework.pro
+#ifdef QE_USE_MPEG
+    setURL( substituteThis( url ));
+#endif
+}
+
+QString QEImage::getSubstitutedUrl()
+{
+    return url;
+}
+
+
+
 // Full Screen property set/get
 bool QEImage::getFullScreen()
 {

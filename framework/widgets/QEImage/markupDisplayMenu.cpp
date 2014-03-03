@@ -55,6 +55,8 @@ markupDisplayMenu::markupDisplayMenu( QWidget *parent) : QMenu(parent)
 
     // Set the title
     setTitle( "Markup display" );
+
+//    QObject::connect( this, SIGNAL( triggered ( QAction* ) ), this,  SLOT  ( markupDisplayMenuTriggered( QAction* )) );
 }
 
 
@@ -110,3 +112,25 @@ QAction* markupDisplayMenu::getAction( imageContextMenu::imageContextMenuOptions
         default:                                      return NULL;
     }
 }
+
+//// Act on a selection from the markup display menu
+//void imageMarkup::markupDisplayMenuTriggered( QAction* selectedItem )
+//{
+//    switch( (imageContextMenu::imageContextMenuOptions)(selectedItem->data().toInt()) )
+//    {
+//        default:
+//        case imageContextMenu::ICM_NONE: break;
+
+//        case imageContextMenu::ICM_DISPLAY_VSLICE:     displayMarkup( imageMarkup::MARKUP_ID_V_SLICE,   selectedItem->isChecked() ); break;
+//        case imageContextMenu::ICM_DISPLAY_HSLICE:     displayMarkup( imageMarkup::MARKUP_ID_H_SLICE,   selectedItem->isChecked() ); break;
+//        case imageContextMenu::ICM_DISPLAY_AREA1:      displayMarkup( imageMarkup::MARKUP_ID_REGION1,   selectedItem->isChecked() ); break;
+//        case imageContextMenu::ICM_DISPLAY_AREA2:      displayMarkup( imageMarkup::MARKUP_ID_REGION2,   selectedItem->isChecked() ); break;
+//        case imageContextMenu::ICM_DISPLAY_AREA3:      displayMarkup( imageMarkup::MARKUP_ID_REGION3,   selectedItem->isChecked() ); break;
+//        case imageContextMenu::ICM_DISPLAY_AREA4:      displayMarkup( imageMarkup::MARKUP_ID_REGION4,   selectedItem->isChecked() ); break;
+//        case imageContextMenu::ICM_DISPLAY_PROFILE:    displayMarkup( imageMarkup::MARKUP_ID_LINE,      selectedItem->isChecked() ); break;
+//        case imageContextMenu::ICM_DISPLAY_TARGET:     displayMarkup( imageMarkup::MARKUP_ID_TARGET,    selectedItem->isChecked() ); break;
+//        case imageContextMenu::ICM_DISPLAY_BEAM:       displayMarkup( imageMarkup::MARKUP_ID_BEAM,      selectedItem->isChecked() ); break;
+//        case imageContextMenu::ICM_DISPLAY_TIMESTAMP:  displayMarkup( imageMarkup::MARKUP_ID_TIMESTAMP, selectedItem->isChecked() ); break;
+//        case imageContextMenu::ICM_DISPLAY_ELLIPSE:    displayMarkup( imageMarkup::MARKUP_ID_ELLIPSE,   selectedItem->isChecked() ); break;
+//    }
+//}

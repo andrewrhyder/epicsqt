@@ -63,11 +63,14 @@
 #ifndef IMAGEMARKUP_H
 #define IMAGEMARKUP_H
 
+//#include <QObject>
 #include <QCaDateTime.h>
 
 #include <markupItem.h>
 #include <QMouseEvent>
 #include <QCursor>
+
+//#include <markupDisplayMenu.h>
 
 #include <QDebug>
 
@@ -83,7 +86,10 @@
 //    -
 
 
-class imageMarkup {
+class imageMarkup {//: public QObject {
+
+//    Q_OBJECT
+
 public:
     imageMarkup();
     virtual ~imageMarkup();
@@ -183,6 +189,12 @@ private:
     QCursor hLineCursor;                        // Used as default cursor when in horizontal slicemode
     QCursor lineCursor;                         // Used as default cursor when in line profile mode
     QCursor regionCursor;                       // Used as default cursor when in area selection mode
+
+//    markupDisplayMenu* mdMenu;
+
+//private slots:
+//    void markupDisplayMenuTriggered( QAction* selectedItem );
+
 };
 
 #endif // IMAGEMARKUP_H
