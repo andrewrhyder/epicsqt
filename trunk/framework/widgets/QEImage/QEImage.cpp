@@ -1188,6 +1188,7 @@ void QEImage::useROIData( const unsigned int& variableIndex )
         QRect scaledArea = roiInfo[N].getArea();                                                  \
         scaledArea.setTopLeft( videoWidget->scaleImagePoint( scaledArea.topLeft() ) );            \
         scaledArea.setBottomRight( videoWidget->scaleImagePoint( scaledArea.bottomRight() ) );    \
+        /*scaledArea = rotateFlipToDataRectangle( scaledArea );*/                                     \
         videoWidget->markupRegionValueChange( N, scaledArea, displayMarkups );                    \
     }                                                                                             \
     break;
@@ -1358,6 +1359,7 @@ void QEImage::useEllipseData()
         QRect scaledArea = ellipseInfo.getArea();
         scaledArea.setTopLeft( videoWidget->scaleImagePoint( scaledArea.topLeft() ) );
         scaledArea.setBottomRight( videoWidget->scaleImagePoint( scaledArea.bottomRight() ) );
+//!!!        scaledArea = rotateFlipToDataRectangle( scaledArea );
         videoWidget->markupEllipseValueChange( scaledArea.topLeft(), scaledArea.bottomRight(), displayMarkups );
     }
 }
@@ -1412,9 +1414,11 @@ void QEImage::useTargetingData()
         QPoint scaledPoint;
 
         scaledPoint = videoWidget->scaleImagePoint( targetInfo.getPoint() );
+//!!!        scaledPoint = rotateFlipToDataPoint( scaledPoint ); //!!! make opposite
         videoWidget->markupTargetValueChange( scaledPoint, displayMarkups );
 
         scaledPoint = videoWidget->scaleImagePoint( beamInfo.getPoint() );
+//!!!        scaledPoint = rotateFlipToDataPoint( scaledPoint ); //!!! make opposite
         videoWidget->markupBeamValueChange( scaledPoint, displayMarkups );
     }
 }
@@ -1894,15 +1898,33 @@ void QEImage::displayImage()
     {
         case imageDataFormats::MONO:
         {
+            // Determine bit shift for selecting top 8 bits
+            int shift = bitDepth-8;
+            long  mask = (1<<bitDepth)-1;
+
             switch( bitDepth )
             {
-                default:
-                // Pixel data is 1 to 8 bits wide. Extract the fist byte. For less than 8 bits assume rest of byte is zero.
-                // (Assumtion is safe as even if incorrect range will still be 0-255 which is OK as an index into the pixelLookup table)
+                //!!! This is not correct. Values will always have lowest bits zero.
+                //!!! Not noticable for 7 bits where maximum value will be 254, but
+                //!!! very noticable for 1 bit where values will be 0 and 128 (black and mid grey)
+                // Pixel data is 1 to 7 bits wide. Extract as 8 bit and move the used bits to the most significant bits.
                 case 1:
                 case 2:
+                case 3:
                 case 4:
+                case 5:
                 case 6:
+                case 7:
+                {
+                    LOOP_START
+                        unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
+                        dataOut[buffIndex] = pixelLookup[inPixel&mask>>shift]; // right shift by a negative amount
+                    LOOP_END
+                    break;
+                }
+
+                // Pixel data is 8 bits wide. Extract the fist byte.unsigned
+                default:
                 case 8:
                 {
                     LOOP_START
@@ -1912,35 +1934,19 @@ void QEImage::displayImage()
                     break;
                 }
 
-                // Pixel data is 10 bits wide - extract as 16 bit and use the top 8 bits of the first 10 bits
+                // Pixel data is 9 to 15 bits wide - extract as 16 bit and use the top 8 bits of the used bits
                 // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
+                case  9:
                 case 10:
-                {
-                    LOOP_START
-                        unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
-                        dataOut[buffIndex] = pixelLookup[(inPixel&0x03ff)>>2];
-                    LOOP_END
-                    break;
-                }
-
-                // Pixel data is 12 bits wide - extract as 16 bit and use the top 8 bits of the first 12 bits
-                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
+                case 11:
                 case 12:
-                {
-                    LOOP_START
-                        unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
-                        dataOut[buffIndex] = pixelLookup[(inPixel&0x0fff)>>4];
-                    LOOP_END
-                    break;
-                }
-
-                // Pixel data is 14 bits wide - extract as 16 bit and use the top 8 bits of the first 14 bits
-                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
+                case 13:
                 case 14:
+                case 15:
                 {
                     LOOP_START
                         unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
-                        dataOut[buffIndex] = pixelLookup[(inPixel&0x03fff)>>6];
+                        dataOut[buffIndex] = pixelLookup[(inPixel&mask)>>shift];
                     LOOP_END
                     break;
                 }
@@ -1955,94 +1961,61 @@ void QEImage::displayImage()
                     break;
                 }
 
-                // Pixel data is 18 bits wide - extract as 32 bit and use the top 8 bits of the first 18 bits
+                // Pixel data is 17 to 23 bits wide - extract as 32 bit and use the top 8 bits of the used bits
                 // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
+                case 17:
                 case 18:
-                    {
-                        LOOP_START
-                            // Pixel data is 18 bits wide - use the top 8 bits
-                            quint32 inPixel = *(quint32*)(&dataIn[dataIndex*bytesPerPixel]);
-                            dataOut[buffIndex] = pixelLookup[(inPixel&0x03ffff)>>10];
-                        LOOP_END
-                        break;
-                    }
-
-                // Pixel data is 20 bits wide - extract as 32 bit and use the top 8 bits of the first 20 bits
-                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
+                case 19:
                 case 20:
-                    {
-                        LOOP_START
-                            quint32 inPixel = *(quint32*)(&dataIn[dataIndex*bytesPerPixel]);
-                            dataOut[buffIndex] = pixelLookup[(inPixel&0x0fffff)>>12];
-                        LOOP_END
-                        break;
-                    }
-
-                // Pixel data is 22 bits wide - extract as 32 bit and use the top 8 bits of the first 22 bits
-                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
+                case 21:
                 case 22:
-                    {
-                        LOOP_START
-                            // Pixel data is 22 bits wide - use the top 8 bits
-                            quint32 inPixel = *(quint32*)(&dataIn[dataIndex*bytesPerPixel]);
-                            dataOut[buffIndex] = pixelLookup[(inPixel&0x03fffff)>>14];
-                        LOOP_END
-                        break;
-                    }
+                case 23:
+                {
+                    LOOP_START
+                        // Pixel data is 18 bits wide - use the top 8 bits
+                        quint32 inPixel = *(quint32*)(&dataIn[dataIndex*bytesPerPixel]);
+                        dataOut[buffIndex] = pixelLookup[(inPixel&mask)>>shift];
+                    LOOP_END
+                    break;
+                }
 
                 // Pixel data is 24 bits wide - use the top byte
                 case 24:
-                    {
-                        LOOP_START
-                            unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel+2]);
-                            dataOut[buffIndex] = pixelLookup[inPixel];
-                        LOOP_END
-                        break;
-                    }
+                {
+                    LOOP_START
+                        unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel+2]);
+                        dataOut[buffIndex] = pixelLookup[inPixel];
+                    LOOP_END
+                    break;
+                }
 
-                // Pixel data is 26 bits wide - extract as 32 bit and use the top 8 bits of the first 26 bits
+                // Pixel data is 25 to 31 bits wide - extract as 32 bit and use the top 8 bits of the used bits
                 // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
+                case 25:
                 case 26:
-                    {
-                        LOOP_START
-                            unsigned long inPixel = *(unsigned long*)(&dataIn[dataIndex*bytesPerPixel]);
-                            dataOut[buffIndex] = pixelLookup[(inPixel&0x03ffffff)>>18];
-                        LOOP_END
-                        break;
-                    }
-
-                // Pixel data is 28 bits wide - extract as 32 bit and use the top 8 bits of the first 28 bits
-                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
+                case 27:
                 case 28:
-                    {
-                        LOOP_START
-                            unsigned long inPixel = *(unsigned long*)(&dataIn[dataIndex*bytesPerPixel]);
-                            dataOut[buffIndex] = pixelLookup[(inPixel&0x0fffffff)>>20];
-                        LOOP_END
-                        break;
-                    }
-
-                // Pixel data is 30 bits wide - extract as 32 bit and use the top 8 bits of the first 30 bits
-                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
+                case 29:
                 case 30:
-                    {
-                        LOOP_START
-                            unsigned long inPixel = *(unsigned long*)(&dataIn[dataIndex*bytesPerPixel]);
-                            dataOut[buffIndex] = pixelLookup[(inPixel&0x03fffffff)>>22];
-                        LOOP_END
-                        break;
-                    }
+                case 31:
+                {
+                    LOOP_START
+                        unsigned long inPixel = *(unsigned long*)(&dataIn[dataIndex*bytesPerPixel]);
+                        dataOut[buffIndex] = pixelLookup[(inPixel&mask)>>shift];
+                    LOOP_END
+                    break;
+                }
 
                 // Pixel data is 32 bits wide - use the top byte
                 case 32:
-                    {
-                        LOOP_START
-                            // Pixel data is 32 bits wide - use the top 8 bits
-                            unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel+3]);
-                            dataOut[buffIndex] = pixelLookup[inPixel];
-                        LOOP_END
-                        break;
-                    }
+                {
+                    LOOP_START
+                        // Pixel data is 32 bits wide - use the top 8 bits
+                        unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel+3]);
+                        dataOut[buffIndex] = pixelLookup[inPixel];
+                    LOOP_END
+                    break;
+                }
             }
             break;
         }
@@ -2748,15 +2721,19 @@ void QEImage::roi1Changed()
     QEInteger *qca;
     qca = (QEInteger*)getQcaItem( ROI1_X_VARIABLE );
     if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea1Point1.x() ));
+//!!!    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( rotateFlipToDataPoint( selectedArea1Point1 ).x() ));
 
     qca = (QEInteger*)getQcaItem( ROI1_Y_VARIABLE );
     if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( selectedArea1Point1.y() ));
+//!!!    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( rotateFlipToDataPoint( selectedArea1Point1 ).y() ));
 
     qca = (QEInteger*)getQcaItem( ROI1_W_VARIABLE );
     if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea1Point2.x() ) - videoWidget->scaleOrdinate( selectedArea1Point1.x() ));
+//!!!    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( rotateFlipToDataPoint( selectedArea1Point2 ).x() ) - videoWidget->scaleOrdinate( rotateFlipToDataPoint( selectedArea1Point1 ).x() ));
 
     qca = (QEInteger*)getQcaItem( ROI1_H_VARIABLE );
     if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea1Point2.y() ) - videoWidget->scaleOrdinate( selectedArea1Point1.y() ));
+//!!!    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( rotateFlipToDataPoint( selectedArea1Point2 ).y() ) - videoWidget->scaleOrdinate( rotateFlipToDataPoint( selectedArea1Point1 ).y() ));
 
     return;
 }
@@ -4393,7 +4370,7 @@ const unsigned char* QEImage::getImageDataPtr( QPoint& pos )
     QPoint posTr;
 
     // Transform the position to reflect the original unrotated or flipped data
-    posTr = rotateFlipPoint( pos );
+    posTr = rotateFlipToDataPoint( pos );
 
     // Set up reference to start of the data, and the index to the required pixel
     const unsigned char* data = (unsigned char*)image.constData();
@@ -4427,7 +4404,7 @@ void QEImage::setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 )
     QPoint corner2( videoWidget->scaleOrdinate( point2.x() ), videoWidget->scaleOrdinate( point2.y() ) );
 
     // Translate the corners to match the current flip and roate options
-    QRect area = rotateFlipRectangle( corner1, corner2 );
+    QRect area = rotateFlipToDataRectangle( corner1, corner2 );
 
     // Determine the range of pixel values in the selected area
     unsigned int min, max;
@@ -5130,11 +5107,21 @@ double QEImage::getFloatingPixelValueFromData( const unsigned char* ptr )
     return getPixelValueFromData( ptr );
 }
 
-// Transform a rectangle (defined by two points) according to current rotation and flip options.
-QRect QEImage::rotateFlipRectangle( QPoint& pos1, QPoint& pos2 )
+// Transform a rectangle in the displayed image to a rectangle in the
+// original data according to current rotation and flip options.
+QRect QEImage::rotateFlipToDataRectangle( QRect& rect )
 {
-    QPoint trPos1 = rotateFlipPoint( pos1 );
-    QPoint trPos2 = rotateFlipPoint( pos2 );
+    QPoint pos1 = rect.topLeft();
+    QPoint pos2 = rect.bottomRight();
+    return rotateFlipToDataRectangle( pos1, pos2 );
+}
+
+// Transform a rectangle (defined by two points) in the displayed image to
+// a rectangle in the original data according to current rotation and flip options.
+QRect QEImage::rotateFlipToDataRectangle( QPoint& pos1, QPoint& pos2 )
+{
+    QPoint trPos1 = rotateFlipToDataPoint( pos1 );
+    QPoint trPos2 = rotateFlipToDataPoint( pos2 );
 
     QRect trRect( trPos1, trPos2 );
     trRect = trRect.normalized();
@@ -5142,8 +5129,9 @@ QRect QEImage::rotateFlipRectangle( QPoint& pos1, QPoint& pos2 )
     return trRect;
 }
 
-// Transform the point according to current rotation and flip options.
-QPoint QEImage::rotateFlipPoint( QPoint& pos )
+// Transform a point in the displayed image to a point in the original
+// data according to current rotation and flip options.
+QPoint QEImage::rotateFlipToDataPoint( QPoint& pos )
 {
     // Transform the point according to current rotation and flip options.
     // Depending on the flipping and rotating options pixel drawing can start in any of

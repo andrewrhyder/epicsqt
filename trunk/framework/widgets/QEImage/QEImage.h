@@ -705,8 +705,9 @@ public slots:
 
     void displayImage();                                    // Display a new image.
     int getScanOption();                                    // Determine the way the input pixel data must be scanned to accommodate the required rotate and flip options.
-    QPoint rotateFlipPoint( QPoint& pos );                  // Transform the point according to current rotation and flip options.
-    QRect rotateFlipRectangle( QPoint& pos1, QPoint& pos2 );// Transform the rectangle according to current rotation and flip options
+    QPoint rotateFlipToDataPoint( QPoint& pos );                  // Transform the point according to current rotation and flip options.
+    QRect rotateFlipToDataRectangle( QPoint& pos1, QPoint& pos2 );// Transform the rectangle according to current rotation and flip options
+    QRect rotateFlipToDataRectangle( QRect& rect );               // Transform the rectangle according to current rotation and flip options
 
     const unsigned char* getImageDataPtr( QPoint& pos );    // Return a pointer to pixel data in the original image data.
 
