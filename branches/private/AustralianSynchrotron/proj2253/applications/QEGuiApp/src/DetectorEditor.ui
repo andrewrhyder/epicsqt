@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>293</width>
-    <height>332</height>
+    <width>389</width>
+    <height>488</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,8 +22,8 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>270</y>
+     <x>120</x>
+     <y>440</y>
      <width>251</width>
      <height>32</height>
     </rect>
@@ -39,16 +39,23 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>140</y>
-     <width>251</width>
-     <height>101</height>
+     <y>160</y>
+     <width>351</width>
+     <height>255</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QLabel" name="label">
+    <item row="5" column="0">
+     <widget class="QLabel" name="label_6">
       <property name="text">
-       <string>Name:</string>
+       <string>Raw Mpeg URL: </string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="label_5">
+      <property name="text">
+       <string>Motor PV Prefix: </string>
       </property>
      </widget>
     </item>
@@ -63,13 +70,6 @@
      <widget class="QLabel" name="label_3">
       <property name="text">
        <string>PV Prefix: </string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QLineEdit" name="detectorName">
-      <property name="enabled">
-       <bool>true</bool>
       </property>
      </widget>
     </item>
@@ -110,8 +110,48 @@
       </item>
      </widget>
     </item>
+    <item row="0" column="1">
+     <widget class="QLineEdit" name="detectorName">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Name:</string>
+      </property>
+     </widget>
+    </item>
     <item row="2" column="1">
      <widget class="QLineEdit" name="detectorPVPrefix"/>
+    </item>
+    <item row="3" column="0">
+     <widget class="QLabel" name="label_4">
+      <property name="text">
+       <string>Shutter PV Prefix: </string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0">
+     <widget class="QLabel" name="label_7">
+      <property name="text">
+       <string>Proc Mpeg URL:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QLineEdit" name="shutterPVPrefix"/>
+    </item>
+    <item row="4" column="1">
+     <widget class="QLineEdit" name="motorPVPrefix"/>
+    </item>
+    <item row="5" column="1">
+     <widget class="QLineEdit" name="rawURL"/>
+    </item>
+    <item row="6" column="1">
+     <widget class="QLineEdit" name="procURL"/>
     </item>
    </layout>
   </widget>
@@ -120,8 +160,8 @@
     <rect>
      <x>20</x>
      <y>20</y>
-     <width>254</width>
-     <height>113</height>
+     <width>351</width>
+     <height>129</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout_2">

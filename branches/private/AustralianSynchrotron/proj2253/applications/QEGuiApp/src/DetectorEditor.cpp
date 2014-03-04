@@ -84,17 +84,56 @@ void DetectorEditor::on_editRadioButton_clicked( bool )
 
 void DetectorEditor::on_detectorNameComboBox_activated( int )
 {
+    // reset
+    ui->detectorPVPrefix->setText("");
+    ui->shutterPVPrefix->setText("");
+    ui->motorPVPrefix->setText("");
+    ui->rawURL->setText("");
+    ui->procURL->setText("");
+
     ui->detectorNameComboBox->currentText();
     QStringList detectorInfo;
     for ( int i = 0; i < detectors.count(); i ++ ){
         if (detectors.at(i).at(0) == ui->detectorNameComboBox->currentText()){
             detectorInfo = detectors.at(i);
             ui->detectorName->setText(detectors.at(i).at(0));
-            QString PVPrefix = detectors.at(i).at(1);
-            PVPrefix.chop(1);
-            PVPrefix.remove(0,2);
-            PVPrefix = PVPrefix.left(PVPrefix.indexOf(",")-1);
-            ui->detectorPVPrefix->setText(PVPrefix);
+            QString macroString = detectors.at(i).at(1);
+            QStringList macros = macroString.split(",");
+            // dector prefix
+            QString macroValue = macros.at(0);
+            macroValue = macroValue.remove(" ");
+            macroValue.remove(0,2);
+            macroValue = macroValue.left(macroValue.indexOf(",")-1);
+            ui->detectorPVPrefix->setText(macroValue);
+            if (macros.count() > 3){
+                // shutter prefix
+                macroValue = macros.at(1);
+                macroValue = macroValue.remove(" ");
+                macroValue.remove(0,3);
+                macroValue = macroValue.left(macroValue.indexOf(",")-1);
+                ui->shutterPVPrefix->setText(macroValue);
+                // motor prefix
+                macroValue = macros.at(2);
+                macroValue = macroValue.remove(" ");
+                macroValue.remove(0,3);
+                macroValue = macroValue.left(macroValue.indexOf(",")-1);
+                ui->motorPVPrefix->setText(macroValue);
+            }
+            if (macros.count() > 5){
+                // raw URL
+                macroValue = macros.at(3);
+                macroValue = macroValue.remove(" ");
+                macroValue.remove(0,5);
+                macroValue = macroValue.left(macroValue.indexOf(",")-1);
+                ui->rawURL->setText(macroValue);
+                // procURL
+                macroValue = macros.at(4);
+                macroValue = macroValue.remove(" ");
+                macroValue.remove(0,5);
+                macroValue = macroValue.left(macroValue.indexOf(",")-1);
+                ui->procURL->setText(macroValue);
+            }
+
             QString type = detectors.at(i).at(2);
             type.chop(5);
             ui->detectorTypeComboBox->setCurrentIndex(ui->detectorTypeComboBox->findText(type));
@@ -182,8 +221,13 @@ bool DetectorEditor::save()
                             QString detectorName = ui->detectorName->text();
                             QString detectorType = ui->detectorTypeComboBox->currentText();
                             QString detectorPV = ui->detectorPVPrefix->text();
+                            QString shutterPV = ui->shutterPVPrefix->text();
+                            QString motorPV = ui->motorPVPrefix->text();
+                            QString rawURL = ui->rawURL->text();
+                            QString procURL = ui->procURL->text();
                             // create a new item element per existing info from the editor
-                            QDomElement detectorItem = createDetectorElement(doc, detectorName, detectorType, detectorPV);
+                            QDomElement detectorItem = createDetectorElement(doc, detectorName, detectorType, detectorPV,
+                                                                             shutterPV, motorPV, rawURL, procURL);
                             if (isAddingDetector()){
                                 // check if it is existing
                                 QDomNode itemNode = selectNode.toElement().firstChild();
@@ -250,7 +294,8 @@ bool DetectorEditor::save()
     return true;
 }
 
-QDomElement DetectorEditor::createDetectorElement( QDomDocument doc, QString name, QString type, QString pv )
+QDomElement DetectorEditor::createDetectorElement( QDomDocument doc, QString name, QString type, QString pv,
+                                                   QString shutterPv, QString motorPv, QString rURL, QString pURL)
 {
     // create a new item element
     QDomElement detectorItem = doc.createElement( "Item" );
@@ -268,7 +313,12 @@ QDomElement DetectorEditor::createDetectorElement( QDomDocument doc, QString nam
     CustomisationNameItem.appendChild(text);
 
     QDomElement MacroSubstitutionsItem = doc.createElement( "MacroSubstitutions" );
-    text = doc.createTextNode("P=" + pv + ":, " +"T1=" + name);
+    text = doc.createTextNode("P=" + pv +
+                              ", " + "SP=" + shutterPv +
+                              ", " + "MP=" + motorPv +
+                              ", " + "RURL=" + rURL +
+                              ", " + "PURL=" + pURL +
+                              ", " + "T1=" + name);
     MacroSubstitutionsItem.appendChild(text);
 
     QDomElement TitleItem = doc.createElement( "Title" );

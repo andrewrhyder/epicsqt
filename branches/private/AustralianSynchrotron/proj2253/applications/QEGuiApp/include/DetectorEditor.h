@@ -38,7 +38,8 @@ private:
     QList<QStringList> detectors;
     QStringList detectorNames;
     QString xmlFileName;
-    QDomElement createDetectorElement( QDomDocument doc, QString name, QString type, QString pv );
+    QDomElement createDetectorElement( QDomDocument doc, QString name, QString type, QString pv,
+                                       QString shutterPv, QString motorPv, QString rURL, QString pURL);
 };
 
 #endif // DETECTOREDITOR_H
