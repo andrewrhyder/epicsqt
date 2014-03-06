@@ -48,12 +48,15 @@ public:
     int scaleOrdinate( int ord );
 
     QPoint scaleImagePoint( QPoint pnt );
+    QRect scaleImageRectangle( QRect r );
+
     int scaleImageOrdinate( int ord );
 
     QImage getImage(){ return refImage; }
     QSize getImageSize();
     bool hasCurrentImage(){ return !currentImage.isNull(); }                 // Return true if displaying an image
 
+    void markupChange();                                    // The markup overlay has changed, redraw them all
 
 
 protected:
