@@ -110,6 +110,14 @@ void VideoWidget::setNewImage( const QImage image, QCaDateTime& time )
     update();
 }
 
+// The markups have changed redraw them all
+void VideoWidget::markupChange()
+{
+    QVector<QRect> areas;
+    areas.append( QRect( 0, 0, width(), height() ));
+    markupChange( areas );
+}
+
 // The markups have changed redraw the required parts
 void VideoWidget::markupChange( QVector<QRect>& changedAreas )
 {
@@ -208,6 +216,15 @@ QPoint VideoWidget::scalePoint( QPoint pnt )
     QPoint scaled;
     scaled.setX( scaleOrdinate( pnt.x() ));
     scaled.setY( scaleOrdinate( pnt.y() ));
+    return scaled;
+}
+
+// Return a point from the original image as a point in the displayed image
+QRect VideoWidget::scaleImageRectangle( QRect r )
+{
+    QRect scaled;
+    scaled.setTopLeft( scaleImagePoint( r.topLeft() ));
+    scaled.setBottomRight( scaleImagePoint( r.bottomRight() ));
     return scaled;
 }
 
