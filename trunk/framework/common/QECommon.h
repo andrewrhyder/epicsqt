@@ -27,6 +27,7 @@
 #ifndef QECOMMON_H
 #define QECOMMON_H
 
+#include <math.h>
 #include <QDateTime>
 #include <QObject>
 #include <QString>
@@ -40,21 +41,30 @@
 #define MAX(a, b)          ((a) >= (b) ? (a) : (b))
 #define LIMIT(x,low,high)  (MAX(low, MIN(x, high)))
 
-// Calculates number of items in an array
+// Calculates number of items in an array.
 //
 #define ARRAY_LENGTH(xx)   (int (sizeof (xx) /sizeof (xx [0])))
 
 
 // Provide log and exp 10 macro functions.
 //
-// Log is a safe log in that it avoids attempting to take the log of negative
+// LOG10 is a safe log in that it avoids attempting to take the log of negative
 // or zero values. The 1.0e-20 limit is somewhat arbitary, but in practice is
 // good for most numbers encountered at the synchrotron.
 //
+// EXP10 is the the inverse function.
 // Not all platforms provide exp10. What about pow () ??
 //
 #define LOG10(x)  ( (x) >=  1.0e-20 ? log10 (x) : -20.0 )
 #define EXP10(x)  exp (2.302585092994046 * (x))
+
+
+// Expose access to the internal object's set/get functions.
+// Uses same function names.
+//
+#define QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS(object, type, setfunc, getfunc)   \
+   void setfunc (const type& v) { this->object->setfunc (v); }                \
+   type getfunc () const { return this->object->getfunc (); }
 
 
 // We do not include QColor and QWidget header files in this header file (they are
