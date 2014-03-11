@@ -487,6 +487,7 @@ private slots:
     void setLineProfileControlsNotVisible();
 
     void useAllMarkupData();
+    void redisplayAllMarkups();
 
     void raiseFullScreen();         // Ensure the full screen main window is in front of the application.
 
@@ -705,9 +706,13 @@ public slots:
 
     void displayImage();                                    // Display a new image.
     int getScanOption();                                    // Determine the way the input pixel data must be scanned to accommodate the required rotate and flip options.
-    QPoint rotateFlipToDataPoint( QPoint& pos );                  // Transform the point according to current rotation and flip options.
-    QRect rotateFlipToDataRectangle( QPoint& pos1, QPoint& pos2 );// Transform the rectangle according to current rotation and flip options
-    QRect rotateFlipToDataRectangle( QRect& rect );               // Transform the rectangle according to current rotation and flip options
+    QPoint rotateFlipToDataPoint( const QPoint& pos );                          // Transform the point from the image to the original data according to current rotation and flip options.
+    QRect rotateFlipToDataRectangle( const QPoint& pos1, const QPoint& pos2 );  // Transform the rectangle from the image to the original data according to current rotation and flip options
+    QRect rotateFlipToDataRectangle( const QRect& rect );                       // Transform the rectangle from the image to the original data according to current rotation and flip options
+
+    QPoint rotateFlipToImagePoint( const QPoint& pos );                         // Transform the point from the original data to the image according to current rotation and flip options.
+    QRect rotateFlipToImageRectangle( const QPoint& pos1, const QPoint& pos2 ); // Transform the rectangle from the original data to the image according to current rotation and flip options
+    QRect rotateFlipToImageRectangle( const QRect& rect );                      // Transform the rectangle from the original data to the image according to current rotation and flip options
 
     const unsigned char* getImageDataPtr( QPoint& pos );    // Return a pointer to pixel data in the original image data.
 

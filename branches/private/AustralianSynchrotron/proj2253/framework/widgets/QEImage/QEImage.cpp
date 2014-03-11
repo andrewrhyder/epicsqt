@@ -1190,9 +1190,9 @@ void QEImage::useROIData( const unsigned int& variableIndex )
     if( sMenu->GET_ENABLED() && mdMenu->isDisplayed( imageContextMenu::AREA ) && roiInfo[N].getStatus() )         \
     {                                                                                             \
         QRect scaledArea = roiInfo[N].getArea();                                                  \
+        scaledArea = rotateFlipToImageRectangle( scaledArea );                                    \
         scaledArea.setTopLeft( videoWidget->scaleImagePoint( scaledArea.topLeft() ) );            \
         scaledArea.setBottomRight( videoWidget->scaleImagePoint( scaledArea.bottomRight() ) );    \
-        /*scaledArea = rotateFlipToDataRectangle( scaledArea );*/                                     \
         videoWidget->markupRegionValueChange( N, scaledArea, displayMarkups );                    \
     }                                                                                             \
     break;
@@ -1304,10 +1304,10 @@ void QEImage::useProfileData( const unsigned int& variableIndex )
         case LINE_PROFILE_Y2_VARIABLE:
             if( sMenu->getProfileEnabled() && lineProfileInfo.getStatus() )
             {
-                QRect scaledArea = lineProfileInfo.getArea();
-                scaledArea.setTopLeft( videoWidget->scaleImagePoint( scaledArea.topLeft() ) );
-                scaledArea.setBottomRight( videoWidget->scaleImagePoint( scaledArea.bottomRight() ) );
-                videoWidget->markupLineProfileChange( scaledArea.topLeft(), scaledArea.bottomRight(), displayMarkups );
+                QPoint start = videoWidget->scaleImagePoint( rotateFlipToImagePoint( lineProfileInfo.getPoint1() ));
+                QPoint end = videoWidget->scaleImagePoint( rotateFlipToImagePoint( lineProfileInfo.getPoint2() ));
+
+                videoWidget->markupLineProfileChange( start, end, displayMarkups );
             }
             break;
     }
@@ -1360,10 +1360,7 @@ void QEImage::useEllipseData()
 {
     if( ellipseInfo.getStatus() )
     {
-        QRect scaledArea = ellipseInfo.getArea();
-        scaledArea.setTopLeft( videoWidget->scaleImagePoint( scaledArea.topLeft() ) );
-        scaledArea.setBottomRight( videoWidget->scaleImagePoint( scaledArea.bottomRight() ) );
-//!!!        scaledArea = rotateFlipToDataRectangle( scaledArea );
+        QRect scaledArea = videoWidget->scaleImageRectangle( rotateFlipToImageRectangle( ellipseInfo.getArea() ));
         videoWidget->markupEllipseValueChange( scaledArea.topLeft(), scaledArea.bottomRight(), displayMarkups );
     }
 }
@@ -1415,14 +1412,10 @@ void QEImage::useTargetingData()
 {
     if( sMenu->getTargetEnabled() && targetInfo.getStatus() && beamInfo.getStatus() )
     {
-        QPoint scaledPoint;
-
-        scaledPoint = videoWidget->scaleImagePoint( targetInfo.getPoint() );
-//!!!        scaledPoint = rotateFlipToDataPoint( scaledPoint ); //!!! make opposite
+        QPoint scaledPoint = videoWidget->scaleImagePoint( rotateFlipToImagePoint( targetInfo.getPoint() ));
         videoWidget->markupTargetValueChange( scaledPoint, displayMarkups );
 
-        scaledPoint = videoWidget->scaleImagePoint( beamInfo.getPoint() );
-//!!!        scaledPoint = rotateFlipToDataPoint( scaledPoint ); //!!! make opposite
+        scaledPoint = videoWidget->scaleImagePoint( rotateFlipToImagePoint( beamInfo.getPoint() ));
         videoWidget->markupBeamValueChange( scaledPoint, displayMarkups );
     }
 }
@@ -2723,21 +2716,22 @@ void QEImage::roi1Changed()
 {
     // Write the ROI variables.
     QEInteger *qca;
+    QPoint p1 = rotateFlipToDataPoint( videoWidget->scalePoint( selectedArea1Point1 ) );
+    QPoint p2 = rotateFlipToDataPoint( videoWidget->scalePoint( selectedArea1Point2 ) );
+    QRect r( p1, p2 );
+    r = r.normalized();
+
     qca = (QEInteger*)getQcaItem( ROI1_X_VARIABLE );
-    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea1Point1.x() ));
-//!!!    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( rotateFlipToDataPoint( selectedArea1Point1 ).x() ));
+    if( qca ) qca->writeInteger( r.topLeft().x() );
 
     qca = (QEInteger*)getQcaItem( ROI1_Y_VARIABLE );
-    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( selectedArea1Point1.y() ));
-//!!!    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( rotateFlipToDataPoint( selectedArea1Point1 ).y() ));
+    if( qca ) qca->writeInteger( r.topLeft().y() );
 
     qca = (QEInteger*)getQcaItem( ROI1_W_VARIABLE );
-    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea1Point2.x() ) - videoWidget->scaleOrdinate( selectedArea1Point1.x() ));
-//!!!    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( rotateFlipToDataPoint( selectedArea1Point2 ).x() ) - videoWidget->scaleOrdinate( rotateFlipToDataPoint( selectedArea1Point1 ).x() ));
+    if( qca ) qca->writeInteger( r.width() );
 
     qca = (QEInteger*)getQcaItem( ROI1_H_VARIABLE );
-    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea1Point2.y() ) - videoWidget->scaleOrdinate( selectedArea1Point1.y() ));
-//!!!    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( rotateFlipToDataPoint( selectedArea1Point2 ).y() ) - videoWidget->scaleOrdinate( rotateFlipToDataPoint( selectedArea1Point1 ).y() ));
+    if( qca ) qca->writeInteger( r.height() );
 
     return;
 }
@@ -2747,17 +2741,22 @@ void QEImage::roi2Changed()
 {
     // Write the ROI variables.
     QEInteger *qca;
+    QPoint p1 = rotateFlipToDataPoint( videoWidget->scalePoint( selectedArea2Point1 ) );
+    QPoint p2 = rotateFlipToDataPoint( videoWidget->scalePoint( selectedArea2Point2 ) );
+    QRect r( p1, p2 );
+    r = r.normalized();
+
     qca = (QEInteger*)getQcaItem( ROI2_X_VARIABLE );
-    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea2Point1.x() ));
+    if( qca ) qca->writeInteger( r.topLeft().x() );
 
     qca = (QEInteger*)getQcaItem( ROI2_Y_VARIABLE );
-    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( selectedArea2Point1.y() ));
+    if( qca ) qca->writeInteger( r.topLeft().y() );
 
     qca = (QEInteger*)getQcaItem( ROI2_W_VARIABLE );
-    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea2Point2.x() ) - videoWidget->scaleOrdinate( selectedArea2Point1.x() ));
+    if( qca ) qca->writeInteger( r.width() );
 
     qca = (QEInteger*)getQcaItem( ROI2_H_VARIABLE );
-    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea2Point2.y() ) - videoWidget->scaleOrdinate( selectedArea2Point1.y() ));
+    if( qca ) qca->writeInteger( r.height() );
 
     return;
 }
@@ -2767,17 +2766,22 @@ void QEImage::roi3Changed()
 {
     // Write the ROI variables.
     QEInteger *qca;
+    QPoint p1 = rotateFlipToDataPoint( videoWidget->scalePoint( selectedArea3Point1 ) );
+    QPoint p2 = rotateFlipToDataPoint( videoWidget->scalePoint( selectedArea3Point2 ) );
+    QRect r( p1, p2 );
+    r = r.normalized();
+
     qca = (QEInteger*)getQcaItem( ROI3_X_VARIABLE );
-    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea3Point1.x() ));
+    if( qca ) qca->writeInteger( r.topLeft().x() );
 
     qca = (QEInteger*)getQcaItem( ROI3_Y_VARIABLE );
-    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( selectedArea3Point1.y() ));
+    if( qca ) qca->writeInteger( r.topLeft().y() );
 
     qca = (QEInteger*)getQcaItem( ROI3_W_VARIABLE );
-    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea3Point2.x() ) - videoWidget->scaleOrdinate( selectedArea3Point1.x() ));
+    if( qca ) qca->writeInteger( r.width() );
 
     qca = (QEInteger*)getQcaItem( ROI3_H_VARIABLE );
-    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea3Point2.y() ) - videoWidget->scaleOrdinate( selectedArea3Point1.y() ));
+    if( qca ) qca->writeInteger( r.height() );
 
     return;
 }
@@ -2787,17 +2791,22 @@ void QEImage::roi4Changed()
 {
     // Write the ROI variables.
     QEInteger *qca;
+    QPoint p1 = rotateFlipToDataPoint( videoWidget->scalePoint( selectedArea4Point1 ) );
+    QPoint p2 = rotateFlipToDataPoint( videoWidget->scalePoint( selectedArea4Point2 ) );
+    QRect r( p1, p2 );
+    r = r.normalized();
+
     qca = (QEInteger*)getQcaItem( ROI4_X_VARIABLE );
-    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea4Point1.x() ));
+    if( qca ) qca->writeInteger( r.topLeft().x() );
 
     qca = (QEInteger*)getQcaItem( ROI4_Y_VARIABLE );
-    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( selectedArea4Point1.y() ));
+    if( qca ) qca->writeInteger( r.topLeft().y() );
 
     qca = (QEInteger*)getQcaItem( ROI4_W_VARIABLE );
-    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea4Point2.x() ) - videoWidget->scaleOrdinate( selectedArea4Point1.x() ));
+    if( qca ) qca->writeInteger( r.width() );
 
     qca = (QEInteger*)getQcaItem( ROI4_H_VARIABLE );
-    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea4Point2.y() ) - videoWidget->scaleOrdinate( selectedArea4Point1.y() ));
+    if( qca ) qca->writeInteger( r.height() );
 
     return;
 }
@@ -2807,17 +2816,20 @@ void QEImage::lineProfileChanged()
 {
     // Write the arbitrary line profile variables.
     QEInteger *qca;
+    QPoint p1 = rotateFlipToDataPoint( videoWidget->scalePoint( profileLineStart ) );
+    QPoint p2 = rotateFlipToDataPoint( videoWidget->scalePoint( profileLineEnd ) );
+
     qca = (QEInteger*)getQcaItem( LINE_PROFILE_X1_VARIABLE );
-    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( profileLineStart.x() ));
+    if( qca ) qca->writeInteger( p1.x() );
 
     qca = (QEInteger*)getQcaItem( LINE_PROFILE_Y1_VARIABLE );
-    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( profileLineStart.y() ));
+    if( qca ) qca->writeInteger( p1.y() );
 
     qca = (QEInteger*)getQcaItem( LINE_PROFILE_X2_VARIABLE );
-    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( profileLineEnd.x() ));
+    if( qca ) qca->writeInteger( p2.x() );
 
     qca = (QEInteger*)getQcaItem( LINE_PROFILE_Y2_VARIABLE );
-    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( profileLineEnd.y() ));
+    if( qca ) qca->writeInteger( p2.y() );
 
     qca = (QEInteger*)getQcaItem( LINE_PROFILE_THICKNESS_VARIABLE );
     if( qca ) qca->writeInteger( profileThickness );
@@ -3283,6 +3295,7 @@ void QEImage::setRotation( rotationOptions rotationIn )
 
     // Present the updated image
     displayImage();
+    redisplayAllMarkups();
 }
 
 QEImage::rotationOptions QEImage::getRotation()
@@ -3297,6 +3310,7 @@ void QEImage::setHorizontalFlip( bool flipHozIn )
 
     // Present the updated image
     displayImage();
+    redisplayAllMarkups();
 }
 
 bool QEImage::getHorizontalFlip()
@@ -3311,6 +3325,7 @@ void QEImage::setVerticalFlip( bool flipVertIn )
 
     // Present the updated image
     displayImage();
+    redisplayAllMarkups();
 }
 
 bool QEImage::getVerticalFlip()
@@ -4150,7 +4165,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
 
             case imageMarkup::MARKUP_ID_TARGET:
                 {
-                    targetInfo.setPoint( videoWidget->scalePoint( point1 ) );
+                    targetInfo.setPoint( rotateFlipToDataPoint( videoWidget->scalePoint( point1 ) ) );
 
                     // Write the target variables.
                     QEInteger *qca;
@@ -4167,7 +4182,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
 
             case imageMarkup::MARKUP_ID_BEAM:
                 {
-                    beamInfo.setPoint( videoWidget->scalePoint( point1 ) );
+                    beamInfo.setPoint( rotateFlipToDataPoint( videoWidget->scalePoint( point1 ) ) );
 
                     // Write the beam variables.
                     QEInteger *qca;
@@ -4259,6 +4274,19 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
 
         }
     }
+}
+
+// Redisplay all markups
+// Used when rotating / flipping image
+void QEImage::redisplayAllMarkups()
+{
+    // Apply all markup data to the new rotation/flip
+    // (This will re-display any markups with data making some of the the redrawing of all markups below redundant)
+    useAllMarkupData();
+
+    // Redraw all markups
+    videoWidget->markupChange();
+
 }
 
 //==================================================
@@ -5113,7 +5141,7 @@ double QEImage::getFloatingPixelValueFromData( const unsigned char* ptr )
 
 // Transform a rectangle in the displayed image to a rectangle in the
 // original data according to current rotation and flip options.
-QRect QEImage::rotateFlipToDataRectangle( QRect& rect )
+QRect QEImage::rotateFlipToDataRectangle( const QRect& rect )
 {
     QPoint pos1 = rect.topLeft();
     QPoint pos2 = rect.bottomRight();
@@ -5122,7 +5150,7 @@ QRect QEImage::rotateFlipToDataRectangle( QRect& rect )
 
 // Transform a rectangle (defined by two points) in the displayed image to
 // a rectangle in the original data according to current rotation and flip options.
-QRect QEImage::rotateFlipToDataRectangle( QPoint& pos1, QPoint& pos2 )
+QRect QEImage::rotateFlipToDataRectangle( const QPoint& pos1, const QPoint& pos2 )
 {
     QPoint trPos1 = rotateFlipToDataPoint( pos1 );
     QPoint trPos2 = rotateFlipToDataPoint( pos2 );
@@ -5135,7 +5163,7 @@ QRect QEImage::rotateFlipToDataRectangle( QPoint& pos1, QPoint& pos2 )
 
 // Transform a point in the displayed image to a point in the original
 // data according to current rotation and flip options.
-QPoint QEImage::rotateFlipToDataPoint( QPoint& pos )
+QPoint QEImage::rotateFlipToDataPoint( const QPoint& pos )
 {
     // Transform the point according to current rotation and flip options.
     // Depending on the flipping and rotating options pixel drawing can start in any of
@@ -5176,6 +5204,76 @@ QPoint QEImage::rotateFlipToDataPoint( QPoint& pos )
         case 6: posTr.setX( w-pos.y() ); posTr.setY( pos.x() );   break;
         case 7: posTr.setX( pos.y() );   posTr.setY( h-pos.x() ); break;
         case 8: posTr.setX( w-pos.y() ); posTr.setY( h-pos.x() ); break;
+    }
+
+    return posTr;
+}
+
+// Transform a rectangle in the original data to a rectangle in the
+// displayed image according to current rotation and flip options.
+QRect QEImage::rotateFlipToImageRectangle( const QRect& rect )
+{
+    QPoint pos1 = rect.topLeft();
+    QPoint pos2 = rect.bottomRight();
+    return rotateFlipToImageRectangle( pos1, pos2 );
+}
+
+// Transform a rectangle (defined by two points) in the original data to a rectangle in the
+// displayed image according to current rotation and flip options.
+QRect QEImage::rotateFlipToImageRectangle( const QPoint& pos1, const QPoint& pos2 )
+{
+    QPoint trPos1 = rotateFlipToImagePoint( pos1 );
+    QPoint trPos2 = rotateFlipToImagePoint( pos2 );
+
+    QRect trRect( trPos1, trPos2 );
+    trRect = trRect.normalized();
+
+    return trRect;
+}
+
+// Transform a point in the original data to a point in the image
+// according to current rotation and flip options.
+QPoint QEImage::rotateFlipToImagePoint( const QPoint& pos )
+{
+    // Transform the point according to current rotation and flip options.
+    // Depending on the flipping and rotating options pixel drawing can start in any of
+    // the four corners and start scanning either vertically or horizontally.
+    // The 8 scanning options are shown numbered here:
+    //
+    //    o----->1         2<-----o
+    //    |                       |
+    //    |                       |
+    //    |                       |
+    //    v                       v
+    //    5                       6
+    //
+    //
+    //
+    //    7                       8
+    //    ^                       ^
+    //    |                       |
+    //    |                       |
+    //    |                       |
+    //    o----->3         4<-----o
+    //
+    // A point from a rotated and fliped image needs to be transformed to be able to
+    // reference pixel data in the original data buffer.
+    // Base the transformation on the scanning option used when building the image
+    int w = (int)imageBuffWidth-1;
+    int h = (int)imageBuffHeight-1;
+    QPoint posTr;
+    int scanOption = getScanOption();
+    switch( scanOption )
+    {
+        default:
+        case 1: posTr = pos;                                      break;
+        case 2: posTr.setX( w-pos.x() ); posTr.setY( pos.y() );   break;
+        case 3: posTr.setX( pos.x() );   posTr.setY( h-pos.y() ); break;
+        case 4: posTr.setX( w-pos.x() ); posTr.setY( h-pos.y() ); break;
+        case 5: posTr.setX( pos.y() );   posTr.setY( pos.x() );   break;
+        case 6: posTr.setX( pos.y() );   posTr.setY( w-pos.x() ); break;
+        case 7: posTr.setX( h-pos.y() ); posTr.setY( pos.x() );   break;
+        case 8: posTr.setX( h-pos.y() ); posTr.setY( w-pos.x() ); break;
     }
 
     return posTr;
