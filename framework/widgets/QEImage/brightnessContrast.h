@@ -29,6 +29,20 @@
 #include <QCheckBox>
 #include <QSlider>
 #include <QLabel>
+#include <QDebug>
+
+class localBrightnessContrast;
+
+class histogram: public QFrame
+{
+public:
+    histogram( QWidget* parent, localBrightnessContrast* lbc );
+    Q_OBJECT
+private:
+    void paintEvent(QPaintEvent *event);
+
+    localBrightnessContrast* lbc;
+};
 
 class localBrightnessContrast : public QFrame
 {
@@ -36,7 +50,9 @@ class localBrightnessContrast : public QFrame
 
 public:
     localBrightnessContrast();
+    ~localBrightnessContrast();
 
+    void setBrightnessContrast( const unsigned int max, const unsigned int min, const unsigned int highest, const QVector<unsigned int>& bins );
     void setBrightnessContrast( int brightness, int contrast );
     void setAutoBrightnessContrast( bool autoBrightnessContrast );
     void setContrastReversal( bool contrastReversal );
@@ -46,6 +62,8 @@ public:
     int  getBrightness();
     int  getContrast();
 
+    void setStatistics( unsigned int minPIn, unsigned int maxPIn, unsigned int bitDepth, QVector<unsigned int> binsIn );
+
 signals:
     void brightnessContrastAutoImage();
     void brightnessContrastChange();
@@ -53,6 +71,10 @@ signals:
 private slots:
     void brightnessSliderValueChanged( int value );
     void contrastSliderValueChanged( int value );
+    void minSliderValueChanged( int value );
+    void maxSliderValueChanged( int value );
+    void gradientSliderValueChanged( int value );
+
     void brightnessContrastResetClicked( bool state );
     void brightnessContrastAutoImageClicked();
     void contrastReversalToggled( bool );
@@ -62,9 +84,35 @@ private:
     QCheckBox* autoBrightnessCheckBox;
     QSlider* brightnessSlider;
     QSlider* contrastSlider;
+    QSlider* minSlider;
+    QSlider* maxSlider;
+    QSlider* gradientSlider;
     QLabel* brightnessRBLabel;
     QLabel* contrastRBLabel;
+    QLabel* minRBLabel;
+    QLabel* maxRBLabel;
+    QLabel* gradientRBLabel;
     QCheckBox* contrastReversalCheckBox;
+    histogram* hist;
+
+    bool nonInteractive;
+
+public:
+    // Current brightness/contrast settings
+    unsigned int brightness;
+    unsigned int contrast;
+    unsigned int gradient; // Derived???
+    unsigned int zeroValue;
+    unsigned int fullValue;
+
+    unsigned int range;  // Derived
+
+    // Current image stats
+    void initialiseImageStats();
+    unsigned int maxP;
+    unsigned int minP;
+    unsigned int depth;
+    QVector<unsigned int> bins;
 
 };
 

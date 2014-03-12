@@ -289,7 +289,7 @@ void imageInfo::infoUpdateZoom( const int zoom )
     currentZoomLabel->setText( QString( "Zoom: %1%" ).arg( zoom ) );
 }
 
-// Update the zoom information
+// Update the 'new image' indicator
 void imageInfo::freshImage()
 {
     updateIndicator->freshImage();
