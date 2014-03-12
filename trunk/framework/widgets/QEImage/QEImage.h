@@ -719,7 +719,7 @@ public slots:
     void zoomToArea();                                      // Zoom to the area selected on the image
     void setResizeOptionAndZoom( int zoomIn );              // Set the zoom percentage (and force zoom mode)
 
-    double maxPixelValue();                                 // Determine the maximum pixel value for the current format
+    unsigned int maxPixelValue();                                 // Determine the maximum pixel value for the current format
 
     void setWidthHeightFromDimensions();                    // Update the image dimensions (width and height) from the area detector dimension variables.
 
@@ -749,7 +749,7 @@ public slots:
     QByteArray pixelLookup; // Table of translated pixel values (includig contrast reversal, local brightness and contrast, and clipping)
 
     void setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 );    // Update the brightness and contrast, if in auto, to match the recently selected region
-    void getPixelRange( const QRect& area, unsigned int* min, unsigned int* max ); // Determine the range of pixel values an area of the image
+    void getPixelRange( const QRect& area, unsigned int* min, unsigned int* max, QVector<unsigned int>* bins ); // Determine the range of pixel values an area of the image
 
     void doEnableBrightnessContrast( bool enableBrightnessContrast );
     void doContrastReversal( bool contrastReversal );

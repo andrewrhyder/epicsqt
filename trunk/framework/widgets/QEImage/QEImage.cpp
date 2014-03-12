@@ -1869,6 +1869,20 @@ void QEImage::displayImage()
     // account input pixel size, clipping, contrast reversal, and local brightness and contrast.
     const rgbPixel* pixelLookup = getPixelTranslation();
 
+    // Prepare for building image stats while processing image data
+//    bins.resize(256);
+//    bins.clear();
+    unsigned int maxP = 0;
+    unsigned int minP = UINT_MAX;
+    QVector<unsigned int> bins(256);
+    unsigned int valP;
+    unsigned int bitsPerBin = (bitDepth<=8)?1:bitDepth-8;
+    unsigned int bin;
+#define BUILD_STATS \
+    bin = valP>>(bitsPerBin-1); \
+    bins[bin] = bins.at(bin)+1; \
+    if( valP < minP ) minP = valP; \
+    else if( valP > maxP ) maxP = valP;
 
 // For speed, the format switch statement is outside the pixel loop.
 // An identical(ish) loop is used for each format
@@ -1893,7 +1907,7 @@ void QEImage::displayImage()
         {
             // Determine bit shift for selecting top 8 bits
             int shift = bitDepth-8;
-            long  mask = (1<<bitDepth)-1;
+            quint32 mask = (1<<bitDepth)-1;
 
             switch( bitDepth )
             {
@@ -1911,7 +1925,10 @@ void QEImage::displayImage()
                 {
                     LOOP_START
                         unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
-                        dataOut[buffIndex] = pixelLookup[inPixel&mask>>shift]; // right shift by a negative amount
+                        inPixel = inPixel&mask>>shift; // right shift by a negative amount
+                        dataOut[buffIndex] = pixelLookup[inPixel];
+                        valP = inPixel;
+                        BUILD_STATS
                     LOOP_END
                     break;
                 }
@@ -1923,6 +1940,8 @@ void QEImage::displayImage()
                     LOOP_START
                         unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
                         dataOut[buffIndex] = pixelLookup[inPixel];
+                        valP = inPixel;
+                        BUILD_STATS
                     LOOP_END
                     break;
                 }
@@ -1939,7 +1958,10 @@ void QEImage::displayImage()
                 {
                     LOOP_START
                         unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
-                        dataOut[buffIndex] = pixelLookup[(inPixel&mask)>>shift];
+                        inPixel = (inPixel&mask)>>shift;
+                        dataOut[buffIndex] = pixelLookup[inPixel];
+                        valP = inPixel;
+                        BUILD_STATS
                     LOOP_END
                     break;
                 }
@@ -1950,6 +1972,8 @@ void QEImage::displayImage()
                     LOOP_START
                         unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel+1]);
                         dataOut[buffIndex] = pixelLookup[inPixel];
+                        valP = inPixel;
+                        BUILD_STATS
                     LOOP_END
                     break;
                 }
@@ -1967,7 +1991,10 @@ void QEImage::displayImage()
                     LOOP_START
                         // Pixel data is 18 bits wide - use the top 8 bits
                         quint32 inPixel = *(quint32*)(&dataIn[dataIndex*bytesPerPixel]);
-                        dataOut[buffIndex] = pixelLookup[(inPixel&mask)>>shift];
+                        inPixel = (inPixel&mask)>>shift;
+                        dataOut[buffIndex] = pixelLookup[inPixel];
+                        valP = inPixel;
+                        BUILD_STATS
                     LOOP_END
                     break;
                 }
@@ -1978,6 +2005,8 @@ void QEImage::displayImage()
                     LOOP_START
                         unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel+2]);
                         dataOut[buffIndex] = pixelLookup[inPixel];
+                        valP = inPixel;
+                        BUILD_STATS
                     LOOP_END
                     break;
                 }
@@ -1994,7 +2023,10 @@ void QEImage::displayImage()
                 {
                     LOOP_START
                         unsigned long inPixel = *(unsigned long*)(&dataIn[dataIndex*bytesPerPixel]);
-                        dataOut[buffIndex] = pixelLookup[(inPixel&mask)>>shift];
+                        inPixel = (inPixel&mask)>>shift;
+                        dataOut[buffIndex] = pixelLookup[inPixel];
+                        valP = inPixel;
+                        BUILD_STATS
                     LOOP_END
                     break;
                 }
@@ -2006,6 +2038,8 @@ void QEImage::displayImage()
                         // Pixel data is 32 bits wide - use the top 8 bits
                         unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel+3]);
                         dataOut[buffIndex] = pixelLookup[inPixel];
+                        valP = inPixel;
+                        BUILD_STATS
                     LOOP_END
                     break;
                 }
@@ -2405,7 +2439,6 @@ void QEImage::displayImage()
                         break;
                 }
 
-
             LOOP_END
             break;
         }
@@ -2415,13 +2448,25 @@ void QEImage::displayImage()
             //unsigned int rOffset = 0*imageDataSize;
             unsigned int gOffset = imageDataSize;
             unsigned int bOffset = 2*imageDataSize;
+//            qint64 start = QDateTime::currentMSecsSinceEpoch();
             LOOP_START
                 unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
-                dataOut[buffIndex].p[0] = pixelLookup[inPixel[bOffset]].p[0];
-                dataOut[buffIndex].p[1] = pixelLookup[inPixel[gOffset]].p[0];
-                dataOut[buffIndex].p[2] = pixelLookup[*inPixel].p[0];
+
+                unsigned char r = *inPixel;
+                unsigned char g = inPixel[gOffset];
+                unsigned char b = inPixel[bOffset];
+
+
+                dataOut[buffIndex].p[0] = pixelLookup[b].p[0];
+                dataOut[buffIndex].p[1] = pixelLookup[g].p[0];
+                dataOut[buffIndex].p[2] = pixelLookup[r].p[0];
                 dataOut[buffIndex].p[3] = 0xff;
+
+                valP = g; // use all three colors!!!
+                BUILD_STATS
             LOOP_END
+//            qint64 end = QDateTime::currentMSecsSinceEpoch();
+//            qDebug() <<"build mS:" << end-start;
             break;
         }
 
@@ -2504,6 +2549,12 @@ void QEImage::displayImage()
             LOOP_END
             break;
         }
+    }
+
+    // Update the local brightness/contrast control if present
+    if( localBC )
+    {
+        localBC->setStatistics( minP, maxP, bitDepth, bins );
     }
 
     // Generate a frame from the data
@@ -4362,7 +4413,7 @@ void QEImage::setLineProfileControlsNotVisible()
 //==================================================
 
 // Determine the maximum pixel value for the current format
-double QEImage::maxPixelValue()
+unsigned int QEImage::maxPixelValue()
 {
     double result = 0;
 
@@ -4436,33 +4487,17 @@ void QEImage::setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 )
 
     // Determine the range of pixel values in the selected area
     unsigned int min, max;
-    getPixelRange( area, &min, &max );
+    QVector<unsigned int> bins;
+    getPixelRange( area, &min, &max, &bins );
 
-    // Range of pixel values in area
-    int range = (max>min)?max-min:1;
-
-    // Calculate the contrast that will set the dynamic range
-    // to match the range of pixels in the area.
-    double newContrastDouble = (double)(maxPixelValue())/(double)(range);
-
-    // Calculate the brightness that will set the dynamic range
-    // to match the range of pixels in the area.
-    // Offset from mid pixel value of range to mid pixel value in area (in original pixel scale) scaled for new contrast...
-    double midOffset = (((double)(maxPixelValue())/2)-((double)(min+max)/2))*newContrastDouble;
-
-    // Calculate brightness that will offset pixel values in the selected area to use full range.
-    // Note, when used, the brightness will be multiplied by (the new pixel range - an offset used to center the new pixel range )
-    double newBrightnessDouble = midOffset/(maxPixelValue()*(newContrastDouble-(newContrastDouble-1)/2));
-
-    // Update the local brightness and contrast
     if( localBC )
     {
-        localBC->setBrightnessContrast( newBrightnessDouble*100.0, newContrastDouble*100.0);
+        localBC->setBrightnessContrast( max, min, maxPixelValue(), bins );
     }
 }
 
 // Determine the range of pixel values an area of the image
-void QEImage::getPixelRange( const QRect& area, unsigned int* min, unsigned int* max )
+void QEImage::getPixelRange( const QRect& area, unsigned int* min, unsigned int* max, QVector<unsigned int>* bins )
 {
     // If the area selected was the the entire image, and the image was not presented at 100%, rounding areas while scaling
     // may result in area dimensions outside than the actual image by a pixel or so, so limit the area to within the image.
@@ -4489,12 +4524,17 @@ void QEImage::getPixelRange( const QRect& area, unsigned int* min, unsigned int*
     unsigned int maxP = 0;
     unsigned int minP = UINT_MAX;
 
+    unsigned int bitsPerBin = (bitDepth<=8)?1:bitDepth-8;
+    bins->resize( 256 );
+
     // Determine the maximum and minimum pixel values in the area
     for( unsigned int i = 0; i < areaH; i++ )
     {
         for( unsigned int j = 0; j < areaW; j++ )
         {
             unsigned int p = getPixelValueFromData( &(data[index]) );
+            unsigned int bin = p>>bitsPerBin;
+            (*bins)[bin] = bins->at(bin)+1;
             if( p < minP ) minP = p;
             if( p > maxP ) maxP = p;
 
