@@ -179,6 +179,14 @@ bool DetectorEditor::save()
     QDomDocument doc;
     // Open to write a new/updated detector configurations to its xmlFile
     QFile* file = QEWidget::findQEFile(xmlFileName);
+    // check write permisions
+    QFile::Permissions perm = file->permissions();
+    QFile::Permissions reqPerm = (QFile::WriteOther|QFile::WriteGroup|QFile::WriteUser);
+    if ((perm & reqPerm) != reqPerm){
+        // make it writable
+        file->setPermissions(perm | reqPerm);
+    }
+
     if (!file)
     {
         qDebug() << "Could not found customisation file" << xmlFileName;
