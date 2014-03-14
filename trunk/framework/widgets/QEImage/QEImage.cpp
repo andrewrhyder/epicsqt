@@ -1,4 +1,5 @@
-/*
+/*  QEimage.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -39,6 +40,7 @@
 #include <QMessageBox>
 #include <QScrollBar>
 #include <QECommon.h>
+#include <profilePlot.h>
 #include <QEImage.h>
 #include <QEByteArray.h>
 #include <QEInteger.h>
@@ -5990,3 +5992,4 @@ void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool ini
 
 }
 
+// end

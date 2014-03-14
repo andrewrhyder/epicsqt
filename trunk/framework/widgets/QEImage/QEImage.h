@@ -1,4 +1,5 @@
-/*
+/*  QEimage.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -32,7 +33,6 @@
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QToolBar>
-#include <profilePlot.h>
 #include <zoomMenu.h>
 #include <flipRotateMenu.h>
 #include <selectMenu.h>
@@ -62,6 +62,13 @@ class mpegSource
 {
 };
 #endif // QE_USE_MPEG
+
+
+// Differed class declaration - no visible dependency on profilePlot.h (it is
+// included from the .cpp file) and hence no visible dependency on qwt_plot.h
+// and qwt_plot_curve.h.
+//
+class profilePlot;
 
 // Class to keep track of a rectangular area such as region of interest or profile line information
 // As data arrives, this class is used to record it.
