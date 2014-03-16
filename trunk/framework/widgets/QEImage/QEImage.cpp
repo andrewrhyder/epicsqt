@@ -95,6 +95,7 @@ void QEImage::setup() {
 
     mFormatOption = imageDataFormats::MONO;
     bitDepth = 8;
+    useFalseColour = false;
 
     paused = false;
     infoUpdatePaused( paused );
@@ -1680,10 +1681,15 @@ const QEImage::rgbPixel* QEImage::getPixelTranslation()
             }
 
             // Save translated pixel
-            lookupTable[value].p[0] = (unsigned char)translatedValue;
-            lookupTable[value].p[1] = (unsigned char)translatedValue;
-            lookupTable[value].p[2] = (unsigned char)translatedValue;
+            if( getUseFalseColour() ){
+                lookupTable[value] = getFalseColor ((unsigned char)translatedValue);
+            } else {
+                lookupTable[value].p[0] = (unsigned char)translatedValue;
+                lookupTable[value].p[1] = (unsigned char)translatedValue;
+                lookupTable[value].p[2] = (unsigned char)translatedValue;
+            }
         }
+
     }
 
     pixelLookupValid = true;
@@ -1691,21 +1697,20 @@ const QEImage::rgbPixel* QEImage::getPixelTranslation()
 }
 
 // Get a false color representation for an entry from the color lookup table
-//???!!! not used yet
 QEImage::rgbPixel QEImage::getFalseColor (const unsigned char value) {
     rgbPixel result;
     int h, l;
     QColor c;
 
-    // Hue goes 320 (purple) down to 0 (red) as monochrome value goes 0 to 255.
+    // Hue goes 300 (blue) down to 0 (red) as monochrome value goes 0 up to 255.
     //
-    h = (320 * (0xFF - value)) / 0xFF;
+    h = (300 * (0xFF - value)) / 0xFF;
 
     // Intesity ramps up to a max of 128
     //
     l = MIN (4*value, 128);
 
-    c.setHsl (h, 0xFF, l);
+    c.setHsl (h, 0xFF, l);   // Saturation always 100%
 
     result.p[0] = (unsigned char) c.blue();
     result.p[1] = (unsigned char) c.green();
@@ -3453,6 +3458,21 @@ void QEImage::setShowTime(bool value)
 bool QEImage::getShowTime()
 {
     return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_TIME );
+}
+
+// Use False Colour
+void QEImage::setUseFalseColour(bool value)
+{
+    useFalseColour = value;
+
+    // Present the updated image
+    pixelLookupValid = false;
+    displayImage();
+}
+
+bool QEImage::getUseFalseColour()
+{
+    return useFalseColour;
 }
 
 // Vertical slice markup colour

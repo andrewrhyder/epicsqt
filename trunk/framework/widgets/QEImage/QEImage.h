@@ -233,6 +233,9 @@ public:
     void setShowTime(bool pValue);                                      ///< Access function for #showTime property - refer to #showTime property for details
     bool getShowTime();                                                 ///< Access function for #showTime property - refer to #showTime property for details
 
+    void setUseFalseColour(bool pValue);                                ///< Access function for #useFalseColour property - refer to #useFalseColour property for details
+    bool getUseFalseColour();                                           ///< Access function for #useFalseColour property - refer to #useFalseColour property for details
+
     void setVertSliceMarkupColor(QColor pValue);                        ///< Access function for #vertSliceColor property - refer to #vertSliceColor property for details
     QColor getVertSliceMarkupColor();                                   ///< Access function for #vertSliceColor property - refer to #vertSliceColor property for details
 
@@ -635,6 +638,7 @@ public slots:
     // Options
     imageDataFormats::formatOptions mFormatOption;
     unsigned int bitDepth;
+    bool useFalseColour;
 
     // Image and related information
     QCaDateTime imageTime;
@@ -1337,6 +1341,10 @@ public:
     /// If true, the image timestamp will be written in the top left of the image.
     ///
     Q_PROPERTY(bool showTime READ getShowTime WRITE setShowTime)
+
+    /// If true, the apply false colour to the image.
+    ///
+    Q_PROPERTY(bool useFalseColour READ getUseFalseColour WRITE setUseFalseColour)
 
     /// Used to select the color of the vertical slice markup.
     ///
