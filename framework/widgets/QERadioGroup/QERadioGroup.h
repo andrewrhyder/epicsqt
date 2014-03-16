@@ -30,9 +30,8 @@
 #include <QList>
 #include <QString>
 #include <QVector>
-#include <QRadioButton>
+#include <QAbstractButton>
 #include <QSize>
-#include <QMap>
 
 #include <QCaObject.h>
 #include <QEWidget.h>
@@ -42,6 +41,7 @@
 #include <QCaVariableNamePropertyManager.h>
 #include <QEPluginLibrary_global.h>
 #include <QEGroupBox.h>
+#include <QEOneToOne.h>
 
 class QEPLUGINLIBRARYSHARED_EXPORT QERadioGroup : public QEGroupBox {
 
@@ -103,7 +103,7 @@ public:
     /// selected, paradigm.
     //
     enum ButtonStyles { Radio,      ///< Use radio buttons - the default
-                        Push };     ///< use push buttons.
+                        Push };     ///< Use push buttons.
 
     Q_ENUMS (ButtonStyles)
     Q_PROPERTY (ButtonStyles buttonStyle READ getButtonStyle  WRITE setButtonStyle)
@@ -149,21 +149,19 @@ protected:
     void setCurrentIndex (int index);
 
 private:
-    typedef QList<QAbstractButton *> QRadioButtonList;
-    typedef QMap<int, int> QIntToIntMap;
+    typedef QList<QAbstractButton*> QAbstractButtonList;
+    typedef QEOneToOne<int, QAbstractButton*> ValueButtonAssoications;
 
     QEIntegerFormatting integerFormatting;
     QELocalEnumeration localEnumerations;
 
     // Use of the local enumerations means that we could have sparce mapping,
     // e.g.: 1 => Red, 5 => Blue, 63 => Green.  Therefore we need to create
-    // and maintain a value to button index and button index to value maps.
-    // Create a single two-way-map object??
+    // and maintain a value to button mapping.
     //
-    QIntToIntMap valueToButtonIndexMap;
-    QIntToIntMap buttonIndexToValueMap;
-    QGridLayout* radioButtonLayout;
-    QRadioButtonList radioButtonList;
+    ValueButtonAssoications valueToButton;
+    QGridLayout* buttonLayout;
+    QAbstractButtonList buttonList;
     QAbstractButton *noSelectionButton;
 
     bool useDbEnumerations;
@@ -179,7 +177,7 @@ private:
     void reCreateAllButtons ();
     void commonSetup ();
     void setButtonText ();
-    void setRadioButtonLayout ();
+    void setButtonLayout ();
 
 private slots:
     void connectionChanged (QCaConnectionInfo& connectionInfo);
@@ -197,6 +195,7 @@ signals:
     /// Sent when the widget is updated following a data change
     /// Can be used to pass on EPICS data (as presented in this widget) to other widgets.
     /// For example a QList widget could log updates from this widget.
+    /// Note: this widget emits the numeric enumeration value as opposed to the associated text.
     void dbValueChanged (const long& out);
 
 protected:
