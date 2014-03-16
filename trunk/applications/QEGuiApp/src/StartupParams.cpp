@@ -46,6 +46,7 @@ startupParams::startupParams()
     adjustScale = 100.0;
     enableEdit = false;
     disableMenu = false;
+    disableStatus = false;
     singleApp = false;
     printHelp = false;    // not serialized
     printVersion = false; // not serialized
@@ -81,6 +82,7 @@ void startupParams::getSharedParams( const QByteArray& in )
 
     enableEdit    = (bool)(d[len]);    len += 1;
     disableMenu   = (bool)(d[len]);    len += 1;
+    disableStatus = (bool)(d[len]);    len += 1;
     singleApp     = (bool)(d[len]);    len += 1;
     restore       = (bool)(d[len]);    len += 1;
 
@@ -116,6 +118,7 @@ void startupParams::setSharedParams( QByteArray& out )
 
     out[len++] = enableEdit;
     out[len++] = disableMenu;
+    out[len++] = disableStatus;
     out[len++] = singleApp;
     out[len++] = restore;
 
@@ -221,6 +224,11 @@ bool startupParams::getStartupParams( QStringList args )
                     // 'menu Bar disabled' flag
                     case 'b':
                         disableMenu = true;
+                        break;
+
+                    // 'menu Bar disabled' flag
+                    case 'u':
+                        disableStatus = true;
                         break;
 
                     // 'restore configuration' flag

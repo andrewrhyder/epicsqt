@@ -14,9 +14,12 @@ Options
 
 -e      Enable edit menu option.
         When the edit menu is enabled Designer can be launched from QEGui, typically to
-        edit the current GUI.
+        edit the current GUI. Note QEGui will only reload modified ui files if/when this
+        option is used.
 
 -b      Disable menu bar.
+
+-u      Disable status bar.
 
 -r      Restore from saved configuration.
         If a configuration name is not provided with this option the saved default

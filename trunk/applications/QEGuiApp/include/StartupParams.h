@@ -49,6 +49,7 @@ class startupParams
     double adjustScale;                             // GUI scaling parameter (-a)
     bool enableEdit;                                // Flag true if 'Edit' menu should be available
     bool disableMenu;                               // Flag true if menu bar should be disabled
+    bool disableStatus;                             // Flag true if status bar should be disabled
     bool singleApp;                                 // True if only a single instance of this application should be started
     bool printHelp;                                 // True if and only if user requests help (-h).
     bool printVersion;                              // True if and only if user requests version (-v).

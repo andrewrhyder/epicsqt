@@ -222,6 +222,9 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, QString customisationNa
     // Enable the menu bar as required
     menuBar()->setVisible( !app->getParams()->disableMenu );
 
+    // Enable the status bar as required
+    statusBar()->setVisible( !app->getParams()->disableStatus );
+
     // If no filename was supplied, and an 'Open...' dialog is required, open the file selection dialog
     // Do it after the creation of the main window is complete
     if( fileName.isEmpty() && openDialog )
@@ -236,6 +239,11 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, QString customisationNa
     else
     {
         QEForm* gui = createGui( fileName, customisationName ); // A profile should have been published before calling this constructor.
+        // Enable ui file monitoring if and only enableEdit requested.
+        if( gui )
+        {
+            gui->setFileMonitoringIsEnabled( app->getParams()->enableEdit );
+        }
         loadGuiIntoCurrentWindow( gui, true );
     }
 
@@ -295,6 +303,9 @@ void MainWindow::setDefaultCustomisation()
     // Apply any required window customisations
     app->getMainWindowCustomisations()->applyCustomisation( this, defaultCustomisation, &customisationInfo, true );
     setupPlaceholderMenus();
+
+    // Lastly (re)apply disableMenu (-b) option.
+    menuBar()->setVisible( !app->getParams()->disableMenu );
 }
 
 // Get whatever placeholder menus are available from the current customisation and use them
