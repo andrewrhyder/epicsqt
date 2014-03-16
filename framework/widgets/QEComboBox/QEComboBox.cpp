@@ -1,6 +1,7 @@
 /*  QEComboBox.cpp
  *
- *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
+ *  This file is part of the EPICS QT Framework, initially developed at the
+ *  Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2009, 2010, 2013
+ *  Copyright (c) 2009, 2010, 2013, 2014
  *
  *  Author:
  *    Andrew Rhyder
@@ -196,9 +197,9 @@ void QEComboBox::setValueIfNoFocus( const long& value,QCaAlarmInfo& alarmInfo, Q
         int index;
 
         // Update the combo box
-        if( valueToIndexMap.contains (value) )
+        if( valueToIndex.containsF (value) )
         {
-            index = valueToIndexMap.value (value);
+            index = valueToIndex.valueF (value);
         }
         else
         {
@@ -231,10 +232,9 @@ void QEComboBox::setComboBoxText() {
     // Buid forward and revserse EPICS value to button position maps.
     // We do this even even using db enuberations and the mapping is trivial.
     //
-    // Clear maps.
+    // Clear value to index mapping.
     //
-    valueToIndexMap.clear();
-    indexToValueMap.clear();
+    valueToIndex.clear();
 
     if( useDbEnumerations ) {
        qca = getQcaItem( 0 );
@@ -244,8 +244,7 @@ void QEComboBox::setComboBoxText() {
           // Create indentity map.
           //
           for( j = 0; j < enumerations.count(); j++ ) {
-             valueToIndexMap.insert( j, j );
-             indexToValueMap.insert( j, j );
+             valueToIndex.insertF ( j, j );
           }
        }
 
@@ -269,11 +268,11 @@ void QEComboBox::setComboBoxText() {
           if( !isMatch ) continue;
           if( text.isEmpty() ) continue;
 
-          j = enumerations.count();
+          // j is count value before we add text.
+          j = enumerations.count ();
           enumerations.append( text );
 
-          valueToIndexMap.insert( n, j );
-          indexToValueMap.insert( j, n );
+          valueToIndex.insertF( n, j );
        }
     }
 
@@ -310,13 +309,13 @@ void QEComboBox::userValueChanged( int index ) {
 
         // Validate
         //
-        if (!indexToValueMap.contains (index)) {
+        if (!valueToIndex.containsI (index)) {
            return;
         }
 
         // Don't write same value.
         //
-        value = indexToValueMap.value (index);
+        value = valueToIndex.valueI (index);
         if (value == lastValue) {
            return;
         }
@@ -357,11 +356,11 @@ void QEComboBox::writeNow()
 
         // Validate
         //
-        if (!indexToValueMap.contains ( index )) {
+        if (!valueToIndex.containsI ( index )) {
            return;
         }
 
-        value = indexToValueMap.value (index);
+        value = valueToIndex.valueI (index);
 
         // Write the value
         qca->writeInteger( value );
