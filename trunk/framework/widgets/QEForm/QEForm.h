@@ -51,6 +51,10 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
         QString getFullFileName();   // Get the standard, absolute UI file name
         QString getUiFileName();                // Get the fully substituted file name (Not the uiFile property)
 
+        // Flag indicating if form should take account of file monitoring.
+        void setFileMonitoringIsEnabled( bool fileMonitoringIsEnabled );
+        bool getFileMonitoringIsEnabled();
+
         // Property convenience functions
 
         // Flag indicating form should handle gui form launch requests
@@ -89,7 +93,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
 
         QString title;
         QWidget* ui;
-        bool alertIfUINoFound;      // True if the UI file could not be read. No alert is required, for example, when a partial UI file name is being typed in Designer
+        bool alertIfUINoFound;        // True if the UI file could not be read. No alert is required, for example, when a partial UI file name is being typed in Designer
+        bool fileMonitoringIsEnabled; // Only when true  does form honor any fileChanged signals from fileMon.
         QFileSystemWatcher fileMon;
 
         void newMessage( QString msg, message_types type );

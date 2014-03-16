@@ -123,8 +123,12 @@ void QEForm::commonInit( const bool alertIfUINoFoundIn )
         setupLocalProfile( this, tempPathList, "", "" );
     }
 
+    // Altough we still monitor the file, we ignore chanhes unless ebabled.
+    fileMonitoringIsEnabled = false;
+
     // Prepare to recieve notification that the ui file being displayed has changed
     QObject::connect( &fileMon, SIGNAL( fileChanged( const QString & ) ), this, SLOT( fileChanged( const QString & ) ) );
+
 
     // Set up a connection to recieve variable name property changes (Actually only interested in substitution changes
     QObject::connect( &variableNamePropertyManager, SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ),
@@ -601,12 +605,15 @@ void QEForm::reloadFile()
 // It doesn't matter if it has been deleted, a reload attempt will still tell the user what they need to know - that the file has gone.
 void QEForm::fileChanged ( const QString & /*path*/ )
 {
-    // Ensure we aren't monitoring files any more
-    QStringList monitoredPaths = fileMon.files();
-    fileMon.removePaths( monitoredPaths );
+    // Only action if monitoring is enabled.
+    if( fileMonitoringIsEnabled ){
+        // Ensure we aren't monitoring files any more
+        QStringList monitoredPaths = fileMon.files();
+        fileMon.removePaths( monitoredPaths );
 
-    // Reload the file
-    reloadFile();
+        // Reload the file
+       reloadFile();
+    }
 }
 
 // Receive new log messages.
@@ -649,6 +656,18 @@ QString QEForm::getContainedFrameworkVersion()
 QString QEForm::getUiFileName()
 {
     return fullUiFileName;
+}
+
+// Flag indicating if form should action (i.e. reload) ui file when ui file changes.
+// Current set by qegui when edit menu item enabled. May it should/could be a property as well.
+void QEForm::setFileMonitoringIsEnabled( bool fileMonitoringIsEnabledIn )
+{
+     fileMonitoringIsEnabled = fileMonitoringIsEnabledIn;
+}
+
+bool QEForm::getFileMonitoringIsEnabled()
+{
+    return fileMonitoringIsEnabled;
 }
 
 //==============================================================================
