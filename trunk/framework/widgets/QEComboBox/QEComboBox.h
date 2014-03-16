@@ -26,8 +26,9 @@
 #ifndef QECOMBOBOX_H
 #define QECOMBOBOX_H
 
-#include <QMap>
 #include <QComboBox>
+
+#include <QEOneToOne.h>
 #include <QEWidget.h>
 #include <QEInteger.h>
 #include <QEIntegerFormatting.h>
@@ -92,14 +93,17 @@ signals:
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
     void setComboBoxText ();
 
-    typedef QMap<int, int> QIntTintMap;
+    typedef QEOneToOne<int, int> ValueIndexAssociations;
 
     // Use of the local enumerations means that we could have sparce mapping,
     // e.g.: 1 => Red, 5 => Blue, 63 => Green.  Therefore we need to create
-    // and maintain a value to index and index to value maps.
+    // and maintain a value to index association.
+    // Using the above example:
+    //   value  1  <==> combo box index 0 (text "Red")
+    //   value  5  <==> combo box index 1 (text "Blue")
+    //   value 63  <==> combo box index 2 (text "Green")
     //
-    QIntTintMap valueToIndexMap;
-    QIntTintMap indexToValueMap;
+    ValueIndexAssociations valueToIndex;
 
     bool isConnected;
     bool isFirstUpdate;
