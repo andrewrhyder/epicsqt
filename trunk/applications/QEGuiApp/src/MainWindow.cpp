@@ -1770,22 +1770,23 @@ QEForm* MainWindow::createGui( QString fileName, QString customisationName, QStr
 // Set the main window title (default to 'QEGui' if no title supplied)
 void MainWindow::setTitle( QString title )
 {
-    if( title.isEmpty() )
+    startupParams* params = app->getParams();
+    if( params->applicationTitle.isEmpty() )
     {
-        startupParams* params = app->getParams();
-        if( !params->applicationTitle.isEmpty() )
+        if( title.isEmpty() )
         {
-            setWindowTitle( params->applicationTitle );
+            setWindowTitle( "QEGui" );
         }
         else
         {
-            setWindowTitle( "QEGui" );
+            setWindowTitle( title );
         }
     }
     else
     {
-        setWindowTitle( title );
+        setWindowTitle( params->applicationTitle );
     }
+
 }
 
 // Return the central widget if it is the tab widget, else return NULL
