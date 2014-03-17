@@ -266,6 +266,9 @@ public:
     void setContrastReversal( bool contrastReversalIn );                ///< Access function for #contrastReversal property - refer to #contrastReversal property for details
     bool getContrastReversal();                                         ///< Access function for #contrastReversal property - refer to #contrastReversal property for details
 
+    void setLog( bool log );                                            ///< Access function for #logBrightness property - refer to #logBrightness property for details
+    bool getLog();                                                      ///< Access function for #logBrightness property - refer to #logBrightness property for details
+
     void setEnableVertSliceSelection( bool enableVSliceSelection );     ///< Access function for #enableVertSliceSelection property - refer to #enableVertSliceSelection property for details
     bool getEnableVertSliceSelection();                                 ///< Access function for #enableVertSliceSelection property - refer to #enableVertSliceSelection property for details
 
@@ -638,7 +641,6 @@ public slots:
     // Options
     imageDataFormats::formatOptions mFormatOption;
     unsigned int bitDepth;
-    bool useFalseColour;
 
     // Image and related information
     QCaDateTime imageTime;
@@ -1336,6 +1338,10 @@ public:
     /// If true, the image will undergo contrast reversal.
     ///
     Q_PROPERTY(bool contrastReversal READ getContrastReversal WRITE setContrastReversal)
+
+    /// If true, the image will be displayed using a logarithmic brightness scale.
+    ///
+    Q_PROPERTY(bool logBrightness READ getLog WRITE setLog)
 
     /// If true, a button bar will be displayed above the image.
     /// If not displayed, all buttons in the button bar are still available in the right click menu.
