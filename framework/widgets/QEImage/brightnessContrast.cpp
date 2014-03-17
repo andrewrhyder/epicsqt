@@ -280,7 +280,7 @@ void localBrightnessContrast::setLog( bool log )
 
 void localBrightnessContrast::setFalseColour( bool falseColour )
 {
-    logCheckBox->setChecked( falseColour );
+    falseColourCheckBox->setChecked( falseColour );
 }
 
 //==========================================================

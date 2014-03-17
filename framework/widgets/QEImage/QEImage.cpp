@@ -1661,7 +1661,8 @@ void QEImage::getPixelTranslation()
                 translatedValue = value;
             }
 
-            qDebug() << value<<translatedValue;
+//           qDebug() << value<<translatedValue;
+
             // Reverse contrast if required
             if( localBC->getContrastReversal() )
             {
@@ -1688,24 +1689,40 @@ void QEImage::getPixelTranslation()
 
 // Get a false color representation for an entry from the color lookup table
 QEImage::rgbPixel QEImage::getFalseColor (const unsigned char value) {
+
+    const int max = 0xFF;
+    const int half = 0x80;
+    const int lightness_slope = 4;
+
     rgbPixel result;
     int h, l;
     QColor c;
 
     // Hue goes 300 (blue) down to 0 (red) as monochrome value goes 0 up to 255.
     //
-    h = (300 * (0xFF - value)) / 0xFF;
+    h = (300 * (max - value)) / max;
 
-    // Intesity ramps up to a max of 128
+    // Intesity/lightness ramps up quickly to 128, holds stready at 128, then
+    // ramps up to 255 (white) at the end:
     //
-    l = MIN (4*value, 128);
+    //                  *
+    //                 *
+    //    *************
+    //   *
+    //  *
+    //
+    if (value < half) {   // half way?
+       l = MIN (lightness_slope*value, half);
+    } else {
+       l = MAX (max - lightness_slope*(max-value), half);
+    }
 
-    c.setHsl (h, 0xFF, l);   // Saturation always 100%
+    c.setHsl (h, max, l);   // Saturation always 100%
 
     result.p[0] = (unsigned char) c.blue();
     result.p[1] = (unsigned char) c.green();
     result.p[2] = (unsigned char) c.red();
-    result.p[3] = (unsigned char) 0xFF; // Alpha always 100%
+    result.p[3] = (unsigned char) max; // Alpha always 100%
 
     return result;
 }
