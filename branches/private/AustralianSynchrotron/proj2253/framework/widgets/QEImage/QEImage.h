@@ -1,4 +1,5 @@
-/*
+/*  QEimage.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -32,7 +33,6 @@
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QToolBar>
-#include <profilePlot.h>
 #include <zoomMenu.h>
 #include <flipRotateMenu.h>
 #include <selectMenu.h>
@@ -62,6 +62,13 @@ class mpegSource
 {
 };
 #endif // QE_USE_MPEG
+
+
+// Differed class declaration - no visible dependency on profilePlot.h (it is
+// included from the .cpp file) and hence no visible dependency on qwt_plot.h
+// and qwt_plot_curve.h.
+//
+class profilePlot;
 
 // Class to keep track of a rectangular area such as region of interest or profile line information
 // As data arrives, this class is used to record it.
@@ -226,6 +233,9 @@ public:
     void setShowTime(bool pValue);                                      ///< Access function for #showTime property - refer to #showTime property for details
     bool getShowTime();                                                 ///< Access function for #showTime property - refer to #showTime property for details
 
+    void setUseFalseColour(bool pValue);                                ///< Access function for #useFalseColour property - refer to #useFalseColour property for details
+    bool getUseFalseColour();                                           ///< Access function for #useFalseColour property - refer to #useFalseColour property for details
+
     void setVertSliceMarkupColor(QColor pValue);                        ///< Access function for #vertSliceColor property - refer to #vertSliceColor property for details
     QColor getVertSliceMarkupColor();                                   ///< Access function for #vertSliceColor property - refer to #vertSliceColor property for details
 
@@ -255,6 +265,9 @@ public:
 
     void setContrastReversal( bool contrastReversalIn );                ///< Access function for #contrastReversal property - refer to #contrastReversal property for details
     bool getContrastReversal();                                         ///< Access function for #contrastReversal property - refer to #contrastReversal property for details
+
+    void setLog( bool log );                                            ///< Access function for #logBrightness property - refer to #logBrightness property for details
+    bool getLog();                                                      ///< Access function for #logBrightness property - refer to #logBrightness property for details
 
     void setEnableVertSliceSelection( bool enableVSliceSelection );     ///< Access function for #enableVertSliceSelection property - refer to #enableVertSliceSelection property for details
     bool getEnableVertSliceSelection();                                 ///< Access function for #enableVertSliceSelection property - refer to #enableVertSliceSelection property for details
@@ -719,7 +732,7 @@ public slots:
     void zoomToArea();                                      // Zoom to the area selected on the image
     void setResizeOptionAndZoom( int zoomIn );              // Set the zoom percentage (and force zoom mode)
 
-    double maxPixelValue();                                 // Determine the maximum pixel value for the current format
+    unsigned int maxPixelValue();                                 // Determine the maximum pixel value for the current format
 
     void setWidthHeightFromDimensions();                    // Update the image dimensions (width and height) from the area detector dimension variables.
 
@@ -741,12 +754,15 @@ public slots:
     {
         unsigned char p[4]; // R/G/B/Alpha
     };
-    const rgbPixel* getPixelTranslation();    // Get a table of translated pixel values (from pixelLookup) creating it first if required
+    //    const rgbPixel* getPixelTranslation();    // Get a table of translated pixel values (from pixelLookup) creating it first if required
+    void getPixelTranslation();
+
     QEImage::rgbPixel getFalseColor (const unsigned char value);    // Get a false color representation for an entry fro the color lookup table
 
-    bool pixelLookupValid;  // pixelLookup is valid. It is invalid if anything that affects the translation changes, such as pixel format, local brigtness, etc
-
-    QByteArray pixelLookup; // Table of translated pixel values (includig contrast reversal, local brightness and contrast, and clipping)
+    bool pixelLookupValid;  // pixelLookup is valid. It is invalid if anything that affects the translation changes, such as pixel format, local brigHtness, etc
+    QEImage::rgbPixel pixelLookup[HISTOGRAM_BINS];
+    unsigned int pixelLow;
+    unsigned int pixelHigh;
 
     void setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 );    // Update the brightness and contrast, if in auto, to match the recently selected region
     void getPixelRange( const QRect& area, unsigned int* min, unsigned int* max ); // Determine the range of pixel values an area of the image
@@ -1323,6 +1339,10 @@ public:
     ///
     Q_PROPERTY(bool contrastReversal READ getContrastReversal WRITE setContrastReversal)
 
+    /// If true, the image will be displayed using a logarithmic brightness scale.
+    ///
+    Q_PROPERTY(bool logBrightness READ getLog WRITE setLog)
+
     /// If true, a button bar will be displayed above the image.
     /// If not displayed, all buttons in the button bar are still available in the right click menu.
     Q_PROPERTY(bool displayButtonBar READ getDisplayButtonBar WRITE setDisplayButtonBar)
@@ -1330,6 +1350,10 @@ public:
     /// If true, the image timestamp will be written in the top left of the image.
     ///
     Q_PROPERTY(bool showTime READ getShowTime WRITE setShowTime)
+
+    /// If true, the apply false colour to the image.
+    ///
+    Q_PROPERTY(bool useFalseColour READ getUseFalseColour WRITE setUseFalseColour)
 
     /// Used to select the color of the vertical slice markup.
     ///

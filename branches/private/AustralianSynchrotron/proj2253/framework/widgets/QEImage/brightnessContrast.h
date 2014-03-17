@@ -29,6 +29,21 @@
 #include <QCheckBox>
 #include <QSlider>
 #include <QLabel>
+#include <QDebug>
+
+#define HISTOGRAM_BINS 256
+class localBrightnessContrast;
+
+class histogram: public QFrame
+{
+public:
+    histogram( QWidget* parent, localBrightnessContrast* lbc );
+    Q_OBJECT
+private:
+    void paintEvent(QPaintEvent *event);
+
+    localBrightnessContrast* lbc;
+};
 
 class localBrightnessContrast : public QFrame
 {
@@ -36,15 +51,23 @@ class localBrightnessContrast : public QFrame
 
 public:
     localBrightnessContrast();
+    ~localBrightnessContrast();
 
-    void setBrightnessContrast( int brightness, int contrast );
+    void setBrightnessContrast( const unsigned int max, const unsigned int min );
     void setAutoBrightnessContrast( bool autoBrightnessContrast );
     void setContrastReversal( bool contrastReversal );
+    void setLog( bool log );
+    void setFalseColour( bool falseColour );
 
     bool getAutoBrightnessContrast();
     bool getContrastReversal();
-    int  getBrightness();
-    int  getContrast();
+    bool getLog();
+    bool getFalseColour();
+
+    int getLowPixel();
+    int getHighPixel();
+
+    void setStatistics( unsigned int minPIn, unsigned int maxPIn, unsigned int bitDepth, unsigned int binsIn[HISTOGRAM_BINS] );
 
 signals:
     void brightnessContrastAutoImage();
@@ -52,19 +75,66 @@ signals:
 
 private slots:
     void brightnessSliderValueChanged( int value );
-    void contrastSliderValueChanged( int value );
+    void minSliderValueChanged( int value );
+    void maxSliderValueChanged( int value );
+    void gradientSliderValueChanged( int value );
+
     void brightnessContrastResetClicked( bool state );
     void brightnessContrastAutoImageClicked();
     void contrastReversalToggled( bool );
+    void logToggled( bool );
+    void falseColourToggled( bool );
 
 private:
     // Local brightness and contrast controls
     QCheckBox* autoBrightnessCheckBox;
     QSlider* brightnessSlider;
     QSlider* contrastSlider;
+    QSlider* minSlider;
+    QSlider* maxSlider;
+    QSlider* gradientSlider;
     QLabel* brightnessRBLabel;
-    QLabel* contrastRBLabel;
+    QLabel* minRBLabel;
+    QLabel* maxRBLabel;
+    QLabel* gradientRBLabel;
     QCheckBox* contrastReversalCheckBox;
+    QCheckBox* logCheckBox;
+    QCheckBox* falseColourCheckBox;
+
+    histogram* hist;
+
+    bool nonInteractive;
+
+    bool inBrightnessCallback;
+    bool inGradientCallback;
+    bool inZeroValueCallback;
+    bool inFullValueCallback;
+
+    void updateBrightness( double val );
+    void updateGradient( double val );
+    void updateZeroValue( unsigned int val );
+    void updateFullValue( unsigned int val );
+    void updateZeroValueFullValue( unsigned int min, unsigned int max );
+
+
+    void updateBrightnessInterface();
+    void updateGradientInterface();
+    void updateZeroValueInterface();
+    void updateFullValueInterface();
+
+public:
+    // Current brightness/contrast settings
+    unsigned int zeroValue;
+    unsigned int fullValue;
+
+    unsigned int range;  // Derived
+
+    // Current image stats
+    void initialiseImageStats();
+    unsigned int maxP;
+    unsigned int minP;
+    unsigned int depth;
+    unsigned int* bins; // [HISTOGRAM_BINS]
 
 };
 

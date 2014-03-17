@@ -33,6 +33,7 @@
 
 #include <QtDebug>
 #include <QByteArray>
+#include <QDateTime>//testing only
 
 #include "mpeg.h"
 
@@ -360,7 +361,16 @@ void mpegSource::ffQuit() {
 
 void mpegSourceObject::updateImage(FFBuffer *newbuf)
 {
-    ms->updateImage( newbuf );
+    static int count = 0;
+    count++;
+    if( count%10 == 0 )// temp
+    {
+        ms->updateImage( newbuf );
+    }
+    else
+    {
+        qDebug() << "skip";
+    }
     newbuf->release();
 }
 
@@ -421,6 +431,7 @@ void mpegSource::updateImage(FFBuffer *newbuf) {
             const unsigned char* linePtrV = (const unsigned char*)(newbuf->pFrame->data[2]);
 
             // For each row...
+//            qint64 start = QDateTime::currentMSecsSinceEpoch();
             for( int i = 0; i < newbuf->height; i++ )
             {
                 // For each pixel...
@@ -458,6 +469,8 @@ void mpegSource::updateImage(FFBuffer *newbuf) {
                     linePtrV += newbuf->pFrame->linesize[2];
                 }
             }
+//            qint64 end = QDateTime::currentMSecsSinceEpoch();
+//            qDebug() <<"decode mS:" << end-start;
         }
         break;
 

@@ -1,4 +1,5 @@
-/*
+/*  QEimage.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -39,6 +40,7 @@
 #include <QMessageBox>
 #include <QScrollBar>
 #include <QECommon.h>
+#include <profilePlot.h>
 #include <QEImage.h>
 #include <QEByteArray.h>
 #include <QEInteger.h>
@@ -130,7 +132,6 @@ void QEImage::setup() {
     clippingHigh = 0;
 
     pixelLookupValid = false;
-    pixelLookup.resize( 256*sizeof(rgbPixel) );
 
     appHostsControls = false;
     hostingAppAvailable = false;
@@ -1594,44 +1595,39 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
 //
 // (E) Values matching the original range of values are selected from the translated table.
 //
-const QEImage::rgbPixel* QEImage::getPixelTranslation()
+void QEImage::getPixelTranslation()
 {
-    // If the table is already set up, return it.
-    if( pixelLookupValid )
-    {
-        return (rgbPixel*)(pixelLookup.constData());
-    }
+    // Maximum pixel value for 8 bit
+    #define MAX_VALUE 255
 
-// Maximum pixel value for 8 bit
-#define MAX_VALUE 255
+    bool contrastReversal;
+    bool logBrightness;
 
-    // View the table as an array or rgb pixels
-    rgbPixel* lookupTable = (rgbPixel*)(pixelLookup.constData());
-
-    // Determine if local contrast and brightness applies
-    // Even if local brightness and contrast is enabled, no need to go through the pain if they are both neutral
-    bool doLCB = false;
-    int localContrast = 100;
-    int localBrightness = 0;
     if( localBC )
     {
-        localContrast = localBC->getContrast();
-        localBrightness = localBC->getBrightness();
-        doLCB = localContrast!=100 || localBrightness != 0;
+        pixelLow = localBC->getLowPixel();
+        pixelHigh = localBC->getHighPixel();
+
+        contrastReversal = localBC->getContrastReversal();
+        logBrightness = localBC->getLog();
+    }
+    else
+    {
+        pixelLow = 0;
+        pixelHigh = maxPixelValue();
+
+        contrastReversal = false;
+        logBrightness = false;
     }
 
-    // Range of values with contrast applied
-    int range = MAX_VALUE*localContrast/100;
-
-    // Offset to set black level with new range of values
-    int offset = (range-MAX_VALUE)/2;
+    unsigned int pixelRange = pixelHigh-pixelLow;
 
     // Loop populating table with pixel translations for every pixel value
     unsigned int value = 0;
     for( value = 0; value <= MAX_VALUE; value++ )
     {
         // Alpha always 100%
-        lookupTable[value].p[3] = 0xff;
+        pixelLookup[value].p[3] = 0xff;
 
         // Assume no clipping
         bool clipped = false;
@@ -1640,17 +1636,17 @@ const QEImage::rgbPixel* QEImage::getPixelTranslation()
             // If clipping high, set pixel to solid 'clip high' color
             if( clippingHigh > 0 && value >= clippingHigh )
             {
-                lookupTable[value].p[0] = 0x80;
-                lookupTable[value].p[1] = 0x80;
-                lookupTable[value].p[2] = 0xff;
+                pixelLookup[value].p[0] = 0x80;
+                pixelLookup[value].p[1] = 0x80;
+                pixelLookup[value].p[2] = 0xff;
                 clipped = true;
             }
             // If clipping low, set pixel to solid 'clip low' color
             else if( clippingLow > 0 && value <= clippingLow )
             {
-                lookupTable[value].p[0] = 0xff;
-                lookupTable[value].p[1] = 0x80;
-                lookupTable[value].p[2] = 0x80;
+                pixelLookup[value].p[0] = 0xff;
+                pixelLookup[value].p[1] = 0x80;
+                pixelLookup[value].p[2] = 0x80;
                 clipped = true;
             }
         }
@@ -1658,56 +1654,57 @@ const QEImage::rgbPixel* QEImage::getPixelTranslation()
         // Translate pixel value if not clipped
         if( !clipped )
         {
-            // Start with initial pixel value
-            int translatedValue = value;
+            int translatedValue;
 
+            if( logBrightness )
+            {
+                translatedValue = int( log10( value+1 ) * 105.8864 );
+            }
+            else
+            {
+                translatedValue = value;
+            }
+
+            qDebug() << value<<translatedValue;
             // Reverse contrast if required
             if( localBC->getContrastReversal() )
             {
                 translatedValue = MAX_VALUE - translatedValue;
             }
 
-            // Apply local brightness and contrast if required
-            if( doLCB )
-            {
-                translatedValue = (translatedValue*localContrast/100)-offset+((range-offset)*localBrightness/100);
-                if( translatedValue < 0 )
-                {
-                    translatedValue = 0;
-                }
-                else if ( translatedValue > MAX_VALUE )
-                {
-                    translatedValue = MAX_VALUE;
-                }
-            }
-
             // Save translated pixel
-            lookupTable[value].p[0] = (unsigned char)translatedValue;
-            lookupTable[value].p[1] = (unsigned char)translatedValue;
-            lookupTable[value].p[2] = (unsigned char)translatedValue;
+            if( getUseFalseColour() )
+            {
+                pixelLookup[value] = getFalseColor ((unsigned char)translatedValue);
+            }
+            else
+            {
+                pixelLookup[value].p[0] = (unsigned char)translatedValue;
+                pixelLookup[value].p[1] = (unsigned char)translatedValue;
+                pixelLookup[value].p[2] = (unsigned char)translatedValue;
+            }
         }
+
     }
 
-    pixelLookupValid = true;
-    return lookupTable;
+    return;
 }
 
 // Get a false color representation for an entry from the color lookup table
-//???!!! not used yet
 QEImage::rgbPixel QEImage::getFalseColor (const unsigned char value) {
     rgbPixel result;
     int h, l;
     QColor c;
 
-    // Hue goes 320 (purple) down to 0 (red) as monochrome value goes 0 to 255.
+    // Hue goes 300 (blue) down to 0 (red) as monochrome value goes 0 up to 255.
     //
-    h = (320 * (0xFF - value)) / 0xFF;
+    h = (300 * (0xFF - value)) / 0xFF;
 
     // Intesity ramps up to a max of 128
     //
     l = MIN (4*value, 128);
 
-    c.setHsl (h, 0xFF, l);
+    c.setHsl (h, 0xFF, l);   // Saturation always 100%
 
     result.p[0] = (unsigned char) c.blue();
     result.p[1] = (unsigned char) c.green();
@@ -1871,8 +1868,35 @@ void QEImage::displayImage()
 
     // Get the pixel lookup table to convert raw pixel values to display pixel values taking into
     // account input pixel size, clipping, contrast reversal, and local brightness and contrast.
-    const rgbPixel* pixelLookup = getPixelTranslation();
 
+    if( !pixelLookupValid )
+    {
+        getPixelTranslation();
+        pixelLookupValid = true;
+    }
+
+    unsigned int pixelRange = pixelHigh-pixelLow;
+    if( !pixelRange )
+    {
+        pixelRange = 1;
+    }
+
+    // Prepare for building image stats while processing image data
+    unsigned int maxP = 0;
+    unsigned int minP = UINT_MAX;
+    static unsigned int bins[HISTOGRAM_BINS];
+    unsigned int valP;
+    unsigned int bitsPerBin = (bitDepth<=8)?1:bitDepth-8;
+    unsigned int bin;
+    for( int i = 0; i < HISTOGRAM_BINS-1; i++ )
+    {
+        bins[i]=0;
+    }
+#define BUILD_STATS \
+    bin = valP>>(bitsPerBin-1); \
+    bins[bin] = bins[bin]+1; \
+    if( valP < minP ) minP = valP; \
+    else if( valP > maxP ) maxP = valP;
 
 // For speed, the format switch statement is outside the pixel loop.
 // An identical(ish) loop is used for each format
@@ -1895,125 +1919,46 @@ void QEImage::displayImage()
     {
         case imageDataFormats::MONO:
         {
-            // Determine bit shift for selecting top 8 bits
-            int shift = bitDepth-8;
-            long  mask = (1<<bitDepth)-1;
-
-            switch( bitDepth )
-            {
-                //!!! This is not correct. Values will always have lowest bits zero.
-                //!!! Not noticable for 7 bits where maximum value will be 254, but
-                //!!! very noticable for 1 bit where values will be 0 and 128 (black and mid grey)
-                // Pixel data is 1 to 7 bits wide. Extract as 8 bit and move the used bits to the most significant bits.
-                case 1:
-                case 2:
-                case 3:
-                case 4:
-                case 5:
-                case 6:
-                case 7:
+            LOOP_START
+                quint64 inPixel;
+                if( bitDepth <= 8 )
                 {
-                    LOOP_START
-                        unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
-                        dataOut[buffIndex] = pixelLookup[inPixel&mask>>shift]; // right shift by a negative amount
-                    LOOP_END
-                    break;
+                    inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
+                }
+                else if( bitDepth <= 16 )
+                {
+                    inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
+                }
+                else if( bitDepth <= 24 )
+                {
+                    inPixel = (*(unsigned long*)(&dataIn[dataIndex*bytesPerPixel]))&0xffffff;
+                }
+                else
+                {
+                    inPixel = *(unsigned long*)(&dataIn[dataIndex*bytesPerPixel]);
                 }
 
-                // Pixel data is 8 bits wide. Extract the fist byte.unsigned
-                default:
-                case 8:
+                // Accumulate pixel statistics
+                valP = inPixel;
+                BUILD_STATS
+
+                // Scale pixel for local brightness and contrast
+                if( inPixel < pixelLow )
                 {
-                    LOOP_START
-                        unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
-                        dataOut[buffIndex] = pixelLookup[inPixel];
-                    LOOP_END
-                    break;
+                    inPixel = 0;
+                }
+                else if( inPixel > pixelHigh )
+                {
+                    inPixel = 255;
+                }
+                else
+                {
+                    inPixel = (inPixel-pixelLow)*255/pixelRange;
                 }
 
-                // Pixel data is 9 to 15 bits wide - extract as 16 bit and use the top 8 bits of the used bits
-                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
-                case  9:
-                case 10:
-                case 11:
-                case 12:
-                case 13:
-                case 14:
-                case 15:
-                {
-                    LOOP_START
-                        unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
-                        dataOut[buffIndex] = pixelLookup[(inPixel&mask)>>shift];
-                    LOOP_END
-                    break;
-                }
-
-                // Pixel data is 16 bits wide - use the top byte
-                case 16:
-                {
-                    LOOP_START
-                        unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel+1]);
-                        dataOut[buffIndex] = pixelLookup[inPixel];
-                    LOOP_END
-                    break;
-                }
-
-                // Pixel data is 17 to 23 bits wide - extract as 32 bit and use the top 8 bits of the used bits
-                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
-                case 17:
-                case 18:
-                case 19:
-                case 20:
-                case 21:
-                case 22:
-                case 23:
-                {
-                    LOOP_START
-                        // Pixel data is 18 bits wide - use the top 8 bits
-                        quint32 inPixel = *(quint32*)(&dataIn[dataIndex*bytesPerPixel]);
-                        dataOut[buffIndex] = pixelLookup[(inPixel&mask)>>shift];
-                    LOOP_END
-                    break;
-                }
-
-                // Pixel data is 24 bits wide - use the top byte
-                case 24:
-                {
-                    LOOP_START
-                        unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel+2]);
-                        dataOut[buffIndex] = pixelLookup[inPixel];
-                    LOOP_END
-                    break;
-                }
-
-                // Pixel data is 25 to 31 bits wide - extract as 32 bit and use the top 8 bits of the used bits
-                // (Zero top bits to ensure range is safe as an index into the pixelLookup table)
-                case 25:
-                case 26:
-                case 27:
-                case 28:
-                case 29:
-                case 30:
-                case 31:
-                {
-                    LOOP_START
-                        unsigned long inPixel = *(unsigned long*)(&dataIn[dataIndex*bytesPerPixel]);
-                        dataOut[buffIndex] = pixelLookup[(inPixel&mask)>>shift];
-                    LOOP_END
-                    break;
-                }
-
-                // Pixel data is 32 bits wide - use the top byte
-                case 32:
-                {
-                    LOOP_START
-                        // Pixel data is 32 bits wide - use the top 8 bits
-                        unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel+3]);
-                        dataOut[buffIndex] = pixelLookup[inPixel];
-                    LOOP_END
-                    break;
-                }
-            }
+                // Select displayed pixel
+                dataOut[buffIndex] = pixelLookup[inPixel];
+            LOOP_END
             break;
         }
 
@@ -2409,7 +2354,6 @@ void QEImage::displayImage()
                         break;
                 }
 
-
             LOOP_END
             break;
         }
@@ -2419,12 +2363,22 @@ void QEImage::displayImage()
             //unsigned int rOffset = 0*imageDataSize;
             unsigned int gOffset = imageDataSize;
             unsigned int bOffset = 2*imageDataSize;
+//            qint64 start = QDateTime::currentMSecsSinceEpoch();
             LOOP_START
                 unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
-                dataOut[buffIndex].p[0] = pixelLookup[inPixel[bOffset]].p[0];
-                dataOut[buffIndex].p[1] = pixelLookup[inPixel[gOffset]].p[0];
-                dataOut[buffIndex].p[2] = pixelLookup[*inPixel].p[0];
+
+                unsigned char r = *inPixel;
+                unsigned char g = inPixel[gOffset];
+                unsigned char b = inPixel[bOffset];
+
+
+                dataOut[buffIndex].p[0] = pixelLookup[b].p[0];
+                dataOut[buffIndex].p[1] = pixelLookup[g].p[0];
+                dataOut[buffIndex].p[2] = pixelLookup[r].p[0];
                 dataOut[buffIndex].p[3] = 0xff;
+
+                valP = g; // use all three colors!!!
+                BUILD_STATS
             LOOP_END
             break;
         }
@@ -2508,6 +2462,12 @@ void QEImage::displayImage()
             LOOP_END
             break;
         }
+    }
+
+    // Update the local brightness/contrast control if present
+    if( localBC )
+    {
+        localBC->setStatistics( minP, maxP, bitDepth, bins );
     }
 
     // Generate a frame from the data
@@ -3406,6 +3366,17 @@ bool QEImage::getShowTime()
     return videoWidget->getShowTime();
 }
 
+// Use False Colour
+void QEImage::setUseFalseColour(bool value)
+{
+    localBC->setFalseColour( value );
+}
+
+bool QEImage::getUseFalseColour()
+{
+    return localBC->getFalseColour();
+}
+
 // Vertical slice markup colour
 void QEImage::setVertSliceMarkupColor(QColor markupColor )
 {
@@ -3528,6 +3499,17 @@ void QEImage::setContrastReversal( bool contrastReversal )
 bool QEImage::getContrastReversal()
 {
     return localBC->getContrastReversal();
+}
+
+// Show log brightness scale
+void QEImage::setLog( bool log )
+{
+    localBC->setLog( log );
+}
+
+bool QEImage::getLog()
+{
+    return localBC->getLog();
 }
 
 // Enable vertical slice selection
@@ -4366,7 +4348,7 @@ void QEImage::setLineProfileControlsNotVisible()
 //==================================================
 
 // Determine the maximum pixel value for the current format
-double QEImage::maxPixelValue()
+unsigned int QEImage::maxPixelValue()
 {
     double result = 0;
 
@@ -4388,6 +4370,11 @@ double QEImage::maxPixelValue()
         case imageDataFormats::YUV421:
             result = (1<<8)-1; //???!!! not done yet probably correct
             break;
+    }
+
+    if( result == 0 )
+    {
+        result = 255;
     }
 
     return result;
@@ -4442,26 +4429,9 @@ void QEImage::setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 )
     unsigned int min, max;
     getPixelRange( area, &min, &max );
 
-    // Range of pixel values in area
-    int range = (max>min)?max-min:1;
-
-    // Calculate the contrast that will set the dynamic range
-    // to match the range of pixels in the area.
-    double newContrastDouble = (double)(maxPixelValue())/(double)(range);
-
-    // Calculate the brightness that will set the dynamic range
-    // to match the range of pixels in the area.
-    // Offset from mid pixel value of range to mid pixel value in area (in original pixel scale) scaled for new contrast...
-    double midOffset = (((double)(maxPixelValue())/2)-((double)(min+max)/2))*newContrastDouble;
-
-    // Calculate brightness that will offset pixel values in the selected area to use full range.
-    // Note, when used, the brightness will be multiplied by (the new pixel range - an offset used to center the new pixel range )
-    double newBrightnessDouble = midOffset/(maxPixelValue()*(newContrastDouble-(newContrastDouble-1)/2));
-
-    // Update the local brightness and contrast
     if( localBC )
     {
-        localBC->setBrightnessContrast( newBrightnessDouble*100.0, newContrastDouble*100.0);
+        localBC->setBrightnessContrast( max, min );
     }
 }
 
@@ -5971,3 +5941,4 @@ void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool ini
 
 }
 
+// end
