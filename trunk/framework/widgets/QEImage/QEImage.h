@@ -752,15 +752,18 @@ public slots:
     {
         unsigned char p[4]; // R/G/B/Alpha
     };
-    const rgbPixel* getPixelTranslation();    // Get a table of translated pixel values (from pixelLookup) creating it first if required
+    //    const rgbPixel* getPixelTranslation();    // Get a table of translated pixel values (from pixelLookup) creating it first if required
+    void getPixelTranslation();
+
     QEImage::rgbPixel getFalseColor (const unsigned char value);    // Get a false color representation for an entry fro the color lookup table
 
-    bool pixelLookupValid;  // pixelLookup is valid. It is invalid if anything that affects the translation changes, such as pixel format, local brigtness, etc
-
-    QByteArray pixelLookup; // Table of translated pixel values (includig contrast reversal, local brightness and contrast, and clipping)
+    bool pixelLookupValid;  // pixelLookup is valid. It is invalid if anything that affects the translation changes, such as pixel format, local brigHtness, etc
+    QEImage::rgbPixel pixelLookup[HISTOGRAM_BINS];
+    unsigned int pixelLow;
+    unsigned int pixelHigh;
 
     void setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 );    // Update the brightness and contrast, if in auto, to match the recently selected region
-    void getPixelRange( const QRect& area, unsigned int* min, unsigned int* max, QVector<unsigned int>* bins ); // Determine the range of pixel values an area of the image
+    void getPixelRange( const QRect& area, unsigned int* min, unsigned int* max ); // Determine the range of pixel values an area of the image
 
     void doEnableBrightnessContrast( bool enableBrightnessContrast );
     void doContrastReversal( bool contrastReversal );

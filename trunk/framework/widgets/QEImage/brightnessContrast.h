@@ -31,6 +31,7 @@
 #include <QLabel>
 #include <QDebug>
 
+#define HISTOGRAM_BINS 256
 class localBrightnessContrast;
 
 class histogram: public QFrame
@@ -52,17 +53,17 @@ public:
     localBrightnessContrast();
     ~localBrightnessContrast();
 
-    void setBrightnessContrast( const unsigned int max, const unsigned int min, const unsigned int highest, const QVector<unsigned int>& bins );
-    void setBrightnessContrast( int brightness, int contrast );
+    void setBrightnessContrast( const unsigned int max, const unsigned int min );
     void setAutoBrightnessContrast( bool autoBrightnessContrast );
     void setContrastReversal( bool contrastReversal );
 
     bool getAutoBrightnessContrast();
     bool getContrastReversal();
-    int  getBrightness();
-    int  getContrast();
 
-    void setStatistics( unsigned int minPIn, unsigned int maxPIn, unsigned int bitDepth, QVector<unsigned int> binsIn );
+    int getLowPixel();
+    int getHighPixel();
+
+    void setStatistics( unsigned int minPIn, unsigned int maxPIn, unsigned int bitDepth, unsigned int binsIn[HISTOGRAM_BINS] );
 
 signals:
     void brightnessContrastAutoImage();
@@ -70,7 +71,6 @@ signals:
 
 private slots:
     void brightnessSliderValueChanged( int value );
-    void contrastSliderValueChanged( int value );
     void minSliderValueChanged( int value );
     void maxSliderValueChanged( int value );
     void gradientSliderValueChanged( int value );
@@ -88,7 +88,6 @@ private:
     QSlider* maxSlider;
     QSlider* gradientSlider;
     QLabel* brightnessRBLabel;
-    QLabel* contrastRBLabel;
     QLabel* minRBLabel;
     QLabel* maxRBLabel;
     QLabel* gradientRBLabel;
@@ -97,11 +96,25 @@ private:
 
     bool nonInteractive;
 
+    bool inBrightnessCallback;
+    bool inGradientCallback;
+    bool inZeroValueCallback;
+    bool inFullValueCallback;
+
+    void updateBrightness( double val );
+    void updateGradient( double val );
+    void updateZeroValue( unsigned int val );
+    void updateFullValue( unsigned int val );
+    void updateZeroValueFullValue( unsigned int min, unsigned int max );
+
+
+    void updateBrightnessInterface();
+    void updateGradientInterface();
+    void updateZeroValueInterface();
+    void updateFullValueInterface();
+
 public:
     // Current brightness/contrast settings
-    unsigned int brightness;
-    unsigned int contrast;
-    unsigned int gradient; // Derived???
     unsigned int zeroValue;
     unsigned int fullValue;
 
@@ -112,7 +125,7 @@ public:
     unsigned int maxP;
     unsigned int minP;
     unsigned int depth;
-    QVector<unsigned int> bins;
+    unsigned int* bins; // [HISTOGRAM_BINS]
 
 };
 

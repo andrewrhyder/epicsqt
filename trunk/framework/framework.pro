@@ -27,6 +27,9 @@
 #QMAKE_CXXFLAGS_DEBUG += -pg
 #QMAKE_LFLAGS_DEBUG += -pg
 
+# To look at optimised performance (with or without the profileing above, include the following:
+#QMAKE_CXXFLAGS_DEBUG += -O2
+
 #===========================================================
 # Include the following gdbmacros line for debugging only
 #SOURCES += <YOUR-QTSDK-DIRECTORY>/share/qtcreator/gdbmacros/gdbmacros.cpp
