@@ -59,6 +59,7 @@ localBrightnessContrast::localBrightnessContrast()
 
     QHBoxLayout* brightnessContrastSub1Layout = new QHBoxLayout();
     QGridLayout* brightnessContrastSub2Layout = new QGridLayout();
+    QHBoxLayout* brightnessContrastSub3Layout = new QHBoxLayout();
 
     QLabel* brightnessLabel = new QLabel( "Brightness:", this );
     QLabel* gradientLabel = new QLabel( "Gradient:\n(Contrast)", this );
@@ -120,6 +121,14 @@ localBrightnessContrast::localBrightnessContrast()
     contrastReversalCheckBox->setToolTip( "Reverse light for dark");
     QObject::connect( contrastReversalCheckBox, SIGNAL( toggled( bool ) ), this,  SLOT  ( contrastReversalToggled( bool )) );
 
+    logCheckBox = new QCheckBox( "Log scale", this );
+    logCheckBox->setToolTip( "Logarithmic brightness scale");
+    QObject::connect( logCheckBox, SIGNAL( toggled( bool ) ), this,  SLOT  ( logToggled( bool )) );
+
+    falseColourCheckBox = new QCheckBox( "False Colour", this );
+    falseColourCheckBox->setToolTip( "Interpret intensitiy scale as a range of colours");
+    QObject::connect( falseColourCheckBox, SIGNAL( toggled( bool ) ), this,  SLOT  ( falseColourToggled( bool )) );
+
     brightnessContrastSub1Layout->addWidget( autoBrightnessCheckBox, 0, Qt::AlignLeft );
     brightnessContrastSub1Layout->addWidget( autoImageButton, 0, Qt::AlignLeft );
     brightnessContrastSub1Layout->addWidget( resetButton, 1, Qt::AlignLeft );
@@ -142,10 +151,14 @@ localBrightnessContrast::localBrightnessContrast()
 
     brightnessContrastSub2Layout->setColumnStretch( 1, 1 );  // Read back labels to take all spare room
 
+    brightnessContrastSub3Layout->addWidget( contrastReversalCheckBox, 0, Qt::AlignLeft );
+    brightnessContrastSub3Layout->addWidget( falseColourCheckBox,      0, Qt::AlignLeft );
+    brightnessContrastSub3Layout->addWidget( logCheckBox,              1, Qt::AlignLeft );
+
     brightnessContrastMainLayout->addLayout( brightnessContrastSub1Layout, 0, 0 );
     brightnessContrastMainLayout->addLayout( brightnessContrastSub2Layout, 1, 0 );
+    brightnessContrastMainLayout->addLayout( brightnessContrastSub3Layout, 2, 0 );
 
-    brightnessContrastMainLayout->addWidget( contrastReversalCheckBox, 2, 0 );
     brightnessContrastMainLayout->addWidget( hist, 0, 1, 3, 1 );
 
     range = 0;
@@ -165,6 +178,9 @@ localBrightnessContrast::~localBrightnessContrast()
     delete maxRBLabel;
     delete gradientRBLabel;
     delete contrastReversalCheckBox;
+    delete logCheckBox;
+    delete falseColourCheckBox;
+
     delete hist;
 }
 
@@ -188,6 +204,16 @@ bool localBrightnessContrast::getContrastReversal()
     return contrastReversalCheckBox->isChecked();
 }
 
+bool localBrightnessContrast::getLog()
+{
+    return logCheckBox->isChecked();
+}
+
+bool localBrightnessContrast::getFalseColour()
+{
+    return falseColourCheckBox->isChecked();
+}
+
 // Reset the brightness and contrast to normal
 void localBrightnessContrast::brightnessContrastResetClicked( bool )
 {
@@ -203,14 +229,26 @@ void localBrightnessContrast::brightnessContrastResetClicked( bool )
     emit brightnessContrastChange();
 }
 
-// Auto brightness and contrast check box has ben checked or unchecked
+// Auto brightness and contrast check box has been checked or unchecked
 void localBrightnessContrast::brightnessContrastAutoImageClicked()
 {
     emit brightnessContrastAutoImage();
 }
 
-// Contrast reversal check box has ben checked or unchecked
+// Contrast reversal check box has been checked or unchecked
 void localBrightnessContrast::contrastReversalToggled( bool )
+{
+    emit brightnessContrastChange();
+}
+
+// Log brightness check box has been checked or unchecked
+void localBrightnessContrast::logToggled( bool )
+{
+    emit brightnessContrastChange();
+}
+
+// False colour check box has been checked or unchecked
+void localBrightnessContrast::falseColourToggled( bool )
 {
     emit brightnessContrastChange();
 }
@@ -233,6 +271,16 @@ void localBrightnessContrast::setAutoBrightnessContrast( bool autoBrightnessCont
 void localBrightnessContrast::setContrastReversal( bool contrastReversal )
 {
     contrastReversalCheckBox->setChecked( contrastReversal );
+}
+
+void localBrightnessContrast::setLog( bool log )
+{
+    logCheckBox->setChecked( log );
+}
+
+void localBrightnessContrast::setFalseColour( bool falseColour )
+{
+    logCheckBox->setChecked( falseColour );
 }
 
 //==========================================================
@@ -541,7 +589,7 @@ void histogram::paintEvent(QPaintEvent* )
     }
 
     // Determine range (ignore counts in first and last buckets as it is common for huge counts in one or both ends)
-    int binRange = 0;
+    unsigned int binRange = 0;
     for( int i = 1; i < HISTOGRAM_BINS-1; i++ )
     {
         if( lbc->bins[i] > binRange )

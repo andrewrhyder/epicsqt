@@ -95,7 +95,6 @@ void QEImage::setup() {
 
     mFormatOption = imageDataFormats::MONO;
     bitDepth = 8;
-    useFalseColour = false;
 
     paused = false;
     infoUpdatePaused( paused );
@@ -1597,15 +1596,24 @@ void QEImage::getPixelTranslation()
     // Maximum pixel value for 8 bit
     #define MAX_VALUE 255
 
+    bool contrastReversal;
+    bool logBrightness;
+
     if( localBC )
     {
         pixelLow = localBC->getLowPixel();
         pixelHigh = localBC->getHighPixel();
+
+        contrastReversal = localBC->getContrastReversal();
+        logBrightness = localBC->getLog();
     }
     else
     {
         pixelLow = 0;
-        pixelHigh = 255;//!!! not correct - use bit depth
+        pixelHigh = maxPixelValue();
+
+        contrastReversal = false;
+        logBrightness = false;
     }
 
     unsigned int pixelRange = pixelHigh-pixelLow;
@@ -1642,9 +1650,18 @@ void QEImage::getPixelTranslation()
         // Translate pixel value if not clipped
         if( !clipped )
         {
-            // Determine lookup value
-            int translatedValue = value;
+            int translatedValue;
 
+            if( logBrightness )
+            {
+                translatedValue = int( log10( value+1 ) * 105.8864 );
+            }
+            else
+            {
+                translatedValue = value;
+            }
+
+            qDebug() << value<<translatedValue;
             // Reverse contrast if required
             if( localBC->getContrastReversal() )
             {
@@ -3348,16 +3365,12 @@ bool QEImage::getShowTime()
 // Use False Colour
 void QEImage::setUseFalseColour(bool value)
 {
-    useFalseColour = value;
-
-    // Present the updated image
-    pixelLookupValid = false;
-    displayImage();
+    localBC->setFalseColour( value );
 }
 
 bool QEImage::getUseFalseColour()
 {
-    return useFalseColour;
+    return localBC->getFalseColour();
 }
 
 // Vertical slice markup colour
@@ -3482,6 +3495,17 @@ void QEImage::setContrastReversal( bool contrastReversal )
 bool QEImage::getContrastReversal()
 {
     return localBC->getContrastReversal();
+}
+
+// Show log brightness scale
+void QEImage::setLog( bool log )
+{
+    localBC->setLog( log );
+}
+
+bool QEImage::getLog()
+{
+    return localBC->getLog();
 }
 
 // Enable vertical slice selection
@@ -4342,6 +4366,11 @@ unsigned int QEImage::maxPixelValue()
         case imageDataFormats::YUV421:
             result = (1<<8)-1; //???!!! not done yet probably correct
             break;
+    }
+
+    if( result == 0 )
+    {
+        result = 255;
     }
 
     return result;

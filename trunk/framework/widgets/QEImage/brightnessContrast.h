@@ -56,9 +56,13 @@ public:
     void setBrightnessContrast( const unsigned int max, const unsigned int min );
     void setAutoBrightnessContrast( bool autoBrightnessContrast );
     void setContrastReversal( bool contrastReversal );
+    void setLog( bool log );
+    void setFalseColour( bool falseColour );
 
     bool getAutoBrightnessContrast();
     bool getContrastReversal();
+    bool getLog();
+    bool getFalseColour();
 
     int getLowPixel();
     int getHighPixel();
@@ -78,6 +82,8 @@ private slots:
     void brightnessContrastResetClicked( bool state );
     void brightnessContrastAutoImageClicked();
     void contrastReversalToggled( bool );
+    void logToggled( bool );
+    void falseColourToggled( bool );
 
 private:
     // Local brightness and contrast controls
@@ -92,6 +98,9 @@ private:
     QLabel* maxRBLabel;
     QLabel* gradientRBLabel;
     QCheckBox* contrastReversalCheckBox;
+    QCheckBox* logCheckBox;
+    QCheckBox* falseColourCheckBox;
+
     histogram* hist;
 
     bool nonInteractive;

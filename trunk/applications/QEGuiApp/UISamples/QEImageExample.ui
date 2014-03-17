@@ -680,13 +680,22 @@
      <property name="variableSubstitutions" stdset="0">
       <string>PT=SR08ID01DET01:PT, ROI=SR08ID01DET:ROI1</string>
      </property>
-     <property name="enableAreaSelection">
-      <bool>true</bool>
+     <property name="logBrightness" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="useFalseColour">
+      <bool>false</bool>
      </property>
      <property name="resizeOption" stdset="0">
       <enum>QEImage::Fit</enum>
      </property>
      <property name="enableBrightnessContrast">
+      <bool>true</bool>
+     </property>
+     <property name="briefInfoArea">
+      <bool>true</bool>
+     </property>
+     <property name="enableAreaSelection" stdset="0">
       <bool>true</bool>
      </property>
      <property name="regionOfInterestXVariable" stdset="0">
