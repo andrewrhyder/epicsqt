@@ -441,7 +441,7 @@ void QEImage::presentControls()
         if( localBC )
         {
             mainLayout->removeWidget( localBC );
-            components.append( componentHostListItem( localBC, QEActionRequests::OptionTopDockWindow, true, "Brightness / Contrast" ) );
+            components.append( componentHostListItem( localBC, QEActionRequests::OptionTopDockWindow, true, "Image Display Properties" ) );
         }
 
         vSliceLabel->setVisible( false );
@@ -1616,8 +1616,6 @@ void QEImage::getPixelTranslation()
         logBrightness = false;
     }
 
-    unsigned int pixelRange = pixelHigh-pixelLow;
-
     // Loop populating table with pixel translations for every pixel value
     unsigned int value = 0;
     for( value = 0; value <= MAX_VALUE; value++ )
@@ -1661,8 +1659,6 @@ void QEImage::getPixelTranslation()
                 translatedValue = value;
             }
 
-//           qDebug() << value<<translatedValue;
-
             // Reverse contrast if required
             if( localBC->getContrastReversal() )
             {
@@ -1688,13 +1684,13 @@ void QEImage::getPixelTranslation()
 }
 
 // Get a false color representation for an entry from the color lookup table
-QEImage::rgbPixel QEImage::getFalseColor (const unsigned char value) {
+localBrightnessContrast::rgbPixel QEImage::getFalseColor (const unsigned char value) {
 
     const int max = 0xFF;
     const int half = 0x80;
     const int lightness_slope = 4;
 
-    rgbPixel result;
+    localBrightnessContrast::rgbPixel result;
     int h, l;
     QColor c;
 
@@ -1785,7 +1781,7 @@ void QEImage::displayImage()
 
     // Set up input and output pointers and counters ready to process each pixel
     const unsigned char* dataIn = (unsigned char*)image.constData();
-    rgbPixel* dataOut = (rgbPixel*)(imageBuff.data());
+    localBrightnessContrast::rgbPixel* dataOut = (localBrightnessContrast::rgbPixel*)(imageBuff.data());
     unsigned long buffIndex = 0;
     unsigned long dataIndex = 0;
 
@@ -1934,6 +1930,9 @@ void QEImage::displayImage()
         {
             LOOP_START
                 quint64 inPixel;
+
+                // Extract pixel
+                // !!! Perhaps build a mask according to bit depth outside the loop, then just pull out full 32 bits regardless and mask the required bits. This will avoid lots of conditional code here.
                 if( bitDepth <= 8 )
                 {
                     inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
@@ -2376,7 +2375,6 @@ void QEImage::displayImage()
             //unsigned int rOffset = 0*imageDataSize;
             unsigned int gOffset = imageDataSize;
             unsigned int bOffset = 2*imageDataSize;
-//            qint64 start = QDateTime::currentMSecsSinceEpoch();
             LOOP_START
                 unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
 
@@ -2480,7 +2478,7 @@ void QEImage::displayImage()
     // Update the local brightness/contrast control if present
     if( localBC )
     {
-        localBC->setStatistics( minP, maxP, bitDepth, bins );
+        localBC->setStatistics( minP, maxP, bitDepth, bins, pixelLookup );
     }
 
     // Generate a frame from the data
