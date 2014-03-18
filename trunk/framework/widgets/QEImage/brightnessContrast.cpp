@@ -34,15 +34,30 @@
 
 #define SCALE_HEIGHT 20
 
+// Gradient scale is the tangent of the gradient.
+//
+// Internal gradient range is from pi/4 (all pixel values in range)
+// to pi/2 one pixel in range (vertical).
+// Vertical can never be reached (min and max pixels are always kept at
+// least one apart) so depending on the bit depth, maximum is near pi/2.
+//
+// User gradient range is from 0 to 1000. So scale factor is 1000/(pi/4) = 1273.239 and offset is pi/4 = 0.78539;
+#define GRADIENT_USER_SCALE_FACTOR 1273.239
+#define GRADIENT_BASE 0.78539
 
 localBrightnessContrast::localBrightnessContrast()
 {
     nonInteractive = false;
 
-    inBrightnessCallback = false;
-    inGradientCallback = false;
-    inZeroValueCallback = false;
-    inFullValueCallback = false;
+    inBrightnessSliderCallback = false;
+    inGradientSliderCallback = false;
+    inZeroValueSliderCallback = false;
+    inFullValueSliderCallback = false;
+
+    inBrightnessEditCallback = false;
+    inGradientEditCallback = false;
+    inZeroValueEditCallback = false;
+    inFullValueEditCallback = false;
 
     zeroValue = 0;
     fullValue = 255;
@@ -86,41 +101,58 @@ localBrightnessContrast::localBrightnessContrast()
     QObject::connect( brightnessSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( brightnessSliderValueChanged( int )) );
 
     gradientSlider = new QSlider( Qt::Horizontal, this );
-    gradientSlider->setMinimum( 785 );  // 1000*pi/4
-    gradientSlider->setMaximum( 1570 ); // 1000*pi/2
-    gradientSlider->setValue( 785 );
+    gradientSlider->setMinimum( 0 );
+    gradientSlider->setMaximum( 1000 );
+    gradientSlider->setValue( 0 );
     QObject::connect( gradientSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( gradientSliderValueChanged( int )) );
 
-    minSlider = new QSlider( Qt::Horizontal, this );
-    minSlider->setMinimum( 0 );
-    minSlider->setMaximum( 255 );
-    minSlider->setValue( 0 );
-    QObject::connect( minSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( minSliderValueChanged( int )) );
+    zeroValueSlider = new QSlider( Qt::Horizontal, this );
+    zeroValueSlider->setMinimum( 0 );
+    zeroValueSlider->setMaximum( 254 );
+    zeroValueSlider->setValue( 0 );
+    QObject::connect( zeroValueSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( minSliderValueChanged( int )) );
 
-    maxSlider = new QSlider( Qt::Horizontal, this );
-    maxSlider->setMinimum( 0 );
-    maxSlider->setMaximum( 255 );
-    maxSlider->setValue( 255 );
-    QObject::connect( maxSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( maxSliderValueChanged( int )) );
+    fullValueSlider = new QSlider( Qt::Horizontal, this );
+    fullValueSlider->setMinimum( 1 );
+    fullValueSlider->setMaximum( 255 );
+    fullValueSlider->setValue( 255 );
+    QObject::connect( fullValueSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( maxSliderValueChanged( int )) );
 
     hist = new histogram( this, this );
 
     histXLabel = new QLabel( hist );
     histXLabel->setAlignment( Qt::AlignRight );
 
-    brightnessRBLabel = new QLabel( this );
-    brightnessRBLabel->setText( QString( "%1%" ).arg( brightnessSlider->value() ) );
+    brightnessValidator = new QIntValidator( 0, 100, this );
+    gradientValidator = new QIntValidator( 0, 1000, this );
+    zeroValueValidator = new QIntValidator( 0, 254, this );
+    fullValueValidator = new QIntValidator( 1, 255, this );
 
-    brightnessRBLabel->setMinimumWidth( 100 ); // Set width for all readbacks
+    brightnessLineEdit = new QLineEdit( this );
+    brightnessLineEdit->setToolTip( "Brightness percentage (0 to 100)");
+    brightnessLineEdit->setValidator( brightnessValidator );
+    brightnessLineEdit->setText( QString( "%1" ).arg( brightnessSlider->value() ) );
+    QObject::connect( brightnessLineEdit, SIGNAL( textChanged ( QString ) ), this,  SLOT  ( brightnessLineEditChanged( QString )) );
 
-    gradientRBLabel = new QLabel( this );
-    gradientRBLabel->setText( QString( "%1" ).arg( gradientSlider->value() ) );
+    brightnessLineEdit->setMinimumWidth( 100 ); // Set width for all readbacks
 
-    minRBLabel = new QLabel( this );
-    minRBLabel->setText( QString( "%1" ).arg( minSlider->value() ) );
+    gradientLineEdit = new QLineEdit( this );
+    gradientLineEdit->setToolTip( "Gradient (0 to 1000)");
+    gradientLineEdit->setValidator( gradientValidator );
+    gradientLineEdit->setText( QString( "%1" ).arg( gradientSlider->value() ) );
+    QObject::connect( gradientLineEdit, SIGNAL( textChanged ( QString ) ), this,  SLOT  ( gradientLineEditChanged( QString )) );
 
-    maxRBLabel = new QLabel( this );
-    maxRBLabel->setText( QString( "%1" ).arg( maxSlider->value() ) );
+    zeroValueLineEdit = new QLineEdit( this );
+    zeroValueLineEdit->setToolTip( "Pixel value at low end of brightness / colour scale (0 to range limited by bit depth)");
+    zeroValueLineEdit->setValidator( zeroValueValidator );
+    zeroValueLineEdit->setText( QString( "%1" ).arg( zeroValueSlider->value() ) );
+    QObject::connect( zeroValueLineEdit, SIGNAL( textChanged ( QString ) ), this,  SLOT  ( minLineEditChanged( QString )) );
+
+    fullValueLineEdit = new QLineEdit( this );
+    fullValueLineEdit->setToolTip( "Pixel value at high end of brightness / colour scale (0 to range limited by bit depth)");
+    fullValueLineEdit->setValidator( fullValueValidator );
+    fullValueLineEdit->setText( QString( "%1" ).arg( fullValueSlider->value() ) );
+    QObject::connect( fullValueLineEdit, SIGNAL( textChanged ( QString ) ), this,  SLOT  ( maxLineEditChanged( QString )) );
 
     contrastReversalCheckBox = new QCheckBox( "Contrast Reversal", this );
     contrastReversalCheckBox->setToolTip( "Reverse light for dark");
@@ -140,19 +172,19 @@ localBrightnessContrast::localBrightnessContrast()
 
     brightnessContrastSub2Layout->addWidget( brightnessLabel,   0, 0 );
     brightnessContrastSub2Layout->addWidget( brightnessSlider,  0, 1 );
-    brightnessContrastSub2Layout->addWidget( brightnessRBLabel, 0, 2 );
+    brightnessContrastSub2Layout->addWidget( brightnessLineEdit, 0, 2 );
 
     brightnessContrastSub2Layout->addWidget( gradientLabel,     1, 0 );
     brightnessContrastSub2Layout->addWidget( gradientSlider,    1, 1 );
-    brightnessContrastSub2Layout->addWidget( gradientRBLabel,   1, 2 );
+    brightnessContrastSub2Layout->addWidget( gradientLineEdit,   1, 2 );
 
     brightnessContrastSub2Layout->addWidget( minLabel,          2, 0 );
-    brightnessContrastSub2Layout->addWidget( minSlider,         2, 1 );
-    brightnessContrastSub2Layout->addWidget( minRBLabel,        2, 2 );
+    brightnessContrastSub2Layout->addWidget( zeroValueSlider,         2, 1 );
+    brightnessContrastSub2Layout->addWidget( zeroValueLineEdit,        2, 2 );
 
     brightnessContrastSub2Layout->addWidget( maxLabel,          3, 0 );
-    brightnessContrastSub2Layout->addWidget( maxSlider,         3, 1 );
-    brightnessContrastSub2Layout->addWidget( maxRBLabel,        3, 2 );
+    brightnessContrastSub2Layout->addWidget( fullValueSlider,         3, 1 );
+    brightnessContrastSub2Layout->addWidget( fullValueLineEdit,        3, 2 );
 
     brightnessContrastSub2Layout->setColumnStretch( 1, 1 );  // Read back labels to take all spare room
 
@@ -175,18 +207,23 @@ localBrightnessContrast::~localBrightnessContrast()
 {
     delete autoBrightnessCheckBox;
     delete brightnessSlider;
-    delete minSlider;
-    delete maxSlider;
+    delete zeroValueSlider;
+    delete fullValueSlider;
     delete gradientSlider;
-    delete brightnessRBLabel;
-    delete minRBLabel;
-    delete maxRBLabel;
-    delete gradientRBLabel;
+    delete brightnessLineEdit;
+    delete zeroValueLineEdit;
+    delete fullValueLineEdit;
+    delete gradientLineEdit;
     delete contrastReversalCheckBox;
     delete logCheckBox;
     delete falseColourCheckBox;
 
     delete hist;
+
+    delete brightnessValidator;
+    delete gradientValidator;
+    delete zeroValueValidator;
+    delete fullValueValidator;
 }
 
 int localBrightnessContrast::getLowPixel()
@@ -297,11 +334,31 @@ void localBrightnessContrast::brightnessSliderValueChanged( int localBrightnessI
         return;
     }
 
-    inBrightnessCallback = true;
-    updateBrightness( (double)localBrightnessIn/100.0 );
-    inBrightnessCallback = false;
+    inBrightnessSliderCallback = true;
+    updateBrightness( (double)(localBrightnessIn)/100.0 );
+    inBrightnessSliderCallback = false;
 
     emit brightnessContrastChange();
+}
+
+void localBrightnessContrast::brightnessLineEditChanged( QString text )
+{
+    if( nonInteractive )
+    {
+        return;
+    }
+
+    bool ok;
+    double value = text.toDouble( &ok );
+    if( !ok )
+    {
+        return;
+    }
+
+    inBrightnessEditCallback = true;
+    updateBrightness( value/100.0 );
+    inBrightnessEditCallback = false;
+
 }
 
 // The gradient slider has been moved
@@ -312,11 +369,31 @@ void localBrightnessContrast::gradientSliderValueChanged( int value )
         return;
     }
 
-    inGradientCallback = true;
-    updateGradient( (double)value );
-    inGradientCallback = false;
+    inGradientSliderCallback = true;
+    updateGradient( (double)(value)/GRADIENT_USER_SCALE_FACTOR+GRADIENT_BASE );
+    inGradientSliderCallback = false;
 
     emit brightnessContrastChange();
+}
+
+void localBrightnessContrast::gradientLineEditChanged( QString text )
+{
+    if( nonInteractive )
+    {
+        return;
+    }
+
+    bool ok;
+    double value = text.toDouble( &ok );
+    if( !ok )
+    {
+        return;
+    }
+
+    inGradientEditCallback = true;
+    updateGradient( value/GRADIENT_USER_SCALE_FACTOR+GRADIENT_BASE );
+    inGradientEditCallback = false;
+
 }
 
 // The minimum slider has been moved
@@ -327,11 +404,31 @@ void localBrightnessContrast::minSliderValueChanged( int value )
         return;
     }
 
-    inZeroValueCallback = true;
+    inZeroValueSliderCallback = true;
     updateZeroValue( value );
-    inZeroValueCallback = false;
+    inZeroValueSliderCallback = false;
 
     emit brightnessContrastChange();
+}
+
+void localBrightnessContrast::minLineEditChanged( QString text )
+{
+    if( nonInteractive )
+    {
+        return;
+    }
+
+    bool ok;
+    double value = text.toDouble( &ok );
+    if( !ok )
+    {
+        return;
+    }
+
+    inZeroValueEditCallback = true;
+    updateZeroValue( value );
+    inZeroValueEditCallback = false;
+
 }
 
 // The maximum slider has been moved
@@ -342,11 +439,31 @@ void localBrightnessContrast::maxSliderValueChanged( int value )
         return;
     }
 
-    inFullValueCallback = true;
+    inFullValueSliderCallback = true;
     updateFullValue( value );
-    inFullValueCallback = false;
+    inFullValueSliderCallback = false;
 
     emit brightnessContrastChange();
+}
+
+void localBrightnessContrast::maxLineEditChanged( QString text )
+{
+    if( nonInteractive )
+    {
+        return;
+    }
+
+    bool ok;
+    double value = text.toDouble( &ok );
+    if( !ok )
+    {
+        return;
+    }
+
+    inFullValueEditCallback = true;
+    updateFullValue( value );
+    inFullValueEditCallback = false;
+
 }
 
 //=========================================================
@@ -383,7 +500,7 @@ void localBrightnessContrast::updateGradient( double val )
     // Gradient is range / span
     // With zeroValue at most one less than full value, gradient can go from 1 to range
     // validate gradient
-    val = tan( val/1000 );
+    val = tan( val );
     if( val < 1.0 )
     {
         val = 1.0;
@@ -493,6 +610,7 @@ void localBrightnessContrast::updateZeroValueFullValue( unsigned int min, unsign
 
 void localBrightnessContrast::updateBrightnessInterface()
 {
+    // Calculate brightness (derived)
     unsigned int span = fullValue-zeroValue;
     unsigned int brightnessScale = range-span;
     double brightness;
@@ -505,48 +623,77 @@ void localBrightnessContrast::updateBrightnessInterface()
         brightness = 0.5;
     }
 
-    brightnessRBLabel->setText( QString( "%1" ).arg( (int)(brightness*100) ));
-    if( !inBrightnessCallback )
+    // Update interface
+    nonInteractive = true;
+
+    if( !inBrightnessEditCallback )
     {
-        nonInteractive = true;
-        brightnessSlider->setValue( brightness*100 );
-        nonInteractive = false;
+        brightnessLineEdit->setText( QString( "%1" ).arg( (int)(brightness*100) ));
     }
+
+    if( !inBrightnessSliderCallback )
+    {
+        brightnessSlider->setValue( brightness*100 );
+    }
+
+    nonInteractive = false;
 }
 
 void localBrightnessContrast::updateGradientInterface()
 {
-    double gradient = atan((double)range/(double)(fullValue-zeroValue))*1000;
+    // Calculate gradient (derived)
+    double gradient = (atan((double)range/(double)(fullValue-zeroValue))-GRADIENT_BASE)*GRADIENT_USER_SCALE_FACTOR;
 
-    gradientRBLabel->setText( QString( "%1" ).arg( ((int)(gradient)-785)*1000/785 ));
-    if( !inGradientCallback )
+    // Update interface
+    nonInteractive = true;
+
+    if( !inGradientEditCallback )
     {
-        nonInteractive = true;
-        gradientSlider->setValue( gradient );
-        nonInteractive = false;
+        gradientLineEdit->setText( QString( "%1" ).arg( (int)(gradient) ));
     }
+
+    if( !inGradientSliderCallback )
+    {
+        gradientSlider->setValue( gradient );
+    }
+
+    nonInteractive = false;
 }
 
 void localBrightnessContrast::updateZeroValueInterface()
 {
-    minRBLabel->setText( QString( "%1" ).arg( zeroValue ));
-    if( !inZeroValueCallback )
+    // Update interface
+    nonInteractive = true;
+
+    if( !inZeroValueEditCallback )
     {
-        nonInteractive = true;
-        minSlider->setValue( zeroValue );
-        nonInteractive = false;
+        zeroValueLineEdit->setText( QString( "%1" ).arg( zeroValue ));
     }
+
+    if( !inZeroValueSliderCallback )
+    {
+        zeroValueSlider->setValue( zeroValue );
+    }
+
+    nonInteractive = false;
 }
 
 void localBrightnessContrast::updateFullValueInterface()
 {
-    maxRBLabel->setText( QString( "%1" ).arg( fullValue ));
-    if( !inFullValueCallback )
+    // Update interface
+    nonInteractive = true;
+
+    if( !inFullValueEditCallback )
     {
-        nonInteractive = true;
-        maxSlider->setValue( fullValue );
-        nonInteractive = false;
+        fullValueLineEdit->setText( QString( "%1" ).arg( fullValue ));
     }
+
+    if( !inFullValueSliderCallback )
+    {
+        fullValueSlider->setValue( fullValue );
+    }
+
+    nonInteractive = false;
 }
 
 //=========================================================
@@ -564,8 +711,11 @@ void localBrightnessContrast::setStatistics( unsigned int minPIn, unsigned int m
     range = (1<<depth)-1;
 
     // Apply changes
-    minSlider->setMaximum( range );
-    maxSlider->setMaximum( range );
+    zeroValueSlider->setMaximum( range-1 );
+    fullValueSlider->setMaximum( range );
+
+    zeroValueValidator->setTop( range-1 );
+    fullValueValidator->setTop( range );
 
     histXLabel->setText( QString( "%1" ).arg( range ) );
 

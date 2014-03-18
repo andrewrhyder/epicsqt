@@ -1529,7 +1529,7 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
     }
 
     // Indicate another image has arrived
-    freshImage();
+    freshImage( time );
 
     // Display invalid if invalid
     if( alarmInfo.isInvalid() )
