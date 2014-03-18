@@ -750,17 +750,12 @@ public slots:
     unsigned int clippingLow;
     unsigned int clippingHigh;
 
-    struct rgbPixel
-    {
-        unsigned char p[4]; // R/G/B/Alpha
-    };
-    //    const rgbPixel* getPixelTranslation();    // Get a table of translated pixel values (from pixelLookup) creating it first if required
     void getPixelTranslation();
 
-    QEImage::rgbPixel getFalseColor (const unsigned char value);    // Get a false color representation for an entry fro the color lookup table
+    localBrightnessContrast::rgbPixel getFalseColor (const unsigned char value);    // Get a false color representation for an entry fro the color lookup table
 
     bool pixelLookupValid;  // pixelLookup is valid. It is invalid if anything that affects the translation changes, such as pixel format, local brigHtness, etc
-    QEImage::rgbPixel pixelLookup[HISTOGRAM_BINS];
+    localBrightnessContrast::rgbPixel pixelLookup[256];
     unsigned int pixelLow;
     unsigned int pixelHigh;
 

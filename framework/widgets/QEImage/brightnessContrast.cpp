@@ -32,6 +32,9 @@
 #include <QPainter>
 #include <math.h>
 
+#define SCALE_HEIGHT 20
+
+
 localBrightnessContrast::localBrightnessContrast()
 {
     nonInteractive = false;
@@ -44,7 +47,6 @@ localBrightnessContrast::localBrightnessContrast()
     zeroValue = 0;
     fullValue = 255;
     range = 255;
-
 
     // Initialise image stats
     bins = NULL;
@@ -84,9 +86,9 @@ localBrightnessContrast::localBrightnessContrast()
     QObject::connect( brightnessSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( brightnessSliderValueChanged( int )) );
 
     gradientSlider = new QSlider( Qt::Horizontal, this );
-    gradientSlider->setMinimum( 1 );
-    gradientSlider->setMaximum( 255 );
-    gradientSlider->setValue( 1 );
+    gradientSlider->setMinimum( 785 );  // 1000*pi/4
+    gradientSlider->setMaximum( 1570 ); // 1000*pi/2
+    gradientSlider->setValue( 785 );
     QObject::connect( gradientSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( gradientSliderValueChanged( int )) );
 
     minSlider = new QSlider( Qt::Horizontal, this );
@@ -102,6 +104,9 @@ localBrightnessContrast::localBrightnessContrast()
     QObject::connect( maxSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( maxSliderValueChanged( int )) );
 
     hist = new histogram( this, this );
+
+    histXLabel = new QLabel( hist );
+    histXLabel->setAlignment( Qt::AlignRight );
 
     brightnessRBLabel = new QLabel( this );
     brightnessRBLabel->setText( QString( "%1%" ).arg( brightnessSlider->value() ) );
@@ -217,7 +222,6 @@ bool localBrightnessContrast::getFalseColour()
 // Reset the brightness and contrast to normal
 void localBrightnessContrast::brightnessContrastResetClicked( bool )
 {
-    qDebug() << range;
     zeroValue = 0;
     fullValue = range;
 
@@ -380,7 +384,6 @@ void localBrightnessContrast::updateGradient( double val )
     // With zeroValue at most one less than full value, gradient can go from 1 to range
     // validate gradient
     val = tan( val/1000 );
-    qDebug() << "before" << "val"<<val << "zeroValue"<<zeroValue<<"fullValue"<<fullValue;
     if( val < 1.0 )
     {
         val = 1.0;
@@ -400,8 +403,6 @@ void localBrightnessContrast::updateGradient( double val )
 
     zeroValue = floor( low + 0.5 );        // Note, round() not in windows math.h. Using floor+0.5 instead
     fullValue = floor( low + span + 0.5 ); // Note, round() not in windows math.h. Using floor+0.5 instead
-
-    qDebug() << "after" << "val"<<val << "zeroValue"<<zeroValue<<"fullValue"<<fullValue<<"mid"<<mid<<"span"<<span;
 
     updateZeroValueInterface();
     updateFullValueInterface();
@@ -515,8 +516,6 @@ void localBrightnessContrast::updateBrightnessInterface()
 
 void localBrightnessContrast::updateGradientInterface()
 {
-    gradientSlider->setMinimum( 785 );  // 1000*pi/4
-    gradientSlider->setMaximum( 1570 ); // 1000*pi/2
     double gradient = atan((double)range/(double)(fullValue-zeroValue))*1000;
 
     gradientRBLabel->setText( QString( "%1" ).arg( ((int)(gradient)-785)*1000/785 ));
@@ -552,13 +551,14 @@ void localBrightnessContrast::updateFullValueInterface()
 
 //=========================================================
 
-void localBrightnessContrast::setStatistics( unsigned int minPIn, unsigned int maxPIn, unsigned int bitDepth, unsigned int binsIn[HISTOGRAM_BINS] )
+void localBrightnessContrast::setStatistics( unsigned int minPIn, unsigned int maxPIn, unsigned int bitDepth, unsigned int binsIn[HISTOGRAM_BINS], rgbPixel pixelLookupIn[256] )
 {
     // Update image statistics
     minP = minPIn;
     maxP = maxPIn;
     depth = bitDepth;
     bins = binsIn;
+    pixelLookup = pixelLookupIn;
 
     // Recalculate dependand variables
     range = (1<<depth)-1;
@@ -566,6 +566,8 @@ void localBrightnessContrast::setStatistics( unsigned int minPIn, unsigned int m
     // Apply changes
     minSlider->setMaximum( range );
     maxSlider->setMaximum( range );
+
+    histXLabel->setText( QString( "%1" ).arg( range ) );
 
     hist->update();
 }
@@ -580,8 +582,20 @@ histogram::histogram( QWidget* parent, localBrightnessContrast* lbcIn )
     lbc = lbcIn;
 }
 
+// Histogram resize event
+void histogram::resizeEvent( QResizeEvent* )
+{
+    // Keep the X asis label in the bottom right of the histogram
+    lbc->histXLabel->setGeometry( width()-lbc->histXLabel->width()-2,
+                                  height()-lbc->histXLabel->height()-10, //SCALE_HEIGHT,
+                                  lbc->histXLabel->width(),
+                                  lbc->histXLabel->height());
+}
+
+
 void histogram::paintEvent(QPaintEvent* )
 {
+
     // Do nothing if no image info yet
     if( lbc->bins == NULL )
     {
@@ -597,29 +611,77 @@ void histogram::paintEvent(QPaintEvent* )
             binRange = lbc->bins[i];
         }
     }
+
+    // Do nothing if no data present
     if( binRange == 0 )
     {
         return;
     }
-    int h = height()-1;
-    QPoint pnt1(0,h - lbc->bins[0]*h/binRange);
-    QPoint pnt2;
+
+
     QPainter p( this );
-    p.setPen(Qt::red);
+    QPoint pnt1;
+    QPoint pnt2;
+
+    // Draw the histogram
+    int h = height()-1-SCALE_HEIGHT;
+    pnt1 = QPoint( 0, h - lbc->bins[0]*h/binRange );
+
+    p.setPen( Qt::red );
     for( int i = 1; i < HISTOGRAM_BINS-1; i++ )
     {
-        pnt2.setX(i);
-        pnt2.setY(h - lbc->bins[i]*h/binRange );
-        p.drawLine(pnt1,pnt2);
-        pnt1=pnt2;
+        pnt2.setX( i );
+        pnt2.setY( h - lbc->bins[i]*h/binRange );
+        p.drawLine( pnt1, pnt2 );
+        pnt1 = pnt2;
     }
+
+    // Prepare to draw the bounds an gradient
     unsigned int bitsPerBin = (lbc->depth<=8)?1:lbc->depth-8;
     unsigned int minBin = lbc->zeroValue>>(bitsPerBin-1);
     unsigned int maxBin = lbc->fullValue>>(bitsPerBin-1);
 
-    p.setPen(Qt::blue);
+    QPen pen( Qt::blue );
+    p.setPen( pen );
 
+    // Draw max and min
+    pen.setStyle( Qt::DashLine );
     p.drawLine( minBin,0,minBin,h);
     p.drawLine( maxBin,0,maxBin,h);
+
+    // Draw gradient
+    pen.setStyle( Qt::SolidLine );
+    p.setPen( pen );
+
     p.drawLine( minBin,h,maxBin,0);
+
+    // Draw the intensity / color bar
+    pnt1.setY( h+2 );
+    pnt2.setY( h + SCALE_HEIGHT -4 );
+    for( unsigned int i = 1; i < HISTOGRAM_BINS-1; i++ )
+    {
+        // Set X to the next point in the histogram
+        pnt1.setX( i );
+        pnt2.setX( i );
+
+        // Select the lookup index
+        unsigned char index;
+        if( i < minBin )
+        {
+            index = 0;
+        }
+        else if( i > maxBin )
+        {
+            index = 255;
+        }
+        else
+        {
+            index = (i-minBin)*256/(maxBin-minBin);
+        }
+
+        // draw the next line in the scale
+        localBrightnessContrast::rgbPixel* col = &(lbc->pixelLookup[index] );
+        p.setPen( QColor( col->p[2], col->p[1], col->p[0] ) );
+        p.drawLine( pnt1, pnt2 );
+    }
 }

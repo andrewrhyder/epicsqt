@@ -40,7 +40,8 @@ public:
     histogram( QWidget* parent, localBrightnessContrast* lbc );
     Q_OBJECT
 private:
-    void paintEvent(QPaintEvent *event);
+    void paintEvent( QPaintEvent* event);
+    void resizeEvent( QResizeEvent* event );
 
     localBrightnessContrast* lbc;
 };
@@ -67,7 +68,11 @@ public:
     int getLowPixel();
     int getHighPixel();
 
-    void setStatistics( unsigned int minPIn, unsigned int maxPIn, unsigned int bitDepth, unsigned int binsIn[HISTOGRAM_BINS] );
+    struct rgbPixel
+    {
+        unsigned char p[4]; // R/G/B/Alpha
+    };
+    void setStatistics( unsigned int minPIn, unsigned int maxPIn, unsigned int bitDepth, unsigned int binsIn[HISTOGRAM_BINS], rgbPixel pixelLookup[256] );
 
 signals:
     void brightnessContrastAutoImage();
@@ -135,7 +140,9 @@ public:
     unsigned int minP;
     unsigned int depth;
     unsigned int* bins; // [HISTOGRAM_BINS]
+    rgbPixel* pixelLookup; // [256]
 
+    QLabel* histXLabel;
 };
 
 
