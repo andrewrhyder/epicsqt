@@ -1689,31 +1689,37 @@ localBrightnessContrast::rgbPixel QEImage::getFalseColor (const unsigned char va
     const int max = 0xFF;
     const int half = 0x80;
     const int lightness_slope = 4;
+    const int low_hue = 240;    // blue.
+    const int high_hue = 0;     // red
 
+    int bp1;
+    int bp2;
     localBrightnessContrast::rgbPixel result;
     int h, l;
     QColor c;
 
-    // Hue goes 300 (blue) down to 0 (red) as monochrome value goes 0 up to 255.
+    // Range of inputs broken into three bands:
+    // [0 .. bp1], [bp1 .. bp2] and [bp2 .. max]
     //
-    h = (300 * (max - value)) / max;
+    bp1 = half / lightness_slope;
+    bp2 = max - (max - half) / lightness_slope;
 
-    // Intesity/lightness ramps up quickly to 128, holds stready at 128, then
-    // ramps up to 255 (white) at the end:
-    //
-    //                  *
-    //                 *
-    //    *************
-    //   *
-    //  *
-    //
-    if (value < half) {   // half way?
-       l = MIN (lightness_slope*value, half);
+    if( value < bp1 ){
+        // Constant hue (blue), lightness ramps up to 128
+        h = low_hue;
+        l = lightness_slope*value;
+    } else if( value > bp2 ){
+        // Constant hue (red), lightness ramps up from 128 to 255
+        h = high_hue;
+        l = max - lightness_slope*(max-value);
     } else {
-       l = MAX (max - lightness_slope*(max-value), half);
+        // The bit in the middle.
+        // Contant lightness, hue varies blue to red.
+        h = ((value - bp1)*high_hue + (bp2 - value)*low_hue) / (bp2 - bp1);
+        l = half;
     }
 
-    c.setHsl (h, max, l);   // Saturation always 100%
+    c.setHsl( h, max, l );   // Saturation always 100%
 
     result.p[0] = (unsigned char) c.blue();
     result.p[1] = (unsigned char) c.green();
