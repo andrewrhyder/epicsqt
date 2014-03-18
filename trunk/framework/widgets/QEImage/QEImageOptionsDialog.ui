@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>472</width>
-    <height>289</height>
+    <height>304</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -117,7 +117,7 @@
         <item>
          <widget class="QCheckBox" name="checkBoxBrightnessContrast">
           <property name="text">
-           <string>Brightness and contrast</string>
+           <string>Image display properties</string>
           </property>
          </widget>
         </item>

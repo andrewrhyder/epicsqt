@@ -296,8 +296,8 @@ public:
     void setEnableBeamSelection( bool enableBeamSelectionIn );          ///< Access function for #enableBeamSelection property - refer to #enableBeamSelection property for details
     bool getEnableBeamSelection();                                      ///< Access function for #enableBeamSelection property - refer to #enableBeamSelection property for details
 
-    void setEnableBrightnessContrast( bool enableBrightnessContrastIn );///< Access function for #enableBrightnessContrast property - refer to #enableBrightnessContrast property for details
-    bool getEnableBrightnessContrast();                                 ///< Access function for #enableBrightnessContrast property - refer to #enableBrightnessContrast property for details
+    void setEnableImageDisplayProperties( bool enableImageDisplayPropertiesIn );///< Access function for #enableImageDisplayProperties property - refer to #enableImageDisplayProperties property for details
+    bool getEnableImageDisplayProperties();                                     ///< Access function for #enableImageDisplayProperties property - refer to #enableImageDisplayProperties property for details
 
     void setAutoBrightnessContrast( bool autoBrightnessContrastIn );    ///< Access function for #autoBrightnessContrast property - refer to #autoBrightnessContrast property for details
     bool getAutoBrightnessContrast();                                   ///< Access function for #autoBrightnessContrast property - refer to #autoBrightnessContrast property for details
@@ -1431,9 +1431,9 @@ public:
 
     /// If true, auto set local brightness and contrast when any area is selected.
     /// The brightness and contrast is set to use the full range of pixels in the selected area.
-    Q_PROPERTY(bool enableBrightnessContrast READ getEnableBrightnessContrast WRITE setEnableBrightnessContrast)
+    Q_PROPERTY(bool enableImageDisplayProperties READ getEnableImageDisplayProperties WRITE setEnableImageDisplayProperties)
 
-    /// If true, local brightness and contrast controls are displayed.
+    /// If true, local Image Display Properties controls are displayed.
     /// The brightness and contrast is set to use the full range of pixels in the selected area.
     Q_PROPERTY(bool autoBrightnessContrast READ getAutoBrightnessContrast WRITE setAutoBrightnessContrast)
 
