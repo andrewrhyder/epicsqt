@@ -3782,14 +3782,14 @@ bool QEImage::getDisplayEllipse()
 //==================
 
 // Enable local brightness and contrast controls if required
-void QEImage::setEnableBrightnessContrast( bool enableBrightnessContrast )
+void QEImage::setEnableImageDisplayProperties( bool enableImageDisplayProperties )
 {
-    optionsDialog->optionSet( imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST, enableBrightnessContrast );
+    optionsDialog->optionSet( imageContextMenu::ICM_DISPLAY_IMAGE_DISPLAY_PROPERTIES, enableImageDisplayProperties );
 }
 
-bool QEImage::getEnableBrightnessContrast()
+bool QEImage::getEnableImageDisplayProperties()
 {
-    return optionsDialog->optionGet( imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST );
+    return optionsDialog->optionGet( imageContextMenu::ICM_DISPLAY_IMAGE_DISPLAY_PROPERTIES );
 }
 
 // Request the application host controls such as toolbars and profile views for this widget
@@ -5551,7 +5551,7 @@ void QEImage::optionAction( imageContextMenu::imageContextMenuOptions option, bo
         case imageContextMenu::ICM_ENABLE_TARGET:               doEnableTargetSelection   ( checked ); break;
         case imageContextMenu::ICM_ENABLE_BEAM:                 doEnableBeamSelection     ( checked ); break;
         case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:          buttonGroup->setVisible   ( checked ); break;
-        case imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST: doEnableBrightnessContrast( checked ); break;
+        case imageContextMenu::ICM_DISPLAY_IMAGE_DISPLAY_PROPERTIES: doEnableBrightnessContrast( checked ); break;
         case imageContextMenu::ICM_FULL_SCREEN:                 setFullScreen             ( checked ); break;
         case imageContextMenu::ICM_OPTIONS:                     optionsDialog->exec( this );           break;
 

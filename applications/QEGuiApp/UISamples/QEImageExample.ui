@@ -689,10 +689,13 @@
      <property name="resizeOption" stdset="0">
       <enum>QEImage::Fit</enum>
      </property>
-     <property name="enableBrightnessContrast">
+     <property name="enableImageDisplayProperties">
       <bool>true</bool>
      </property>
      <property name="briefInfoArea">
+      <bool>true</bool>
+     </property>
+     <property name="enableBrightnessContrast" stdset="0">
       <bool>true</bool>
      </property>
      <property name="enableAreaSelection" stdset="0">
