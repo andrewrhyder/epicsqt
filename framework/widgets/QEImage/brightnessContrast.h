@@ -29,7 +29,9 @@
 #include <QCheckBox>
 #include <QSlider>
 #include <QLabel>
+#include <QLineEdit>
 #include <QDebug>
+#include <QIntValidator>
 
 #define HISTOGRAM_BINS 256
 class localBrightnessContrast;
@@ -84,6 +86,11 @@ private slots:
     void maxSliderValueChanged( int value );
     void gradientSliderValueChanged( int value );
 
+    void brightnessLineEditChanged( QString );
+    void gradientLineEditChanged( QString );
+    void minLineEditChanged( QString );
+    void maxLineEditChanged( QString );
+
     void brightnessContrastResetClicked( bool state );
     void brightnessContrastAutoImageClicked();
     void contrastReversalToggled( bool );
@@ -91,30 +98,41 @@ private slots:
     void falseColourToggled( bool );
 
 private:
-    // Local brightness and contrast controls
+    // Local brightness and contrast controls and monitors
     QCheckBox* autoBrightnessCheckBox;
     QSlider* brightnessSlider;
     QSlider* contrastSlider;
-    QSlider* minSlider;
-    QSlider* maxSlider;
+    QSlider* zeroValueSlider;
+    QSlider* fullValueSlider;
     QSlider* gradientSlider;
-    QLabel* brightnessRBLabel;
-    QLabel* minRBLabel;
-    QLabel* maxRBLabel;
-    QLabel* gradientRBLabel;
+    QLineEdit* brightnessLineEdit;
+    QLineEdit* zeroValueLineEdit;
+    QLineEdit* fullValueLineEdit;
+    QLineEdit* gradientLineEdit;
     QCheckBox* contrastReversalCheckBox;
     QCheckBox* logCheckBox;
     QCheckBox* falseColourCheckBox;
 
+    QIntValidator* brightnessValidator;
+    QIntValidator* gradientValidator;
+    QIntValidator* zeroValueValidator;
+    QIntValidator* fullValueValidator;
+
     histogram* hist;
 
+    // Flags to avoid loops when setting controls
     bool nonInteractive;
+    bool inBrightnessSliderCallback;
+    bool inGradientSliderCallback;
+    bool inZeroValueSliderCallback;
+    bool inFullValueSliderCallback;
 
-    bool inBrightnessCallback;
-    bool inGradientCallback;
-    bool inZeroValueCallback;
-    bool inFullValueCallback;
+    bool inBrightnessEditCallback;
+    bool inGradientEditCallback;
+    bool inZeroValueEditCallback;
+    bool inFullValueEditCallback;
 
+    //
     void updateBrightness( double val );
     void updateGradient( double val );
     void updateZeroValue( unsigned int val );

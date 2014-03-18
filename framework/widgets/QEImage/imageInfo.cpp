@@ -280,7 +280,7 @@ void imageInfo::infoUpdatePixel( const QPoint pos, int value )
 // Update the paused information
 void imageInfo::infoUpdatePaused( bool paused )
 {
-    currentPausedLabel->setText( paused?QString( "Paused" ):QString( "Live" ));
+    currentPausedLabel->setText( paused?QString( "Paused" ):QString( "Waiting for an image" ));
 }
 
 // Update the zoom information
@@ -290,8 +290,9 @@ void imageInfo::infoUpdateZoom( const int zoom )
 }
 
 // Update the 'new image' indicator
-void imageInfo::freshImage()
+void imageInfo::freshImage( QDateTime& time )
 {
+    currentPausedLabel->setText( time.toString( "hh:mm:ss.zzz" ));
     updateIndicator->freshImage();
 }
 

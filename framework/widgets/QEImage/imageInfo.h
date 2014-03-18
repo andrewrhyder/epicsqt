@@ -28,6 +28,7 @@
 #include <QGridLayout>
 #include <QLabel>
 #include <QFrame>
+#include <QDateTime>
 
 #define UPDATE_INDICATOR_SIZE 20
 #define UPDATE_INDICATOR_STEPS 32
@@ -83,7 +84,7 @@ public:
     void setBriefInfoArea( const bool briefIn );            // Set if displaying all info, or a brief summary
     bool getBriefInfoArea();                                // Report if displaying all info, or a brief summary
 
-    void freshImage();                                      // Indicate another image has arrived
+    void freshImage( QDateTime& time );                     // Indicate another image has arrived
 
 private:
     bool show;
