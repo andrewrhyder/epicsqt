@@ -325,7 +325,7 @@ void QERadioGroup::valueUpdate (const long &value,
 
    // Signal a database value change to any Link widgets
    //
-   this->dbValueChanged (value);
+   emit this->dbValueChanged (value);
 
    // Invoke common alarm handling processing.
    //

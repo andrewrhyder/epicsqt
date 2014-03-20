@@ -156,10 +156,10 @@ qcaobject::QCaObject*  QEGeneralEdit::createQcaItem (unsigned int variableIndex)
       return NULL;
    }
 
-   pvName = this->getSubstitutedVariableName (0).trimmed ();
+   pvName = this->getSubstitutedVariableName (variableIndex).trimmed ();
    this->pvNameLabel->setText (pvName);
 
-   result = new qcaobject::QCaObject (pvName, this);
+   result = new qcaobject::QCaObject (pvName, variableIndex, this);
    return result;
 }
 

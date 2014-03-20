@@ -70,6 +70,8 @@ void QELabel::setup() {
 //    defaultStyleSheet = styleSheet();
     // Use label signals
     // --Currently none--
+    // Make label area obvious, even at design time, while display alarm state is inhibited.
+    setStyleSheet( "QWidget { background-color: rgb(240,240,240)}" );
 
     // Set up a connection to recieve variable name property changes
     // The variable name property manager class only delivers an updated variable name after the user has stopped typing

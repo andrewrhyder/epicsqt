@@ -54,7 +54,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPushButton : public QPushButton, public QEG
   private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex ) { QEGenericButton::connectionChanged( connectionInfo, variableIndex ); }
     void setButtonText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime& timestamp, const unsigned int& variableIndex ) { setGenericButtonText( text, alarmInfo, timestamp, variableIndex); }
-    void userPressed() { QEGenericButton::userPressed(); }
+    void userPressed() { QEGenericButton::userPressed(); clonePressed (); }
     void userReleased() { QEGenericButton::userReleased(); }
     void userClicked( bool checked ) { QEGenericButton::userClicked( checked ); }
 
@@ -104,6 +104,7 @@ protected:
 
 private:
     void setup();
+    void clonePressed ();
 
     void setButtonState( bool checked ){ QPushButton::setChecked( checked ); }
     void setButtonText( QString text ){ QPushButton::setText( text ); }
