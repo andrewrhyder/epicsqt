@@ -62,7 +62,7 @@ QEPvLoadSaveItem::QEPvLoadSaveItem (const QString & nodeNameIn,
    if (isPV) {
       // Interpret node name as a PV name.
       //
-      this->qca = new qcaobject::QCaObject (this->nodeName, this);
+      this->qca = new qcaobject::QCaObject (this->nodeName, 0, this);
 
       // QCaObject does not do this automatically. Maybe it should?.
        //

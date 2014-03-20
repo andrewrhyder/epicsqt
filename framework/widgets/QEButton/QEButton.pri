@@ -11,6 +11,7 @@ RESOURCES += \
     widgets/QEButton/QEButton.qrc
 
 HEADERS += \
+    widgets/QEButton/qed_clone_widget.h \
     widgets/QEButton/QEGenericButton.h \
     widgets/QEButton/QEPushButton.h \
     widgets/QEButton/QERadioButton.h \
@@ -20,6 +21,7 @@ HEADERS += \
     widgets/QEButton/QECheckBoxManager.h
 
 SOURCES += \
+    widgets/QEButton/qed_clone_widget.cpp \
     widgets/QEButton/QEGenericButton.cpp \
     widgets/QEButton/QEPushButton.cpp \
     widgets/QEButton/QERadioButton.cpp \
