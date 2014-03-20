@@ -24,7 +24,6 @@
  */
 
 #include <QELabelManager.h>
-#include <QZLabelManager.h>
 #include <QESubstitutedLabelManager.h>
 #include <QELineEditManager.h>
 #include <QENumericEditManager.h>
@@ -44,8 +43,6 @@
 #include <QEAnalogIndicatorManager.h>
 #include <QEBitStatusManager.h>
 #include <QBitStatusManager.h>
-#include <QEScalarHistogramManager.h>
-#include <QEWaveformHistogramManager.h>
 #include <QEImageManager.h>
 #include <QEPvLoadSaveManager.h>
 #include <QEPvPropertiesManager.h>
@@ -123,7 +120,6 @@ QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QERadioButtonManager(this));
     widgets.append(new QERadioGroupManager(this));
     widgets.append(new QERecipeManager(this));
-    widgets.append(new QEScalarHistogramManager(this));
     widgets.append(new QEScratchPadManager(this));
     widgets.append(new QEScriptManager(this));
     widgets.append(new QEShapeManager(this));
@@ -132,9 +128,6 @@ QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QESpinBoxManager(this));
     widgets.append(new QEStripChartManager(this));
     widgets.append(new QESubstitutedLabelManager(this));
-    widgets.append(new QEWaveformHistogramManager(this));
-
-    widgets.append(new QZLabelManager(this));
 
     // Non-EPICS aware framework widgets.
     //
