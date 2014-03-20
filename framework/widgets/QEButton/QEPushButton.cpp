@@ -33,8 +33,6 @@
 #include <QMainWindow>
 #include <QIcon>
 
-#include <qed_clone_widget.h>
-
 /*
     Constructor with no initialisation
 */
@@ -90,31 +88,4 @@ void QEPushButton::programCompletedSlot()
 QVariant QEPushButton::copyData()
 {
     return QVariant( getButtonText() );
-}
-
-void QEPushButton::clonePressed ()
-{
-    qDebug () << "Clone Pressed";
-
-    QWidget* item = dynamic_cast <QWidget*> (this->parent ());
-
-    if (!item) {
-        qDebug () << "No item specified.";
-        return;
-    }
-
-
-    QWidget* newparent = dynamic_cast <QWidget*> (item->parent ());
-    if (!newparent) {
-        qDebug () << "item has no parent.";
-        return;
-    }
-
-
-    QRect geo = item->geometry ();
-    int dy = geo.height() + 4;
-    geo.translate (0, dy);
-
-    QWidget* copy = CloneWidgetUtilities::clone (item, newparent);
-    copy->setGeometry(geo);
 }

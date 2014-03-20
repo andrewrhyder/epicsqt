@@ -168,7 +168,7 @@ void QEGenericButton::establishConnection( unsigned int variableIndex ) {
         }
 
         // Get conection status changes always (subscribing or not)
-        QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo&, const unsigned int& ) ),
+        QObject::connect( qca,  SIGNAL( stringConnectionChanged( QCaConnectionInfo&, const unsigned int& ) ),
                           getButtonQObject(), SLOT( connectionChanged( QCaConnectionInfo&, const unsigned int&) ) );
     }
 }

@@ -536,7 +536,7 @@ void QEPvProperties::setUpRecordTypeChannels (QEString* &qca, const  PVReadModes
       qca->setRequestedElementCount (1);
    }
 
-   QObject::connect (qca,  SIGNAL (connectionChanged       (QCaConnectionInfo&, const unsigned int& )),
+   QObject::connect (qca,  SIGNAL (stringConnectionChanged (QCaConnectionInfo&, const unsigned int& )),
                      this, SLOT   (setRecordTypeConnection (QCaConnectionInfo&, const unsigned int& )));
 
    QObject::connect (qca,  SIGNAL (stringChanged      (const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& )),
@@ -758,7 +758,7 @@ void QEPvProperties::setRecordTypeValue (const QString& rtypeValue,
          qca->setRequestedElementCount (1);
       }
 
-      QObject::connect (qca, SIGNAL (connectionChanged  (QCaConnectionInfo&, const unsigned int& )),
+      QObject::connect (qca, SIGNAL (stringConnectionChanged (QCaConnectionInfo&, const unsigned int& )),
                         this,  SLOT (setFieldConnection (QCaConnectionInfo&, const unsigned int& )));
 
       QObject::connect (qca, SIGNAL (stringChanged (const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& )),
