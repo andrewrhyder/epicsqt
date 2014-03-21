@@ -41,7 +41,7 @@
 // containerFlag - true/false - typically false except for QEFrame, QEGroupBox and
 //                 other container widgets.
 //
-#define QE_IMPLEMENT_PLUGIN(widgetName, groupName, iconFilepath, containerFlag)    \
+#define QE_IMPLEMENT_PLUGIN_MANAGER(widgetName, groupName, iconFilepath, containerFlag)  \
                                                                                    \
 widgetName##Manager::widgetName##Manager (QObject* parent) : QObject( parent ) {   \
    initialized = false;                                                            \
