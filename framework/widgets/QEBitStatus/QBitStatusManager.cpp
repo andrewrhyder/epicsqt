@@ -1,4 +1,5 @@
-/*
+/*  QBitStatusManager.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -27,108 +28,8 @@
 #include <QBitStatusManager.h>
 #include <QBitStatus.h>
 #include <QtPlugin>
+#include <QEDesignerPluginCommon.h>
 
-/*
-    ???
-*/
-QBitStatusManager::QBitStatusManager( QObject *parent ) : QObject( parent ) {
-    initialized = false;
-}
-
-/*
-    ???
-*/
-void QBitStatusManager::initialize( QDesignerFormEditorInterface * ) {
-    if( initialized ) {
-        return;
-    }
-    initialized = true;
-}
-
-/*
-    ???
-*/
-bool QBitStatusManager::isInitialized() const {
-    return initialized;
-}
-
-/*
-    Widget factory. Creates a QBitStatus widget.
-*/
-QWidget *QBitStatusManager::createWidget ( QWidget *parent ) {
-    return new QBitStatus( parent );
-}
-
-/*
-    Name for widget. Used by Qt Designer in widget list.
-*/
-QString QBitStatusManager::name() const {
-    return "QBitStatus";
-}
-
-/*
-    Name of group Qt Designer will add widget to.
-*/
-QString QBitStatusManager::group() const {
-    return "EPICS Widgets";
-}
-
-/*
-    Icon for widget. Used by Qt Designer in widget list.
-*/
-QIcon QBitStatusManager::icon() const {
-    return QIcon(":/qe/bitstatus/QBitStatus.png");
-}
-
-/*
-    Tool tip for widget. Used by Qt Designer in widget list.
-*/
-QString QBitStatusManager::toolTip() const {
-    return "Bit Status";
-}
-
-/*
-    ???
-*/
-QString QBitStatusManager::whatsThis() const {
-    return "Bit Status";
-}
-
-/*
-    ???
-*/
-bool QBitStatusManager::isContainer() const {
-    return false;
-}
-
-/*
-    ???
-*/
-/*QString QBitStatusManager::domXml() const {
-    return "<widget class=\"QBitStatus\" name=\"qBitStatus\">\n"
-           " <property name=\"geometry\">\n"
-           "  <rect>\n"
-           "   <x>0</x>\n"
-           "   <y>0</y>\n"
-           "   <width>100</width>\n"
-           "   <height>100</height>\n"
-           "  </rect>\n"
-           " </property>\n"
-           " <property name=\"toolTip\" >\n"
-           "  <string></string>\n"
-           " </property>\n"
-           " <property name=\"whatsThis\" >\n"
-           "  <string> "
-           ".</string>\n"
-           " </property>\n"
-           "</widget>\n";
-}*/
-
-/*
-    ???
-*/
-QString QBitStatusManager::includeFile() const {
-    return "QBitStatus.h";
-}
+QE_IMPLEMENT_PLUGIN_MANAGER (QBitStatus, "EPICS Widgets", ":/qe/bitstatus/QBitStatus.png", false)
 
 // end
