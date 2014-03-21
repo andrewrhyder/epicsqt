@@ -1,6 +1,6 @@
-/* QBitStatus.h
+/*  QBitStatus.h
  *
- * This file is part of the EPICS QT Framework, initially developed at the
+ *  This file is part of the EPICS QT Framework, initially developed at the
  *  Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or
@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2011
+ *  Copyright (c) 2011 Australian Synchrotron.
  *
  *  Author:
  *    Andrew Starritt
