@@ -25,8 +25,6 @@
 
 #include <QERadioGroupManager.h>
 #include <QERadioGroup.h>
-#include <QtPlugin>
-#include <QEDesignerPluginCommon.h>
 
 QE_IMPLEMENT_PLUGIN_MANAGER (QERadioGroup, "EPICS Widgets", ":/qe/radiogroup/QERadioGroup.png", false)
 
