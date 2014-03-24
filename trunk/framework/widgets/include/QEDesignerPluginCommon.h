@@ -27,9 +27,43 @@
 #ifndef QE_DESIGNER_PLUGIN_COMMON_H
 #define QE_DESIGNER_PLUGIN_COMMON_H
 
-// Macro to do all the designer plugin plumbing for straight forward widgets.
-// If plugin defines design time dialog (as per QEPeriodic) then this macro is
-// not suitable.
+#include <QDesignerFormEditorInterface>
+#include <QIcon>
+#include <QObject>
+#include <QString>
+#include <QWidget>
+
+// Macros to do all the designer plugin plumbing for straight forward widgets.
+// If the plugin defines design time dialog (as per QEPeriodic) or provides any
+// other extra-ordinary functionality then this macro is not suitable.
+//
+
+// This macro declares the plugin in class members. Note rhere are (moc?) issues
+// with trying to declare whole class using a macro.
+//
+// Macro formal parameter:
+// widgetName    - class type name (no quotes). The manager class name must be the
+//                 class name with Manager appened.
+//
+#define QE_DECLARE_PLUGIN_MANAGER(widgetName)              \
+public:                                                    \
+   widgetName##Manager (QObject* parent = 0);              \
+   bool isContainer () const;                              \
+   bool isInitialized () const;                            \
+   QIcon icon () const;                                    \
+   QString group () const;                                 \
+   QString includeFile () const;                           \
+   QString name () const;                                  \
+   QString toolTip () const;                               \
+   QString whatsThis () const;                             \
+   QWidget* createWidget (QWidget* parent);                \
+   void initialize (QDesignerFormEditorInterface* core);   \
+private:                                                   \
+   bool initialized;
+
+
+
+// This macro provides the class function implementations.
 //
 // Macro formal parameters:
 // widgetName    - class type name (no quotes). The manager class name must be the
