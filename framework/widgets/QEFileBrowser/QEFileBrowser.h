@@ -74,6 +74,11 @@ class _QTableWidgetFileBrowser:public QTableWidget
 // ============================================================
 //  QEFILEBROWSER METHODS
 // ============================================================
+/*!
+  This class is a EPICS aware label widget based on the Qt label widget.
+  When a variable is defined, the label text (or optionally the background pixmap) will be updated. The label will be disabled if the variable is invalid.
+  It is tighly integrated with the base class QEWidget which provides generic support such as macro substitutions, drag/drop, and standard properties.
+ */
 class QEPLUGINLIBRARYSHARED_EXPORT QEFileBrowser:public QWidget, public QEWidget
 {
 
@@ -144,32 +149,50 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEFileBrowser:public QWidget, public QEWidget
         void updateTable();
 
 
+        /// Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum
+        /// Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum
+        /// Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum
         Q_PROPERTY(QString variable READ getVariableName WRITE setVariableName)
 
+        /// Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum
+        /// Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum
+        /// Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum
         Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutions WRITE setVariableNameSubstitutions)
 
+        /// Default directory where to browse files when QEFileBrowser is launched for the first time
         Q_PROPERTY(QString directoryPath READ getDirectoryPath WRITE setDirectoryPath)
 
+        /// Show/hide directory path line edit where the user can specify the directory to browse files
         Q_PROPERTY(bool showDirectoryPath READ getShowDirectoryPath WRITE setShowDirectoryPath)
 
+        /// Show/hide button to open the dialog window to browse for directories and files
         Q_PROPERTY(bool showDirectoryBrowser READ getShowDirectoryBrowser WRITE setShowDirectoryBrowser)
 
+        /// Show/hide button to refresh the table containing the list of files being browsed
         Q_PROPERTY(bool showRefresh READ getShowRefresh WRITE setShowRefresh)
 
+        /// Show/hide table containing the list of files being browsed
         Q_PROPERTY(bool showTable READ getShowTable WRITE setShowTable)
 
+        /// Show/hide column containing the time of creation of files
         Q_PROPERTY(bool showColumnTime READ getShowColumnTime WRITE setShowColumnTime)
 
+        /// Show/hide column containing the size (in bytes) of files
         Q_PROPERTY(bool showColumnSize READ getShowColumnSize WRITE setShowColumnSize)
 
+        /// Show/hide column containing the name of files
         Q_PROPERTY(bool showColumnFilename READ getShowColumnFilename WRITE setShowColumnFilename)
 
+        /// Show/hide the extension of files
         Q_PROPERTY(bool showFileExtension READ getShowFileExtension WRITE setShowFileExtension)
 
+        /// Enable/disable the browsing of directories-only when opening the dialog window
         Q_PROPERTY(bool fileDialogDirectoriesOnly READ getFileDialogDirectoriesOnly WRITE setFileDialogDirectoriesOnly)
 
+        /// Specify which files to browse. To specify more than one filter, please separate them with a “;”. Example: *py;*.ui (this will only display files with an extension .py and .ui).
         Q_PROPERTY(QString fileFilter READ getFileFilter WRITE setFileFilter)
 
+        /// Change the order of the widgets. Valid orders are: TOP, BOTTOM, LEFT and RIG
         Q_ENUMS(detailsLayoutProperty)
         Q_PROPERTY(detailsLayoutProperty detailsLayout READ getDetailsLayoutProperty WRITE setDetailsLayoutProperty)
         enum detailsLayoutProperty
@@ -288,6 +311,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEFileBrowser:public QWidget, public QEWidget
 
 
     signals:
+        /// Signal that is generated every time the user double-clicks a certain file. This signals emits a string that contains the full path and the name of the selected file.
+        /// This signal may be captured by other widgets that perform further operations (for instance, the QEImage displays the content of this file if it is a graphical one).
         void selected(QString pFilename);
 
 };
