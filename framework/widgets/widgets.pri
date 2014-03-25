@@ -19,6 +19,7 @@ HEADERS += \
     widgets/include/QEStringFormattingMethods.h \
     widgets/include/QEToolTip.h \
     widgets/include/QEDesignerPlugin.h \
+    widgets/include/QEDesignerPluginCommon.h \
     widgets/include/ContainerProfile.h \
     widgets/include/QEPluginLibrary_global.h \
     widgets/include/persistanceManager.h \
