@@ -496,6 +496,17 @@ int QERadioGroup::getCurrentIndex ()
 // Properties
 // Update variable name etc.
 //
+void QERadioGroup::setSubstitutionsProperty (QString macroSubstitutionsIn)
+{
+   // Call parent method and also set copy held in own name property manager.
+   // Must ensure consistancy.
+   //
+   QEGroupBox::setSubstitutionsProperty (macroSubstitutionsIn);
+   this->variableNamePropertyManager.setSubstitutionsProperty (macroSubstitutionsIn);
+}
+
+//------------------------------------------------------------------------------
+//
 void QERadioGroup::useNewVariableNameProperty (QString variableNameIn,
                                                QString variableNameSubstitutionsIn,
                                                unsigned int variableIndex)
