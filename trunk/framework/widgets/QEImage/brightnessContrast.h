@@ -34,27 +34,27 @@
 #include <QIntValidator>
 
 #define HISTOGRAM_BINS 256
-class localBrightnessContrast;
+class imageDisplayProperties;
 
 class histogram: public QFrame
 {
 public:
-    histogram( QWidget* parent, localBrightnessContrast* lbc );
+    histogram( QWidget* parent, imageDisplayProperties* idp );
     Q_OBJECT
 private:
     void paintEvent( QPaintEvent* event);
     void resizeEvent( QResizeEvent* event );
 
-    localBrightnessContrast* lbc;
+    imageDisplayProperties* idp;
 };
 
-class localBrightnessContrast : public QFrame
+class imageDisplayProperties : public QFrame
 {
     Q_OBJECT
 
 public:
-    localBrightnessContrast();
-    ~localBrightnessContrast();
+    imageDisplayProperties();
+    ~imageDisplayProperties();
 
     void setBrightnessContrast( const unsigned int max, const unsigned int min );
     void setAutoBrightnessContrast( bool autoBrightnessContrast );
@@ -78,7 +78,7 @@ public:
 
 signals:
     void brightnessContrastAutoImage();
-    void brightnessContrastChange();
+    void imageDisplayPropertiesChange();
 
 private slots:
     void brightnessSliderValueChanged( int value );

@@ -465,7 +465,7 @@ private slots:
 
     void panModeClicked();
 
-    void brightnessContrastChanged();
+    void imageDisplayPropertiesChanged();
     void brightnessContrastAutoImageRequest();
 
     // !! move this functionality into QEWidget???
@@ -527,7 +527,7 @@ public slots:
 
     void targetClicked();      ///< Framework use only. Slot to allow external setting of selection menu options
 
-    void localBCDestroyed( QObject* ); ///< Framework use only. Slot to catch deletion of components (such as profile plots) that have been passed to the application for presentation
+    void imageDisplayPropsDestroyed( QObject* ); ///< Framework use only. Slot to catch deletion of components (such as profile plots) that have been passed to the application for presentation
     void vSliceDisplayDestroyed( QObject* ); ///< Framework use only. Slot to catch deletion of components (such as profile plots) that have been passed to the application for presentation
     void hSliceDisplayDestroyed( QObject* ); ///< Framework use only. Slot to catch deletion of components (such as profile plots) that have been passed to the application for presentation
     void profileDisplayDestroyed( QObject* ); ///< Framework use only. Slot to catch deletion of components (such as profile plots) that have been passed to the application for presentation
@@ -621,7 +621,7 @@ public slots:
     profilePlot* hSliceDisplay;
     profilePlot* profileDisplay;
 
-    localBrightnessContrast* localBC;
+    imageDisplayProperties* imageDisplayProps;
 
     // Menus
     zoomMenu*       zMenu;
@@ -752,17 +752,17 @@ public slots:
 
     void getPixelTranslation();
 
-    localBrightnessContrast::rgbPixel getFalseColor (const unsigned char value);    // Get a false color representation for an entry fro the color lookup table
+    imageDisplayProperties::rgbPixel getFalseColor (const unsigned char value);    // Get a false color representation for an entry fro the color lookup table
 
     bool pixelLookupValid;  // pixelLookup is valid. It is invalid if anything that affects the translation changes, such as pixel format, local brigHtness, etc
-    localBrightnessContrast::rgbPixel pixelLookup[256];
+    imageDisplayProperties::rgbPixel pixelLookup[256];
     unsigned int pixelLow;
     unsigned int pixelHigh;
 
     void setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 );    // Update the brightness and contrast, if in auto, to match the recently selected region
     void getPixelRange( const QRect& area, unsigned int* min, unsigned int* max ); // Determine the range of pixel values an area of the image
 
-    void doEnableBrightnessContrast( bool enableBrightnessContrast );
+    void doEnableImageDisplayProperties( bool enableBrightnessContrast );
     void doContrastReversal( bool contrastReversal );
     void doEnableVertSliceSelection( bool enableVSliceSelection );
     void doEnableHozSliceSelection( bool enableHSliceSelection );
