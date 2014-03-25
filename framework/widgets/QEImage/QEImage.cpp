@@ -213,13 +213,13 @@ void QEImage::setup() {
     scrollArea->setBackgroundRole(QPalette::Dark);
     scrollArea->setWidget( videoWidget );
 
-    // Local brightness and contrast controls
-    localBC = new localBrightnessContrast;
-    QObject::connect( localBC, SIGNAL( brightnessContrastChange() ),
-                      this,    SLOT  ( brightnessContrastChanged()) );
-    QObject::connect( localBC, SIGNAL( brightnessContrastAutoImage() ),
+    // Image display properties controls
+    imageDisplayProps = new imageDisplayProperties;
+    QObject::connect( imageDisplayProps, SIGNAL( imageDisplayPropertiesChange() ),
+                      this,    SLOT  ( imageDisplayPropertiesChanged()) );
+    QObject::connect( imageDisplayProps, SIGNAL( brightnessContrastAutoImage() ),
                       this,    SLOT  ( brightnessContrastAutoImageRequest() ) );
-    QObject::connect(localBC, SIGNAL(destroyed(QObject*)), this, SLOT(localBCDestroyed(QObject*)));
+    QObject::connect(imageDisplayProps, SIGNAL(destroyed(QObject*)), this, SLOT(imageDisplayPropsDestroyed(QObject*)));
 
     // Create vertical, horizontal, and general profile plots
     vSliceLabel = new QLabel( "Vertical Profile" );
@@ -392,10 +392,10 @@ QEImage::~QEImage()
     // widget and will not need explicit deletion.
     if( appHostsControls && hostingAppAvailable )
     {
-        if( localBC )
+        if( imageDisplayProps )
         {
-            QObject::disconnect( localBC, 0, this, 0);
-            delete localBC;
+            QObject::disconnect( imageDisplayProps, 0, this, 0);
+            delete imageDisplayProps;
         }
 
         if( vSliceDisplay )
@@ -420,7 +420,7 @@ QEImage::~QEImage()
 }
 
 // If an object handed over to the application (which we have a reference to) has been deleted, then clear the reference
-void QEImage::localBCDestroyed( QObject* ){ localBC = NULL; }
+void QEImage::imageDisplayPropsDestroyed( QObject* ){ imageDisplayProps = NULL; }
 void QEImage::vSliceDisplayDestroyed( QObject* ){ vSliceDisplay = NULL; }
 void QEImage::hSliceDisplayDestroyed( QObject* ){ hSliceDisplay = NULL; }
 void QEImage::profileDisplayDestroyed( QObject* ){ profileDisplay = NULL; }
@@ -438,10 +438,10 @@ void QEImage::presentControls()
     {
         QList<componentHostListItem> components;
 
-        if( localBC )
+        if( imageDisplayProps )
         {
-            mainLayout->removeWidget( localBC );
-            components.append( componentHostListItem( localBC, QEActionRequests::OptionTopDockWindow, true, "Image Display Properties" ) );
+            mainLayout->removeWidget( imageDisplayProps );
+            components.append( componentHostListItem( imageDisplayProps, QEActionRequests::OptionTopDockWindow, true, "Image Display Properties" ) );
         }
 
         vSliceLabel->setVisible( false );
@@ -477,9 +477,9 @@ void QEImage::presentControls()
     //  has gone wrong perhaps the appliction has deleted them, so don't assume they are present)
     else
     {
-        if( localBC )
+        if( imageDisplayProps )
         {
-            mainLayout->addWidget( localBC, 0, 1 );
+            mainLayout->addWidget( imageDisplayProps, 0, 1 );
         }
 
         if( vSliceDisplay && enableVertSlicePresentation )
@@ -1552,13 +1552,13 @@ void QEImage::getPixelTranslation()
     bool logBrightness;
 
     // If there is an image options control, get the relevent options
-    if( localBC )
+    if( imageDisplayProps )
     {
-        pixelLow = localBC->getLowPixel();
-        pixelHigh = localBC->getHighPixel();
+        pixelLow = imageDisplayProps->getLowPixel();
+        pixelHigh = imageDisplayProps->getHighPixel();
 
-        contrastReversal = localBC->getContrastReversal();
-        logBrightness = localBC->getLog();
+        contrastReversal = imageDisplayProps->getContrastReversal();
+        logBrightness = imageDisplayProps->getLog();
     }
 
     // If there is no image options control, assume no pixel manipulation
@@ -1613,7 +1613,7 @@ void QEImage::getPixelTranslation()
             }
 
             // Reverse contrast if required
-            if( localBC->getContrastReversal() )
+            if( imageDisplayProps->getContrastReversal() )
             {
                 translatedValue = MAX_VALUE - translatedValue;
             }
@@ -1637,7 +1637,7 @@ void QEImage::getPixelTranslation()
 }
 
 // Get a false color representation for an entry from the color lookup table
-localBrightnessContrast::rgbPixel QEImage::getFalseColor (const unsigned char value) {
+imageDisplayProperties::rgbPixel QEImage::getFalseColor (const unsigned char value) {
 
     const int max = 0xFF;
     const int half = 0x80;
@@ -1647,7 +1647,7 @@ localBrightnessContrast::rgbPixel QEImage::getFalseColor (const unsigned char va
 
     int bp1;
     int bp2;
-    localBrightnessContrast::rgbPixel result;
+    imageDisplayProperties::rgbPixel result;
     int h, l;
     QColor c;
 
@@ -1740,7 +1740,7 @@ void QEImage::displayImage()
 
     // Set up input and output pointers and counters ready to process each pixel
     const unsigned char* dataIn = (unsigned char*)image.constData();
-    localBrightnessContrast::rgbPixel* dataOut = (localBrightnessContrast::rgbPixel*)(imageBuff.data());
+    imageDisplayProperties::rgbPixel* dataOut = (imageDisplayProperties::rgbPixel*)(imageBuff.data());
     unsigned long buffIndex = 0;
     unsigned long dataIndex = 0;
 
@@ -2395,10 +2395,10 @@ void QEImage::displayImage()
         }
     }
 
-    // Update the local brightness/contrast control if present
-    if( localBC )
+    // Update the image display properties controls if present
+    if( imageDisplayProps )
     {
-        localBC->setStatistics( minP, maxP, bitDepth, bins, pixelLookup );
+        imageDisplayProps->setStatistics( minP, maxP, bitDepth, bins, pixelLookup );
     }
 
     // Generate a frame from the data
@@ -2884,15 +2884,15 @@ void QEImage::resizeEvent(QResizeEvent* )
 
 //==============================================================================
 
-// Manage local brightness and contrast controls
-void QEImage::doEnableBrightnessContrast( bool enableBrightnessContrast )
+// Manage image display properties controls such as brightness and contrast
+void QEImage::doEnableImageDisplayProperties( bool enableImageDisplayProperties )
 {
-    if( !localBC )
+    if( !imageDisplayProps )
     {
         return;
     }
 
-    localBC->setVisible( enableBrightnessContrast );
+    imageDisplayProps->setVisible( enableImageDisplayProperties );
 }
 
 // Manage contrast reversal
@@ -3227,21 +3227,21 @@ bool QEImage::getVerticalFlip()
 // Automatic setting of brightness and contrast on region selection
 void QEImage::setAutoBrightnessContrast( bool autoBrightnessContrastIn )
 {
-    if( !localBC )
+    if( !imageDisplayProps )
     {
         return;
     }
 
-    localBC->setAutoBrightnessContrast( autoBrightnessContrastIn );
+    imageDisplayProps->setAutoBrightnessContrast( autoBrightnessContrastIn );
 }
 
 bool QEImage::getAutoBrightnessContrast()
 {
-    if( !localBC )
+    if( !imageDisplayProps )
     {
         return false;
     }
-    return localBC->getAutoBrightnessContrast();
+    return imageDisplayProps->getAutoBrightnessContrast();
 }
 
 // Resize options
@@ -3300,12 +3300,12 @@ bool QEImage::getShowTime()
 // Use False Colour
 void QEImage::setUseFalseColour(bool value)
 {
-    localBC->setFalseColour( value );
+    imageDisplayProps->setFalseColour( value );
 }
 
 bool QEImage::getUseFalseColour()
 {
-    return localBC->getFalseColour();
+    return imageDisplayProps->getFalseColour();
 }
 
 // Vertical slice markup colour
@@ -3424,23 +3424,23 @@ bool QEImage::getDisplayCursorPixelInfo()
 // Show contrast reversal
 void QEImage::setContrastReversal( bool contrastReversal )
 {
-    localBC->setContrastReversal( contrastReversal );
+    imageDisplayProps->setContrastReversal( contrastReversal );
 }
 
 bool QEImage::getContrastReversal()
 {
-    return localBC->getContrastReversal();
+    return imageDisplayProps->getContrastReversal();
 }
 
 // Show log brightness scale
 void QEImage::setLog( bool log )
 {
-    localBC->setLog( log );
+    imageDisplayProps->setLog( log );
 }
 
 bool QEImage::getLog()
 {
-    return localBC->getLog();
+    return imageDisplayProps->getLog();
 }
 
 // Enable vertical slice selection
@@ -4000,7 +4000,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 zMenu->enableAreaSelected( haveSelectedArea1 );
 
                 displaySelectedAreaInfo( 1, point1, point2 );
-                if( localBC && localBC->getAutoBrightnessContrast() )
+                if( imageDisplayProps && imageDisplayProps->getAutoBrightnessContrast() )
                 {
                     setRegionAutoBrightnessContrast( point1, point2 );
                 }
@@ -4017,7 +4017,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveSelectedArea2 = true;
 
                 displaySelectedAreaInfo( 2, point1, point2 );
-                if( localBC && localBC->getAutoBrightnessContrast() )
+                if( imageDisplayProps && imageDisplayProps->getAutoBrightnessContrast() )
                 {
                     setRegionAutoBrightnessContrast( point1, point2 );
                 }
@@ -4034,7 +4034,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveSelectedArea3 = true;
 
                 displaySelectedAreaInfo( 3, point1, point2 );
-                if( localBC && localBC->getAutoBrightnessContrast() )
+                if( imageDisplayProps && imageDisplayProps->getAutoBrightnessContrast() )
                 {
                     setRegionAutoBrightnessContrast( point1, point2 );
                 }
@@ -4051,7 +4051,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveSelectedArea4 = true;
 
                 displaySelectedAreaInfo( 4, point1, point2 );
-                if( localBC && localBC->getAutoBrightnessContrast() )
+                if( imageDisplayProps && imageDisplayProps->getAutoBrightnessContrast() )
                 {
                     setRegionAutoBrightnessContrast( point1, point2 );
                 }
@@ -4360,9 +4360,9 @@ void QEImage::setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 )
     unsigned int min, max;
     getPixelRange( area, &min, &max );
 
-    if( localBC )
+    if( imageDisplayProps )
     {
-        localBC->setBrightnessContrast( max, min );
+        imageDisplayProps->setBrightnessContrast( max, min );
     }
 }
 
@@ -4417,7 +4417,7 @@ void QEImage::getPixelRange( const QRect& area, unsigned int* min, unsigned int*
 // Slots to use signals from the Brightness/contrast control
 
 // The brightness or contrast or contrast reversal has changed
-void QEImage::brightnessContrastChanged()
+void QEImage::imageDisplayPropertiesChanged()
 {
     // Flag that the current pixel lookup table needs recalculating
     pixelLookupValid = false;
@@ -5450,24 +5450,24 @@ void QEImage::optionAction( imageContextMenu::imageContextMenuOptions option, bo
         default:
         case imageContextMenu::ICM_NONE: break;
 
-        case imageContextMenu::ICM_SAVE:                        saveClicked();                         break;
-        case imageContextMenu::ICM_PAUSE:                       pauseClicked();                        break;
-        case imageContextMenu::ICM_ENABLE_CURSOR_PIXEL:         showInfo                  ( checked ); break;
-        case imageContextMenu::ICM_ABOUT_IMAGE:                 showImageAboutDialog();                break;
-        case imageContextMenu::ICM_ENABLE_TIME:                 videoWidget->setShowTime  ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_VERT:                 doEnableVertSliceSelection( checked ); break;
-        case imageContextMenu::ICM_ENABLE_HOZ:                  doEnableHozSliceSelection ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_AREA1:                doEnableAreaSelection     ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_AREA2:                doEnableAreaSelection     ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_AREA3:                doEnableAreaSelection     ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_AREA4:                doEnableAreaSelection     ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_LINE:                 doEnableProfileSelection  ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_TARGET:               doEnableTargetSelection   ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_BEAM:                 doEnableBeamSelection     ( checked ); break;
-        case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:          buttonGroup->setVisible   ( checked ); break;
-        case imageContextMenu::ICM_DISPLAY_IMAGE_DISPLAY_PROPERTIES: doEnableBrightnessContrast( checked ); break;
-        case imageContextMenu::ICM_FULL_SCREEN:                 setFullScreen             ( checked ); break;
-        case imageContextMenu::ICM_OPTIONS:                     optionsDialog->exec( this );           break;
+        case imageContextMenu::ICM_SAVE:                             saveClicked();                             break;
+        case imageContextMenu::ICM_PAUSE:                            pauseClicked();                            break;
+        case imageContextMenu::ICM_ENABLE_CURSOR_PIXEL:              showInfo                  ( checked );     break;
+        case imageContextMenu::ICM_ABOUT_IMAGE:                      showImageAboutDialog();                    break;
+        case imageContextMenu::ICM_ENABLE_TIME:                      videoWidget->setShowTime  ( checked );     break;
+        case imageContextMenu::ICM_ENABLE_VERT:                      doEnableVertSliceSelection( checked );     break;
+        case imageContextMenu::ICM_ENABLE_HOZ:                       doEnableHozSliceSelection ( checked );     break;
+        case imageContextMenu::ICM_ENABLE_AREA1:                     doEnableAreaSelection     ( checked );     break;
+        case imageContextMenu::ICM_ENABLE_AREA2:                     doEnableAreaSelection     ( checked );     break;
+        case imageContextMenu::ICM_ENABLE_AREA3:                     doEnableAreaSelection     ( checked );     break;
+        case imageContextMenu::ICM_ENABLE_AREA4:                     doEnableAreaSelection     ( checked );     break;
+        case imageContextMenu::ICM_ENABLE_LINE:                      doEnableProfileSelection  ( checked );     break;
+        case imageContextMenu::ICM_ENABLE_TARGET:                    doEnableTargetSelection   ( checked );     break;
+        case imageContextMenu::ICM_ENABLE_BEAM:                      doEnableBeamSelection     ( checked );     break;
+        case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:               buttonGroup->setVisible   ( checked );     break;
+        case imageContextMenu::ICM_DISPLAY_IMAGE_DISPLAY_PROPERTIES: doEnableImageDisplayProperties( checked ); break;
+        case imageContextMenu::ICM_FULL_SCREEN:                      setFullScreen             ( checked );     break;
+        case imageContextMenu::ICM_OPTIONS:                          optionsDialog->exec( this );               break;
 
         // Note, zoom options caught by zoom menu signal
         // Note, rotate and flip options caught by flip rotate menu signal

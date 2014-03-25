@@ -23,7 +23,7 @@
  */
 
 /*
-  This class manages the QEImage local brightness and contrast controls.
+  This class manages the QEImage image display properties controls such as brightness and contrast controls.
  */
 
 #include <brightnessContrast.h>
@@ -45,7 +45,7 @@
 #define GRADIENT_USER_SCALE_FACTOR 1273.239
 #define GRADIENT_BASE 0.78539
 
-localBrightnessContrast::localBrightnessContrast()
+imageDisplayProperties::imageDisplayProperties()
 {
     nonInteractive = false;
 
@@ -70,13 +70,13 @@ localBrightnessContrast::localBrightnessContrast()
 
     setFrameStyle( QFrame::StyledPanel|QFrame::Raised );
 
-    QGridLayout* brightnessContrastMainLayout = new QGridLayout();
-    brightnessContrastMainLayout->setSpacing( 10 );
-    setLayout( brightnessContrastMainLayout );
+    QGridLayout* imageDisplayPropertiesMainLayout = new QGridLayout();
+    imageDisplayPropertiesMainLayout->setSpacing( 10 );
+    setLayout( imageDisplayPropertiesMainLayout );
 
-    QHBoxLayout* brightnessContrastSub1Layout = new QHBoxLayout();
-    QGridLayout* brightnessContrastSub2Layout = new QGridLayout();
-    QHBoxLayout* brightnessContrastSub3Layout = new QHBoxLayout();
+    QHBoxLayout* imageDisplayPropertiesSub1Layout = new QHBoxLayout();
+    QGridLayout* imageDisplayPropertiesSub2Layout = new QGridLayout();
+    QHBoxLayout* imageDisplayPropertiesSub3Layout = new QHBoxLayout();
 
     QLabel* brightnessLabel = new QLabel( "Brightness:", this );
     QLabel* gradientLabel = new QLabel( "Gradient:\n(Contrast)", this );
@@ -165,44 +165,44 @@ localBrightnessContrast::localBrightnessContrast()
     falseColourCheckBox->setToolTip( "Interpret intensitiy scale as a range of colours");
     QObject::connect( falseColourCheckBox, SIGNAL( toggled( bool ) ), this,  SLOT  ( falseColourToggled( bool )) );
 
-    brightnessContrastSub1Layout->addWidget( autoBrightnessCheckBox, 0, Qt::AlignLeft );
-    brightnessContrastSub1Layout->addWidget( autoImageButton,        0, Qt::AlignLeft );
-    brightnessContrastSub1Layout->addWidget( resetButton,            1, Qt::AlignLeft );
+    imageDisplayPropertiesSub1Layout->addWidget( autoBrightnessCheckBox, 0, Qt::AlignLeft );
+    imageDisplayPropertiesSub1Layout->addWidget( autoImageButton,        0, Qt::AlignLeft );
+    imageDisplayPropertiesSub1Layout->addWidget( resetButton,            1, Qt::AlignLeft );
 
-    brightnessContrastSub2Layout->addWidget( brightnessLabel,   0, 0 );
-    brightnessContrastSub2Layout->addWidget( brightnessSlider,  0, 1 );
-    brightnessContrastSub2Layout->addWidget( brightnessSpinBox, 0, 2 );
+    imageDisplayPropertiesSub2Layout->addWidget( brightnessLabel,   0, 0 );
+    imageDisplayPropertiesSub2Layout->addWidget( brightnessSlider,  0, 1 );
+    imageDisplayPropertiesSub2Layout->addWidget( brightnessSpinBox, 0, 2 );
 
-    brightnessContrastSub2Layout->addWidget( gradientLabel,     1, 0 );
-    brightnessContrastSub2Layout->addWidget( gradientSlider,    1, 1 );
-    brightnessContrastSub2Layout->addWidget( gradientSpinBox,   1, 2 );
+    imageDisplayPropertiesSub2Layout->addWidget( gradientLabel,     1, 0 );
+    imageDisplayPropertiesSub2Layout->addWidget( gradientSlider,    1, 1 );
+    imageDisplayPropertiesSub2Layout->addWidget( gradientSpinBox,   1, 2 );
 
-    brightnessContrastSub2Layout->addWidget( minLabel,          2, 0 );
-    brightnessContrastSub2Layout->addWidget( zeroValueSlider,   2, 1 );
-    brightnessContrastSub2Layout->addWidget( zeroValueSpinBox,  2, 2 );
+    imageDisplayPropertiesSub2Layout->addWidget( minLabel,          2, 0 );
+    imageDisplayPropertiesSub2Layout->addWidget( zeroValueSlider,   2, 1 );
+    imageDisplayPropertiesSub2Layout->addWidget( zeroValueSpinBox,  2, 2 );
 
-    brightnessContrastSub2Layout->addWidget( maxLabel,          3, 0 );
-    brightnessContrastSub2Layout->addWidget( fullValueSlider,   3, 1 );
-    brightnessContrastSub2Layout->addWidget( fullValueSpinBox,  3, 2 );
+    imageDisplayPropertiesSub2Layout->addWidget( maxLabel,          3, 0 );
+    imageDisplayPropertiesSub2Layout->addWidget( fullValueSlider,   3, 1 );
+    imageDisplayPropertiesSub2Layout->addWidget( fullValueSpinBox,  3, 2 );
 
-    brightnessContrastSub2Layout->setColumnStretch( 1, 1 );  // Read back labels to take all spare room
+    imageDisplayPropertiesSub2Layout->setColumnStretch( 1, 1 );  // Read back labels to take all spare room
 
-    brightnessContrastSub3Layout->addWidget( contrastReversalCheckBox, 0, Qt::AlignLeft );
-    brightnessContrastSub3Layout->addWidget( falseColourCheckBox,      0, Qt::AlignLeft );
-    brightnessContrastSub3Layout->addWidget( logCheckBox,              1, Qt::AlignLeft );
+    imageDisplayPropertiesSub3Layout->addWidget( contrastReversalCheckBox, 0, Qt::AlignLeft );
+    imageDisplayPropertiesSub3Layout->addWidget( falseColourCheckBox,      0, Qt::AlignLeft );
+    imageDisplayPropertiesSub3Layout->addWidget( logCheckBox,              1, Qt::AlignLeft );
 
-    brightnessContrastMainLayout->addLayout( brightnessContrastSub1Layout, 0, 0 );
-    brightnessContrastMainLayout->addLayout( brightnessContrastSub2Layout, 1, 0 );
-    brightnessContrastMainLayout->addLayout( brightnessContrastSub3Layout, 2, 0 );
+    imageDisplayPropertiesMainLayout->addLayout( imageDisplayPropertiesSub1Layout, 0, 0 );
+    imageDisplayPropertiesMainLayout->addLayout( imageDisplayPropertiesSub2Layout, 1, 0 );
+    imageDisplayPropertiesMainLayout->addLayout( imageDisplayPropertiesSub3Layout, 2, 0 );
 
-    brightnessContrastMainLayout->addWidget( hist, 0, 1, 3, 1 );
+    imageDisplayPropertiesMainLayout->addWidget( hist, 0, 1, 3, 1 );
 
     range = 0;
 
     adjustSize();
 }
 
-localBrightnessContrast::~localBrightnessContrast()
+imageDisplayProperties::~imageDisplayProperties()
 {
     delete autoBrightnessCheckBox;
     delete brightnessSlider;
@@ -220,38 +220,38 @@ localBrightnessContrast::~localBrightnessContrast()
     delete hist;
 }
 
-int localBrightnessContrast::getLowPixel()
+int imageDisplayProperties::getLowPixel()
 {
     return zeroValue;
 }
 
-int localBrightnessContrast::getHighPixel()
+int imageDisplayProperties::getHighPixel()
 {
     return fullValue;
 }
 
-bool localBrightnessContrast::getAutoBrightnessContrast()
+bool imageDisplayProperties::getAutoBrightnessContrast()
 {
     return autoBrightnessCheckBox->isChecked();
 }
 
-bool localBrightnessContrast::getContrastReversal()
+bool imageDisplayProperties::getContrastReversal()
 {
     return contrastReversalCheckBox->isChecked();
 }
 
-bool localBrightnessContrast::getLog()
+bool imageDisplayProperties::getLog()
 {
     return logCheckBox->isChecked();
 }
 
-bool localBrightnessContrast::getFalseColour()
+bool imageDisplayProperties::getFalseColour()
 {
     return falseColourCheckBox->isChecked();
 }
 
 // Reset the brightness and contrast to normal
-void localBrightnessContrast::brightnessContrastResetClicked( bool )
+void imageDisplayProperties::brightnessContrastResetClicked( bool )
 {
     zeroValue = 0;
     fullValue = range;
@@ -261,59 +261,59 @@ void localBrightnessContrast::brightnessContrastResetClicked( bool )
     updateZeroValueInterface();
     updateFullValueInterface();
 
-    emit brightnessContrastChange();
+    emit imageDisplayPropertiesChange();
 }
 
 // Auto brightness and contrast check box has been checked or unchecked
-void localBrightnessContrast::brightnessContrastAutoImageClicked()
+void imageDisplayProperties::brightnessContrastAutoImageClicked()
 {
     emit brightnessContrastAutoImage();
 }
 
 // Contrast reversal check box has been checked or unchecked
-void localBrightnessContrast::contrastReversalToggled( bool )
+void imageDisplayProperties::contrastReversalToggled( bool )
 {
-    emit brightnessContrastChange();
+    emit imageDisplayPropertiesChange();
 }
 
 // Log brightness check box has been checked or unchecked
-void localBrightnessContrast::logToggled( bool )
+void imageDisplayProperties::logToggled( bool )
 {
-    emit brightnessContrastChange();
+    emit imageDisplayPropertiesChange();
 }
 
 // False colour check box has been checked or unchecked
-void localBrightnessContrast::falseColourToggled( bool )
+void imageDisplayProperties::falseColourToggled( bool )
 {
-    emit brightnessContrastChange();
+    emit imageDisplayPropertiesChange();
 }
 
 //=============================================
 
 
 // Set brightness and contrast based on a values for black and white
-void localBrightnessContrast::setBrightnessContrast( const unsigned int max, const unsigned int min )
+void imageDisplayProperties::setBrightnessContrast( const unsigned int max, const unsigned int min )
 {
     updateZeroValueFullValue( min, max );
-    emit brightnessContrastChange();
+    emit imageDisplayPropertiesChange();
 }
 
-void localBrightnessContrast::setAutoBrightnessContrast( bool autoBrightnessContrast )
+void imageDisplayProperties::setAutoBrightnessContrast( bool autoBrightnessContrast )
 {
     autoBrightnessCheckBox->setChecked( autoBrightnessContrast );
 }
 
-void localBrightnessContrast::setContrastReversal( bool contrastReversal )
+void imageDisplayProperties::setContrastReversal( bool contrastReversal )
 {
     contrastReversalCheckBox->setChecked( contrastReversal );
 }
 
-void localBrightnessContrast::setLog( bool log )
+void imageDisplayProperties::setLog( bool log )
 {
     logCheckBox->setChecked( log );
 }
 
-void localBrightnessContrast::setFalseColour( bool falseColour )
+void imageDisplayProperties::setFalseColour( bool falseColour )
 {
     falseColourCheckBox->setChecked( falseColour );
 }
@@ -321,7 +321,7 @@ void localBrightnessContrast::setFalseColour( bool falseColour )
 //==========================================================
 
 // The local brightness slider has been moved
-void localBrightnessContrast::brightnessSliderValueChanged( int localBrightnessIn )
+void imageDisplayProperties::brightnessSliderValueChanged( int localBrightnessIn )
 {
     if( nonInteractive )
     {
@@ -332,10 +332,10 @@ void localBrightnessContrast::brightnessSliderValueChanged( int localBrightnessI
     updateBrightness( (double)(localBrightnessIn)/100.0 );
     inBrightnessSliderCallback = false;
 
-    emit brightnessContrastChange();
+    emit imageDisplayPropertiesChange();
 }
 
-void localBrightnessContrast::brightnessSpinBoxChanged( int value )
+void imageDisplayProperties::brightnessSpinBoxChanged( int value )
 {
     if( nonInteractive )
     {
@@ -349,7 +349,7 @@ void localBrightnessContrast::brightnessSpinBoxChanged( int value )
 }
 
 // The gradient slider has been moved
-void localBrightnessContrast::gradientSliderValueChanged( int value )
+void imageDisplayProperties::gradientSliderValueChanged( int value )
 {
     if( nonInteractive )
     {
@@ -360,10 +360,10 @@ void localBrightnessContrast::gradientSliderValueChanged( int value )
     updateGradient( (double)(value)/GRADIENT_USER_SCALE_FACTOR+GRADIENT_BASE );
     inGradientSliderCallback = false;
 
-    emit brightnessContrastChange();
+    emit imageDisplayPropertiesChange();
 }
 
-void localBrightnessContrast::gradientSpinBoxChanged( int value )
+void imageDisplayProperties::gradientSpinBoxChanged( int value )
 {
     if( nonInteractive )
     {
@@ -374,11 +374,11 @@ void localBrightnessContrast::gradientSpinBoxChanged( int value )
     updateGradient( (double)(value)/GRADIENT_USER_SCALE_FACTOR+GRADIENT_BASE );
     inGradientEditCallback = false;
 
-    emit brightnessContrastChange();
+    emit imageDisplayPropertiesChange();
 }
 
 // The minimum slider has been moved
-void localBrightnessContrast::minSliderValueChanged( int value )
+void imageDisplayProperties::minSliderValueChanged( int value )
 {
     if( nonInteractive )
     {
@@ -389,10 +389,10 @@ void localBrightnessContrast::minSliderValueChanged( int value )
     updateZeroValue( value );
     inZeroValueSliderCallback = false;
 
-    emit brightnessContrastChange();
+    emit imageDisplayPropertiesChange();
 }
 
-void localBrightnessContrast::minSpinBoxChanged( int value )
+void imageDisplayProperties::minSpinBoxChanged( int value )
 {
     if( nonInteractive )
     {
@@ -403,11 +403,11 @@ void localBrightnessContrast::minSpinBoxChanged( int value )
     updateZeroValue( value );
     inZeroValueEditCallback = false;
 
-    emit brightnessContrastChange();
+    emit imageDisplayPropertiesChange();
 }
 
 // The maximum slider has been moved
-void localBrightnessContrast::maxSliderValueChanged( int value )
+void imageDisplayProperties::maxSliderValueChanged( int value )
 {
     if( nonInteractive )
     {
@@ -418,10 +418,10 @@ void localBrightnessContrast::maxSliderValueChanged( int value )
     updateFullValue( value );
     inFullValueSliderCallback = false;
 
-    emit brightnessContrastChange();
+    emit imageDisplayPropertiesChange();
 }
 
-void localBrightnessContrast::maxSpinBoxChanged( int value )
+void imageDisplayProperties::maxSpinBoxChanged( int value )
 {
     if( nonInteractive )
     {
@@ -433,12 +433,12 @@ void localBrightnessContrast::maxSpinBoxChanged( int value )
     inFullValueEditCallback = false;
 
 
-    emit brightnessContrastChange();
+    emit imageDisplayPropertiesChange();
 }
 
 //=========================================================
 
-void localBrightnessContrast::updateBrightness( double val )
+void imageDisplayProperties::updateBrightness( double val )
 {
     // Brightness ranges from 0.0 (0%) to 1.0 (100%)
     // Validate brightness
@@ -465,7 +465,7 @@ void localBrightnessContrast::updateBrightness( double val )
     hist->update();
 }
 
-void localBrightnessContrast::updateGradient( double val )
+void imageDisplayProperties::updateGradient( double val )
 {
     // Gradient is range / span
     // With zeroValue at most one less than full value, gradient can go from 1 to range
@@ -499,7 +499,7 @@ void localBrightnessContrast::updateGradient( double val )
     hist->update();
 }
 
-void localBrightnessContrast::updateZeroValue( unsigned int val )
+void imageDisplayProperties::updateZeroValue( unsigned int val )
 {
     if( val >= range )
     {
@@ -520,7 +520,7 @@ void localBrightnessContrast::updateZeroValue( unsigned int val )
     hist->update();
 }
 
-void localBrightnessContrast::updateFullValue( unsigned int val )
+void imageDisplayProperties::updateFullValue( unsigned int val )
 {
     if( val < 1 )
     {
@@ -547,7 +547,7 @@ void localBrightnessContrast::updateFullValue( unsigned int val )
     hist->update();
 }
 
-void localBrightnessContrast::updateZeroValueFullValue( unsigned int min, unsigned int max )
+void imageDisplayProperties::updateZeroValueFullValue( unsigned int min, unsigned int max )
 {
     if( min >= range )
     {
@@ -578,7 +578,7 @@ void localBrightnessContrast::updateZeroValueFullValue( unsigned int min, unsign
 
 //=========================================================
 
-void localBrightnessContrast::updateBrightnessInterface()
+void imageDisplayProperties::updateBrightnessInterface()
 {
     // Calculate brightness (derived)
     unsigned int span = fullValue-zeroValue;
@@ -609,7 +609,7 @@ void localBrightnessContrast::updateBrightnessInterface()
     nonInteractive = false;
 }
 
-void localBrightnessContrast::updateGradientInterface()
+void imageDisplayProperties::updateGradientInterface()
 {
     // Calculate gradient (derived)
     double gradient = (atan((double)range/(double)(fullValue-zeroValue))-GRADIENT_BASE)*GRADIENT_USER_SCALE_FACTOR;
@@ -630,7 +630,7 @@ void localBrightnessContrast::updateGradientInterface()
     nonInteractive = false;
 }
 
-void localBrightnessContrast::updateZeroValueInterface()
+void imageDisplayProperties::updateZeroValueInterface()
 {
     // Update interface
     nonInteractive = true;
@@ -648,7 +648,7 @@ void localBrightnessContrast::updateZeroValueInterface()
     nonInteractive = false;
 }
 
-void localBrightnessContrast::updateFullValueInterface()
+void imageDisplayProperties::updateFullValueInterface()
 {
     // Update interface
     nonInteractive = true;
@@ -668,7 +668,7 @@ void localBrightnessContrast::updateFullValueInterface()
 
 //=========================================================
 
-void localBrightnessContrast::setStatistics( unsigned int minPIn, unsigned int maxPIn, unsigned int bitDepth, unsigned int binsIn[HISTOGRAM_BINS], rgbPixel pixelLookupIn[256] )
+void imageDisplayProperties::setStatistics( unsigned int minPIn, unsigned int maxPIn, unsigned int bitDepth, unsigned int binsIn[HISTOGRAM_BINS], rgbPixel pixelLookupIn[256] )
 {
     // Update image statistics
     minP = minPIn;
@@ -692,24 +692,24 @@ void localBrightnessContrast::setStatistics( unsigned int minPIn, unsigned int m
     hist->update();
 }
 
-histogram::histogram( QWidget* parent, localBrightnessContrast* lbcIn )
+histogram::histogram( QWidget* parent, imageDisplayProperties* idpIn )
     : QFrame( parent )
 {
     setFrameStyle( QFrame::Panel );
     setMinimumWidth(256 );
     setMinimumHeight(200 );
 
-    lbc = lbcIn;
+    idp = idpIn;
 }
 
 // Histogram resize event
 void histogram::resizeEvent( QResizeEvent* )
 {
     // Keep the X asis label in the bottom right of the histogram
-    lbc->histXLabel->setGeometry( width()-lbc->histXLabel->width()-2,
-                                  height()-lbc->histXLabel->height()-10, //SCALE_HEIGHT,
-                                  lbc->histXLabel->width(),
-                                  lbc->histXLabel->height());
+    idp->histXLabel->setGeometry( width()-idp->histXLabel->width()-2,
+                                  height()-idp->histXLabel->height()-10, //SCALE_HEIGHT,
+                                  idp->histXLabel->width(),
+                                  idp->histXLabel->height());
 }
 
 
@@ -717,7 +717,7 @@ void histogram::paintEvent(QPaintEvent* )
 {
 
     // Do nothing if no image info yet
-    if( lbc->bins == NULL )
+    if( idp->bins == NULL )
     {
         return;
     }
@@ -726,9 +726,9 @@ void histogram::paintEvent(QPaintEvent* )
     unsigned int binRange = 0;
     for( int i = 1; i < HISTOGRAM_BINS-1; i++ )
     {
-        if( lbc->bins[i] > binRange )
+        if( idp->bins[i] > binRange )
         {
-            binRange = lbc->bins[i];
+            binRange = idp->bins[i];
         }
     }
 
@@ -745,21 +745,21 @@ void histogram::paintEvent(QPaintEvent* )
 
     // Draw the histogram
     int h = height()-1-SCALE_HEIGHT;
-    pnt1 = QPoint( 0, h - lbc->bins[0]*h/binRange );
+    pnt1 = QPoint( 0, h - idp->bins[0]*h/binRange );
 
     p.setPen( Qt::red );
     for( int i = 1; i < HISTOGRAM_BINS-1; i++ )
     {
         pnt2.setX( i );
-        pnt2.setY( h - lbc->bins[i]*h/binRange );
+        pnt2.setY( h - idp->bins[i]*h/binRange );
         p.drawLine( pnt1, pnt2 );
         pnt1 = pnt2;
     }
 
     // Prepare to draw the bounds an gradient
-    unsigned int bitsPerBin = (lbc->depth<=8)?1:lbc->depth-8;
-    unsigned int minBin = lbc->zeroValue>>(bitsPerBin-1);
-    unsigned int maxBin = lbc->fullValue>>(bitsPerBin-1);
+    unsigned int bitsPerBin = (idp->depth<=8)?1:idp->depth-8;
+    unsigned int minBin = idp->zeroValue>>(bitsPerBin-1);
+    unsigned int maxBin = idp->fullValue>>(bitsPerBin-1);
 
     QPen pen( Qt::blue );
     p.setPen( pen );
@@ -800,7 +800,7 @@ void histogram::paintEvent(QPaintEvent* )
         }
 
         // draw the next line in the scale
-        localBrightnessContrast::rgbPixel* col = &(lbc->pixelLookup[index] );
+        imageDisplayProperties::rgbPixel* col = &(idp->pixelLookup[index] );
         p.setPen( QColor( col->p[2], col->p[1], col->p[0] ) );
         p.drawLine( pnt1, pnt2 );
     }
