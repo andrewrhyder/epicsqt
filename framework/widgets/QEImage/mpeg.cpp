@@ -360,16 +360,7 @@ void mpegSource::ffQuit() {
 
 void mpegSourceObject::updateImage(FFBuffer *newbuf)
 {
-    static int count = 0;
-    count++;
-    if( count%10 == 0 )// temp
-    {
-        ms->updateImage( newbuf );
-    }
-    else
-    {
-        qDebug() << "skip";
-    }
+    ms->updateImage( newbuf );
     newbuf->release();
 }
 

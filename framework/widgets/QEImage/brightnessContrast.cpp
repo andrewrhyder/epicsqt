@@ -120,6 +120,19 @@ imageDisplayProperties::imageDisplayProperties()
 
     hist = new histogram( this, this );
 
+    histScroll = new histogramScroll( this, this );
+    histScroll->setMinimumWidth( 256 );
+    histScroll->setMinimumHeight(200 );
+    histScroll->setWidget( hist );
+    QObject::connect( histScroll, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( histZoomSliderValueChanged( int )) );
+
+    histZoom = new QSlider( Qt::Vertical, this );
+    histZoom->setMinimum( 100 );
+    histZoom->setMaximum( 1000 );
+    histZoom->setValue( 100 );
+    histZoom->setToolTip( "Zoom histogram");
+    QObject::connect( histZoom, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( histZoomSliderValueChanged( int )) );
+
     histXLabel = new QLabel( hist );
     histXLabel->setAlignment( Qt::AlignRight );
 
@@ -185,7 +198,7 @@ imageDisplayProperties::imageDisplayProperties()
     imageDisplayPropertiesSub2Layout->addWidget( fullValueSlider,   3, 1 );
     imageDisplayPropertiesSub2Layout->addWidget( fullValueSpinBox,  3, 2 );
 
-    imageDisplayPropertiesSub2Layout->setColumnStretch( 1, 1 );  // Read back labels to take all spare room
+    imageDisplayPropertiesSub2Layout->setColumnStretch( 1, 1 );  // Sliders to take all spare room
 
     imageDisplayPropertiesSub3Layout->addWidget( contrastReversalCheckBox, 0, Qt::AlignLeft );
     imageDisplayPropertiesSub3Layout->addWidget( falseColourCheckBox,      0, Qt::AlignLeft );
@@ -195,7 +208,9 @@ imageDisplayProperties::imageDisplayProperties()
     imageDisplayPropertiesMainLayout->addLayout( imageDisplayPropertiesSub2Layout, 1, 0 );
     imageDisplayPropertiesMainLayout->addLayout( imageDisplayPropertiesSub3Layout, 2, 0 );
 
-    imageDisplayPropertiesMainLayout->addWidget( hist, 0, 1, 3, 1 );
+    imageDisplayPropertiesMainLayout->addWidget( histZoom, 0, 1, 3, 1 );
+    imageDisplayPropertiesMainLayout->addWidget( histScroll, 0, 2, 3, 1 );
+    imageDisplayPropertiesMainLayout->setColumnStretch( 1, 2 );  // Histogram to take all spare room
 
     range = 0;
 
@@ -204,6 +219,8 @@ imageDisplayProperties::imageDisplayProperties()
 
 imageDisplayProperties::~imageDisplayProperties()
 {
+
+    // !!!What needs to be deleted since they are all children of the form?
     delete autoBrightnessCheckBox;
     delete brightnessSlider;
     delete zeroValueSlider;
@@ -217,7 +234,8 @@ imageDisplayProperties::~imageDisplayProperties()
     delete logCheckBox;
     delete falseColourCheckBox;
 
-    delete hist;
+    delete histScroll;
+    delete histZoom;
 }
 
 int imageDisplayProperties::getLowPixel()
@@ -692,13 +710,49 @@ void imageDisplayProperties::setStatistics( unsigned int minPIn, unsigned int ma
     hist->update();
 }
 
+// The histogram zoom slider has been moved
+void imageDisplayProperties::histZoomSliderValueChanged( int value )
+{
+    setHistZoom( value );
+}
+
+// The histogram zoom slider has been moved
+void imageDisplayProperties::setHistZoom( int value )
+{
+    // Determine the width and height that will just fit without scroll bars
+    double fitWidth  = (double)(histScroll->width()  - histScroll->contentsMargins().left()*2 );//  - histScroll->frameWidth()*2);
+    double fitHeight = (double)(histScroll->height() - histScroll->contentsMargins().top()*2 );//  - histScroll->frameWidth()*2);
+
+    // Set the new zoomed size
+    QRect currentGeom = hist->geometry();
+    hist->setGeometry( currentGeom.x(), currentGeom.y(), (double)(value)/100*fitWidth, (double)(value)/100*fitHeight );
+}
+
+// Get the current histogram zoom percentage
+int imageDisplayProperties::getHistZoom()
+{
+    return histZoom->value();
+}
+
+// Construct the histogram
+histogramScroll::histogramScroll( QWidget* parent, imageDisplayProperties* idpIn )
+    : QScrollArea( parent )
+{
+    idp = idpIn;
+}
+
+// Histogram resize event
+void histogramScroll::resizeEvent( QResizeEvent* )
+{
+    idp->setHistZoom( idp->getHistZoom() );
+}
+
+
+// Construct the histogram
 histogram::histogram( QWidget* parent, imageDisplayProperties* idpIn )
     : QFrame( parent )
 {
     setFrameStyle( QFrame::Panel );
-    setMinimumWidth(256 );
-    setMinimumHeight(200 );
-
     idp = idpIn;
 }
 
@@ -712,7 +766,7 @@ void histogram::resizeEvent( QResizeEvent* )
                                   idp->histXLabel->height());
 }
 
-
+// Histogram repaint event
 void histogram::paintEvent(QPaintEvent* )
 {
 
@@ -745,12 +799,13 @@ void histogram::paintEvent(QPaintEvent* )
 
     // Draw the histogram
     int h = height()-1-SCALE_HEIGHT;
+    double w = width();
     pnt1 = QPoint( 0, h - idp->bins[0]*h/binRange );
 
     p.setPen( Qt::red );
     for( int i = 1; i < HISTOGRAM_BINS-1; i++ )
     {
-        pnt2.setX( i );
+        pnt2.setX( (double)(i)*w/(HISTOGRAM_BINS-1) );
         pnt2.setY( h - idp->bins[i]*h/binRange );
         p.drawLine( pnt1, pnt2 );
         pnt1 = pnt2;
@@ -766,23 +821,27 @@ void histogram::paintEvent(QPaintEvent* )
 
     // Draw max and min
     pen.setStyle( Qt::DashLine );
-    p.drawLine( minBin,0,minBin,h);
-    p.drawLine( maxBin,0,maxBin,h);
+    double minScaled = (double)(minBin)*w/HISTOGRAM_BINS;
+    double maxScaled = (double)(maxBin)*w/HISTOGRAM_BINS;
+    p.drawLine( minScaled,0,minScaled,h);
+    p.drawLine( maxScaled,0,maxScaled,h);
 
     // Draw gradient
     pen.setStyle( Qt::SolidLine );
     p.setPen( pen );
 
-    p.drawLine( minBin,h,maxBin,0);
+    p.drawLine( minScaled,h,maxScaled,0);
 
     // Draw the intensity / color bar
-    pnt1.setY( h+2 );
-    pnt2.setY( h + SCALE_HEIGHT -4 );
+
+    QRect rect;
+    rect.setTop( h+2 );
+    rect.setBottom( h + SCALE_HEIGHT -4 );
     for( unsigned int i = 1; i < HISTOGRAM_BINS-1; i++ )
     {
         // Set X to the next point in the histogram
-        pnt1.setX( i );
-        pnt2.setX( i );
+        rect.setLeft( (double)(i)*w/(HISTOGRAM_BINS-1) );
+        rect.setRight( (double)(i+1)*w/(HISTOGRAM_BINS-1)-1 );
 
         // Select the lookup index
         unsigned char index;
@@ -796,12 +855,11 @@ void histogram::paintEvent(QPaintEvent* )
         }
         else
         {
-            index = (i-minBin)*256/(maxBin-minBin);
+            index = (i-minBin)*256/(maxBin-minBin); //!!! overstepping lookup on last bin? (black bar at end when zoomed in)
         }
 
         // draw the next line in the scale
         imageDisplayProperties::rgbPixel* col = &(idp->pixelLookup[index] );
-        p.setPen( QColor( col->p[2], col->p[1], col->p[0] ) );
-        p.drawLine( pnt1, pnt2 );
+        p.fillRect( rect, QColor( col->p[2], col->p[1], col->p[0] ) );
     }
 }

@@ -32,10 +32,24 @@
 #include <QSpinBox>
 #include <QDebug>
 #include <QIntValidator>
+#include <QScrollArea>
 
 #define HISTOGRAM_BINS 256
 class imageDisplayProperties;
 
+// Histogram Scroll area class (A QSCrollArea we catch resize events on)
+class histogramScroll: public QScrollArea
+{
+public:
+    histogramScroll( QWidget* parent, imageDisplayProperties* idp );
+    Q_OBJECT
+private:
+    void resizeEvent( QResizeEvent* event );
+
+    imageDisplayProperties* idp;
+};
+
+// Histogram class (A QFrame we catch resize and paint events on)
 class histogram: public QFrame
 {
 public:
@@ -97,7 +111,11 @@ private slots:
     void logToggled( bool );
     void falseColourToggled( bool );
 
+    void histZoomSliderValueChanged( int value );
+
 private:
+
+
     // Local brightness and contrast controls and monitors
     QCheckBox* autoBrightnessCheckBox;
     QSlider* brightnessSlider;
@@ -114,6 +132,8 @@ private:
     QCheckBox* falseColourCheckBox;
 
     histogram* hist;
+    QScrollArea* histScroll;
+    QSlider* histZoom;
 
     // Flags to avoid loops when setting controls
     bool nonInteractive;
@@ -156,6 +176,9 @@ public:
     rgbPixel* pixelLookup; // [256]
 
     QLabel* histXLabel;
+
+    void setHistZoom( int value );
+    int getHistZoom();
 };
 
 
