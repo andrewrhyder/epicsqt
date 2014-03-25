@@ -123,36 +123,35 @@ localBrightnessContrast::localBrightnessContrast()
     histXLabel = new QLabel( hist );
     histXLabel->setAlignment( Qt::AlignRight );
 
-    brightnessValidator = new QIntValidator( 0, 100, this );
-    gradientValidator = new QIntValidator( 0, 1000, this );
-    zeroValueValidator = new QIntValidator( 0, 254, this );
-    fullValueValidator = new QIntValidator( 1, 255, this );
+    brightnessSpinBox = new QSpinBox( this );
+    brightnessSpinBox->setToolTip( "Brightness percentage (0 to 100)");
+    brightnessSpinBox->setMinimum( 0 );
+    brightnessSpinBox->setMaximum( 100 );
+    brightnessSpinBox->setValue( brightnessSlider->value() );
+    QObject::connect( brightnessSpinBox, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( brightnessSpinBoxChanged( int )) );
 
-    brightnessLineEdit = new QLineEdit( this );
-    brightnessLineEdit->setToolTip( "Brightness percentage (0 to 100)");
-    brightnessLineEdit->setValidator( brightnessValidator );
-    brightnessLineEdit->setText( QString( "%1" ).arg( brightnessSlider->value() ) );
-    QObject::connect( brightnessLineEdit, SIGNAL( textChanged ( QString ) ), this,  SLOT  ( brightnessLineEditChanged( QString )) );
+    brightnessSpinBox->setMinimumWidth( 60 ); // Set width for all
 
-    brightnessLineEdit->setMinimumWidth( 100 ); // Set width for all readbacks
+    gradientSpinBox = new QSpinBox( this );
+    gradientSpinBox->setToolTip( "Gradient (0 to 1000)");
+    gradientSpinBox->setMinimum( 0 );
+    gradientSpinBox->setMaximum( 1000 );
+    gradientSpinBox->setValue( gradientSlider->value() );
+    QObject::connect( gradientSpinBox, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( gradientSpinBoxChanged( int )) );
 
-    gradientLineEdit = new QLineEdit( this );
-    gradientLineEdit->setToolTip( "Gradient (0 to 1000)");
-    gradientLineEdit->setValidator( gradientValidator );
-    gradientLineEdit->setText( QString( "%1" ).arg( gradientSlider->value() ) );
-    QObject::connect( gradientLineEdit, SIGNAL( textChanged ( QString ) ), this,  SLOT  ( gradientLineEditChanged( QString )) );
+    zeroValueSpinBox = new QSpinBox( this );
+    zeroValueSpinBox->setToolTip( "Pixel value at low end of brightness / colour scale (0 to range limited by bit depth)");
+    zeroValueSpinBox->setMinimum( 0 );
+    zeroValueSpinBox->setMaximum( 254 );
+    zeroValueSpinBox->setValue( zeroValueSlider->value() );
+    QObject::connect( zeroValueSpinBox, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( minSpinBoxChanged( int )) );
 
-    zeroValueLineEdit = new QLineEdit( this );
-    zeroValueLineEdit->setToolTip( "Pixel value at low end of brightness / colour scale (0 to range limited by bit depth)");
-    zeroValueLineEdit->setValidator( zeroValueValidator );
-    zeroValueLineEdit->setText( QString( "%1" ).arg( zeroValueSlider->value() ) );
-    QObject::connect( zeroValueLineEdit, SIGNAL( textChanged ( QString ) ), this,  SLOT  ( minLineEditChanged( QString )) );
-
-    fullValueLineEdit = new QLineEdit( this );
-    fullValueLineEdit->setToolTip( "Pixel value at high end of brightness / colour scale (0 to range limited by bit depth)");
-    fullValueLineEdit->setValidator( fullValueValidator );
-    fullValueLineEdit->setText( QString( "%1" ).arg( fullValueSlider->value() ) );
-    QObject::connect( fullValueLineEdit, SIGNAL( textChanged ( QString ) ), this,  SLOT  ( maxLineEditChanged( QString )) );
+    fullValueSpinBox = new QSpinBox( this );
+    fullValueSpinBox->setToolTip( "Pixel value at high end of brightness / colour scale (0 to range limited by bit depth)");
+    fullValueSpinBox->setMinimum( 1 );
+    fullValueSpinBox->setMaximum( 255 );
+    fullValueSpinBox->setValue( fullValueSlider->value() );
+    QObject::connect( fullValueSpinBox, SIGNAL( textChanged ( QString ) ), this,  SLOT  ( maxSpinBoxChanged( int )) );
 
     contrastReversalCheckBox = new QCheckBox( "Contrast Reversal", this );
     contrastReversalCheckBox->setToolTip( "Reverse light for dark");
@@ -167,24 +166,24 @@ localBrightnessContrast::localBrightnessContrast()
     QObject::connect( falseColourCheckBox, SIGNAL( toggled( bool ) ), this,  SLOT  ( falseColourToggled( bool )) );
 
     brightnessContrastSub1Layout->addWidget( autoBrightnessCheckBox, 0, Qt::AlignLeft );
-    brightnessContrastSub1Layout->addWidget( autoImageButton, 0, Qt::AlignLeft );
-    brightnessContrastSub1Layout->addWidget( resetButton, 1, Qt::AlignLeft );
+    brightnessContrastSub1Layout->addWidget( autoImageButton,        0, Qt::AlignLeft );
+    brightnessContrastSub1Layout->addWidget( resetButton,            1, Qt::AlignLeft );
 
     brightnessContrastSub2Layout->addWidget( brightnessLabel,   0, 0 );
     brightnessContrastSub2Layout->addWidget( brightnessSlider,  0, 1 );
-    brightnessContrastSub2Layout->addWidget( brightnessLineEdit, 0, 2 );
+    brightnessContrastSub2Layout->addWidget( brightnessSpinBox, 0, 2 );
 
     brightnessContrastSub2Layout->addWidget( gradientLabel,     1, 0 );
     brightnessContrastSub2Layout->addWidget( gradientSlider,    1, 1 );
-    brightnessContrastSub2Layout->addWidget( gradientLineEdit,   1, 2 );
+    brightnessContrastSub2Layout->addWidget( gradientSpinBox,   1, 2 );
 
     brightnessContrastSub2Layout->addWidget( minLabel,          2, 0 );
-    brightnessContrastSub2Layout->addWidget( zeroValueSlider,         2, 1 );
-    brightnessContrastSub2Layout->addWidget( zeroValueLineEdit,        2, 2 );
+    brightnessContrastSub2Layout->addWidget( zeroValueSlider,   2, 1 );
+    brightnessContrastSub2Layout->addWidget( zeroValueSpinBox,  2, 2 );
 
     brightnessContrastSub2Layout->addWidget( maxLabel,          3, 0 );
-    brightnessContrastSub2Layout->addWidget( fullValueSlider,         3, 1 );
-    brightnessContrastSub2Layout->addWidget( fullValueLineEdit,        3, 2 );
+    brightnessContrastSub2Layout->addWidget( fullValueSlider,   3, 1 );
+    brightnessContrastSub2Layout->addWidget( fullValueSpinBox,  3, 2 );
 
     brightnessContrastSub2Layout->setColumnStretch( 1, 1 );  // Read back labels to take all spare room
 
@@ -210,20 +209,15 @@ localBrightnessContrast::~localBrightnessContrast()
     delete zeroValueSlider;
     delete fullValueSlider;
     delete gradientSlider;
-    delete brightnessLineEdit;
-    delete zeroValueLineEdit;
-    delete fullValueLineEdit;
-    delete gradientLineEdit;
+    delete brightnessSpinBox;
+    delete zeroValueSpinBox;
+    delete fullValueSpinBox;
+    delete gradientSpinBox;
     delete contrastReversalCheckBox;
     delete logCheckBox;
     delete falseColourCheckBox;
 
     delete hist;
-
-    delete brightnessValidator;
-    delete gradientValidator;
-    delete zeroValueValidator;
-    delete fullValueValidator;
 }
 
 int localBrightnessContrast::getLowPixel()
@@ -341,16 +335,9 @@ void localBrightnessContrast::brightnessSliderValueChanged( int localBrightnessI
     emit brightnessContrastChange();
 }
 
-void localBrightnessContrast::brightnessLineEditChanged( QString text )
+void localBrightnessContrast::brightnessSpinBoxChanged( int value )
 {
     if( nonInteractive )
-    {
-        return;
-    }
-
-    bool ok;
-    double value = text.toDouble( &ok );
-    if( !ok )
     {
         return;
     }
@@ -376,24 +363,18 @@ void localBrightnessContrast::gradientSliderValueChanged( int value )
     emit brightnessContrastChange();
 }
 
-void localBrightnessContrast::gradientLineEditChanged( QString text )
+void localBrightnessContrast::gradientSpinBoxChanged( int value )
 {
     if( nonInteractive )
     {
         return;
     }
 
-    bool ok;
-    double value = text.toDouble( &ok );
-    if( !ok )
-    {
-        return;
-    }
-
     inGradientEditCallback = true;
-    updateGradient( value/GRADIENT_USER_SCALE_FACTOR+GRADIENT_BASE );
+    updateGradient( (double)(value)/GRADIENT_USER_SCALE_FACTOR+GRADIENT_BASE );
     inGradientEditCallback = false;
 
+    emit brightnessContrastChange();
 }
 
 // The minimum slider has been moved
@@ -411,16 +392,9 @@ void localBrightnessContrast::minSliderValueChanged( int value )
     emit brightnessContrastChange();
 }
 
-void localBrightnessContrast::minLineEditChanged( QString text )
+void localBrightnessContrast::minSpinBoxChanged( int value )
 {
     if( nonInteractive )
-    {
-        return;
-    }
-
-    bool ok;
-    double value = text.toDouble( &ok );
-    if( !ok )
     {
         return;
     }
@@ -429,6 +403,7 @@ void localBrightnessContrast::minLineEditChanged( QString text )
     updateZeroValue( value );
     inZeroValueEditCallback = false;
 
+    emit brightnessContrastChange();
 }
 
 // The maximum slider has been moved
@@ -446,16 +421,9 @@ void localBrightnessContrast::maxSliderValueChanged( int value )
     emit brightnessContrastChange();
 }
 
-void localBrightnessContrast::maxLineEditChanged( QString text )
+void localBrightnessContrast::maxSpinBoxChanged( int value )
 {
     if( nonInteractive )
-    {
-        return;
-    }
-
-    bool ok;
-    double value = text.toDouble( &ok );
-    if( !ok )
     {
         return;
     }
@@ -464,6 +432,8 @@ void localBrightnessContrast::maxLineEditChanged( QString text )
     updateFullValue( value );
     inFullValueEditCallback = false;
 
+
+    emit brightnessContrastChange();
 }
 
 //=========================================================
@@ -628,7 +598,7 @@ void localBrightnessContrast::updateBrightnessInterface()
 
     if( !inBrightnessEditCallback )
     {
-        brightnessLineEdit->setText( QString( "%1" ).arg( (int)(brightness*100) ));
+        brightnessSpinBox->setValue( (int)(brightness*100) );
     }
 
     if( !inBrightnessSliderCallback )
@@ -649,7 +619,7 @@ void localBrightnessContrast::updateGradientInterface()
 
     if( !inGradientEditCallback )
     {
-        gradientLineEdit->setText( QString( "%1" ).arg( (int)(gradient) ));
+        gradientSpinBox->setValue( gradient );
     }
 
     if( !inGradientSliderCallback )
@@ -667,7 +637,7 @@ void localBrightnessContrast::updateZeroValueInterface()
 
     if( !inZeroValueEditCallback )
     {
-        zeroValueLineEdit->setText( QString( "%1" ).arg( zeroValue ));
+        zeroValueSpinBox->setValue( zeroValue );
     }
 
     if( !inZeroValueSliderCallback )
@@ -685,7 +655,7 @@ void localBrightnessContrast::updateFullValueInterface()
 
     if( !inFullValueEditCallback )
     {
-        fullValueLineEdit->setText( QString( "%1" ).arg( fullValue ));
+        fullValueSpinBox->setValue( fullValue );
     }
 
     if( !inFullValueSliderCallback )
@@ -714,8 +684,8 @@ void localBrightnessContrast::setStatistics( unsigned int minPIn, unsigned int m
     zeroValueSlider->setMaximum( range-1 );
     fullValueSlider->setMaximum( range );
 
-    zeroValueValidator->setTop( range-1 );
-    fullValueValidator->setTop( range );
+    zeroValueSpinBox->setMaximum( range-1 );
+    fullValueSpinBox->setMaximum( range );
 
     histXLabel->setText( QString( "%1" ).arg( range ) );
 
