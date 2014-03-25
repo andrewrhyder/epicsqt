@@ -29,7 +29,7 @@
 #include <QCheckBox>
 #include <QSlider>
 #include <QLabel>
-#include <QLineEdit>
+#include <QSpinBox>
 #include <QDebug>
 #include <QIntValidator>
 
@@ -86,10 +86,10 @@ private slots:
     void maxSliderValueChanged( int value );
     void gradientSliderValueChanged( int value );
 
-    void brightnessLineEditChanged( QString );
-    void gradientLineEditChanged( QString );
-    void minLineEditChanged( QString );
-    void maxLineEditChanged( QString );
+    void brightnessSpinBoxChanged( int );
+    void gradientSpinBoxChanged( int );
+    void minSpinBoxChanged( int );
+    void maxSpinBoxChanged( int );
 
     void brightnessContrastResetClicked( bool state );
     void brightnessContrastAutoImageClicked();
@@ -105,18 +105,13 @@ private:
     QSlider* zeroValueSlider;
     QSlider* fullValueSlider;
     QSlider* gradientSlider;
-    QLineEdit* brightnessLineEdit;
-    QLineEdit* zeroValueLineEdit;
-    QLineEdit* fullValueLineEdit;
-    QLineEdit* gradientLineEdit;
+    QSpinBox* brightnessSpinBox;
+    QSpinBox* zeroValueSpinBox;
+    QSpinBox* fullValueSpinBox;
+    QSpinBox* gradientSpinBox;
     QCheckBox* contrastReversalCheckBox;
     QCheckBox* logCheckBox;
     QCheckBox* falseColourCheckBox;
-
-    QIntValidator* brightnessValidator;
-    QIntValidator* gradientValidator;
-    QIntValidator* zeroValueValidator;
-    QIntValidator* fullValueValidator;
 
     histogram* hist;
 

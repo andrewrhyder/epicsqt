@@ -1539,57 +1539,9 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
     }
 }
 
-// Generate a lookup table to convert the top 8 bits of raw pixel values to display pixel values taking into
-// account, clipping, contrast reversal, and local brightness and contrast.
-// Only the top 8 bits are used as all presentation is performed using 8 bit.
+// Generate a lookup table to convert raw pixel values to display pixel values taking into
+// account, clipping, and contrast reversal.
 // Note, the table will be used to translate each colour in an RGB format.
-//
-// The following example assumes:
-//  - a user set contrast of 150%
-//  - a user set brightness of -15%
-//
-//       (A)    (B)    (C)    (D)    (E)
-//
-//   382         *
-//               *
-//               *
-//               *      *
-//               *      *
-//               *      *      *
-//   255  *      *      *      *-
-//        *      *      *      * -
-//        *      *      *      *  -
-//        *      *      *      *   -
-//        *    --*--    *      *    --*-----
-//        *  --  *  --  *      *      *
-//      --*--    *    --*--    *      *
-//        *      *      *  --  *      *
-//        *      *      *    --*      *
-//        *      *      *      *      *
-//        *      *      *      *      *
-//     0  *------*------*------*------*------
-//                      *      *
-//                      *      *
-//                      *      *
-//                             *
-//                             *
-//
-// (A) Top 8 bits in each pixel in the image has a range of values from 0 to 255.
-//     Note central mid grey is marked.
-//
-// (B) Range of values is extended by contrast.
-//     In this example, 150% contrast results in 4096 values ranging from 0 to 382.
-//     If left like this the top 127 values would be lost in the white.
-//
-// (C) Range of values is offset so half of the extended range is lost in the white and half in the black.
-//     The values now range from -64 to 318.
-//
-// (D) Range of values is offset by a user set brightness.
-//     The brightness range of -100% to +100% is meant to bring the highest value down to 0 (black) or the lowest value up to white.
-//     The offset applied by the user brightness value must take into account the varying range of values caused by contrast changes.
-//     In the example, the brightness is lowered by 15%. -100% would bring 318 down to 0. +100% would take -64 up to 255.
-//
-// (E) Values matching the original range of values are selected from the translated table.
 //
 void QEImage::getPixelTranslation()
 {
@@ -1599,6 +1551,7 @@ void QEImage::getPixelTranslation()
     bool contrastReversal;
     bool logBrightness;
 
+    // If there is an image options control, get the relevent options
     if( localBC )
     {
         pixelLow = localBC->getLowPixel();
@@ -1607,6 +1560,8 @@ void QEImage::getPixelTranslation()
         contrastReversal = localBC->getContrastReversal();
         logBrightness = localBC->getLog();
     }
+
+    // If there is no image options control, assume no pixel manipulation
     else
     {
         pixelLow = 0;
@@ -1648,15 +1603,13 @@ void QEImage::getPixelTranslation()
         // Translate pixel value if not clipped
         if( !clipped )
         {
-            int translatedValue;
+            // Start with original value
+            int translatedValue = value;
 
+            // Logarithmic brightness if required
             if( logBrightness )
             {
                 translatedValue = int( log10( value+1 ) * 105.8864 );
-            }
-            else
-            {
-                translatedValue = value;
             }
 
             // Reverse contrast if required
@@ -1939,40 +1892,17 @@ void QEImage::displayImage()
 
                 // Extract pixel
                 // !!! Perhaps build a mask according to bit depth outside the loop, then just pull out full 32 bits regardless and mask the required bits. This will avoid lots of conditional code here.
-                if( bitDepth <= 8 )
-                {
-                    inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
-                }
-                else if( bitDepth <= 16 )
-                {
-                    inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
-                }
-                else if( bitDepth <= 24 )
-                {
-                    inPixel = (*(unsigned long*)(&dataIn[dataIndex*bytesPerPixel]))&0xffffff;
-                }
-                else
-                {
-                    inPixel = *(unsigned long*)(&dataIn[dataIndex*bytesPerPixel]);
-                }
+                if     ( bitDepth <= 8  ) inPixel =  *(unsigned char*) (&dataIn[dataIndex*bytesPerPixel]);
+                else if( bitDepth <= 16 ) inPixel =  *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
+                else if( bitDepth <= 24 ) inPixel = (*(unsigned long*) (&dataIn[dataIndex*bytesPerPixel]))&0xffffff;
+                else                      inPixel =  *(unsigned long*) (&dataIn[dataIndex*bytesPerPixel]);
 
                 // Accumulate pixel statistics
                 valP = inPixel;
                 BUILD_STATS
 
                 // Scale pixel for local brightness and contrast
-                if( inPixel < pixelLow )
-                {
-                    inPixel = 0;
-                }
-                else if( inPixel > pixelHigh )
-                {
-                    inPixel = 255;
-                }
-                else
-                {
-                    inPixel = (inPixel-pixelLow)*255/pixelRange;
-                }
+                ( inPixel < pixelLow ) ? inPixel = 0 : ( inPixel > pixelHigh ) ? inPixel = 255 : inPixel = (inPixel-pixelLow)*255/pixelRange;
 
                 // Select displayed pixel
                 dataOut[buffIndex] = pixelLookup[inPixel];
@@ -2006,6 +1936,9 @@ void QEImage::displayImage()
             quint32 b3;
             quint32 b4;
 
+            quint32 r;
+            quint32 g;
+            quint32 b;
 
 
             int outLast = outCount-1;
@@ -2166,9 +2099,9 @@ void QEImage::displayImage()
 
                         }
 
-                        dataOut[buffIndex].p[2] = pixelLookup[r1>>shift].p[0];                  // red
-                        dataOut[buffIndex].p[1] = pixelLookup[(g1+g2+g3+g4)>>(shift+2)].p[0];   // green
-                        dataOut[buffIndex].p[0] = pixelLookup[(b1+b2+b3+b4)>>(shift+2)].p[0];   // blue
+                        r = r1>>shift;
+                        g = (g1+g2+g3+g4)>>(shift+2);
+                        b = (b1+b2+b3+b4)>>(shift+2);
 
                         break;
 
@@ -2230,9 +2163,9 @@ void QEImage::displayImage()
 
                         }
 
-                        dataOut[buffIndex].p[2] = pixelLookup[(r1+r2)>>(shift+1)].p[0]; // red
-                        dataOut[buffIndex].p[1] = pixelLookup[g1>>shift].p[0];          // green
-                        dataOut[buffIndex].p[0] = pixelLookup[(b1+b2)>>(shift+1)].p[0]; // blue
+                        r = pixelLookup[(r1+r2)>>(shift+1)].p[0];
+                        g = pixelLookup[g1>>shift].p[0];
+                        b = pixelLookup[(b1+b2)>>(shift+1)].p[0];
 
                         break;
 
@@ -2293,9 +2226,9 @@ void QEImage::displayImage()
                                 break;
                         }
 
-                        dataOut[buffIndex].p[2] = pixelLookup[(r1+r2)>>(shift+1)].p[0]; // red
-                        dataOut[buffIndex].p[1] = pixelLookup[g2>>shift].p[0];          // green
-                        dataOut[buffIndex].p[0] = pixelLookup[(b1+b2)>>(shift+1)].p[0]; // blue
+                        r = (r1+r2)>>(shift+1);
+                        g = g2>>shift;
+                        b = (b1+b2)>>(shift+1);
 
                         break;
 
@@ -2365,117 +2298,98 @@ void QEImage::displayImage()
 
                         }
 
-                        dataOut[buffIndex].p[2] = pixelLookup[(r1+r2+r3+r4)>>(shift+2)].p[0];   // red
-                        dataOut[buffIndex].p[1] = pixelLookup[(g1+g2+g3+g4)>>(shift+2)].p[0];   // green
-                        dataOut[buffIndex].p[0] = pixelLookup[b1>>shift].p[0];                  // blue
+
+
+
+                        r = (r1+r2+r3+r4)>>(shift+2);
+                        g = (g1+g2+g3+g4)>>(shift+2);
+                        b = b1>>shift;
 
                         break;
                 }
+
+
+
+                // Accumulate pixel statistics
+                valP = g; // use all three colors!!!
+                BUILD_STATS
+
+                // Scale pixel for local brightness and contrast
+                // !!! This will introduce some hue issues. Should convert to HSV to manipulate brightness and contrast????
+                ( r < pixelLow ) ? r = 0 : ( r > pixelHigh ) ? r = 255 : r = (r-pixelLow)*255/pixelRange;
+                ( g < pixelLow ) ? g = 0 : ( g > pixelHigh ) ? g = 255 : g = (g-pixelLow)*255/pixelRange;
+                ( b < pixelLow ) ? b = 0 : ( b > pixelHigh ) ? b = 255 : b = (b-pixelLow)*255/pixelRange;
+
+                // Select displayed pixel
+                dataOut[buffIndex].p[0] = pixelLookup[b].p[0];
+                dataOut[buffIndex].p[1] = pixelLookup[g].p[0];
+                dataOut[buffIndex].p[2] = pixelLookup[r].p[0];
+                dataOut[buffIndex].p[3] = 0xff;
 
             LOOP_END
             break;
         }
 
         case imageDataFormats::RGB1:
+        case imageDataFormats::RGB2: //!!! not done yet - just do the same as RGB1 for the time being and hope
+        case imageDataFormats::RGB3: //!!! not done yet - just do the same as RGB1 for the time being and hope
         {
             //unsigned int rOffset = 0*imageDataSize;
             unsigned int gOffset = imageDataSize;
             unsigned int bOffset = 2*imageDataSize;
             LOOP_START
+
+                // Extract pixel
                 unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
+                unsigned int r = *inPixel;
+                unsigned int g = inPixel[gOffset];
+                unsigned int b = inPixel[bOffset];
 
-                unsigned char r = *inPixel;
-                unsigned char g = inPixel[gOffset];
-                unsigned char b = inPixel[bOffset];
+                // Accumulate pixel statistics
+                valP = g; // use all three colors!!!
+                BUILD_STATS
 
+                // Scale pixel for local brightness and contrast
+                // !!! This will introduce some hue issues. Should convert to HSV to manipulate brightness and contrast????
+                ( r < pixelLow ) ? r = 0 : ( r > pixelHigh ) ? r = 255 : r = (r-pixelLow)*255/pixelRange;
+                ( g < pixelLow ) ? g = 0 : ( g > pixelHigh ) ? g = 255 : g = (g-pixelLow)*255/pixelRange;
+                ( b < pixelLow ) ? b = 0 : ( b > pixelHigh ) ? b = 255 : b = (b-pixelLow)*255/pixelRange;
 
+                // Select displayed pixel
                 dataOut[buffIndex].p[0] = pixelLookup[b].p[0];
                 dataOut[buffIndex].p[1] = pixelLookup[g].p[0];
                 dataOut[buffIndex].p[2] = pixelLookup[r].p[0];
                 dataOut[buffIndex].p[3] = 0xff;
 
-                valP = g; // use all three colors!!!
-                BUILD_STATS
             LOOP_END
             break;
         }
 
-        case imageDataFormats::RGB2:
+        case imageDataFormats::YUV444: //!!! not done yet
+        case imageDataFormats::YUV422: //!!! not done yet. do the same as for YUV444
+        case imageDataFormats::YUV421: //!!! not done yet. do the same as for YUV444
         {
-            //!!! not done yet - this is a copy of RGB1
-            //unsigned int rOffset = 0*imageDataSize;
-            unsigned int gOffset = imageDataSize;
-            unsigned int bOffset = 2*imageDataSize;
             LOOP_START
-                unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
-                dataOut[buffIndex].p[0] = pixelLookup[inPixel[bOffset]].p[0];
-                dataOut[buffIndex].p[1] = pixelLookup[inPixel[gOffset]].p[0];
-                dataOut[buffIndex].p[2] = pixelLookup[*inPixel].p[0];
-                dataOut[buffIndex].p[3] = 0xff;
-            LOOP_END
-            break;
-        }
+                    // Extract pixel
+                    unsigned int r = 0;
+                    unsigned int g = 0;
+                    unsigned int b = 0;
 
-        case imageDataFormats::RGB3:
-        {
-            //!!! not done yet - this is a copy of RGB1
-            //unsigned int rOffset = 0*imageDataSize;
-            unsigned int gOffset = imageDataSize;
-            unsigned int bOffset = 2*imageDataSize;
-            LOOP_START
-                unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
-                dataOut[buffIndex].p[0] = pixelLookup[inPixel[bOffset]].p[0];
-                dataOut[buffIndex].p[1] = pixelLookup[inPixel[gOffset]].p[0];
-                dataOut[buffIndex].p[2] = pixelLookup[*inPixel].p[0];
-                dataOut[buffIndex].p[3] = 0xff;
-            LOOP_END
-            break;
-        }
+                    // Accumulate pixel statistics
+                    valP = g; // use all three colors!!!
+                    BUILD_STATS
 
-        case imageDataFormats::YUV444:
-        {
-            //!!! not done yet - this is a copy of RGB1
-            //unsigned int rOffset = 0*imageDataSize;
-            unsigned int gOffset = imageDataSize;
-            unsigned int bOffset = 2*imageDataSize;
-            LOOP_START
-                unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
-                dataOut[buffIndex].p[0] = pixelLookup[inPixel[bOffset]].p[0];
-                dataOut[buffIndex].p[1] = pixelLookup[inPixel[gOffset]].p[0];
-                dataOut[buffIndex].p[2] = pixelLookup[*inPixel].p[0];
-                dataOut[buffIndex].p[3] = 0xff;
-            LOOP_END
-            break;
-        }
+                    // Scale pixel for local brightness and contrast
+                    // !!! This will introduce some hue issues. Should convert to HSV to manipulate brightness and contrast????
+                    ( r < pixelLow ) ? r = 0 : ( r > pixelHigh ) ? r = 255 : r = (r-pixelLow)*255/pixelRange;
+                    ( g < pixelLow ) ? g = 0 : ( g > pixelHigh ) ? g = 255 : g = (g-pixelLow)*255/pixelRange;
+                    ( b < pixelLow ) ? b = 0 : ( b > pixelHigh ) ? b = 255 : b = (b-pixelLow)*255/pixelRange;
 
-        case imageDataFormats::YUV422:
-        {
-            //!!! not done yet - this is a copy of RGB1
-            //unsigned int rOffset = 0*imageDataSize;
-            unsigned int gOffset = imageDataSize;
-            unsigned int bOffset = 2*imageDataSize;
-            LOOP_START
-                unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
-                dataOut[buffIndex].p[0] = pixelLookup[inPixel[bOffset]].p[0];
-                dataOut[buffIndex].p[1] = pixelLookup[inPixel[gOffset]].p[0];
-                dataOut[buffIndex].p[2] = pixelLookup[*inPixel].p[0];
-                dataOut[buffIndex].p[3] = 0xff;
-            LOOP_END
-            break;
-        }
-
-        case imageDataFormats::YUV421:
-        {
-            //!!! not done yet - this is a copy of RGB1
-            //unsigned int rOffset = 0*imageDataSize;
-            unsigned int gOffset = imageDataSize;
-            unsigned int bOffset = 2*imageDataSize;
-            LOOP_START
-                unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
-                dataOut[buffIndex].p[0] = pixelLookup[inPixel[bOffset]].p[0];
-                dataOut[buffIndex].p[1] = pixelLookup[inPixel[gOffset]].p[0];
-                dataOut[buffIndex].p[2] = pixelLookup[*inPixel].p[0];
-                dataOut[buffIndex].p[3] = 0xff;
+                    // Select displayed pixel
+                    dataOut[buffIndex].p[0] = pixelLookup[b].p[0];
+                    dataOut[buffIndex].p[1] = pixelLookup[g].p[0];
+                    dataOut[buffIndex].p[2] = pixelLookup[r].p[0];
+                    dataOut[buffIndex].p[3] = 0xff;
             LOOP_END
             break;
         }
