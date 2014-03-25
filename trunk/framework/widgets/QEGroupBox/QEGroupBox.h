@@ -138,14 +138,17 @@ public:
     virtual ~QEGroupBox ();
     QSize sizeHint () const;
 
+protected:
+    // Must be accessable by derived classes, e.g. QERadioGroup.
+    //
+    virtual void setSubstitutionsProperty( QString macroSubstitutionsIn );
+    QString getSubstitutionsProperty();
+
 private:
     void setSubstitutedTitleProperty( QString substitutedTitleIn );
     QString getSubstitutedTitleProperty();
-    void setSubstitutionsProperty( QString macroSubstitutionsIn );
-    QString getSubstitutionsProperty();
 
     QString substitutedTitle;
-
 };
 
 #endif     // QEGROUPBOX_H
