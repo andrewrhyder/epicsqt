@@ -38,7 +38,7 @@
 // other extra-ordinary functionality then this macro is not suitable.
 //
 
-// This macro declares the plugin in class members. Note rhere are (moc?) issues
+// This macro declares the plugin in class members. Note there are (moc?) issues
 // with trying to declare whole class using a macro.
 //
 // Macro formal parameter:
