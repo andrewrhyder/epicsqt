@@ -61,6 +61,10 @@ imageDisplayProperties::imageDisplayProperties()
 
     zeroValue = 0;
     fullValue = 255;
+
+    // Note the full value is only a default. It will be set when the first set of statistics arrive to the real full range,
+    defaultFullValue = true;
+
     range = 255;
 
     // Initialise image stats
@@ -124,7 +128,6 @@ imageDisplayProperties::imageDisplayProperties()
     histScroll->setMinimumWidth( 256 );
     histScroll->setMinimumHeight(200 );
     histScroll->setWidget( hist );
-    QObject::connect( histScroll, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( histZoomSliderValueChanged( int )) );
 
     histZoom = new QSlider( Qt::Vertical, this );
     histZoom->setMinimum( 100 );
@@ -164,7 +167,7 @@ imageDisplayProperties::imageDisplayProperties()
     fullValueSpinBox->setMinimum( 1 );
     fullValueSpinBox->setMaximum( 255 );
     fullValueSpinBox->setValue( fullValueSlider->value() );
-    QObject::connect( fullValueSpinBox, SIGNAL( textChanged ( QString ) ), this,  SLOT  ( maxSpinBoxChanged( int )) );
+    QObject::connect( fullValueSpinBox, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( maxSpinBoxChanged( int )) );
 
     contrastReversalCheckBox = new QCheckBox( "Contrast Reversal", this );
     contrastReversalCheckBox->setToolTip( "Reverse light for dark");
@@ -705,6 +708,14 @@ void imageDisplayProperties::setStatistics( unsigned int minPIn, unsigned int ma
     zeroValueSpinBox->setMaximum( range-1 );
     fullValueSpinBox->setMaximum( range );
 
+    if( defaultFullValue )
+    {
+        defaultFullValue = false;
+
+        fullValue = range;
+        updateFullValueInterface();
+    }
+
     histXLabel->setText( QString( "%1" ).arg( range ) );
 
     hist->update();
@@ -792,29 +803,100 @@ void histogram::paintEvent(QPaintEvent* )
         return;
     }
 
+    // Determine bin stuff
+    unsigned int bitsPerBin;
+    unsigned int minBin;
+    unsigned int maxBin;
 
-    QPainter p( this );
-    QPoint pnt1;
-    QPoint pnt2;
-
-    // Draw the histogram
-    int h = height()-1-SCALE_HEIGHT;
-    double w = width();
-    pnt1 = QPoint( 0, h - idp->bins[0]*h/binRange );
-
-    p.setPen( Qt::red );
-    for( int i = 1; i < HISTOGRAM_BINS-1; i++ )
+    if( idp->depth<=8)
     {
-        pnt2.setX( (double)(i)*w/(HISTOGRAM_BINS-1) );
-        pnt2.setY( h - idp->bins[i]*h/binRange );
-        p.drawLine( pnt1, pnt2 );
-        pnt1 = pnt2;
+        bitsPerBin = 1;
+        minBin = idp->zeroValue;
+        maxBin = idp->fullValue;
+    }
+    else
+    {
+        // Determine bins for maximum and minimum values
+        bitsPerBin = idp->depth-8;
+
+        minBin = idp->zeroValue>>bitsPerBin;
+        if( minBin > 254 )
+        {
+            minBin = 254;
+        }
+
+        maxBin = idp->fullValue>>bitsPerBin;
+        if( maxBin <= minBin )
+        {
+            maxBin = minBin+1;
+        }
+    }
+
+     QPainter p( this );
+
+    // Draw the histogram with scale...
+
+    // Determine overall size
+     int h = height()-1-SCALE_HEIGHT;
+     double w = width();
+
+    // Initialise rectangle used for both histogram and scale
+    QRectF barRect;
+
+    barRect.setBottom( h+1 );
+
+    barRect.setLeft( 0 );
+    barRect.setWidth( w/HISTOGRAM_BINS );
+
+    // Draw histogram bins
+    for( unsigned int i = 0; i < HISTOGRAM_BINS; i++ )
+    {
+        // Draw histogram bar
+        barRect.setTop( h - (double)(idp->bins[i])*h/binRange );
+        p.fillRect( barRect, Qt::red );
+
+        // Move on to the next bar
+        barRect.moveLeft( barRect.right() );
+    }
+
+    // Draw scale bar
+    int minX = idp->zeroValue*w/idp->range;
+    int maxX = idp->fullValue*w/idp->range;
+    imageDisplayProperties::rgbPixel* col;
+
+    int scaleTop = h+3;
+    int scaleHeight = SCALE_HEIGHT-4;
+
+    // Draw the first colour in the lookup table for the entire area to the left of the minimum value
+    QRect scaleRect = QRect( 0, scaleTop, minX, scaleHeight );
+    col = &(idp->pixelLookup[0] );
+    p.fillRect( scaleRect, QColor( col->p[2], col->p[1], col->p[0] ) );
+
+    // Draw the last colour in the lookup table for the entire area to the right of the maximum value
+    scaleRect = QRect( maxX, scaleTop, w-maxX, scaleHeight );
+    col = &(idp->pixelLookup[255] );
+    p.fillRect( scaleRect, QColor( col->p[2], col->p[1], col->p[0] ) );
+
+    // Display all colors in the lookup table
+    QRectF colourRect;
+
+    colourRect.setTop( scaleTop );
+    colourRect.setBottom( scaleTop + scaleHeight );
+
+    colourRect.setLeft( minX );
+    colourRect.setWidth( (double)(maxX-minX)/255 );
+
+    for( unsigned int i = 0; i < 256; i++ )
+    {
+        // Draw the color rectangle
+        imageDisplayProperties::rgbPixel* col = &(idp->pixelLookup[i] );
+        p.fillRect( colourRect, QColor( col->p[2], col->p[1], col->p[0] ) );
+
+        // Move on to the next colour
+        colourRect.moveLeft( colourRect.right() );
     }
 
     // Prepare to draw the bounds an gradient
-    unsigned int bitsPerBin = (idp->depth<=8)?1:idp->depth-8;
-    unsigned int minBin = idp->zeroValue>>(bitsPerBin-1);
-    unsigned int maxBin = idp->fullValue>>(bitsPerBin-1);
 
     QPen pen( Qt::blue );
     p.setPen( pen );
@@ -831,35 +913,4 @@ void histogram::paintEvent(QPaintEvent* )
     p.setPen( pen );
 
     p.drawLine( minScaled,h,maxScaled,0);
-
-    // Draw the intensity / color bar
-
-    QRect rect;
-    rect.setTop( h+2 );
-    rect.setBottom( h + SCALE_HEIGHT -4 );
-    for( unsigned int i = 1; i < HISTOGRAM_BINS-1; i++ )
-    {
-        // Set X to the next point in the histogram
-        rect.setLeft( (double)(i)*w/(HISTOGRAM_BINS-1) );
-        rect.setRight( (double)(i+1)*w/(HISTOGRAM_BINS-1)-1 );
-
-        // Select the lookup index
-        unsigned char index;
-        if( i < minBin )
-        {
-            index = 0;
-        }
-        else if( i > maxBin )
-        {
-            index = 255;
-        }
-        else
-        {
-            index = (i-minBin)*256/(maxBin-minBin); //!!! overstepping lookup on last bin? (black bar at end when zoomed in)
-        }
-
-        // draw the next line in the scale
-        imageDisplayProperties::rgbPixel* col = &(idp->pixelLookup[index] );
-        p.fillRect( rect, QColor( col->p[2], col->p[1], col->p[0] ) );
-    }
 }

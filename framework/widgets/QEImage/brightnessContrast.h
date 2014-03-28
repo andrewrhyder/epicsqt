@@ -164,6 +164,7 @@ public:
     // Current brightness/contrast settings
     unsigned int zeroValue;
     unsigned int fullValue;
+    bool defaultFullValue;
 
     unsigned int range;  // Derived
 
