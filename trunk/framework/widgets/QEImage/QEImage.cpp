@@ -1849,19 +1849,21 @@ void QEImage::displayImage()
         pixelRange = 1;
     }
 
+    unsigned int mask = (1<<bitDepth)-1;
+
     // Prepare for building image stats while processing image data
     unsigned int maxP = 0;
     unsigned int minP = UINT_MAX;
     static unsigned int bins[HISTOGRAM_BINS];
     unsigned int valP;
-    unsigned int bitsPerBin = (bitDepth<=8)?1:bitDepth-8;
+    unsigned int binShift = (bitDepth<8)?0:bitDepth-8;
     unsigned int bin;
     for( int i = 0; i < HISTOGRAM_BINS-1; i++ )
     {
         bins[i]=0;
     }
 #define BUILD_STATS \
-    bin = valP>>(bitsPerBin-1); \
+    bin = valP>>binShift; \
     bins[bin] = bins[bin]+1; \
     if( valP < minP ) minP = valP; \
     else if( valP > maxP ) maxP = valP;
@@ -1888,14 +1890,10 @@ void QEImage::displayImage()
         case imageDataFormats::MONO:
         {
             LOOP_START
-                quint64 inPixel;
+                unsigned int inPixel;
 
                 // Extract pixel
-                // !!! Perhaps build a mask according to bit depth outside the loop, then just pull out full 32 bits regardless and mask the required bits. This will avoid lots of conditional code here.
-                if     ( bitDepth <= 8  ) inPixel =  *(unsigned char*) (&dataIn[dataIndex*bytesPerPixel]);
-                else if( bitDepth <= 16 ) inPixel =  *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
-                else if( bitDepth <= 24 ) inPixel = (*(unsigned long*) (&dataIn[dataIndex*bytesPerPixel]))&0xffffff;
-                else                      inPixel =  *(unsigned long*) (&dataIn[dataIndex*bytesPerPixel]);
+                inPixel =  (*(unsigned int*) (&dataIn[dataIndex*bytesPerPixel]))&mask;
 
                 // Accumulate pixel statistics
                 valP = inPixel;
@@ -2298,13 +2296,18 @@ void QEImage::displayImage()
 
                         }
 
-
-
-
                         r = (r1+r2+r3+r4)>>(shift+2);
                         g = (g1+g2+g3+g4)>>(shift+2);
                         b = b1>>shift;
 
+                        break;
+
+                    // Should never get here.
+                    // Included to avoid compilation warnings on some compilers
+                    default:
+                        r = 0;
+                        b = 0;
+                        g = 0;
                         break;
                 }
 
