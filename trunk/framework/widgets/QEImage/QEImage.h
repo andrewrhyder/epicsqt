@@ -57,7 +57,7 @@
 #include <mpeg.h>
 #else
 // Define a stub mpegSource class in place of the class defined when mpeg.h is included.
-// this is reauired as mpegSource is a base class for QEImage
+// this is required as mpegSource is a base class for QEImage
 class mpegSource
 {
 };
@@ -69,6 +69,19 @@ class mpegSource
 // and qwt_plot_curve.h.
 //
 class profilePlot;
+
+class historicImage
+{
+public:
+    historicImage( QByteArray image, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& time );
+    ~historicImage();
+
+private:
+    QByteArray image;
+    unsigned long dataSize;
+    QCaAlarmInfo alarmInfo;
+    QCaDateTime time;
+};
 
 // Class to keep track of a rectangular area such as region of interest or profile line information
 // As data arrives, this class is used to record it.
@@ -662,6 +675,11 @@ public slots:
     unsigned long imageDimension0; // Image data dimension 0. If two dimensions, this is the width, if three dimensions, this is the pixel depth (the elements used to represent each pixel)
     unsigned long imageDimension1; // Image data dimension 1. If two dimensions, this is the height, if three dimensions, this is the width
     unsigned long imageDimension2; // Image data dimension 2. If two dimensions, this is not used, if three dimensions, this is the height
+
+    // Image history
+    QList<historicImage> history;
+    int historyLimit;
+    bool recording;
 
     // Region of interest information
     areaInfo roiInfo[4];
