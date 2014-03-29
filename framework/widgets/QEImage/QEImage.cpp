@@ -366,6 +366,11 @@ void QEImage::setup() {
     imageDimension1 = 0;
     imageDimension2 = 0;
 
+    // Initialise history
+    historyLimit = 20;
+    recording = false;
+
+
     // Simulate pan mode being selected
     panModeClicked();
     sMenu->setChecked( QEImage::SO_PANNING );
@@ -1495,6 +1500,17 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
         return;
     }
 
+    // If recording, save image
+    if( recording )
+    {
+        if( history.count() >= historyLimit )
+        {
+            history.removeFirst();
+        }
+        history.append( historicImage( image, dataSize, alarmInfo, time ) );
+    }
+
+
     // Signal a database value change to any Link widgets
     emit dbValueChanged( "image" );
 
@@ -1613,7 +1629,7 @@ void QEImage::getPixelTranslation()
             }
 
             // Reverse contrast if required
-            if( imageDisplayProps->getContrastReversal() )
+            if( contrastReversal )
             {
                 translatedValue = MAX_VALUE - translatedValue;
             }
@@ -5856,6 +5872,16 @@ void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool ini
         sendMessage( QString( "QEImage widget has recieved the following unimplemented action request: ").append( action ));
     }
 
+}
+
+historicImage::historicImage( QByteArray imageIn, unsigned long dataSizeIn, QCaAlarmInfo& alarmInfoIn, QCaDateTime& timeIn )
+{
+    image = imageIn;
+    image.resize( image.count()+1); // force deep copy. original image data is only valid until the next update
+
+    dataSize = dataSizeIn;
+    alarmInfo = alarmInfoIn;
+    time = timeIn;
 }
 
 // end
