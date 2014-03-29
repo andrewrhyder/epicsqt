@@ -10,6 +10,7 @@ HEADERS += \
    common/QEDialog.h \
    common/QEDisplayRanges.h \
    common/QEExpressionEvaluation.h  \
+   common/QEFixedPointRadix.h \
    common/QEFrameworkVersion.h \
    common/QEPVNameSelectDialog.h \
    common/QEGraphic.h \
@@ -24,6 +25,7 @@ SOURCES += \
    common/QEDialog.cpp \
    common/QEDisplayRanges.cpp \
    common/QEExpressionEvaluation.cpp  \
+   common/QEFixedPointRadix.cpp \
    common/QEFrameworkVersion.cpp \
    common/QEPVNameSelectDialog.cpp \
    common/QEGraphic.cpp \
