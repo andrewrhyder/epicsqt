@@ -95,6 +95,47 @@ QEFixedPointRadix::Separators QEFixedPointRadix::getSeparator () const
 
 //-----------------------------------------------------------------------------
 //
+int QEFixedPointRadix::getRadixValue () const
+{
+   return radix_value_list [this->radix];
+}
+
+//------------------------------------------------------------------------------
+//
+bool QEFixedPointRadix::isRadixDigit (const QChar qc) const
+{
+   bool result;
+   char c = qc.toLatin1 ();
+
+   switch (this->getRadix()) {
+      case Decimal:
+         result = ((c >= '0') && (c <= '9'));
+         break;
+
+      case Hexadecimal:
+         result = ((c >= '0') && (c <= '9')) ||
+                  ((c >= 'A') && (c <= 'F')) ||
+                  ((c >= 'a') && (c <= 'f'));
+         break;
+
+      case Octal:
+         result = ((c >= '0') && (c <= '7'));
+         break;
+
+      case Binary:
+         result = ((c >= '0') && (c <= '1'));
+         break;
+
+      default:
+         result = false;
+         break;
+   }
+   return result;
+}
+
+
+//-----------------------------------------------------------------------------
+//
 QString QEFixedPointRadix::toString (const double value,
                                      const bool sign,
                                      const int zeros,
@@ -111,7 +152,7 @@ QString QEFixedPointRadix::toString (const double value,
    double prs;
    int t;
 
-   result = " ";
+   result = "";
 
    // Do leading sign if needed or requested.
    //

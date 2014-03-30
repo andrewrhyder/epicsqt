@@ -58,7 +58,13 @@ public:
    void setSeparator (const Separators separator);
    Separators getSeparator () const;
 
-   // Provides double to QString
+   int getRadixValue () const;   // i.e. 10, 16, 8 or 2.
+
+   // Returns true if qc is a vaid digit for the current radix setting.
+   //
+   bool isRadixDigit (const QChar qc) const;
+
+   // Provides double to QString.
    //
    QString toString (const double value,
                      const bool sign,
