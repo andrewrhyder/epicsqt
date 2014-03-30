@@ -74,7 +74,6 @@ class historicImage
 {
 public:
     historicImage( QByteArray image, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& time );
-    ~historicImage();
 
 private:
     QByteArray image;
