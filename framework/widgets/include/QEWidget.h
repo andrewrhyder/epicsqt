@@ -261,8 +261,9 @@ protected:
 
     virtual void actionRequest( QString, QStringList, bool, QAction* ){} // Perform a named action
 
-private:
     void deleteQcaItem( unsigned int variableIndex, bool disconnect );       // Delete a stream of CA updates
+
+private:
     unsigned int numVariables;                              // The number of process variables that will be managed for the QE widgets.
     qcaobject::QCaObject** qcaItem;                         // CA access - provides a stream of updates. One for each variable name used by the QE widgets
 

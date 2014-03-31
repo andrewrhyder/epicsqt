@@ -36,12 +36,17 @@
 #include <QByteArray>
 #include <QCaAlarmInfo.h>
 #include <QCaDateTime.h>
+//#include <QDebug>
 
 class historicImage
 {
 public:
     historicImage( QByteArray image, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& time );
 
+//    historicImage(historicImage* other ){ qDebug() << "historicImage(historicImage* other )"; image = other->image;
+//                                          dataSize = other->dataSize;
+//                                          alarmInfo = other->alarmInfo;
+//                                          time = other->time; }
     QByteArray image;
     unsigned long dataSize;
     QCaAlarmInfo alarmInfo;
@@ -58,8 +63,10 @@ class playbackTimer : public QTimer
 {
     Q_OBJECT
 public:
+    playbackTimer( recording* recorderIn ){ recorder = recorderIn; }
     recording* recorder;
     void timerEvent( QTimerEvent * event );
+
 };
 
 class recording : public QWidget
@@ -67,7 +74,7 @@ class recording : public QWidget
     Q_OBJECT
 
 public:
-    explicit recording( QObject* target, QWidget *parent = 0 );
+    explicit recording( QWidget *parent = 0 );
     ~recording();
 
     int getLimit();
@@ -85,8 +92,9 @@ private:
     void enableControls();
     void startPlaying();
     void stopPlaying();
+    void showRecordedFrame( int currentFrame );
 
-    playbackTimer timer;
+    playbackTimer* timer;
 
     Ui::recording *ui;
 
@@ -94,10 +102,19 @@ private:
 
 signals:
   void byteArrayChanged( const QByteArray& value, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
+  void playingBack( bool playing );
 
 private slots:
     void on_pushButtonPlay_toggled(bool checked);
     void on_pushButtonRecord_toggled(bool checked);
+    void on_pushButtonClear_clicked();
+
+    void on_pushButtonPause_toggled(bool checked);
+
+    void on_pushButtonLastImage_clicked();
+    void on_pushButtonNextImage_clicked();
+    void on_pushButtonFirstImage_clicked();
+    void on_pushButtonPreviousImage_clicked();
 };
 
 #endif // RECORDING_H

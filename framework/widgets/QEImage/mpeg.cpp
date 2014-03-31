@@ -315,7 +315,7 @@ mpegSource::mpegSource()
 mpegSource::~mpegSource()
 {
     // Ensure the thread is dead
-    ffQuit();
+    stopStream();
 }
 
 QString mpegSource::getURL()
@@ -330,9 +330,16 @@ void mpegSource::setURL( QString urlIn )
     {
         return;
     }
-    ffQuit();
 
     url = urlIn;
+
+    startStream();
+}
+
+void mpegSource::startStream()
+{
+    // Stop any previous activity
+    stopStream();
 
     /* create the ffmpeg thread */
     ff = new FFThread( url, mso );
@@ -345,7 +352,8 @@ void mpegSource::setURL( QString urlIn )
     ff->start();
 }
 
-void mpegSource::ffQuit() {
+void mpegSource::stopStream()
+{
     // Tell the ff thread to stop
     if (ff==NULL) return;
     mso->sentAboutToQuit();

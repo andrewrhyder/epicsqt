@@ -222,8 +222,14 @@ void QEImage::setup() {
     QObject::connect(imageDisplayProps, SIGNAL(destroyed(QObject*)), this, SLOT(imageDisplayPropsDestroyed(QObject*)));
 
     // Create image recorder
-    recorder = NULL;//new recording( this );
-//!!!    QObject::connect(recorder, SIGNAL(destroyed(QObject*)), this, SLOT(recorderDestroyed(QObject*)));
+    recorder = NULL;//!!TEMP
+/* TEMP
+    recorder = new recording( this );
+    QObject::connect(recorder, SIGNAL(destroyed(QObject*)), this, SLOT(recorderDestroyed(QObject*)));
+    QObject::connect(recorder, SIGNAL(playingBack(bool)), this, SLOT(playingBack(bool)));
+    QObject::connect( recorder,  SIGNAL( byteArrayChanged( const QByteArray&, unsigned long, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+                      this, SLOT( setImage( const QByteArray&, unsigned long, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
+*/
 
     // Create vertical, horizontal, and general profile plots
     vSliceLabel = new QLabel( "Vertical Profile" );
@@ -1472,6 +1478,25 @@ void QEImage::useAllMarkupData()
 
     useEllipseData();
 }
+
+//====================================================
+// Slot from recorder control to indicate playback has started or stopped.
+// When playing back, live sources should be stopped.
+void QEImage::playingBack( bool playing )
+{
+    if( playing )
+    {
+        deleteQcaItem( IMAGE_VARIABLE, true );
+        stopStream();
+    }
+    else
+    {
+        establishConnection( IMAGE_VARIABLE );
+        startStream();
+    }
+}
+
+//====================================================
 
 // Update image from non CA souce (no associated CA timestamp or alarm info available)
 void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long elements, unsigned long width, unsigned long height, imageDataFormats::formatOptions format, unsigned int depth )
