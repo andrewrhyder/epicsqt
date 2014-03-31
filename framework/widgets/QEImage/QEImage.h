@@ -49,6 +49,7 @@
 #include <QEIntegerFormatting.h>
 #include <QEFloatingFormatting.h>
 #include <fullScreenWindow.h>
+#include <recording.h>
 
 // Only include the mpeg stuff if required.
 // To include mpeg stuff, don't define QE_USE_MPEG directly, define environment variable
@@ -69,18 +70,6 @@ class mpegSource
 // and qwt_plot_curve.h.
 //
 class profilePlot;
-
-class historicImage
-{
-public:
-    historicImage( QByteArray image, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& time );
-
-private:
-    QByteArray image;
-    unsigned long dataSize;
-    QCaAlarmInfo alarmInfo;
-    QCaDateTime time;
-};
 
 // Class to keep track of a rectangular area such as region of interest or profile line information
 // As data arrives, this class is used to record it.
@@ -543,6 +532,7 @@ public slots:
     void vSliceDisplayDestroyed( QObject* ); ///< Framework use only. Slot to catch deletion of components (such as profile plots) that have been passed to the application for presentation
     void hSliceDisplayDestroyed( QObject* ); ///< Framework use only. Slot to catch deletion of components (such as profile plots) that have been passed to the application for presentation
     void profileDisplayDestroyed( QObject* ); ///< Framework use only. Slot to catch deletion of components (such as profile plots) that have been passed to the application for presentation
+    void recorderDestroyed( QObject* ); ///< Framework use only. Slot to catch deletion of components (such as profile plots) that have been passed to the application for presentation
 
   signals:
     // Note, the following signals are common to many QE widgets,
@@ -676,9 +666,7 @@ public slots:
     unsigned long imageDimension2; // Image data dimension 2. If two dimensions, this is not used, if three dimensions, this is the height
 
     // Image history
-    QList<historicImage> history;
-    int historyLimit;
-    bool recording;
+    recording* recorder;
 
     // Region of interest information
     areaInfo roiInfo[4];

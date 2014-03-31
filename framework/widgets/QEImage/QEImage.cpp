@@ -221,6 +221,10 @@ void QEImage::setup() {
                       this,    SLOT  ( brightnessContrastAutoImageRequest() ) );
     QObject::connect(imageDisplayProps, SIGNAL(destroyed(QObject*)), this, SLOT(imageDisplayPropsDestroyed(QObject*)));
 
+    // Create image recorder
+    recorder = NULL;//new recording( this );
+//!!!    QObject::connect(recorder, SIGNAL(destroyed(QObject*)), this, SLOT(recorderDestroyed(QObject*)));
+
     // Create vertical, horizontal, and general profile plots
     vSliceLabel = new QLabel( "Vertical Profile" );
     vSliceLabel->setVisible( false );
@@ -324,18 +328,18 @@ void QEImage::setup() {
     graphicsLayout->addWidget( hSliceLabel,    2, 0 );
     graphicsLayout->addWidget( profileLabel,   4, 0 );
 
-    mainLayout->addWidget( buttonGroup, 0, 0 );
+    mainLayout->addWidget( buttonGroup, 2, 0 );
 
     presentControls();
 
     graphicsLayout->setColumnStretch( 0, 1 );  // display image to take all spare room
     graphicsLayout->setRowStretch( 0, 1 );  // display image to take all spare room
 
-    mainLayout->addLayout( graphicsLayout, 1, 0, 1, 0 );
+    mainLayout->addLayout( graphicsLayout, 3, 0, 1, 0 );
 
     // Set graphics to take all spare room
-    mainLayout->setColumnStretch( 1, 1 );
-    mainLayout->setRowStretch( 1, 1 );
+    mainLayout->setColumnStretch( 0, 1 );
+    mainLayout->setRowStretch( 3, 1 );
 
     setLayout( mainLayout );
 
@@ -366,11 +370,6 @@ void QEImage::setup() {
     imageDimension1 = 0;
     imageDimension2 = 0;
 
-    // Initialise history
-    historyLimit = 20;
-    recording = false;
-
-
     // Simulate pan mode being selected
     panModeClicked();
     sMenu->setChecked( QEImage::SO_PANNING );
@@ -393,7 +392,7 @@ QEImage::~QEImage()
     // Note, the application may already have deleted them in which case we will
     // have recieved a destroyed signal and set the reference to the component to NULL.
     // An example of this scenario is if a QEGui main window is closed while a GUI is displayed.
-    // Components not hosted by the application will be part of the widget hierarcy under this
+    // Components not hosted by the application will be part of the widget hierarchy under this
     // widget and will not need explicit deletion.
     if( appHostsControls && hostingAppAvailable )
     {
@@ -420,6 +419,12 @@ QEImage::~QEImage()
             QObject::disconnect( profileDisplay, 0, this, 0);
             delete profileDisplay;
         }
+
+        if( recorder )
+        {
+            QObject::disconnect( recorder, 0, this, 0);
+            delete recorder;
+        }
     }
     delete videoWidget;
 }
@@ -429,7 +434,7 @@ void QEImage::imageDisplayPropsDestroyed( QObject* ){ imageDisplayProps = NULL; 
 void QEImage::vSliceDisplayDestroyed( QObject* ){ vSliceDisplay = NULL; }
 void QEImage::hSliceDisplayDestroyed( QObject* ){ hSliceDisplay = NULL; }
 void QEImage::profileDisplayDestroyed( QObject* ){ profileDisplay = NULL; }
-
+void QEImage::recorderDestroyed( QObject* ){ recorder = NULL; }
 
 // Put the controls where they should go.
 // (within this widget, or hosted by the application containing this widget)
@@ -447,6 +452,12 @@ void QEImage::presentControls()
         {
             mainLayout->removeWidget( imageDisplayProps );
             components.append( componentHostListItem( imageDisplayProps, QEActionRequests::OptionTopDockWindow, true, "Image Display Properties" ) );
+        }
+
+        if( recorder )
+        {
+            mainLayout->removeWidget( recorder );
+            components.append( componentHostListItem( recorder, QEActionRequests::OptionTopDockWindow, true, "Recorder" ) );
         }
 
         vSliceLabel->setVisible( false );
@@ -484,7 +495,12 @@ void QEImage::presentControls()
     {
         if( imageDisplayProps )
         {
-            mainLayout->addWidget( imageDisplayProps, 0, 1 );
+            mainLayout->addWidget( imageDisplayProps, 0, 0 );
+        }
+
+        if( recorder )
+        {
+            mainLayout->addWidget( recorder, 1, 0 );
         }
 
         if( vSliceDisplay && enableVertSlicePresentation )
@@ -1501,15 +1517,10 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
     }
 
     // If recording, save image
-    if( recording )
+    if( recorder && recorder->isRecording() )
     {
-        if( history.count() >= historyLimit )
-        {
-            history.removeFirst();
-        }
-        history.append( historicImage( image, dataSize, alarmInfo, time ) );
+        recorder->recordImage(  image, dataSize, alarmInfo, time );
     }
-
 
     // Signal a database value change to any Link widgets
     emit dbValueChanged( "image" );
