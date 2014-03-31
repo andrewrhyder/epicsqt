@@ -159,7 +159,7 @@ qcaobject::QCaObject*  QEGeneralEdit::createQcaItem (unsigned int variableIndex)
    pvName = this->getSubstitutedVariableName (0).trimmed ();
    this->pvNameLabel->setText (pvName);
 
-   result = new qcaobject::QCaObject (pvName, this);
+   result = new qcaobject::QCaObject (pvName, this, variableIndex);
    return result;
 }
 
@@ -185,11 +185,11 @@ void QEGeneralEdit::establishConnection (unsigned int variableIndex)
    // If a QCaObject object is now available to supply data update signals, connect it to the appropriate slots.
    //
    if (qca) {
-      QObject::connect (qca,  SIGNAL (connectionChanged (QCaConnectionInfo &)),
-                        this, SLOT  (connectionChanged (QCaConnectionInfo &)));
+      QObject::connect (qca,  SIGNAL (connectionChanged (QCaConnectionInfo &, const unsigned int& )),
+                        this, SLOT  (connectionChanged (QCaConnectionInfo &, const unsigned int& )));
 
-      QObject::connect (qca,SIGNAL (dataChanged (const QVariant&, QCaAlarmInfo&, QCaDateTime&)),
-                        this, SLOT (dataChanged (const QVariant&, QCaAlarmInfo&, QCaDateTime&)));
+      QObject::connect (qca,SIGNAL (dataChanged (const QVariant&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& )),
+                        this, SLOT (dataChanged (const QVariant&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& )));
    }
 }
 
@@ -198,7 +198,7 @@ void QEGeneralEdit::establishConnection (unsigned int variableIndex)
 // Change how the s looks and change the tool tip
 // This is the slot used to recieve connection updates from a QCaObject based class.
 //
-void QEGeneralEdit::connectionChanged (QCaConnectionInfo& connectionInfo)
+void QEGeneralEdit::connectionChanged (QCaConnectionInfo& connectionInfo, const unsigned int& )
 {
    // Note the connected state
    //
@@ -214,7 +214,7 @@ void QEGeneralEdit::connectionChanged (QCaConnectionInfo& connectionInfo)
 
 //-----------------------------------------------------------------------------
 //
-void QEGeneralEdit::dataChanged (const QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime&)
+void QEGeneralEdit::dataChanged (const QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& )
 
 {
    qcaobject::QCaObject* qca = this->getQcaItem (0);

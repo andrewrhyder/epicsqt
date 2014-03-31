@@ -136,8 +136,8 @@ private slots:
                                      QString variableNameSubstitutionsIn,
                                      unsigned int variableIndex);
 
-    void connectionChanged (QCaConnectionInfo& connectionInfo);
-    void dataChanged (const QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp);
+    void connectionChanged (QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex);
+    void dataChanged (const QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex);
 
 
 protected:
