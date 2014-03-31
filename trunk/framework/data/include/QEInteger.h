@@ -41,7 +41,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEInteger : public qcaobject::QCaObject {
     QEInteger( QString recordName, QObject *eventObject, QEIntegerFormatting *integerFormattingIn, unsigned int variableIndexIn, UserMessage* userMessageIn );
 
   signals:
-    void integerConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int &variableIndex );
+    void integerConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex );
     void integerChanged( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
     void integerArrayChanged( const QVector<long>& values, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
 
@@ -49,13 +49,12 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEInteger : public qcaobject::QCaObject {
     void writeInteger( const long &data );
 
   private:
-    void initialise( QEIntegerFormatting *integerFormattingIn, unsigned int variableIndexIn );
+    void initialise( QEIntegerFormatting *integerFormattingIn );
     QEIntegerFormatting *integerFormat;
-    unsigned int variableIndex;
 
   private slots:
-    void convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
-    void forwardConnectionChanged( QCaConnectionInfo& connectionInfo);
+    void convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
+    void forwardConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex);
 };
 
 #endif // QEINTEGER_H

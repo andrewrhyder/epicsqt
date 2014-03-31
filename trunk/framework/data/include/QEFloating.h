@@ -41,7 +41,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEFloating : public qcaobject::QCaObject {
     QEFloating( QString recordName, QObject *eventObject, QEFloatingFormatting *floatingFormattingIn, unsigned int variableIndexIn, UserMessage* userMessageIn );
 
   signals:
-    void floatingConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int &variableIndex );
+    void floatingConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex );
     void floatingChanged( const double& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
     void floatingArrayChanged( const QVector<double>& values, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
 
@@ -50,13 +50,12 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEFloating : public qcaobject::QCaObject {
     void writeFloating( const QVector<double> &data );
 
   private:
-    void initialise( QEFloatingFormatting *floatingFormattingIn, unsigned int variableIndexIn );
+    void initialise( QEFloatingFormatting *floatingFormattingIn );
     QEFloatingFormatting *floatingFormat;
-    unsigned int variableIndex;
 
   private slots:
-    void convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
-    void forwardConnectionChanged( QCaConnectionInfo& connectionInfo);
+    void convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
+    void forwardConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex );
 };
 
 #endif // QEFLOATING_H

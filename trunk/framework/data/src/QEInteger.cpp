@@ -31,29 +31,28 @@
     ???
 */
 QEInteger::QEInteger( QString recordName, QObject *eventObject,
-                        QEIntegerFormatting *integerFormattingIn,
-                        unsigned int variableIndexIn ) : QCaObject( recordName, eventObject ) {
-    initialise( integerFormattingIn, variableIndexIn );
+                      QEIntegerFormatting *integerFormattingIn,
+                      unsigned int variableIndexIn ) : QCaObject( recordName, eventObject, variableIndexIn ) {
+    initialise( integerFormattingIn );
 }
+
 QEInteger::QEInteger( QString recordName, QObject *eventObject,
-                        QEIntegerFormatting *integerFormattingIn,
-                        unsigned int variableIndexIn, UserMessage* userMessageIn ) : QCaObject( recordName, eventObject, userMessageIn ) {
-    initialise( integerFormattingIn, variableIndexIn );
+                      QEIntegerFormatting *integerFormattingIn,
+                      unsigned int variableIndexIn, UserMessage* userMessageIn ) : QCaObject( recordName, eventObject, variableIndexIn, userMessageIn ) {
+    initialise( integerFormattingIn );
 }
 
 /*
     Stream the QCaObject data through this class to generate integer data updates
 */
-void QEInteger::initialise( QEIntegerFormatting* integerFormattingIn,
-                             unsigned int variableIndexIn ) {
+void QEInteger::initialise( QEIntegerFormatting* integerFormattingIn ) {
     integerFormat = integerFormattingIn;
-    variableIndex = variableIndexIn;
 
-    QObject::connect( this, SIGNAL( connectionChanged(  QCaConnectionInfo& ) ),
-                      this, SLOT( forwardConnectionChanged( QCaConnectionInfo& ) ) );
+    QObject::connect( this, SIGNAL( connectionChanged(  QCaConnectionInfo&, const unsigned int&  ) ),
+                      this, SLOT( forwardConnectionChanged( QCaConnectionInfo&, const unsigned int&  ) ) );
 
-    QObject::connect( this, SIGNAL( dataChanged( const QVariant&, QCaAlarmInfo&, QCaDateTime& ) ),
-                      this, SLOT( convertVariant( const QVariant&, QCaAlarmInfo&, QCaDateTime& ) ) );
+    QObject::connect( this, SIGNAL( dataChanged( const QVariant&, QCaAlarmInfo&, QCaDateTime&, const unsigned int&  ) ),
+                      this, SLOT( convertVariant( const QVariant&, QCaAlarmInfo&, QCaDateTime&, const unsigned int&  ) ) );
 }
 
 /*
@@ -68,7 +67,7 @@ void QEInteger::writeInteger( const long &data ) {
 /*
     Slot to recieve data updates from the base QCaObject and generate integer updates.
 */
-void QEInteger::convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp ) {
+void QEInteger::convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex ) {
     if( value.type() == QVariant::List )
     {
         emit integerArrayChanged( integerFormat->formatIntegerArray( value ), alarmInfo, timeStamp, variableIndex );
@@ -80,9 +79,9 @@ void QEInteger::convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo, 
 }
 
 /*
-    Take a basic connection change and append variableIndex
+    Re send connection change and with variableIndex - depricated.
 */
-void QEInteger::forwardConnectionChanged( QCaConnectionInfo& connectionInfo) {
+void QEInteger::forwardConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex) {
     emit integerConnectionChanged( connectionInfo, variableIndex );
 }
 

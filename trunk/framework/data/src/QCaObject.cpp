@@ -51,15 +51,21 @@ QCaEventFilter QCaObject::eventFilter;
    In other words, the event object does not need to be set up in any way.
    It just need to have a suitable event loop running.
 */
-QCaObject::QCaObject( const QString& newRecordName, QObject *newEventHandler, unsigned char signalsToSendIn, priorities priorityIn ) {
-    initialise( newRecordName, newEventHandler, NULL, signalsToSendIn, priorityIn );
+QCaObject::QCaObject( const QString& newRecordName, QObject *newEventHandler,
+                      const unsigned int variableIndexIn, unsigned char signalsToSendIn,
+                      priorities priorityIn ) {
+    initialise( newRecordName, newEventHandler, variableIndexIn, NULL, signalsToSendIn, priorityIn );
 }
 
-QCaObject::QCaObject( const QString& newRecordName, QObject *newEventHandler, UserMessage* userMessageIn, unsigned char signalsToSendIn, priorities priorityIn ) {
-    initialise( newRecordName, newEventHandler, userMessageIn, signalsToSendIn, priorityIn );
+QCaObject::QCaObject( const QString& newRecordName, QObject *newEventHandler,
+                      const unsigned int variableIndexIn, UserMessage* userMessageIn,
+                      unsigned char signalsToSendIn, priorities priorityIn ) {
+    initialise( newRecordName, newEventHandler, variableIndexIn, userMessageIn, signalsToSendIn, priorityIn );
 }
 
-void QCaObject::initialise( const QString& newRecordName, QObject *newEventHandler, UserMessage* userMessageIn, unsigned char signalsToSendIn, priorities priorityIn ) {
+void QCaObject::initialise( const QString& newRecordName, QObject *newEventHandler,
+                            const unsigned int variableIndexIn, UserMessage* userMessageIn,
+                            unsigned char signalsToSendIn, priorities priorityIn ) {
 
     // Initialise variables
     precision = 0;
@@ -91,8 +97,9 @@ void QCaObject::initialise( const QString& newRecordName, QObject *newEventHandl
     // Setup any the mechanism to handle messages to the user, if supplied
     setUserMessage( userMessageIn );
 
-    // Note the record required
+    // Note the record required name and associated index.
     recordName = newRecordName;
+    variableIndex = variableIndexIn;
 
     // Note if the field the value represents is a STAT field.
     // This is important when formatting strings as only a maximum of 16 enumerated strings
@@ -137,6 +144,7 @@ QCaObject::~QCaObject() {
     // Send disconnected signal to monitoring widgets.
     //
     QCaConnectionInfo connectionInfo ( caconnection::CLOSED, caconnection::LINK_DOWN, getRecordName() );
+    emit connectionChanged( connectionInfo, variableIndex );
     emit connectionChanged( connectionInfo );
 
     // Remove our PV from the drag text.
@@ -292,6 +300,14 @@ bool QCaObject::removeEventFromPendingList( QCaEventUpdate* dataUpdateEvent )
 */
 bool QCaObject::dataTypeKnown() {
     return( ( getType() != generic::GENERIC_UNKNOWN ) ? true:false );
+}
+
+/*
+    Returns the assigned variable index.
+ */
+unsigned int QCaObject::getVariableIndex () const
+{
+    return variableIndex;
 }
 
 /*
@@ -763,6 +779,7 @@ void QCaObject::processEvent( QCaEventUpdate* dataUpdateEvent ) {
     if( connectionChange )
     {
         QCaConnectionInfo connectionInfo( lastEventChannelState, lastEventLinkState, getRecordName() );
+        emit connectionChanged( connectionInfo, variableIndex );
         emit connectionChanged( connectionInfo );
         if (!connectionInfo.isChannelConnected()) {
            lastValueIsDefined = false;
@@ -1021,7 +1038,7 @@ void QCaObject::processData( void* newDataPtr ) {
         }
 
         // Send off the new data
-        emit dataChanged( value, alarmInfo, timeStamp );
+        emit dataChanged( value, alarmInfo, timeStamp, variableIndex );
 
         // Save the data just emited
         lastVariantValue = value;
@@ -1059,7 +1076,7 @@ void QCaObject::processData( void* newDataPtr ) {
         // Send off the new data
         // NOTE, the signal/slot connections to this signal must be Qt::DirectConnection
         // as the byte array refernces the data directly which may be deleted before a queued connection is completed
-        emit dataChanged( byteArrayValue, dataSize, alarmInfo, timeStamp );
+        emit dataChanged( byteArrayValue, dataSize, alarmInfo, timeStamp, variableIndex );
 
         // Save the data just emited so it can be re-sent if required
         lastByteArrayValue = byteArrayValue;
@@ -1096,6 +1113,7 @@ void QCaObject::setChannelExpired() {
     // (This is done with some licence. There isn't really a connection change.
     //  The connection has gone from 'no connection' to 'given up waiting for a connection')
     QCaConnectionInfo connectionInfo( caconnection::NEVER_CONNECTED, caconnection::LINK_DOWN, getRecordName() );
+    emit connectionChanged( connectionInfo, variableIndex );
     emit connectionChanged( connectionInfo );
 
     // Generate a user message
@@ -1148,13 +1166,13 @@ void QCaObject::resendLastData()
 {
     if( signalsToSend & SIG_VARIANT )
     {
-        emit dataChanged( lastVariantValue, lastAlarmInfo, lastTimeStamp );
+        emit dataChanged( lastVariantValue, lastAlarmInfo, lastTimeStamp, variableIndex );
     }
     if( signalsToSend & SIG_BYTEARRAY )
     {
         // NOTE, the signal/slot connections to this signal must be Qt::DirectConnection as the byte array
         // refernces the data held in lastNewData directly which may be deleted before a queued connection is completed
-        emit dataChanged( lastByteArrayValue, lastDataSize, lastAlarmInfo, lastTimeStamp );
+        emit dataChanged( lastByteArrayValue, lastDataSize, lastAlarmInfo, lastTimeStamp, variableIndex );
     }
 }
 

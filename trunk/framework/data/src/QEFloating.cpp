@@ -32,28 +32,27 @@
 */
 QEFloating::QEFloating( QString recordName, QObject *eventObject,
                         QEFloatingFormatting *floatingFormattingIn,
-                        unsigned int variableIndexIn ) : QCaObject( recordName, eventObject ) {
-    initialise( floatingFormattingIn, variableIndexIn );
+                        unsigned int variableIndexIn ) : QCaObject( recordName, eventObject, variableIndexIn ) {
+    initialise( floatingFormattingIn );
 }
+
 QEFloating::QEFloating( QString recordName, QObject *eventObject,
                         QEFloatingFormatting *floatingFormattingIn,
-                        unsigned int variableIndexIn, UserMessage* userMessageIn ) : QCaObject( recordName, eventObject, userMessageIn ) {
-    initialise( floatingFormattingIn, variableIndexIn );
+                        unsigned int variableIndexIn, UserMessage* userMessageIn ) : QCaObject( recordName, eventObject, variableIndexIn, userMessageIn ) {
+    initialise( floatingFormattingIn );
 }
 
 /*
     Stream the QCaObject data through this class to generate floating data updates
 */
-void QEFloating::initialise( QEFloatingFormatting* floatingFormattingIn,
-                             unsigned int variableIndexIn ) {
+void QEFloating::initialise( QEFloatingFormatting* floatingFormattingIn ) {
     floatingFormat = floatingFormattingIn;
-    variableIndex = variableIndexIn;
 
-    QObject::connect( this, SIGNAL( connectionChanged(  QCaConnectionInfo& ) ),
-                      this, SLOT( forwardConnectionChanged( QCaConnectionInfo& ) ) );
+    QObject::connect( this, SIGNAL( connectionChanged(  QCaConnectionInfo&, const unsigned int&  ) ),
+                      this, SLOT( forwardConnectionChanged( QCaConnectionInfo&, const unsigned int&  ) ) );
 
-    QObject::connect( this, SIGNAL( dataChanged( const QVariant&, QCaAlarmInfo&, QCaDateTime& ) ),
-                      this, SLOT( convertVariant( const QVariant&, QCaAlarmInfo&, QCaDateTime& ) ) );
+    QObject::connect( this, SIGNAL( dataChanged( const QVariant&, QCaAlarmInfo&, QCaDateTime& , const unsigned int& ) ),
+                      this, SLOT( convertVariant( const QVariant&, QCaAlarmInfo&, QCaDateTime& , const unsigned int& ) ) );
 }
 
 /*
@@ -77,7 +76,7 @@ void QEFloating::writeFloating( const QVector<double> &data ) {
 /*
     Slot to recieve data updates from the base QCaObject and generate floating updates.
 */
-void QEFloating::convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp ) {
+void QEFloating::convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int&  variableIndex ) {
 
     if( value.type() == QVariant::List )
     {
@@ -90,9 +89,9 @@ void QEFloating::convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo,
 }
 
 /*
-    Take a basic connection change and append variableIndex
+    Re send connection change and with variableIndex - depricated.
 */
-void QEFloating::forwardConnectionChanged( QCaConnectionInfo& connectionInfo) {
+void QEFloating::forwardConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex ) {
     emit floatingConnectionChanged( connectionInfo, variableIndex );
 }
 
