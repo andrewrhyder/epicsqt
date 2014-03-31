@@ -44,7 +44,7 @@
 
 
 class QEPLUGINLIBRARYSHARED_EXPORT QEpicsPV : public QObject {
-  Q_OBJECT;
+  Q_OBJECT
 
 private:
 

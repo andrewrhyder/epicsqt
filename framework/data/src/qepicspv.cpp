@@ -96,7 +96,7 @@ void QEpicsPV::setPV(const QString & _pvName) {
   if ( pvName.isEmpty() )
     return;
 
-  QCaObject * _qCaField = new QCaObject(pvName, this);
+  QCaObject * _qCaField = new QCaObject(pvName, this, 0);   // Use arbitary variable index
   qCaField = _qCaField;
 
   // Qt::QueuedConnection here is needed to ensure the QEventLoop in
@@ -106,9 +106,9 @@ void QEpicsPV::setPV(const QString & _pvName) {
   // caused the necessity to register the corresponding types using
   // qRegisterMetaType() functions.
   //
-  connect(_qCaField, SIGNAL(connectionChanged(QCaConnectionInfo&)),
+  connect(_qCaField, SIGNAL(connectionChanged(QCaConnectionInfo&, const unsigned int&)),
           SLOT(updateConnection()), Qt::QueuedConnection);
-  connect(_qCaField, SIGNAL(dataChanged(QVariant,QCaAlarmInfo&,QCaDateTime&)),
+  connect(_qCaField, SIGNAL(dataChanged(QVariant,QCaAlarmInfo&,QCaDateTime&, const unsigned int&)),
           SLOT(updateValue(QVariant)), Qt::QueuedConnection);
 
   _qCaField->subscribe();

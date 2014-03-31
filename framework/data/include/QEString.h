@@ -43,19 +43,18 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEString : public qcaobject::QCaObject {
 
   signals:
     void stringConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int &variableIndex );
-    void stringChanged( const QString& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int &variableIndex );
+    void stringChanged( const QString& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
 
   public slots:
     void writeString( const QString &data );
 
   private:
-    void initialise( QEStringFormatting* newStringFormat, unsigned int variableIndexIn );
+    void initialise( QEStringFormatting* newStringFormat );
     QEStringFormatting *stringFormat;
-    unsigned int variableIndex;
 
   private slots:
-    void convertVariant( const QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
-    void forwardConnectionChanged( QCaConnectionInfo& connectionInfo);
+    void convertVariant( const QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
+    void forwardConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex);
 };
 
 #endif // QESTRING_H

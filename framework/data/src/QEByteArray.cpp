@@ -42,25 +42,24 @@
     When scalar values are requested, the request times out before the scalar updates.
 */
 QEByteArray::QEByteArray( QString recordName, QObject *eventObject,
-                        unsigned int variableIndexIn ) : QCaObject( recordName, eventObject, SIG_BYTEARRAY, QE_PRIORITY_LOW ) {
-    initialise( variableIndexIn );
+                        unsigned int variableIndexIn ) : QCaObject( recordName, eventObject, variableIndexIn, SIG_BYTEARRAY, QE_PRIORITY_LOW ) {
+    initialise();
 }
 QEByteArray::QEByteArray( QString recordName, QObject *eventObject,
-                        unsigned int variableIndexIn, UserMessage* userMessageIn ) : QCaObject( recordName, eventObject, userMessageIn, SIG_BYTEARRAY, QE_PRIORITY_LOW ) {
-    initialise( variableIndexIn );
+                        unsigned int variableIndexIn, UserMessage* userMessageIn ) : QCaObject( recordName, eventObject, variableIndexIn, userMessageIn, SIG_BYTEARRAY, QE_PRIORITY_LOW ) {
+    initialise();
 }
 
 /*
     Stream the QCaObject data through this class to generate byte array data updates
 */
-void QEByteArray::initialise( unsigned int variableIndexIn ) {
-    variableIndex = variableIndexIn;
+void QEByteArray::initialise() {
 
-    QObject::connect( this, SIGNAL( connectionChanged(  QCaConnectionInfo& ) ),
-                      this, SLOT( forwardConnectionChanged( QCaConnectionInfo& ) ) );
+    QObject::connect( this, SIGNAL( connectionChanged(  QCaConnectionInfo&, const unsigned int&  ) ),
+                      this, SLOT( forwardConnectionChanged( QCaConnectionInfo& , const unsigned int& ) ) );
 
-    QObject::connect( this, SIGNAL( dataChanged( const QByteArray&, unsigned long, QCaAlarmInfo&, QCaDateTime& ) ),
-                      this, SLOT( forwardDataChanged( const QByteArray&, unsigned long, QCaAlarmInfo&, QCaDateTime& ) ) );
+    QObject::connect( this, SIGNAL( dataChanged( const QByteArray&, unsigned long, QCaAlarmInfo&, QCaDateTime&, const unsigned int&  ) ),
+                      this, SLOT( forwardDataChanged( const QByteArray&, unsigned long, QCaAlarmInfo&, QCaDateTime&, const unsigned int&  ) ) );
 }
 
 /*
@@ -73,14 +72,14 @@ void QEByteArray::writeByteArray( const QByteArray &data ) {
 /*
     Slot to recieve data updates from the base QCaObject and generate byte array updates.
 */
-void QEByteArray::forwardDataChanged( const QByteArray &value, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp ) {
+void QEByteArray::forwardDataChanged( const QByteArray &value, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex  ) {
     emit byteArrayChanged( value, dataSize, alarmInfo, timeStamp, variableIndex );
 }
 
 /*
-    Take a basic connection change and append variableIndex
+    Re send connection change and with variableIndex - depricated.
 */
-void QEByteArray::forwardConnectionChanged( QCaConnectionInfo& connectionInfo) {
+void QEByteArray::forwardConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex ) {
     emit byteArrayConnectionChanged( connectionInfo, variableIndex );
 }
 

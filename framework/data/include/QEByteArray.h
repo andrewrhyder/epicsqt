@@ -38,19 +38,18 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEByteArray : public qcaobject::QCaObject {
     QEByteArray( QString recordName, QObject *eventObject, unsigned int variableIndexIn, UserMessage* userMessageIn );
 
   signals:
-    void byteArrayConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int &variableIndex );
+    void byteArrayConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex );
     void byteArrayChanged( const QByteArray& value, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
 
   public slots:
     void writeByteArray( const QByteArray& data );
 
   private:
-    void initialise( unsigned int variableIndexIn );
-    unsigned int variableIndex;
+    void initialise();
 
   private slots:
-    void forwardDataChanged( const QByteArray &value, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
-    void forwardConnectionChanged( QCaConnectionInfo& connectionInfo);
+    void forwardDataChanged( const QByteArray &value, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
+    void forwardConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex);
 };
 
 #endif // QEBYTEARRAY_H

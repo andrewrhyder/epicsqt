@@ -31,28 +31,27 @@
 */
 QEString::QEString( QString recordName, QObject* eventObject,
                       QEStringFormatting* newStringFormat,
-                      unsigned int variableIndexIn ) : QCaObject( recordName, eventObject ) {
-    initialise( newStringFormat, variableIndexIn );
+                      unsigned int variableIndexIn ) : QCaObject( recordName, eventObject, variableIndexIn ) {
+    initialise( newStringFormat );
 }
 
 QEString::QEString( QString recordName, QObject* eventObject,
                       QEStringFormatting* newStringFormat,
-                      unsigned int variableIndexIn, UserMessage* userMessageIn ) : QCaObject( recordName, eventObject, userMessageIn ) {
-    initialise( newStringFormat, variableIndexIn );
+                      unsigned int variableIndexIn, UserMessage* userMessageIn ) : QCaObject( recordName, eventObject, variableIndexIn, userMessageIn ) {
+    initialise( newStringFormat );
 }
 /*
     Stream the QCaObject data through this class to generate textual data
     updates.
 */
-void QEString::initialise( QEStringFormatting* newStringFormat, unsigned int variableIndexIn ) {
+void QEString::initialise( QEStringFormatting* newStringFormat ) {
     stringFormat = newStringFormat;
-    variableIndex = variableIndexIn;
 
-    QObject::connect( this, SIGNAL( connectionChanged(  QCaConnectionInfo& ) ),
-                      this, SLOT( forwardConnectionChanged( QCaConnectionInfo& ) ) );
+    QObject::connect( this, SIGNAL( connectionChanged(  QCaConnectionInfo&, const unsigned int& ) ),
+                      this, SLOT( forwardConnectionChanged( QCaConnectionInfo&, const unsigned int& ) ) );
 
-    QObject::connect( this, SIGNAL( dataChanged( const QVariant&, QCaAlarmInfo&, QCaDateTime& ) ),
-                      this, SLOT( convertVariant( const QVariant&, QCaAlarmInfo&, QCaDateTime& ) ) );
+    QObject::connect( this, SIGNAL( dataChanged( const QVariant&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+                      this, SLOT( convertVariant( const QVariant&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
 }
 
 /*
@@ -92,7 +91,7 @@ void QEString::writeString( const QString &data )
     Take a new value from the database and emit a string,formatted
     as directed by the set of formatting information held by this class
 */
-void QEString::convertVariant( const QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp ) {
+void QEString::convertVariant( const QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex ) {
 
     // Set up variable details used by some formatting options
     stringFormat->setDbEgu( getEgu() );
@@ -104,9 +103,9 @@ void QEString::convertVariant( const QVariant& value, QCaAlarmInfo& alarmInfo, Q
 }
 
 /*
-    Take a basic connection change and append variableIndex
+    Re send connection change and with variableIndex - depricated.
 */
-void QEString::forwardConnectionChanged( QCaConnectionInfo& connectionInfo) {
+void QEString::forwardConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex) {
     emit stringConnectionChanged( connectionInfo, variableIndex );
 }
 

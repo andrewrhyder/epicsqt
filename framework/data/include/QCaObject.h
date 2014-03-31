@@ -54,8 +54,12 @@ namespace qcaobject {
     public:
       enum priorities{ QE_PRIORITY_LOW, QE_PRIORITY_NORMAL, QE_PRIORITY_HIGH };
 
-      QCaObject( const QString& recordName, QObject *eventObject, unsigned char signalsToSendIn=SIG_VARIANT, priorities priorityIn=QE_PRIORITY_NORMAL );
-      QCaObject( const QString& recordName, QObject *eventObject, UserMessage* userMessageIn, unsigned char signalsToSendIn=SIG_VARIANT, priorities priorityIn=QE_PRIORITY_NORMAL );
+      QCaObject( const QString& recordName, QObject *eventObject, const unsigned int variableIndex,
+                 unsigned char signalsToSendIn=SIG_VARIANT, priorities priorityIn=QE_PRIORITY_NORMAL );
+
+      QCaObject( const QString& recordName, QObject *eventObject, const unsigned int variableIndex,
+                 UserMessage* userMessageIn, unsigned char signalsToSendIn=SIG_VARIANT, priorities priorityIn=QE_PRIORITY_NORMAL );
+
       virtual ~QCaObject();
 
       bool subscribe();
@@ -65,6 +69,9 @@ namespace qcaobject {
       static void processEventStatic( QCaEventUpdate* dataUpdateEvent );
 
       bool dataTypeKnown();
+
+      // Setup parameter access function
+      unsigned int getVariableIndex () const;
 
       // State machine access functions
       bool createChannel();
@@ -108,8 +115,9 @@ namespace qcaobject {
       void getLastData( bool& isDefined, QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
 
     signals:
-      void dataChanged( const QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
-      void dataChanged( const QByteArray& value, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
+      void dataChanged( const QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
+      void dataChanged( const QByteArray& value, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
+      void connectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex );
       void connectionChanged( QCaConnectionInfo& connectionInfo );
 
     public slots:
@@ -117,8 +125,10 @@ namespace qcaobject {
       void resendLastData();
 
     private:
-      void initialise( const QString& newRecordName, QObject *newEventHandler, UserMessage* userMessageIn, unsigned char signalsToSendIn, priorities priorityIn );
+      void initialise( const QString& newRecordName, QObject *newEventHandler, const unsigned int variableIndex,
+                       UserMessage* userMessageIn, unsigned char signalsToSendIn, priorities priorityIn );
 
+      unsigned int variableIndex; // The variable index within a widget. If not used within a widget, can hold arbitary number.
       long lastEventChannelState; // Channel state from most recent update event. This is actually of type caconnection::channel_states
       long lastEventLinkState;    // Link state from most recent update event. This is actually of type aconnection::link_states
 
