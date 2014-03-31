@@ -721,7 +721,7 @@ void QEStringFormatting::formatFromTime( const QVariant &value ) {
     if( value.type() == QVariant::String )
         stream << value.toString();
     else {
-        seconds = value.toDouble(&okay);
+        seconds = value.toDouble( &okay );
         if (okay) {
            if (seconds >= 0.0) {
               time = seconds;
@@ -741,7 +741,13 @@ void QEStringFormatting::formatFromTime( const QVariant &value ) {
 
            #undef EXTRACT
 
-           image.sprintf ("%d %02d:%02d:%02d", days, hours, mins, secs);
+           // Include days field if rquired or if requested.
+           //
+           if ((days > 0) || leadingZero) {
+              image.sprintf ("%d %02d:%02d:%02d", days, hours, mins, secs);
+           } else {
+              image.sprintf ("%02d:%02d:%02d", hours, mins, secs);
+           }
 
            // Select data base or user precision as appropriate.
            //
