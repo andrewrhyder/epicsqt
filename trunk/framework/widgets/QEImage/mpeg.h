@@ -120,10 +120,10 @@ public:
 protected:
     QString getURL();
     void setURL( QString urlIn );
+    void stopStream();
+    void startStream();
 
 private:
-    void ffQuit();
-
     mpegSourceObject* mso;
     QString url;
     FFThread* ff;
