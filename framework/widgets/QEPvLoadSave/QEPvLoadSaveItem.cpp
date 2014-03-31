@@ -62,17 +62,17 @@ QEPvLoadSaveItem::QEPvLoadSaveItem (const QString & nodeNameIn,
    if (isPV) {
       // Interpret node name as a PV name.
       //
-      this->qca = new qcaobject::QCaObject (this->nodeName, this);
+      this->qca = new qcaobject::QCaObject (this->nodeName, this, 0);
 
       // QCaObject does not do this automatically. Maybe it should?.
        //
       qca->setParent (this);
 
-      this->connect (this->qca, SIGNAL (connectionChanged (QCaConnectionInfo& )),
-                     this,      SLOT   (connectionChanged (QCaConnectionInfo& )));
+      this->connect (this->qca, SIGNAL (connectionChanged (QCaConnectionInfo&, const unsigned int& )),
+                     this,      SLOT   (connectionChanged (QCaConnectionInfo&, const unsigned int&  )));
 
-      this->connect (this->qca, SIGNAL (dataChanged (const QVariant&, QCaAlarmInfo& , QCaDateTime& )),
-                     this,      SLOT   (dataChanged (const QVariant&, QCaAlarmInfo& , QCaDateTime& )));
+      this->connect (this->qca, SIGNAL (dataChanged (const QVariant&, QCaAlarmInfo& , QCaDateTime&, const unsigned int&  )),
+                     this,      SLOT   (dataChanged (const QVariant&, QCaAlarmInfo& , QCaDateTime&, const unsigned int&  )));
 
 
       // Allow item to retrive archive data values.
@@ -399,14 +399,14 @@ int QEPvLoadSaveItem::leafCount ()
 
 //-----------------------------------------------------------------------------
 //
-void QEPvLoadSaveItem::connectionChanged (QCaConnectionInfo& connectionInfo)
+void QEPvLoadSaveItem::connectionChanged (QCaConnectionInfo& connectionInfo, const unsigned int&)
 {
    this->isConnected = connectionInfo.isChannelConnected ();
 }
 
 //-----------------------------------------------------------------------------
 //
-void  QEPvLoadSaveItem::dataChanged (const QVariant& valueIn, QCaAlarmInfo& alarmInfoIn, QCaDateTime&)
+void  QEPvLoadSaveItem::dataChanged (const QVariant& valueIn, QCaAlarmInfo& alarmInfoIn, QCaDateTime&, const unsigned int& )
 {
    //
    this->value = valueIn;

@@ -157,8 +157,8 @@ private:
    QEArchiveAccess* archiveAccess;
 
 private slots:
-   void connectionChanged (QCaConnectionInfo& connectionInfo);
-   void dataChanged (const QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp);
+   void connectionChanged (QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex);
+   void dataChanged (const QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex);
 
    void setArchiveData (const QObject* userData, const bool okay, const QCaDataPointList& archiveData);
 };
