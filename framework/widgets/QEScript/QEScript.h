@@ -82,12 +82,12 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
 
 
     protected:
-        QLineEdit *qlineEditDirectoryPath;
-        QPushButton *qPushButtonDirectoryBrowser;
-        QPushButton *qPushButtonRefresh;
+        QComboBox *qComboBoxScriptList;
+        QPushButton *qPushButtonNew;
+        QPushButton *qPushButtonSave;
+        QPushButton *qPushButtonDelete;
+        QPushButton *qPushButtonExecute;
         _QTableWidgetScript *qTableWidgetScript;
-        QString fileFilter;
-        bool showFileExtension;
         int detailsLayout;
 
 
@@ -96,17 +96,21 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
         QEScript(QWidget *pParent = 0);
         virtual ~QEScript(){}
 
-        void setDirectoryPath(QString pValue);
-        QString getDirectoryPath();
 
-        void setShowDirectoryPath(bool pValue);
-        bool getShowDirectoryPath();
+        void setShowScriptList(bool pValue);
+        bool getShowScriptList();
 
-        void setShowDirectoryBrowser(bool pValue);
-        bool getShowDirectoryBrowser();
+        void setShowNew(bool pValue);
+        bool getShowNew();
 
-        void setShowRefresh(bool pValue);
-        bool getShowRefresh();
+        void setShowSave(bool pValue);
+        bool getShowSave();
+
+        void setShowDelete(bool pValue);
+        bool getShowDelete();
+
+        void setShowExecute(bool pValue);
+        bool getShowExecute();
 
         void setShowColumnTime(bool pValue);
         bool getShowColumnTime();
@@ -117,25 +121,33 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
         void setShowColumnFilename(bool pValue);
         bool getShowColumnFilename();
 
-        void setShowFileExtension(bool pValue);
-        bool getShowFileExtension();
-
-        void setFileFilter(QString pValue);
-        QString getFileFilter();
-
         void setDetailsLayout(int pValue);
         int getDetailsLayout();
+
+
+        void comboBoxScriptSelected(int);
+
+        void buttonNewClicked();
+
+        void buttonSaveClicked();
+
+        void buttonDeleteClicked();
+
+        void buttonExecuteClicked();
 
         void updateTable();
 
 
-        Q_PROPERTY(QString directoryPath READ getDirectoryPath WRITE setDirectoryPath)
+        Q_PROPERTY(bool showScriptList READ getShowScriptList WRITE setShowScriptList)
 
-        Q_PROPERTY(bool showDirectoryPath READ getShowDirectoryPath WRITE setShowDirectoryPath)
+        Q_PROPERTY(bool showNew READ getShowNew WRITE setShowNew)
 
-        Q_PROPERTY(bool showDirectoryBrowser READ getShowDirectoryBrowser WRITE setShowDirectoryBrowser)
+        Q_PROPERTY(bool showSave READ getShowSave WRITE setShowSave)
 
-        Q_PROPERTY(bool showRefresh READ getShowRefresh WRITE setShowRefresh)
+        Q_PROPERTY(bool showDelete READ getShowDelete WRITE setShowDelete)
+
+        Q_PROPERTY(bool showExecute READ getShowExecute WRITE setShowExecute)
+
 
         Q_PROPERTY(bool showColumnTime READ getShowColumnTime WRITE setShowColumnTime)
 
@@ -143,9 +155,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
 
         Q_PROPERTY(bool showColumnFilename READ getShowColumnFilename WRITE setShowColumnFilename)
 
-        Q_PROPERTY(bool showFileExtension READ getShowFileExtension WRITE setShowFileExtension)
-
-        Q_PROPERTY(QString fileFilter READ getFileFilter WRITE setFileFilter)
 
         Q_ENUMS(detailsLayoutProperty)
         Q_PROPERTY(detailsLayoutProperty detailsLayout READ getDetailsLayoutProperty WRITE setDetailsLayoutProperty)
@@ -257,12 +266,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
 
 
     private slots:
-        void lineEditDirectoryPathChanged(QString);
-
-        void buttonDirectoryBrowserClicked();
-
-        void buttonRefreshClicked();
-
         void itemActivated(QTableWidgetItem *);
 
 
