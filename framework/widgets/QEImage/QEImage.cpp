@@ -222,14 +222,14 @@ void QEImage::setup() {
     QObject::connect(imageDisplayProps, SIGNAL(destroyed(QObject*)), this, SLOT(imageDisplayPropsDestroyed(QObject*)));
 
     // Create image recorder
-    recorder = NULL;//!!TEMP
-/* TEMP
+//    recorder = NULL;//!!TEMP
+///* TEMP
     recorder = new recording( this );
     QObject::connect(recorder, SIGNAL(destroyed(QObject*)), this, SLOT(recorderDestroyed(QObject*)));
     QObject::connect(recorder, SIGNAL(playingBack(bool)), this, SLOT(playingBack(bool)));
     QObject::connect( recorder,  SIGNAL( byteArrayChanged( const QByteArray&, unsigned long, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
                       this, SLOT( setImage( const QByteArray&, unsigned long, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
-*/
+//*/
 
     // Create vertical, horizontal, and general profile plots
     vSliceLabel = new QLabel( "Vertical Profile" );
@@ -2950,6 +2950,17 @@ void QEImage::doEnableImageDisplayProperties( bool enableImageDisplayProperties 
     imageDisplayProps->setVisible( enableImageDisplayProperties );
 }
 
+// Manage image display properties controls such as brightness and contrast
+void QEImage::doEnableRecording( bool enableRecording )
+{
+    if( !recorder )
+    {
+        return;
+    }
+
+    recorder->setVisible( enableRecording );
+}
+
 // Manage contrast reversal
 void QEImage::doContrastReversal( bool /*contrastReversal*/ )
 {
@@ -3761,6 +3772,17 @@ bool QEImage::getEnableImageDisplayProperties()
     return optionsDialog->optionGet( imageContextMenu::ICM_DISPLAY_IMAGE_DISPLAY_PROPERTIES );
 }
 
+// Enable recording and playback
+void QEImage::setEnableRecording( bool enableRecording )
+{
+    optionsDialog->optionSet( imageContextMenu::ICM_DISPLAY_RECORDER, enableRecording );
+}
+
+bool QEImage::getEnableRecording()
+{
+    return optionsDialog->optionGet( imageContextMenu::ICM_DISPLAY_RECORDER );
+}
+
 // Request the application host controls such as toolbars and profile views for this widget
 void QEImage::setExternalControls( bool externalControlsIn )
 {
@@ -3841,12 +3863,7 @@ void    QEImage::setEllipseLegend       ( QString legend ){        videoWidget->
 void QEImage::setSubstitutedUrl( QString urlIn )
 {
     url = urlIn;
-// Only include the mpeg stuff if required.
-// To include mpeg stuff, don't define QE_USE_MPEG directly, define environment variable
-// QE_FFMPEG to be processed by framework.pro
-#ifdef QE_USE_MPEG
     setURL( substituteThis( url ));
-#endif
 }
 
 QString QEImage::getSubstitutedUrl()
@@ -5521,6 +5538,7 @@ void QEImage::optionAction( imageContextMenu::imageContextMenuOptions option, bo
         case imageContextMenu::ICM_ENABLE_BEAM:                      doEnableBeamSelection     ( checked );     break;
         case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:               buttonGroup->setVisible   ( checked );     break;
         case imageContextMenu::ICM_DISPLAY_IMAGE_DISPLAY_PROPERTIES: doEnableImageDisplayProperties( checked ); break;
+        case imageContextMenu::ICM_DISPLAY_RECORDER:                 doEnableRecording         ( checked ); break;
         case imageContextMenu::ICM_FULL_SCREEN:                      setFullScreen             ( checked );     break;
         case imageContextMenu::ICM_OPTIONS:                          optionsDialog->exec( this );               break;
 

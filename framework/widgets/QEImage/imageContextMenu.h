@@ -62,6 +62,7 @@ public:
                                   ICM_ENABLE_BEAM,
                                   ICM_DISPLAY_BUTTON_BAR,
                                   ICM_DISPLAY_IMAGE_DISPLAY_PROPERTIES,
+                                  ICM_DISPLAY_RECORDER,
                                   ICM_ZOOM_SELECTED,
                                   ICM_ZOOM_FIT,
                                   ICM_ZOOM_PLUS,

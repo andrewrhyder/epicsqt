@@ -61,6 +61,10 @@
 // this is required as mpegSource is a base class for QEImage
 class mpegSource
 {
+public:
+    void setURL( QString ){}
+    void startStream(){}
+    void stopStream(){}
 };
 #endif // QE_USE_MPEG
 
@@ -299,6 +303,9 @@ public:
 
     void setEnableImageDisplayProperties( bool enableImageDisplayPropertiesIn );///< Access function for #enableImageDisplayProperties property - refer to #enableImageDisplayProperties property for details
     bool getEnableImageDisplayProperties();                                     ///< Access function for #enableImageDisplayProperties property - refer to #enableImageDisplayProperties property for details
+
+    void setEnableRecording( bool enableRecordingIn );                  ///< Access function for #enableRecording property - refer to #enableRecording property for details
+    bool getEnableRecording();                                          ///< Access function for #enableRecording property - refer to #enableRecording property for details
 
     void setAutoBrightnessContrast( bool autoBrightnessContrastIn );    ///< Access function for #autoBrightnessContrast property - refer to #autoBrightnessContrast property for details
     bool getAutoBrightnessContrast();                                   ///< Access function for #autoBrightnessContrast property - refer to #autoBrightnessContrast property for details
@@ -769,6 +776,7 @@ public slots:
     void getPixelRange( const QRect& area, unsigned int* min, unsigned int* max ); // Determine the range of pixel values an area of the image
 
     void doEnableImageDisplayProperties( bool enableBrightnessContrast );
+    void doEnableRecording( bool enableRecording );
     void doContrastReversal( bool contrastReversal );
     void doEnableVertSliceSelection( bool enableVSliceSelection );
     void doEnableHozSliceSelection( bool enableHSliceSelection );
@@ -1435,11 +1443,13 @@ public:
     /// Used to set up an initial view when zoomed in.
     Q_PROPERTY(int initialVertScrollPos READ getInitialVertScrollPos WRITE setInitialVertScrollPos)
 
-    /// If true, auto set local brightness and contrast when any area is selected.
-    /// The brightness and contrast is set to use the full range of pixels in the selected area.
+    /// If true, the local Image Display Properties controls are displayed.
     Q_PROPERTY(bool enableImageDisplayProperties READ getEnableImageDisplayProperties WRITE setEnableImageDisplayProperties)
 
-    /// If true, local Image Display Properties controls are displayed.
+    /// If true, the recording controls are displayed.
+    Q_PROPERTY(bool enableRecording READ getEnableRecording WRITE setEnableRecording)
+
+    /// If true, auto set local brightness and contrast when any area is selected.
     /// The brightness and contrast is set to use the full range of pixels in the selected area.
     Q_PROPERTY(bool autoBrightnessContrast READ getAutoBrightnessContrast WRITE setAutoBrightnessContrast)
 
