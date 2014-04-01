@@ -154,13 +154,13 @@ private slots:
 
    // Basic widgit PV related slots (used for RTYP pseudo field).
    //
-   void setRecordTypeConnection (QCaConnectionInfo& connectionInfo, const unsigned int &variableIndex);
+   void setRecordTypeConnection (QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex);
    void setRecordTypeValue (const QString & rtypeValue, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
 
    // The value item slots.
    //
-   void setValueConnection (QCaConnectionInfo& connectionInfo);
-   void setValueValue (const QString & rtypeValue, QCaAlarmInfo&, QCaDateTime&, const unsigned int&);
+   void setValueConnection (QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex);
+   void setValueValue (const QString & rtypeValue, QCaAlarmInfo&, QCaDateTime&, const unsigned int& variableIndex);
 
    // Field related slots
    //
