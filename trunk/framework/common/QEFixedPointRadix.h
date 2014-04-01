@@ -27,6 +27,7 @@
 #ifndef QE_FIXED_POINT_RADIX_H
 #define QE_FIXED_POINT_RADIX_H
 
+#include <QObject>
 #include <QString>
 #include <QEPluginLibrary_global.h>
 
@@ -38,18 +39,23 @@
 /// comma, but space and under score are also allowed.
 //
 // Refactored out of QENumericEdit.
+// This class is QObject mainly to allow Radicies/Separators to become part of the
+// meta object system.
 //
-class QEPLUGINLIBRARYSHARED_EXPORT QEFixedPointRadix {
+class QEPLUGINLIBRARYSHARED_EXPORT QEFixedPointRadix : public QObject {
+   Q_OBJECT
 public:
 
    /// Defines allowed radix values.
    enum Radicies { Decimal = 0, Hexadecimal, Octal, Binary };
+   Q_ENUMS (Radicies)
 
    /// Defines the digit 'thousands' separator character.
    enum Separators { None = 0, Comma, Underscore, Space };
+   Q_ENUMS (Separators)
 
-   explicit QEFixedPointRadix ();  // default is Decimal, None
-   explicit QEFixedPointRadix (const Radicies radix, const Separators separator);
+   explicit QEFixedPointRadix (QObject* parent = 0);  // default is Decimal, None
+   explicit QEFixedPointRadix (const Radicies radix, const Separators separator, QObject* parent = 0);
    ~QEFixedPointRadix();
 
    void setRadix (const Radicies radix);

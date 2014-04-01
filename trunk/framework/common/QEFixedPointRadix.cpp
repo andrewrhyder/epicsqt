@@ -44,7 +44,7 @@ const static char separatorChars [] = " ,_ ";
 
 //-----------------------------------------------------------------------------
 //
-QEFixedPointRadix::QEFixedPointRadix ()
+QEFixedPointRadix::QEFixedPointRadix (QObject* parent) : QObject (parent)
 {
    this->radix = Decimal;
    this->separator = None;
@@ -52,7 +52,9 @@ QEFixedPointRadix::QEFixedPointRadix ()
 
 //-----------------------------------------------------------------------------
 //
-QEFixedPointRadix::QEFixedPointRadix (const Radicies radixIn, const Separators separatorIn)
+QEFixedPointRadix::QEFixedPointRadix (const Radicies radixIn,
+                                      const Separators separatorIn,
+                                      QObject* parent) : QObject (parent)
 {
    this->radix = radixIn;
    this->separator = separatorIn;
