@@ -115,6 +115,7 @@ private slots:
     void on_pushButtonNextImage_clicked();
     void on_pushButtonFirstImage_clicked();
     void on_pushButtonPreviousImage_clicked();
+    void on_horizontalSliderPosition_valueChanged(int value);
 };
 
 #endif // RECORDING_H
