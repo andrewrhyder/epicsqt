@@ -63,6 +63,7 @@ private slots:
     void on_checkBoxInfo_clicked(bool checked);
     void on_checkBoxTime_clicked(bool checked);
     void on_checkBoxBrightnessContrast_clicked(bool checked);
+    void on_checkBoxRecorder_clicked(bool checked);
     void on_checkBoxButtonBar_clicked(bool checked);
     void on_checkBoxArbitraryProfile_clicked(bool checked);
     void on_checkBoxHorizontalProfile_clicked(bool checked);

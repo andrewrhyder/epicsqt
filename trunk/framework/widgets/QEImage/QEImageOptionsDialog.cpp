@@ -56,6 +56,7 @@ void QEImageOptionsDialog::initialise()
     optionSet( imageContextMenu::ICM_ENABLE_BEAM,                 false );
     optionSet( imageContextMenu::ICM_DISPLAY_BUTTON_BAR,          false );
     optionSet( imageContextMenu::ICM_DISPLAY_IMAGE_DISPLAY_PROPERTIES, false );
+    optionSet( imageContextMenu::ICM_DISPLAY_RECORDER,            false );
 }
 
 QEImageOptionsDialog::~QEImageOptionsDialog()
@@ -82,6 +83,7 @@ void QEImageOptionsDialog::optionSet( imageContextMenu::imageContextMenuOptions 
         case imageContextMenu::ICM_ENABLE_BEAM:                 ui->checkBoxBeam              ->setChecked( checked ); break;
         case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:          ui->checkBoxButtonBar         ->setChecked( checked ); break;
         case imageContextMenu::ICM_DISPLAY_IMAGE_DISPLAY_PROPERTIES: ui->checkBoxBrightnessContrast->setChecked( checked ); break;
+        case imageContextMenu::ICM_DISPLAY_RECORDER:            ui->checkBoxRecorder          ->setChecked( checked ); break;
 
             // This switch should cater for all check boxes in the dialog, but this is not all context menu options
             // so include a default to keep compiler from generating warnings
@@ -111,6 +113,7 @@ bool QEImageOptionsDialog::optionGet( imageContextMenu::imageContextMenuOptions 
         case imageContextMenu::ICM_ENABLE_BEAM:                 return ui->checkBoxBeam              ->isChecked();
         case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:          return ui->checkBoxButtonBar         ->isChecked();
         case imageContextMenu::ICM_DISPLAY_IMAGE_DISPLAY_PROPERTIES: return ui->checkBoxBrightnessContrast->isChecked();
+        case imageContextMenu::ICM_DISPLAY_RECORDER:            return ui->checkBoxBrightnessContrast->isChecked();
 
             // This switch should cater for all check boxes in the dialog, but this is not all context menu options
             // so include a default to keep compiler from generating warnings
@@ -124,6 +127,7 @@ void QEImageOptionsDialog::on_checkBoxHorizontalProfile_clicked (bool checked) {
 void QEImageOptionsDialog::on_checkBoxArbitraryProfile_clicked  (bool checked) { emit optionChange( imageContextMenu::ICM_ENABLE_LINE,                      checked ); }
 void QEImageOptionsDialog::on_checkBoxButtonBar_clicked         (bool checked) { emit optionChange( imageContextMenu::ICM_DISPLAY_BUTTON_BAR,               checked ); }
 void QEImageOptionsDialog::on_checkBoxBrightnessContrast_clicked(bool checked) { emit optionChange( imageContextMenu::ICM_DISPLAY_IMAGE_DISPLAY_PROPERTIES, checked ); }
+void QEImageOptionsDialog::on_checkBoxRecorder_clicked          (bool checked) { emit optionChange( imageContextMenu::ICM_DISPLAY_RECORDER,                 checked ); }
 void QEImageOptionsDialog::on_checkBoxTime_clicked              (bool checked) { emit optionChange( imageContextMenu::ICM_ENABLE_TIME,                      checked ); }
 void QEImageOptionsDialog::on_checkBoxInfo_clicked              (bool checked) { emit optionChange( imageContextMenu::ICM_ENABLE_CURSOR_PIXEL,              checked ); }
 void QEImageOptionsDialog::on_checkBoxArea1Selection_clicked    (bool checked) { emit optionChange( imageContextMenu::ICM_ENABLE_AREA1,                     checked ); }

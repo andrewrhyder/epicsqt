@@ -122,6 +122,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QCheckBox" name="checkBoxRecorder">
+          <property name="text">
+           <string>Recorder</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QCheckBox" name="checkBoxTime">
           <property name="text">
            <string>Timestamp image</string>
