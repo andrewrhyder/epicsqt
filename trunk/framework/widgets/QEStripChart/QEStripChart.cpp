@@ -868,6 +868,7 @@ QEStripChart::QEStripChart (QWidget * parent) : QEFrame (parent)
    this->yMaximum = 100.0;
 
    this->variableNameSubstitutions = "";
+   this->setNumVariables (0);
 
    // Construct dialogs.
    //
@@ -1443,9 +1444,10 @@ qcaobject::QCaObject* QEStripChart::createQcaItem (unsigned int variableIndex)
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::establishConnection (unsigned int variableIndex)
+void QEStripChart::establishConnection (unsigned int /* variableIndex */ )
 {
-   DEBUG << "unexpected call, variableIndex = " << variableIndex;
+   // A framework feature is that there is always at least one variable.
+   // DEBUG << "unexpected call, variableIndex = " << variableIndex;
 }
 
 //------------------------------------------------------------------------------
