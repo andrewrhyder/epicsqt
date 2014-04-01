@@ -113,7 +113,7 @@ bool QEImageOptionsDialog::optionGet( imageContextMenu::imageContextMenuOptions 
         case imageContextMenu::ICM_ENABLE_BEAM:                 return ui->checkBoxBeam              ->isChecked();
         case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:          return ui->checkBoxButtonBar         ->isChecked();
         case imageContextMenu::ICM_DISPLAY_IMAGE_DISPLAY_PROPERTIES: return ui->checkBoxBrightnessContrast->isChecked();
-        case imageContextMenu::ICM_DISPLAY_RECORDER:            return ui->checkBoxBrightnessContrast->isChecked();
+        case imageContextMenu::ICM_DISPLAY_RECORDER:            return ui->checkBoxRecorder->isChecked();
 
             // This switch should cater for all check boxes in the dialog, but this is not all context menu options
             // so include a default to keep compiler from generating warnings
