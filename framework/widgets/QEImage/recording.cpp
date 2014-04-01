@@ -261,3 +261,8 @@ void recording::on_pushButtonLastImage_clicked()
     ui->horizontalSliderPosition->setValue( currentFrame );
     showRecordedFrame( currentFrame );
 }
+
+void recording::on_horizontalSliderPosition_valueChanged(int value)
+{
+    showRecordedFrame( value );
+}
