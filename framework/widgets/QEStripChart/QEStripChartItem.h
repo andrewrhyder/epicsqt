@@ -189,8 +189,8 @@ private:
 private slots:
    void newVariableNameProperty (QString pvName, QString substitutions, unsigned int slot);
 
-   void setDataConnection (QCaConnectionInfo& connectionInfo);
-   void setDataValue (const QVariant& value, QCaAlarmInfo& alarm, QCaDateTime& datetime);
+   void setDataConnection (QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex);
+   void setDataValue (const QVariant& value, QCaAlarmInfo& alarm, QCaDateTime& datetime, const unsigned int& variableIndex);
 
    void setArchiveData (const QObject *userData, const bool okay, const QCaDataPointList &archiveData);
 

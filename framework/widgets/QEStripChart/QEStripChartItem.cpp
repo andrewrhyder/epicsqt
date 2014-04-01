@@ -277,11 +277,11 @@ void QEStripChartItem::connectQcaSignals ()
    if (qca && (qca != this->previousQcaItem)) {
       this->previousQcaItem = qca;
 
-      QObject::connect (qca, SIGNAL (connectionChanged (QCaConnectionInfo&) ),
-                        this,  SLOT (setDataConnection (QCaConnectionInfo&) ) );
+      QObject::connect (qca, SIGNAL (connectionChanged (QCaConnectionInfo&, const unsigned int& ) ),
+                        this,  SLOT (setDataConnection (QCaConnectionInfo&, const unsigned int& ) ) );
 
-      QObject::connect (qca, SIGNAL (dataChanged  (const QVariant&, QCaAlarmInfo&, QCaDateTime&) ),
-                        this,  SLOT (setDataValue (const QVariant&, QCaAlarmInfo&, QCaDateTime&) ) );
+      QObject::connect (qca, SIGNAL (dataChanged  (const QVariant&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+                        this,  SLOT (setDataValue (const QVariant&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
    }
 }
 
@@ -657,7 +657,7 @@ void QEStripChartItem::newVariableNameProperty (QString pvName, QString substitu
 
 //------------------------------------------------------------------------------
 //
-void QEStripChartItem::setDataConnection (QCaConnectionInfo& connectionInfo)
+void QEStripChartItem::setDataConnection (QCaConnectionInfo& connectionInfo, const unsigned int& )
 {
    QCaDataPoint point;
 
@@ -688,7 +688,7 @@ void QEStripChartItem::setDataConnection (QCaConnectionInfo& connectionInfo)
 
 //------------------------------------------------------------------------------
 //
-void QEStripChartItem::setDataValue (const QVariant& value, QCaAlarmInfo& alarm, QCaDateTime& datetime)
+void QEStripChartItem::setDataValue (const QVariant& value, QCaAlarmInfo& alarm, QCaDateTime& datetime, const unsigned int& )
 {
    QVariant input;
    double y;
