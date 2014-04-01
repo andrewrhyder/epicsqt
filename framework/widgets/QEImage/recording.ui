@@ -56,7 +56,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="doubleSpinBoxPlaybackRate"/>
+      <widget class="QDoubleSpinBox" name="doubleSpinBoxPlaybackRate">
+       <property name="toolTip">
+        <string>Interval (in seconds) between image updates</string>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="pushButtonLoop">
