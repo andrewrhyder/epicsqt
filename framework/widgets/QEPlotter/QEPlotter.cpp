@@ -788,15 +788,15 @@ void QEPlotter::establishConnection (unsigned int variableIndex)
    }
 
    if (this->isDataIndex (variableIndex)) {
-      QObject::connect (qca, SIGNAL (floatingConnectionChanged (QCaConnectionInfo &, const unsigned int &)),
-                        this, SLOT  (dataConnectionChanged     (QCaConnectionInfo &, const unsigned int &)));
+      QObject::connect (qca, SIGNAL (connectionChanged     (QCaConnectionInfo &, const unsigned int &)),
+                        this, SLOT  (dataConnectionChanged (QCaConnectionInfo &, const unsigned int &)));
 
       QObject::connect (qca, SIGNAL (floatingArrayChanged (const QVector<double>&, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)),
                         this, SLOT  (dataArrayChanged     (const QVector<double>&, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)));
 
    } else if (this->isSizeIndex (variableIndex)) {
-      QObject::connect (qca, SIGNAL (integerConnectionChanged  (QCaConnectionInfo &, const unsigned int &)),
-                        this, SLOT  (sizeConnectionChanged     (QCaConnectionInfo &, const unsigned int &)));
+      QObject::connect (qca, SIGNAL (connectionChanged     (QCaConnectionInfo &, const unsigned int &)),
+                        this, SLOT  (sizeConnectionChanged (QCaConnectionInfo &, const unsigned int &)));
 
       QObject::connect (qca, SIGNAL (integerChanged   (const long &, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)),
                         this, SLOT  (sizeValueChanged (const long &, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)));
