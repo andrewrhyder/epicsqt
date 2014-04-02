@@ -49,6 +49,10 @@ QEScript::QEScript(QWidget *pParent):QWidget(pParent), QEWidget( this )
     qTableWidgetScript = new _QTableWidgetScript(this);
 
 
+    qComboBoxScriptList->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    qComboBoxScriptList->setToolTip("Select script");
+    QObject::connect(qComboBoxScriptList, SIGNAL(currentIndexChanged(int)), this, SLOT(comboBoxScriptSelected(int)));
+
     qPushButtonNew->setText("New");
     qPushButtonNew->setToolTip("Create new script");
     QObject::connect(qPushButtonNew, SIGNAL(clicked()), this, SLOT(buttonNewClicked()));
@@ -65,11 +69,13 @@ QEScript::QEScript(QWidget *pParent):QWidget(pParent), QEWidget( this )
     qPushButtonExecute->setToolTip("Execute selected script");
     QObject::connect(qPushButtonExecute, SIGNAL(clicked()), this, SLOT(buttonExecuteClicked()));
 
-
-    qTableWidgetScript->setColumnCount(3);
-    qTableWidgetScript->setHorizontalHeaderItem(0, new QTableWidgetItem("Time"));
-    qTableWidgetScript->setHorizontalHeaderItem(1, new QTableWidgetItem("Size"));
-    qTableWidgetScript->setHorizontalHeaderItem(2, new QTableWidgetItem("Filename"));
+    qTableWidgetScript->setColumnCount(6);
+    qTableWidgetScript->setHorizontalHeaderItem(0, new QTableWidgetItem("#"));
+    qTableWidgetScript->setHorizontalHeaderItem(1, new QTableWidgetItem("Process"));
+    qTableWidgetScript->setHorizontalHeaderItem(2, new QTableWidgetItem("Parameter"));
+    qTableWidgetScript->setHorizontalHeaderItem(3, new QTableWidgetItem("Timeout"));
+    qTableWidgetScript->setHorizontalHeaderItem(4, new QTableWidgetItem("Stop"));
+    qTableWidgetScript->setHorizontalHeaderItem(5, new QTableWidgetItem("Log"));
     qTableWidgetScript->setToolTip("Files contained in the specified directory");
     qTableWidgetScript->setEditTriggers(QAbstractItemView::NoEditTriggers);
     qTableWidgetScript->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -79,6 +85,7 @@ QEScript::QEScript(QWidget *pParent):QWidget(pParent), QEWidget( this )
     qTableWidgetScript->setFont(qFont);
     QObject::connect(qTableWidgetScript, SIGNAL(itemActivated(QTableWidgetItem *)), this, SLOT(itemActivated(QTableWidgetItem *)));
 
+    setShowScriptList(true);
     setDetailsLayout(TOP);
 
 }
@@ -179,7 +186,6 @@ bool QEScript::getShowExecute()
 
 
 
-
 void QEScript::setShowColumnTime(bool pValue)
 {
 
@@ -233,6 +239,70 @@ bool QEScript::getShowColumnFilename()
     return (qTableWidgetScript->isColumnHidden(2) == false);
 
 }
+
+
+
+
+void QEScript::setScriptFile(QString pValue)
+{
+
+    QDomElement rootElement;
+    QFile *file;
+    QString data;
+    bool flag;
+
+
+
+    scriptFile = pValue;
+
+    document.clear();
+
+    if (scriptFile.isEmpty())
+    {
+        QFileInfo fileInfo;
+        fileInfo.setFile(defaultFileLocation(), "QEScript.xml");
+        filename = fileInfo.filePath();
+    }
+    else
+    {
+        filename = scriptFile;
+    }
+
+    file = openQEFile(filename, (QIODevice::OpenModeFlag)((int)(QFile::ReadOnly | QFile::Text)));
+    if (file)
+    {
+        data = file->readAll();
+        file->close();
+        flag = document.setContent(data);
+    }
+    else
+    {
+        flag = false;
+    }
+
+    if (flag)
+    {
+        refreshScriptList();
+    }
+    else
+    {
+        rootElement = document.createElement("epicsqt");
+        document.appendChild(rootElement);
+    }
+
+
+}
+
+
+
+
+QString QEScript::getScriptFile()
+{
+
+    return scriptFile;
+
+}
+
 
 
 
@@ -309,8 +379,6 @@ int QEScript::getDetailsLayout()
     return detailsLayout;
 
 }
-
-
 
 
 
@@ -670,6 +738,7 @@ void QEScript::buttonExecuteClicked()
 
 void QEScript::itemActivated(QTableWidgetItem *)
 {
+
     /*
     QModelIndexList selectedRows;
     QString filename;
@@ -693,6 +762,194 @@ void QEScript::itemActivated(QTableWidgetItem *)
 
 }
 
+
+
+
+
+void QEScript::refreshScriptList()
+{
+
+    QDomElement rootElement;
+    QDomElement recipeElement;
+    QDomNode rootNode;
+    QString visible;
+    QString tmp;
+    bool flag;
+    int count;
+    int i;
+
+
+    qComboBoxScriptList->blockSignals(true);
+    tmp = qComboBoxScriptList->currentText();
+    qComboBoxScriptList->clear();
+    rootElement = document.documentElement();
+    if (rootElement.tagName() == "epicsqt")
+    {
+        count = 0;
+        rootNode = rootElement.firstChild();
+        while (rootNode.isNull() == false)
+        {
+            recipeElement = rootNode.toElement();
+            if (recipeElement.tagName() == "script")
+            {
+                visible = recipeElement.attribute("visible").toUpper();
+                if (visible.isEmpty())
+                {
+                    flag = true;
+                }
+                else
+                {
+                    if (visible == "USER")
+                    {
+                        flag = true;
+                    }
+                    else if (visible == "SCIENTIST")
+                    {
+                        //flag = (currentUserType > 0);
+                    }
+                    else if (visible == "ENGINEER")
+                    {
+                        //flag = (currentUserType > 1);
+                    }
+                    else
+                    {
+                        flag = false;
+                    }
+                    flag = false;
+                }
+                if (flag)
+                {
+                    if (recipeElement.attribute("name").isEmpty())
+                    {
+                        qComboBoxScriptList->addItem("Script #" + QString::number(count));
+                        count++;
+                    }
+                    else
+                    {
+                        qComboBoxScriptList->addItem(recipeElement.attribute("name"));
+                    }
+                }
+            }
+            rootNode = rootNode.nextSibling();
+        }
+    }
+    i = qComboBoxScriptList->findText(tmp);
+    if (i == -1)
+    {
+        qComboBoxScriptList->setCurrentIndex(0);
+    }
+    else
+    {
+       qComboBoxScriptList->setCurrentIndex(i);
+    }
+    refreshButton();
+    qComboBoxScriptList->blockSignals(false);
+
+}
+
+
+
+
+void QEScript::refreshButton()
+{
+
+    QDomElement rootElement;
+    QDomElement recipeElement;
+    QDomElement processVariableElement;
+    QDomNode rootNode;
+    //_Field *fieldInfo;
+    QString currentName;
+    QString name;
+    //int count;
+    //int i;
+
+    currentName = qComboBoxScriptList->currentText();
+
+
+//    qDebug() << "recipe: " + currentName;
+
+    /*
+    count = 0;
+    rootElement = document.documentElement();
+    if (rootElement.tagName() == "epicsqt")
+    {
+        rootNode = rootElement.firstChild();
+        while (rootNode.isNull() == false)
+        {
+            recipeElement = rootNode.toElement();
+            if (recipeElement.tagName() == "recipe")
+            {
+                if (recipeElement.attribute("name").isEmpty())
+                {
+                    name = "Recipe #" + QString::number(count);
+                    count++;
+                }
+                else
+                {
+                    name = recipeElement.attribute("name");
+                }
+
+                if (currentName.compare(name) == 0)
+                {
+                    for(i = 0; i < qEConfiguredLayoutRecipeFields->currentFieldList.size(); i++)
+                    {
+                        fieldInfo = qEConfiguredLayoutRecipeFields->currentFieldList.at(i);
+
+                        if (fieldInfo->getVisibility())
+                        {
+                            rootNode = recipeElement.firstChild();
+                            while (rootNode.isNull() == false)
+                            {
+                                processVariableElement = rootNode.toElement();
+                                if (processVariableElement.tagName() == "processvariable")
+                                {
+                                    if (fieldInfo->getProcessVariable() == processVariableElement.attribute("name"))
+                                    {
+
+                                        if (fieldInfo->getType() == BITSTATUS)
+                                        {
+                                        }
+                                        else if (fieldInfo->getType() == BUTTON)
+                                        {
+                                        }
+                                        else if (fieldInfo->getType() == LABEL)
+                                        {
+                                        }
+                                        else if (fieldInfo->getType() == SPINBOX)
+                                        {
+//                                            ((QESpinBox *) fieldInfo->qCaWidget)->setValue((float) processVariableElement.attribute("value"));
+                                        }
+                                        else if (fieldInfo->getType() == COMBOBOX)
+                                        {
+                                            ((QEComboBox *) fieldInfo->qCaWidget)->setEditText(processVariableElement.attribute("value"));
+                                        }
+                                        else
+                                        {
+                                            ((QELineEdit *) fieldInfo->qCaWidget)->setText(processVariableElement.attribute("value"));
+                                        }
+                                        break;
+                                    }
+                                }
+                                rootNode = rootNode.nextSibling();
+                            }
+                        }
+
+                    }
+
+                    break;
+                }
+            }
+            rootNode = rootNode.nextSibling();
+        }
+    }
+    */
+
+
+    qPushButtonSave->setEnabled(qComboBoxScriptList->currentText().isEmpty() == false);
+    qPushButtonDelete->setEnabled(qComboBoxScriptList->currentText().isEmpty() == false);
+    qPushButtonExecute->setEnabled(qComboBoxScriptList->currentText().isEmpty() == false);
+
+}
 
 
 
@@ -760,82 +1017,24 @@ _QTableWidgetScript::_QTableWidgetScript(QWidget *pParent):QTableWidget(pParent)
 void _QTableWidgetScript::refreshSize()
 {
 
-    int sizeColumn0;
-    int sizeColumn1;
-    int sizeColumn2;
+    int i;
+    int hidden;
 
 
-    if (this->isColumnHidden(0))
+    hidden = 0;
+    for(i = 0; i < this->columnCount(); i++)
     {
-        if (this->isColumnHidden(1))
+        if (this->isColumnHidden(i))
         {
-            if (this->isColumnHidden(2))
-            {
-                sizeColumn0 = 0;
-                sizeColumn1 = 0;
-                sizeColumn2 = 0;
-            }
-            else
-            {
-                sizeColumn0 = 0;
-                sizeColumn1 = 0;
-                sizeColumn2 = this->width();
-            }
-        }
-        else
-        {
-            if (this->isColumnHidden(2))
-            {
-                sizeColumn0 = 0;
-                sizeColumn1 = this->width();
-                sizeColumn2 = 0;
-            }
-            else
-            {
-                sizeColumn0 = 0;
-                sizeColumn1 = 1 * this->width() / 5;
-                sizeColumn2 = 4 * this->width() / 5 - 1;
-            }
-        }
-    }
-    else
-    {
-        if (this->isColumnHidden(1))
-        {
-            if (this->isColumnHidden(2))
-            {
-                sizeColumn0 = this->width();
-                sizeColumn1 = 0;
-                sizeColumn2 = 0;
-            }
-            else
-            {
-                sizeColumn0 = 1 * this->width() / 5;
-                sizeColumn1 = 0;
-                sizeColumn2 = 4 * this->width() / 5 - 1;
-            }
-        }
-        else
-        {
-            if (this->isColumnHidden(2))
-            {
-                sizeColumn0 = this->width() / 2;
-                sizeColumn1 = this->width() / 2 - 1;
-                sizeColumn2 = 0;
-            }
-            else
-            {
-                sizeColumn0 = 1 * this->width() / 5;
-                sizeColumn1 = 1 * this->width() / 5;
-                sizeColumn2 = 3 * this->width() / 5 - 1;
-            }
+            hidden++;
         }
     }
 
-    this->setColumnWidth(0, sizeColumn0);
-    this->setColumnWidth(1, sizeColumn1);
-    this->setColumnWidth(2, sizeColumn2);
 
+    for(i = 0; i < this->columnCount(); i++)
+    {
+        this->setColumnWidth(i, this->width() / (this->columnCount() - hidden));
+    }
 
 }
 
