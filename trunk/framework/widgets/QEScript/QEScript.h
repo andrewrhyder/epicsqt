@@ -88,7 +88,10 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
         QPushButton *qPushButtonDelete;
         QPushButton *qPushButtonExecute;
         _QTableWidgetScript *qTableWidgetScript;
+        QString scriptFile;
         int detailsLayout;
+        QDomDocument document;
+        QString filename;
 
 
     public:
@@ -121,19 +124,17 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
         void setShowColumnFilename(bool pValue);
         bool getShowColumnFilename();
 
+        void setScriptFile(QString pValue);
+        QString getScriptFile();
+
         void setDetailsLayout(int pValue);
         int getDetailsLayout();
 
 
-        void comboBoxScriptSelected(int);
+        void refreshScriptList();
 
-        void buttonNewClicked();
+        void refreshButton();
 
-        void buttonSaveClicked();
-
-        void buttonDeleteClicked();
-
-        void buttonExecuteClicked();
 
         void updateTable();
 
@@ -154,6 +155,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
         Q_PROPERTY(bool showColumnSize READ getShowColumnSize WRITE setShowColumnSize)
 
         Q_PROPERTY(bool showColumnFilename READ getShowColumnFilename WRITE setShowColumnFilename)
+
+        Q_PROPERTY(QString scriptFile READ getScriptFile WRITE setScriptFile)
 
 
         Q_ENUMS(detailsLayoutProperty)
@@ -266,6 +269,16 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
 
 
     private slots:
+        void comboBoxScriptSelected(int);
+
+        void buttonNewClicked();
+
+        void buttonSaveClicked();
+
+        void buttonDeleteClicked();
+
+        void buttonExecuteClicked();
+
         void itemActivated(QTableWidgetItem *);
 
 
