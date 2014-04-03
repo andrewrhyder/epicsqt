@@ -69,7 +69,7 @@ QColor QEUtilities::fontColour (const QColor & backgroundColour)
 
 //------------------------------------------------------------------------------
 //
-QString QEUtilities::colourToStyle (const QColor backgroundColour) {
+QString QEUtilities::colourToStyle (const QColor& backgroundColour) {
    QString result;
    QColor foregroundColour;
    int br, bg, bb, ba;
@@ -88,6 +88,43 @@ QString QEUtilities::colourToStyle (const QColor backgroundColour) {
                    br, bg, bb, fr, fg, fb );
    return result;
 }
+
+
+//------------------------------------------------------------------------------
+//
+QColor QEUtilities::darkColour (const QColor& lightColour)
+{
+   QColor result;
+   int h, s, l, a;
+
+   lightColour.getHsl (&h, &s, &l, &a);
+
+   // 50% lightness
+   //
+   l = l / 2;
+
+   result.setHsl (h, s, l, a);
+   return result;
+}
+
+//------------------------------------------------------------------------------
+//
+QColor QEUtilities::blandColour (const QColor& vibrantColour)
+{
+   QColor result;
+   int h, s, l, a;
+
+   vibrantColour.getHsl (&h, &s, &l, &a);
+
+   // 50% saturation and 50% co-lightness.
+   //
+   s = s / 2;
+   l = 255 - ((255 - l)/ 2);
+
+   result.setHsl (h, s, l, a);
+   return result;
+}
+
 
 //------------------------------------------------------------------------------
 //

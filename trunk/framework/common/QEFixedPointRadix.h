@@ -31,7 +31,7 @@
 #include <QString>
 #include <QEPluginLibrary_global.h>
 
-/// The QString class provides general value to/from radix string represntation,
+/// The QString class provides general value to/from radix string representation,
 /// but only for integer types. This class provdies similar functionality for
 /// the double type to/from a fixed point radix representation.
 /// The class restricts the allowed radix values to 2, 8, 10 and 16.

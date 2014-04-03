@@ -83,12 +83,20 @@ public:
     /// For the specified bacground colour, returns font colour (black or white)
     /// with a suitable contrast. Currently based on rgb values, and ignores alpha.
     ///
-    static QColor fontColour (const QColor & backgroundColour);
+    static QColor fontColour (const QColor& backgroundColour);
 
     /// Converts a given colour to associated background-color style,
     /// and sets foreground (font) colour to black or white accordingly.
     ///
-    static QString colourToStyle (const QColor backgroundColour);
+    static QString colourToStyle (const QColor& backgroundColour);
+
+    // Same colour, just darker - good for edges.
+    //
+    QColor darkColour (const QColor& lightColour);
+
+    // Same colour, just washed-out/greyed-out - good for diabled widgets.
+    //
+    QColor blandColour (const QColor& vibrantColour);
 
     /// Rounds a float to the nearest integer. Not all compilers support lround.
     /// If x outside of integer range, the result is set to the min or max allowed
