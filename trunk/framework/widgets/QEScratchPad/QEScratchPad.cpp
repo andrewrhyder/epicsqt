@@ -100,18 +100,21 @@ void QEScratchPad::createInternalWidgets ()
       item->pvName->installEventFilter (this);
       item->pvName->setText ("");
       item->pvName->setIndent (indent);
+      item->pvName->setSizePolicy (QSizePolicy::Ignored, QSizePolicy::Preferred);
       item->pvName->setStyleSheet (QEUtilities::colourToStyle (clNotInUse));
 
       item->description = new QELabel (item->frame);
       item->description->setDisplayAlarmState (false);
       item->description->setText ("");
       item->description->setIndent (indent);
+      item->description->setSizePolicy (QSizePolicy::Ignored, QSizePolicy::Preferred);
       item->description->setStyleSheet (QEUtilities::colourToStyle (clNotInUse));
 
       item->value = new QELabel (item->frame);
       item->value->setDisplayAlarmState (true);
       item->value->setText ("");
       item->value->setIndent (indent);
+      item->value->setSizePolicy (QSizePolicy::Ignored, QSizePolicy::Preferred);
       item->value->setStyleSheet (QEUtilities::colourToStyle (clNotInUse));
 
       // Set up layout - paramers must be same as titlelayout
