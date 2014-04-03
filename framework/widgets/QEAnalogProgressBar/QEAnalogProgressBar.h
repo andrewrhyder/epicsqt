@@ -334,7 +334,6 @@ private:
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
     Band createBand (const double lower, const double upper,  unsigned short severity);
 
-    bool isConnected;
     bool useDbPrecison;
     bool useDbDisplayLimits;
     AlarmSeverityDisplayModes alarmSeverityDisplayMode;
@@ -344,9 +343,9 @@ private:
     QString theImage;
 
 private slots:
-    void connectionChanged( QCaConnectionInfo& connectionInfo );
+    void connectionChanged (QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex);
 
-    void setProgressBarValue( const double& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
+    void setProgressBarValue (const double& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int&);
 
     void useNewVariableNameProperty (QString variableNameIn,
                                      QString variableNameSubstitutionsIn,

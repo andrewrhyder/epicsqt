@@ -52,7 +52,7 @@ QEAnalogIndicator::QEAnalogIndicator (QWidget *parent) : QWidget (parent)
 {
    this->mBorderColour      = QColor (  0,   0,  96);   // dark blue
    this->mBackgroundColour  = QColor (220, 220, 220);   // light gray
-   this->mForegroundColour  = QColor (128, 192, 255);   // blue
+   this->mForegroundColour  = QColor ( 55, 155, 255);   // blue
    this->mFontColour        = QColor (0,     0,   0);   // black
 
    this->mMinimum = 0.0;
@@ -69,7 +69,7 @@ QEAnalogIndicator::QEAnalogIndicator (QWidget *parent) : QWidget (parent)
    this->mValue = 0.0;
    this->mCentreAngle = 0;
    this->mSpanAngle = 180;
-   this->mIsActive = false;
+   this->mIsActive = true;
 
    // Do thsi only once, not on paintEvent as it caises another paint event.
    //
@@ -88,13 +88,6 @@ QSize QEAnalogIndicator::sizeHint () const
 
 //------------------------------------------------------------------------------
 //
-double QEAnalogIndicator::safeLog (const double x)
-{
-   return (x >= 1.0e-20) ? log10 (x) : -20.0;
-}
-
-//------------------------------------------------------------------------------
-//
 double QEAnalogIndicator::calcFraction (const double x)
 {
    double result;
@@ -102,8 +95,8 @@ double QEAnalogIndicator::calcFraction (const double x)
    // Calculate the fractional scale and constrain to be in range.
    //
    if (this->getLogScale ()) {
-      result = (safeLog (x) - safeLog (this->mMinimum)) /
-               (safeLog (this->mMaximum) - safeLog  (this->mMinimum));
+      result = (LOG10 (x)              - LOG10 (this->mMinimum)) /
+               (LOG10 (this->mMaximum) - LOG10 (this->mMinimum));
    } else {
       result = (x - this->mMinimum) /
                (this->mMaximum - this->mMinimum);
@@ -121,7 +114,7 @@ bool QEAnalogIndicator::firstValue (int & itc, double & value, bool & isMajor)
    bool result;
 
    if (this->getLogScale ()) {
-      real = 9.0 * this->safeLog (this->mMinimum);
+      real = 9.0 * LOG10 (this->mMinimum);
    } else {
       real = this->mMinimum / this->getMinorInterval ();
    }
@@ -175,36 +168,40 @@ bool QEAnalogIndicator::nextValue  (int & itc, double & value, bool & isMajor)
 
 //------------------------------------------------------------------------------
 //
-QColor QEAnalogIndicator::getBorderPaintColour ()
+QColor QEAnalogIndicator::getBorderPaintColour () const
 {
-   return this->getIsActive () ? this->mBorderColour : QColor (160, 160, 160);
+   return (this->isEnabled() && this->getIsActive ())
+         ? this->mBorderColour : QEUtilities::blandColour (this->mBorderColour);
 }
 
 //------------------------------------------------------------------------------
 //
-QColor QEAnalogIndicator::getBackgroundPaintColour ()
+QColor QEAnalogIndicator::getBackgroundPaintColour () const
 {
-   return this->getIsActive () ? this->mBackgroundColour : QColor (240, 240, 240);
+   return (this->isEnabled() && this->getIsActive ())
+         ? this->mBackgroundColour : QEUtilities::blandColour (this->mBackgroundColour);
 }
 
 //------------------------------------------------------------------------------
 //
-QColor QEAnalogIndicator::getForegroundPaintColour ()
+QColor QEAnalogIndicator::getForegroundPaintColour () const
 {
-   return this->getIsActive () ? this->mForegroundColour : QColor (220, 220, 220);
+   return (this->isEnabled() && this->getIsActive ())
+         ? this->mForegroundColour : QEUtilities::blandColour (this->mForegroundColour);
 }
 
 
 //------------------------------------------------------------------------------
 //
-QColor QEAnalogIndicator::getFontPaintColour ()
+QColor QEAnalogIndicator::getFontPaintColour () const
 {
-   return this->getIsActive () ? this->mFontColour : QColor (140, 140, 140);
+   return (this->isEnabled() && this->getIsActive ())
+         ? this->mFontColour : QEUtilities::blandColour (this->mFontColour);
 }
 
 //------------------------------------------------------------------------------
 //
-bool QEAnalogIndicator::isLeftRight ()
+bool QEAnalogIndicator::isLeftRight () const
 {
    return (this->mOrientation == Left_To_Right) || (this->mOrientation == Right_To_Left);
 }
@@ -984,7 +981,7 @@ void QEAnalogIndicator::setMinorInterval (const double value)
    }
 }
 
-double QEAnalogIndicator::getMinorInterval ()
+double QEAnalogIndicator::getMinorInterval () const
 {
    return this->mMinorInterval;
 }
@@ -1003,7 +1000,7 @@ void QEAnalogIndicator::setMajorInterval (const double value)
    }
 }
 
-double QEAnalogIndicator::getMajorInterval ()
+double QEAnalogIndicator::getMajorInterval () const
 {
    return this->mMajorMinorRatio * this->mMinorInterval;
 }
@@ -1031,7 +1028,7 @@ void QEAnalogIndicator::set##name (const type value)  {      \
    }                                                         \
 }                                                            \
                                                              \
-type QEAnalogIndicator::get##name () {                      \
+type QEAnalogIndicator::get##name () const {                 \
    return this->m##name;                                     \
 }
 
