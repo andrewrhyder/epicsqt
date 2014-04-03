@@ -32,6 +32,7 @@
 #include <QEWidget.h>
 #include <QCaVariableNamePropertyManager.h>
 #include <QEFloatingFormatting.h>
+#include <QEFixedPointRadix.h>
 #include <QEGenericEdit.h>
 
 /*!
@@ -52,6 +53,12 @@ public:
     /// If true (default), display and editing of numbers using the precision, and control limits supplied with the data.
     /// If false, the precision, leadingZeros, minimum and maximum properties are used.
     Q_PROPERTY(bool autoScale READ getAutoScale WRITE setAutoScale)
+
+    /// Specify radix, default is Decimal.
+    Q_PROPERTY (QEFixedPointRadix::Radicies radix        READ getRadix       WRITE setRadix)
+
+    /// Specify digit 'thousands' separator character, default is none.
+    Q_PROPERTY (QEFixedPointRadix::Separators separator  READ getSeparator   WRITE setSeparator)
 
     /// Precision used for the display and editing of numbers. The default is 4.
     /// This is only used if autoScale is false.
@@ -74,18 +81,6 @@ public:
     /// If true (default), add engineering units supplied with the data.
     ///
     Q_PROPERTY(bool addUnits READ getAddUnits WRITE setAddUnits)
-
-    /// Specify radix, default is Decimal.
-    enum Radicies { Decimal = 0, Hexadecimal, Octal, Binary};
-    Q_ENUMS (Radicies)
-
-    Q_PROPERTY (Radicies radix    READ getRadix                WRITE setRadix)
-
-    /// Specify digit 'thousands' separator character, default is none.
-    enum Separators { None = 0, Comma, Underscore, Space };
-    Q_ENUMS (Separators)
-
-    Q_PROPERTY (Separators separator    READ getSeparator      WRITE setSeparator)
 
     // End QENumericEdit specifc properties ============================================
 
@@ -126,11 +121,11 @@ public:
     void setAddUnits (bool addUnits);
     bool getAddUnits ();
 
-    void setRadix (const Radicies value);
-    Radicies getRadix ();
+    void setRadix (const QEFixedPointRadix::Radicies value);
+    QEFixedPointRadix::Radicies getRadix ();
 
-    void setSeparator (const Separators value);
-    Separators getSeparator ();
+    void setSeparator (const QEFixedPointRadix::Separators value);
+    QEFixedPointRadix::Separators getSeparator ();
 
 protected:
    // override
@@ -176,8 +171,7 @@ private:
    bool mAutoScale;
    int mCursor;
    bool addUnits;                   // Flag use engineering units from database
-   Radicies mRadix;
-   Separators mSeparator;
+   QEFixedPointRadix fpr;
    double mValue;
 
    // local copy of testAndClearIsFirstUpdate() call.
@@ -203,6 +197,10 @@ private:
    bool isRadixDigit (QChar qc);    // Is the character a valid digit for the selected radix
    bool isSign (QChar qc);          // Is the character on of '+' or '-'
    bool isSignOrDigit (QChar qc);   // Is the character either of the above.
+
+
+   double calcUpper ();
+   double calcLower ();
 
    // The radix, leadingZeros, precision, minimum and maximum are NOT independent
    // quantities. This function ensures given set of values are consistent and
