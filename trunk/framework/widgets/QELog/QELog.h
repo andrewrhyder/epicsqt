@@ -93,7 +93,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QELog:public QWidget, public QEWidget
         QColor qColorWarning;
         QColor qColorError;
         bool scrollToBottom;
-        int detailsLayout;
+        int optionsLayout;
 
 
     public:
@@ -119,8 +119,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QELog:public QWidget, public QEWidget
         void setShowSave(bool pValue);
         bool getShowSave();
 
-        void setDetailsLayout(int pValue);
-        int getDetailsLayout();
+        void setOptionsLayout(int pValue);
+        int getOptionsLayout();
 
         void setScrollToBottom(bool pValue);
         bool getScrollToBottom();
@@ -157,9 +157,9 @@ class QEPLUGINLIBRARYSHARED_EXPORT QELog:public QWidget, public QEWidget
         Q_PROPERTY(bool scrollToBottom READ getScrollToBottom WRITE setScrollToBottom)
 
 
-        Q_ENUMS(detailsLayoutProperty)
-        Q_PROPERTY(detailsLayoutProperty detailsLayout READ getDetailsLayoutProperty WRITE setDetailsLayoutProperty)
-        enum detailsLayoutProperty
+        Q_ENUMS(optionsLayoutProperty)
+        Q_PROPERTY(optionsLayoutProperty optionsLayout READ getOptionsLayoutProperty WRITE setOptionsLayoutProperty)
+        enum optionsLayoutProperty
         {
             Top = TOP,
             Bottom = BOTTOM,
@@ -167,13 +167,13 @@ class QEPLUGINLIBRARYSHARED_EXPORT QELog:public QWidget, public QEWidget
             Right = RIGHT
         };
 
-        void setDetailsLayoutProperty(detailsLayoutProperty pDetailsLayout)
+        void setOptionsLayoutProperty(optionsLayoutProperty pOptionsLayout)
         {
-            setDetailsLayout((detailsLayoutProperty) pDetailsLayout);
+            setOptionsLayout((optionsLayoutProperty) pOptionsLayout);
         }
-        detailsLayoutProperty getDetailsLayoutProperty()
+        optionsLayoutProperty getOptionsLayoutProperty()
         {
-            return (detailsLayoutProperty) getDetailsLayout();
+            return (optionsLayoutProperty) getOptionsLayout();
         }
 
 

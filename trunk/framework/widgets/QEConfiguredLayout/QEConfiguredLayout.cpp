@@ -53,7 +53,7 @@ QEConfiguredLayout::QEConfiguredLayout(QWidget *pParent, bool pSubscription):QWi
     setConfigurationText("");
     setConfigurationType(FROM_FILE);
     setShowItemList(true);
-    setDetailsLayout(TOP);
+    setOptionsLayout(TOP);
     setCurrentUserType(getUserLevel());
 
 }
@@ -284,7 +284,7 @@ void QEConfiguredLayout::setConfiguration(QString pValue)
 
 
 
-void QEConfiguredLayout::setDetailsLayout(int pValue)
+void QEConfiguredLayout::setOptionsLayout(int pValue)
 {
 
     QLayout *qLayoutMain;
@@ -298,7 +298,7 @@ void QEConfiguredLayout::setDetailsLayout(int pValue)
     switch(pValue)
     {
         case TOP:
-            detailsLayout = TOP;
+            optionsLayout = TOP;
             qLayoutMain = new QVBoxLayout(this);
             qLayoutChild = new QHBoxLayout();
             qLayoutChild->addWidget(qLabelItemDescription);
@@ -308,7 +308,7 @@ void QEConfiguredLayout::setDetailsLayout(int pValue)
             break;
 
         case BOTTOM:
-            detailsLayout = BOTTOM;
+            optionsLayout = BOTTOM;
             qLayoutMain = new QVBoxLayout(this);
             qLayoutChild = new QHBoxLayout();
             qLayoutMain->addWidget(qScrollArea);
@@ -318,7 +318,7 @@ void QEConfiguredLayout::setDetailsLayout(int pValue)
             break;
 
         case LEFT:
-            detailsLayout = LEFT;
+            optionsLayout = LEFT;
             qLayoutMain = new QHBoxLayout(this);
             qLayoutChild = new QVBoxLayout();
             qLayoutChild->addWidget(qLabelItemDescription);
@@ -329,7 +329,7 @@ void QEConfiguredLayout::setDetailsLayout(int pValue)
             break;
 
         case RIGHT:
-            detailsLayout = RIGHT;
+            optionsLayout = RIGHT;
             qLayoutMain = new QHBoxLayout(this);
             qLayoutChild = new QVBoxLayout();
             qLayoutMain->addWidget(qScrollArea);
@@ -342,10 +342,10 @@ void QEConfiguredLayout::setDetailsLayout(int pValue)
 
 
 
-int QEConfiguredLayout::getDetailsLayout()
+int QEConfiguredLayout::getOptionsLayout()
 {
 
-    return detailsLayout;
+    return optionsLayout;
 
 }
 

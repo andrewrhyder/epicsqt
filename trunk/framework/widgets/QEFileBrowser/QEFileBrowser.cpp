@@ -72,7 +72,7 @@ QEFileBrowser::QEFileBrowser(QWidget *pParent):QWidget(pParent), QEWidget( this 
     setShowFileExtension(true);
     setFileFilter("");
     setFileDialogDirectoriesOnly(true);
-    setDetailsLayout(TOP);
+    setOptionsLayout(TOP);
 
 }
 
@@ -320,7 +320,7 @@ bool QEFileBrowser::getFileDialogDirectoriesOnly()
 
 
 
-void QEFileBrowser::setDetailsLayout(int pValue)
+void QEFileBrowser::setOptionsLayout(int pValue)
 {
 
     QLayout *qLayoutMain;
@@ -332,7 +332,7 @@ void QEFileBrowser::setDetailsLayout(int pValue)
     switch(pValue)
     {
         case TOP:
-            detailsLayout = TOP;
+            optionsLayout = TOP;
             qLayoutMain = new QVBoxLayout(this);
             qLayoutChild = new QHBoxLayout();
             qLayoutChild->addWidget(qeLineEditDirectoryPath);
@@ -343,7 +343,7 @@ void QEFileBrowser::setDetailsLayout(int pValue)
             break;
 
         case BOTTOM:
-            detailsLayout = BOTTOM;
+            optionsLayout = BOTTOM;
             qLayoutMain = new QVBoxLayout(this);
             qLayoutMain->addWidget(qTableWidgetFileBrowser);
             qLayoutChild = new QHBoxLayout();
@@ -354,7 +354,7 @@ void QEFileBrowser::setDetailsLayout(int pValue)
             break;
 
         case LEFT:
-            detailsLayout = LEFT;
+            optionsLayout = LEFT;
             qLayoutMain = new QHBoxLayout(this);
             qLayoutChild = new QVBoxLayout();
             qLayoutChild->addWidget(qeLineEditDirectoryPath);
@@ -365,7 +365,7 @@ void QEFileBrowser::setDetailsLayout(int pValue)
             break;
 
         case RIGHT:
-            detailsLayout = RIGHT;
+            optionsLayout = RIGHT;
             qLayoutMain = new QHBoxLayout(this);
             qLayoutChild = new QVBoxLayout();
             qLayoutChild->addWidget(qeLineEditDirectoryPath);
@@ -379,10 +379,10 @@ void QEFileBrowser::setDetailsLayout(int pValue)
 
 
 
-int QEFileBrowser::getDetailsLayout()
+int QEFileBrowser::getOptionsLayout()
 {
 
-    return detailsLayout;
+    return optionsLayout;
 
 }
 

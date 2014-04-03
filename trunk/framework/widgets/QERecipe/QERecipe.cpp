@@ -79,7 +79,7 @@ QERecipe::QERecipe(QWidget *pParent):QWidget(pParent), QEWidget(this)
     setConfigurationText("");
     setConfigurationType(FROM_FILE);
     setShowRecipeList(true);
-    setDetailsLayout(TOP);
+    setOptionsLayout(TOP);
     setCurrentUserType(getUserLevel());
 
 }
@@ -364,7 +364,7 @@ QString QERecipe::getRecipeFile()
 
 
 
-void QERecipe::setDetailsLayout(int pValue)
+void QERecipe::setOptionsLayout(int pValue)
 {
 
     QLayout *qLayoutMain;
@@ -379,7 +379,7 @@ void QERecipe::setDetailsLayout(int pValue)
     switch(pValue)
     {
         case TOP:
-            detailsLayout = TOP;
+            optionsLayout = TOP;
             qLayoutMain = new QVBoxLayout(this);
             qLayoutChild = new QHBoxLayout();
             qLayoutChild->addWidget(qLabelRecipeDescription);
@@ -394,7 +394,7 @@ void QERecipe::setDetailsLayout(int pValue)
             break;
 
         case BOTTOM:
-            detailsLayout = BOTTOM;
+            optionsLayout = BOTTOM;
             qLayoutMain = new QVBoxLayout(this);
             qLayoutMain->addWidget(qEConfiguredLayoutRecipeFields);
             qLayoutChild = new QHBoxLayout();
@@ -409,7 +409,7 @@ void QERecipe::setDetailsLayout(int pValue)
             break;
 
         case LEFT:
-            detailsLayout = LEFT;
+            optionsLayout = LEFT;
             qLayoutMain = new QHBoxLayout(this);
             qLayoutChild = new QVBoxLayout();
             qLayoutChild->addWidget(qLabelRecipeDescription);
@@ -424,7 +424,7 @@ void QERecipe::setDetailsLayout(int pValue)
             break;
 
         case RIGHT:
-            detailsLayout = RIGHT;
+            optionsLayout = RIGHT;
             qLayoutMain = new QHBoxLayout(this);
             qLayoutChild = new QVBoxLayout();
             qLayoutChild->addWidget(qLabelRecipeDescription);
@@ -442,10 +442,10 @@ void QERecipe::setDetailsLayout(int pValue)
 
 
 
-int QERecipe::getDetailsLayout()
+int QERecipe::getOptionsLayout()
 {
 
-    return detailsLayout;
+    return optionsLayout;
 
 }
 
