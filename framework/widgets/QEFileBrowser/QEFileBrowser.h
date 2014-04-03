@@ -95,7 +95,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEFileBrowser:public QWidget, public QEWidget
         QString fileFilter;
         bool showFileExtension;
         bool fileDialogDirectoriesOnly;
-        int detailsLayout;
+        int optionsLayout;
 
 
     public:
@@ -143,8 +143,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEFileBrowser:public QWidget, public QEWidget
         void setFileDialogDirectoriesOnly(bool pValue);
         bool getFileDialogDirectoriesOnly();
 
-        void setDetailsLayout(int pValue);
-        int getDetailsLayout();
+        void setOptionsLayout(int pValue);
+        int getOptionsLayout();
 
         void updateTable();
 
@@ -193,9 +193,9 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEFileBrowser:public QWidget, public QEWidget
         Q_PROPERTY(QString fileFilter READ getFileFilter WRITE setFileFilter)
 
         /// Change the order of the widgets. Valid orders are: TOP, BOTTOM, LEFT and RIG
-        Q_ENUMS(detailsLayoutProperty)
-        Q_PROPERTY(detailsLayoutProperty detailsLayout READ getDetailsLayoutProperty WRITE setDetailsLayoutProperty)
-        enum detailsLayoutProperty
+        Q_ENUMS(optionsLayoutProperty)
+        Q_PROPERTY(optionsLayoutProperty optionsLayout READ getOptionsLayoutProperty WRITE setOptionsLayoutProperty)
+        enum optionsLayoutProperty
         {
             Top = TOP,
             Bottom = BOTTOM,
@@ -203,13 +203,13 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEFileBrowser:public QWidget, public QEWidget
             Right = RIGHT
         };        
 
-        void setDetailsLayoutProperty(detailsLayoutProperty pDetailsLayout)
+        void setOptionsLayoutProperty(optionsLayoutProperty pOptionsLayout)
         {
-            setDetailsLayout((detailsLayoutProperty) pDetailsLayout);
+            setOptionsLayout((optionsLayoutProperty) pOptionsLayout);
         }
-        detailsLayoutProperty getDetailsLayoutProperty()
+        optionsLayoutProperty getOptionsLayoutProperty()
         {
-            return (detailsLayoutProperty) getDetailsLayout();
+            return (optionsLayoutProperty) getOptionsLayout();
         }
 
 

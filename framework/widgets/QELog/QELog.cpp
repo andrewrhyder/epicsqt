@@ -85,7 +85,7 @@ QELog::QELog(QWidget *pParent):QWidget(pParent), QEWidget(this)
     setWarningColor(QColor(255, 160, 0));
     setErrorColor(QColor(255, 0, 0));
     setScrollToBottom(true);
-    setDetailsLayout(BOTTOM);
+    setOptionsLayout(BOTTOM);
 
     clearLog();
 
@@ -230,7 +230,7 @@ bool QELog::getShowSave()
 
 
 
-void QELog::setDetailsLayout(int pValue)
+void QELog::setOptionsLayout(int pValue)
 {
 
     QLayout *qLayoutMain;
@@ -242,7 +242,7 @@ void QELog::setDetailsLayout(int pValue)
     switch(pValue)
     {
         case TOP:
-            detailsLayout = TOP;
+            optionsLayout = TOP;
             qLayoutMain = new QVBoxLayout(this);
             qLayoutChild = new QHBoxLayout();
             qLayoutChild->addWidget(qCheckBoxInfoMessage);
@@ -257,7 +257,7 @@ void QELog::setDetailsLayout(int pValue)
             break;
 
         case BOTTOM:
-            detailsLayout = BOTTOM;
+            optionsLayout = BOTTOM;
             qLayoutMain = new QVBoxLayout(this);
             qLayoutChild = new QHBoxLayout();
             qLayoutMain->addWidget(qTableWidgetLog);
@@ -272,7 +272,7 @@ void QELog::setDetailsLayout(int pValue)
             break;
 
         case LEFT:
-            detailsLayout = LEFT;
+            optionsLayout = LEFT;
             qLayoutMain = new QHBoxLayout(this);
             qLayoutChild = new QVBoxLayout();
             qLayoutChild->addWidget(qCheckBoxInfoMessage);
@@ -285,7 +285,7 @@ void QELog::setDetailsLayout(int pValue)
             break;
 
         case RIGHT:
-            detailsLayout = RIGHT;
+            optionsLayout = RIGHT;
             qLayoutMain = new QHBoxLayout(this);
             qLayoutChild = new QVBoxLayout();
             qLayoutChild->addWidget(qCheckBoxInfoMessage);
@@ -301,10 +301,10 @@ void QELog::setDetailsLayout(int pValue)
 
 
 
-int QELog::getDetailsLayout()
+int QELog::getOptionsLayout()
 {
 
-    return detailsLayout;
+    return optionsLayout;
 
 }
 

@@ -175,9 +175,9 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
             Right = RIGHT
         };        
 
-        void setOptionsLayoutProperty(optionsLayoutProperty pDetailsLayout)
+        void setOptionsLayoutProperty(optionsLayoutProperty pOptionsLayout)
         {
-            setOptionsLayout((optionsLayoutProperty) pDetailsLayout);
+            setOptionsLayout((optionsLayoutProperty) pOptionsLayout);
         }
         optionsLayoutProperty getOptionsLayoutProperty()
         {

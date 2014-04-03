@@ -241,7 +241,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QEW
         QString configurationFile;
         QString configurationText;
         int configurationType;
-        int detailsLayout;
+        int optionsLayout;
         int currentUserType;
         bool subscription;
 
@@ -265,8 +265,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QEW
         void setConfigurationText(QString pValue);
         QString getConfigurationText();
 
-        void setDetailsLayout(int pValue);
-        int getDetailsLayout();
+        void setOptionsLayout(int pValue);
+        int getOptionsLayout();
 
         void setCurrentUserType(int pValue);
         int getCurrentUserType();
@@ -306,9 +306,9 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QEW
         Q_PROPERTY(QString configurationText READ getConfigurationText WRITE setConfigurationText)
 
 
-        Q_ENUMS(detailsLayoutProperty)
-        Q_PROPERTY(detailsLayoutProperty detailsLayout READ getDetailsLayoutProperty WRITE setDetailsLayoutProperty)
-        enum detailsLayoutProperty
+        Q_ENUMS(optionsLayoutProperty)
+        Q_PROPERTY(optionsLayoutProperty optionsLayout READ getOptionsLayoutProperty WRITE setOptionsLayoutProperty)
+        enum optionsLayoutProperty
         {
             Top = TOP,
             Bottom = BOTTOM,
@@ -316,13 +316,14 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QEW
             Right = RIGHT
         };
 
-        void setDetailsLayoutProperty(detailsLayoutProperty pDetailsLayout)
+        void setOptionsLayoutProperty(optionsLayoutProperty pOptionsLayout)
         {
-            setDetailsLayout((detailsLayoutProperty) pDetailsLayout);
+            setOptionsLayout((optionsLayoutProperty) pOptionsLayout);
         }
-        detailsLayoutProperty getDetailsLayoutProperty()
+
+        optionsLayoutProperty getOptionsLayoutProperty()
         {
-            return (detailsLayoutProperty) getDetailsLayout();
+            return (optionsLayoutProperty) getOptionsLayout();
         }
 
 
