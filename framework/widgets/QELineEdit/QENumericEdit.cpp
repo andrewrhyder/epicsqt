@@ -36,241 +36,42 @@
 #define MAX_SIGNIFICANCE   15
 #define NUMBER_OF_RADICES  4
 
-// create a radix class ??
-
 //==============================================================================
 // Local functions.
 // Maybe they should be static functions of the QENumericEdit class
 //==============================================================================
 //
-// Decimal = 0, Hexadecimal, Octal, Binary
-//
-const static int radix_value_list [NUMBER_OF_RADICES] = { 10, 16, 8, 2 };
 
 // For decimal, this is about 48.9 bits, for the others 48 bits exactly.
+//
 const static int maximum_number_digits_list [NUMBER_OF_RADICES] = { 15, 12, 16, 48 };
 
 // Used to modify the tool tip.
 //
 static const char* custom_tips [NUMBER_OF_RADICES] = { "", "hex", "octal", "binary" };
 
-//------------------------------------------------------------------------------
-// Provides double to QString
-//
-static QString fixedRadixImage (const double value,
-                                const QENumericEdit::Radicies radix,
-                                const bool sign,
-                                const int zeros,
-                                const int precision,
-                                const QENumericEdit::Separators separator)
-{
-   const char radixChars [] = "0123456789ABCDEF";
-   const char separatorChars [] = " ,_ ";
-   const int  separatorSizes [NUMBER_OF_RADICES] = { 3, 4, 3, 4 };
-   const double dblRadix = double (radix_value_list [radix]);
-
-   QString result;
-   double work;
-   int mostSig;
-   int s;
-   double prs;
-   int t;
-
-   result = " ";
-
-   // Do leading sign if needeed or requested.
-   //
-   if (value >= 0.0) {
-      if (sign) {
-          result.append ('+');
-      }
-   } else {
-       result.append ('-');
-   }
-
-   work = ABS (value);
-   mostSig = 0;
-   while (pow (dblRadix, int (mostSig + 1)) < work) {
-      mostSig++;
-   }
-
-   /*
-    for (t = r; t < work; t = t*r)
-       mostSig++;
-    */
-
-   mostSig = MAX (mostSig, zeros - 1);
-
-   // Round up by half the value of the least significant digit.
-   //
-   work = work + (pow ((1.0/dblRadix), precision) * 0.499999999);
-
-   for (s = mostSig; s >= -precision; s--) {
-
-      prs = pow (dblRadix, s);
-      t = int (floor (work / prs));
-      work = work - t*prs;
-
-      result.append (radixChars [t]);
-
-      // All done?
-      //
-      if (s <= -precision) break;
-
-      if (s == 0) {
-         result.append ('.');
-      } else if (ABS (s) % separatorSizes [radix] == 0) {
-         if (separator > QENumericEdit::None) {
-            result.append (separatorChars [separator]);
-         }
-      }
-   }
-
-   return result;
-}
-
-//------------------------------------------------------------------------------
-// Provides QString to double.
-//
-static bool fixedRadixValue (const QString& image,
-                             const QENumericEdit::Radicies radix,
-                             double& result)
-{
-   const int intRadix = radix_value_list [radix];
-   const double dblRadix = double (intRadix);
-   bool isNegative;
-   bool isPoint;
-   bool signIsAllowed;
-   int scale;
-   int j;
-   char c;
-   int d;
-
-   result = 0.0;     // ensure not erroneous
-   isNegative = false;
-   isPoint = false;
-   scale = 0;
-
-   // We could, and prob should, be more strict with
-   // the syntax checking.
-   //
-   signIsAllowed = true;
-
-   for (j = 0; j < image.length(); j++) {
-      c = image [j].toLatin1 ();
-      d = 0;
-
-      switch (c) {
-         case ' ':
-         case ',':
-         case '_':
-             // null
-             break;
-
-         case '+':
-            if (!signIsAllowed) {
-               return false;
-            }
-            signIsAllowed = false;
-            break;
-
-         case '-':
-            if (!signIsAllowed) {
-               return false;
-            }
-            isNegative = true;
-            signIsAllowed = false;
-            break;
-
-         case '.':
-          if (isPoint) {
-             return false;
-          }
-          isPoint = true;
-          break;
-
-         case '0':
-         case '1':
-         case '2':
-         case '3':
-         case '4':
-         case '5':
-         case '6':
-         case '7':
-         case '8':
-         case '9':
-            d = int (c) - int ('0');
-            result = (result*intRadix) + d;
-            if (isPoint) scale--;
-            break;
-
-         case 'A':
-         case 'B':
-         case 'C':
-         case 'D':
-         case 'E':
-         case 'F':
-            d = int (c) - int ('A') + 10;
-            result = (result*intRadix) + d;
-            if (isPoint) scale--;
-            break;
-
-         case 'a':
-         case 'b':
-         case 'c':
-         case 'd':
-         case 'e':
-         case 'f':
-            d = int (c) - int ('a') + 10;
-            result = (result*intRadix) + d;
-            if (isPoint) scale--;
-            break;
-
-         default:
-            return false;
-            break;
-      }
-      if (d >= intRadix) {
-         return false;
-      }
-   }
-
-   // Scale result.
-   //
-   result = result * pow (dblRadix, scale);
-
-   // Apply sign
-   //
-   if (isNegative) result = -result;
-
-   return true;
-}
 
 //------------------------------------------------------------------------------
 // Example: leading zeros = 2, precision = 1, radix = 10, then max
 // value is 99.9 =  10**2 - 10**(-1)
 //
-static double calcUpper (const QENumericEdit::Radicies radix,
-                         const int leadingZeros,
-                         const int precison)
+double QENumericEdit::calcUpper ()
 {
-   const double dblRadix = double (radix_value_list [radix]);
+   const double dblRadix = double (this->fpr.getRadixValue ());
 
    double a, b;
 
-   a = pow (dblRadix, leadingZeros);
-   b = pow (dblRadix, -precison);
+   a = pow (dblRadix, +this->getLeadingZeros ());
+   b = pow (dblRadix, -this->getPrecision ());
 
    return a - b;
 }
 
 //------------------------------------------------------------------------------
 //
-static double calcLower (const QENumericEdit::Radicies radix,
-                         const int leadingZeros,
-                         const int precison)
+double QENumericEdit::calcLower ()
 {
-   return -calcUpper (radix, leadingZeros, precison);
+   return -calcUpper ();
 }
 
 
@@ -298,15 +99,15 @@ void QENumericEdit::commonConstructor ()
    this->mCursor = 1;
 
    this->addUnits = true;
-   this->mRadix = Decimal;
-   this->mSeparator = None;
+   this->fpr.setRadix (QEFixedPointRadix::Decimal);
+   this->fpr.setSeparator (QEFixedPointRadix::None);
 
    // Ensure sensible auto values
    //
    this->propertyPrecision = 4;
    this->propertyLeadingZeros = 3;
-   this->propertyMinimum = calcLower (this->mRadix, 3, 4);
-   this->propertyMaximum = calcUpper (this->mRadix, 3, 4);
+   this->propertyMinimum = this->calcLower ();
+   this->propertyMaximum = this->calcUpper ();
 
    // Ensure sensible auto values
    // Note: these should be re-calcuated when the first update arrives.
@@ -472,14 +273,14 @@ void QENumericEdit::setDoubleValue (const double& valueIn, QCaAlarmInfo& alarmIn
 //
 int QENumericEdit::getRadixValue ()
 {
-   return radix_value_list [this->mRadix];
+   return this->fpr.getRadixValue ();
 }
 
 //------------------------------------------------------------------------------
 //
 int QENumericEdit::maximumSignificance ()
 {
-   return maximum_number_digits_list [this->mRadix];
+   return maximum_number_digits_list [this->getRadix ()];
 }
 
 //------------------------------------------------------------------------------
@@ -690,9 +491,13 @@ void QENumericEdit::setDigitSelection ()
 //
 QString QENumericEdit::imageOfValue ()
 {
-   return fixedRadixImage (this->mValue, this->mRadix, this->showSign (),
-                           this->getLeadingZeros(), this->getPrecision (),
-                           this->mSeparator);
+   QString image;
+
+   image = this->fpr.toString (this->mValue, this->showSign (),
+                               this->getLeadingZeros(), this->getPrecision ());
+
+   image.prepend (" ");
+   return image;
 }
 
 //------------------------------------------------------------------------------
@@ -711,7 +516,7 @@ double QENumericEdit::valueOfImage (const QString & image)
    bool okay;
    double result;
 
-   okay = fixedRadixValue (image.mid (0, this->lengthOfImageValue ()), this->mRadix, result);
+   result = this->fpr.toValue (image.mid (0, this->lengthOfImageValue ()), okay);
 
    if (!okay) {
       result = this->mValue;
@@ -767,33 +572,7 @@ int QENumericEdit::getCursor ()
 //
 bool QENumericEdit::isRadixDigit (QChar qc)
 {
-   bool result;
-   char c = qc.toLatin1 ();
-
-   switch (this->getRadix()) {
-      case Decimal:
-         result = ((c >= '0') && (c <= '9'));
-         break;
-
-      case Hexadecimal:
-         result = ((c >= '0') && (c <= '9')) ||
-                  ((c >= 'A') && (c <= 'F')) ||
-                  ((c >= 'a') && (c <= 'f'));
-         break;
-
-      case Octal:
-         result = ((c >= '0') && (c <= '7'));
-         break;
-
-      case Binary:
-         result = ((c >= '0') && (c <= '1'));
-         break;
-
-      default:
-         result = false;
-         break;
-   }
-   return result;
+   return this->fpr.isRadixDigit (qc);
 }
 
 //------------------------------------------------------------------------------
@@ -965,37 +744,37 @@ bool QENumericEdit::getAddUnits ()
 
 //------------------------------------------------------------------------------
 //
-void QENumericEdit::setRadix (const Radicies value)
+void QENumericEdit::setRadix (const QEFixedPointRadix::Radicies value)
 {
-   if (this->mRadix != value) {
-      this->mRadix = value;
+   if (this->fpr.getRadix () != value) {
+      this->fpr.setRadix (value);
       this->setNumericText ();      // Redisplay text.
-      this->updateToolTipCustom ( custom_tips [this->mRadix] );
+      this->updateToolTipCustom ( custom_tips [this->getRadix ()] );
    }
 }
 
 //------------------------------------------------------------------------------
 //
-QENumericEdit::Radicies QENumericEdit::getRadix ()
+QEFixedPointRadix::Radicies QENumericEdit::getRadix ()
 {
-   return this->mRadix;
+   return this->fpr.getRadix ();
 }
 
 //------------------------------------------------------------------------------
 //
-void QENumericEdit::setSeparator (const Separators value)
+void QENumericEdit::setSeparator (const QEFixedPointRadix::Separators value)
 {
-   if (this->mSeparator != value) {
-      this->mSeparator = value;
+   if (this->fpr.getSeparator () != value) {
+      this->fpr.setSeparator (value);
       this->setNumericText ();      // Redisplay text.
    }
 }
 
 //------------------------------------------------------------------------------
 //
-QENumericEdit::Separators QENumericEdit::getSeparator ()
+QEFixedPointRadix::Separators QENumericEdit::getSeparator ()
 {
-   return this->mSeparator;
+   return this->fpr.getSeparator ();
 }
 
 
@@ -1072,11 +851,11 @@ void QENumericEdit::rationalise (const enum Priority priority,
 
    // Re-caluclate the min/max values and constrain values if needs be.
    //
-   minimumInOut = MAX (minimumInOut, calcLower (this->getRadix (), leadingZerosInOut, precisionInOut));
-   maximumInOut = MIN (maximumInOut, calcUpper (this->getRadix (), leadingZerosInOut, precisionInOut));
+   minimumInOut = MAX (minimumInOut, this->calcLower ());
+   maximumInOut = MIN (maximumInOut, this->calcUpper ());
 }
 
-\
+
 //==============================================================================
 // Set widget to the given value
 //
