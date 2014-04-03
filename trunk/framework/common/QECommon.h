@@ -92,11 +92,11 @@ public:
 
     // Same colour, just darker - good for edges.
     //
-    QColor darkColour (const QColor& lightColour);
+    static QColor darkColour (const QColor& lightColour);
 
     // Same colour, just washed-out/greyed-out - good for diabled widgets.
     //
-    QColor blandColour (const QColor& vibrantColour);
+    static QColor blandColour (const QColor& vibrantColour);
 
     /// Rounds a float to the nearest integer. Not all compilers support lround.
     /// If x outside of integer range, the result is set to the min or max allowed

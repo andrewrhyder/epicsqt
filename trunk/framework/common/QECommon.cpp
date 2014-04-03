@@ -99,9 +99,9 @@ QColor QEUtilities::darkColour (const QColor& lightColour)
 
    lightColour.getHsl (&h, &s, &l, &a);
 
-   // 50% lightness
+   // 33.3% lightness
    //
-   l = l / 2;
+   l = (2*l) / 3;
 
    result.setHsl (h, s, l, a);
    return result;
