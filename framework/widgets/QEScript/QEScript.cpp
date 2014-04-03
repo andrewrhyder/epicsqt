@@ -46,6 +46,12 @@ QEScript::QEScript(QWidget *pParent):QWidget(pParent), QEWidget( this )
     qPushButtonSave = new QPushButton(this);
     qPushButtonDelete = new QPushButton(this);
     qPushButtonExecute = new QPushButton(this);
+    qPushButtonAdd = new QPushButton(this);
+    qPushButtonRemove = new QPushButton(this);
+    qPushButtonUp = new QPushButton(this);
+    qPushButtonDown = new QPushButton(this);
+    qPushButtonCopy = new QPushButton(this);
+    qPushButtonPaste = new QPushButton(this);
     qTableWidgetScript = new _QTableWidgetScript(this);
 
 
@@ -66,17 +72,43 @@ QEScript::QEScript(QWidget *pParent):QWidget(pParent), QEWidget( this )
     QObject::connect(qPushButtonDelete, SIGNAL(clicked()), this, SLOT(buttonDeleteClicked()));
 
     qPushButtonExecute->setText("Execute");
-    qPushButtonExecute->setToolTip("Execute selected script");
+    qPushButtonExecute->setToolTip("Execute");
     QObject::connect(qPushButtonExecute, SIGNAL(clicked()), this, SLOT(buttonExecuteClicked()));
 
-    qTableWidgetScript->setColumnCount(6);
+
+    qPushButtonAdd->setText("Add");
+    qPushButtonAdd->setToolTip("Add row");
+    //QObject::connect(qPushButtonAdd, SIGNAL(clicked()), this, SLOT(buttonAddClicked()));
+
+    qPushButtonRemove->setText("Remove");
+    qPushButtonRemove->setToolTip("Remove selected row(s)");
+    //QObject::connect(qPushButtonRemove, SIGNAL(clicked()), this, SLOT(buttonRemoveClicked()));
+
+    qPushButtonUp->setText("Up");
+    qPushButtonUp->setToolTip("Move selected row up");
+    //QObject::connect(qPushButtonUp, SIGNAL(clicked()), this, SLOT(buttonUpClicked()));
+
+    qPushButtonDown->setText("Down");
+    qPushButtonDown->setToolTip("Move selected row down");
+    //QObject::connect(qPushButtonDown, SIGNAL(clicked()), this, SLOT(buttonDownClicked()));
+
+    qPushButtonCopy->setText("Copy");
+    qPushButtonCopy->setToolTip("Copy select row(s)");
+    //QObject::connect(qPushButtonCopy, SIGNAL(clicked()), this, SLOT(buttonCopyClicked()));
+
+    qPushButtonPaste->setText("Paste");
+    qPushButtonPaste->setToolTip("Paste row(s)");
+    //QObject::connect(qPushButtonPaste, SIGNAL(clicked()), this, SLOT(buttonPasteClicked()));
+
+    qTableWidgetScript->setColumnCount(7);
     qTableWidgetScript->setHorizontalHeaderItem(0, new QTableWidgetItem("#"));
-    qTableWidgetScript->setHorizontalHeaderItem(1, new QTableWidgetItem("Process"));
-    qTableWidgetScript->setHorizontalHeaderItem(2, new QTableWidgetItem("Parameter"));
-    qTableWidgetScript->setHorizontalHeaderItem(3, new QTableWidgetItem("Timeout"));
-    qTableWidgetScript->setHorizontalHeaderItem(4, new QTableWidgetItem("Stop"));
-    qTableWidgetScript->setHorizontalHeaderItem(5, new QTableWidgetItem("Log"));
-    qTableWidgetScript->setToolTip("Files contained in the specified directory");
+    qTableWidgetScript->setHorizontalHeaderItem(1, new QTableWidgetItem("Enable"));
+    qTableWidgetScript->setHorizontalHeaderItem(2, new QTableWidgetItem("Program"));
+    qTableWidgetScript->setHorizontalHeaderItem(3, new QTableWidgetItem("Parameter"));
+    qTableWidgetScript->setHorizontalHeaderItem(4, new QTableWidgetItem("Timeout"));
+    qTableWidgetScript->setHorizontalHeaderItem(5, new QTableWidgetItem("Stop"));
+    qTableWidgetScript->setHorizontalHeaderItem(6, new QTableWidgetItem("Log"));
+    qTableWidgetScript->setToolTip("List of programs to execute");
     qTableWidgetScript->setEditTriggers(QAbstractItemView::NoEditTriggers);
     qTableWidgetScript->setSelectionBehavior(QAbstractItemView::SelectRows);
     qTableWidgetScript->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -86,7 +118,7 @@ QEScript::QEScript(QWidget *pParent):QWidget(pParent), QEWidget( this )
     QObject::connect(qTableWidgetScript, SIGNAL(itemActivated(QTableWidgetItem *)), this, SLOT(itemActivated(QTableWidgetItem *)));
 
     setShowScriptList(true);
-    setDetailsLayout(TOP);
+    setOptionsLayout(TOP);
 
 }
 
@@ -186,60 +218,44 @@ bool QEScript::getShowExecute()
 
 
 
-void QEScript::setShowColumnTime(bool pValue)
+void QEScript::setShowTable(bool pValue)
 {
 
-    qTableWidgetScript->setColumnHidden(0, pValue == false);
-    qTableWidgetScript->refreshSize();
+    qTableWidgetScript->setVisible(pValue);
 
 }
 
 
 
-bool QEScript::getShowColumnTime()
+bool QEScript::getShowTable()
 {
 
-    return (qTableWidgetScript->isColumnHidden(0) == false);
+    return qTableWidgetScript->isVisible();
 
 }
 
 
 
-void QEScript::setShowColumnSize(bool pValue)
+void QEScript::setShowTableControl(bool pValue)
 {
 
-    qTableWidgetScript->setColumnHidden(1, pValue == false);
-    qTableWidgetScript->refreshSize();
+    qPushButtonAdd->setVisible(pValue);
+    qPushButtonRemove->setVisible(pValue);
+    qPushButtonUp->setVisible(pValue);
+    qPushButtonDown->setVisible(pValue);
+    qPushButtonCopy->setVisible(pValue);
+    qPushButtonPaste->setVisible(pValue);
 
 }
 
 
 
-bool QEScript::getShowColumnSize()
+bool QEScript::getShowTableControl()
 {
 
-    return (qTableWidgetScript->isColumnHidden(1) == false);
+    return (qPushButtonAdd->isVisible());
 
 }
-
-
-void QEScript::setShowColumnFilename(bool pValue)
-{
-
-    qTableWidgetScript->setColumnHidden(2, pValue == false);
-    qTableWidgetScript->refreshSize();
-
-}
-
-
-
-bool QEScript::getShowColumnFilename()
-{
-
-    return (qTableWidgetScript->isColumnHidden(2) == false);
-
-}
-
 
 
 
@@ -305,20 +321,38 @@ QString QEScript::getScriptFile()
 
 
 
+void QEScript::setExecuteText(QString pValue)
+{
 
-void QEScript::setDetailsLayout(int pValue)
+    qPushButtonExecute->setText(pValue);
+
+}
+
+
+
+
+QString QEScript::getExecuteText()
+{
+
+    return qPushButtonExecute->text();
+
+}
+
+
+
+
+void QEScript::setOptionsLayout(int pValue)
 {
 
     QLayout *qLayoutMain;
     QLayout *qLayoutChild;
-
 
     delete layout();
 
     switch(pValue)
     {
         case TOP:
-            detailsLayout = TOP;
+            optionsLayout = TOP;
             qLayoutMain = new QVBoxLayout(this);
             qLayoutChild = new QHBoxLayout();
             qLayoutChild->addWidget(qComboBoxScriptList);
@@ -326,12 +360,20 @@ void QEScript::setDetailsLayout(int pValue)
             qLayoutChild->addWidget(qPushButtonSave);
             qLayoutChild->addWidget(qPushButtonDelete);
             qLayoutChild->addWidget(qPushButtonExecute);
+            qLayoutMain->addItem(qLayoutChild);
+            qLayoutChild = new QHBoxLayout();
+            qLayoutChild->addWidget(qPushButtonAdd);
+            qLayoutChild->addWidget(qPushButtonRemove);
+            qLayoutChild->addWidget(qPushButtonUp);
+            qLayoutChild->addWidget(qPushButtonDown);
+            qLayoutChild->addWidget(qPushButtonCopy);
+            qLayoutChild->addWidget(qPushButtonPaste);
             qLayoutMain->addItem(qLayoutChild);
             qLayoutMain->addWidget(qTableWidgetScript);
             break;
 
         case BOTTOM:
-            detailsLayout = BOTTOM;
+            optionsLayout = BOTTOM;
             qLayoutMain = new QVBoxLayout(this);
             qLayoutMain->addWidget(qTableWidgetScript);
             qLayoutChild = new QHBoxLayout();
@@ -341,10 +383,18 @@ void QEScript::setDetailsLayout(int pValue)
             qLayoutChild->addWidget(qPushButtonDelete);
             qLayoutChild->addWidget(qPushButtonExecute);
             qLayoutMain->addItem(qLayoutChild);
+            qLayoutChild = new QHBoxLayout();
+            qLayoutChild->addWidget(qPushButtonAdd);
+            qLayoutChild->addWidget(qPushButtonRemove);
+            qLayoutChild->addWidget(qPushButtonUp);
+            qLayoutChild->addWidget(qPushButtonDown);
+            qLayoutChild->addWidget(qPushButtonCopy);
+            qLayoutChild->addWidget(qPushButtonPaste);
+            qLayoutMain->addItem(qLayoutChild);
             break;
 
         case LEFT:
-            detailsLayout = LEFT;
+            optionsLayout = LEFT;
             qLayoutMain = new QHBoxLayout(this);
             qLayoutChild = new QVBoxLayout();
             qLayoutChild->addWidget(qComboBoxScriptList);
@@ -352,12 +402,18 @@ void QEScript::setDetailsLayout(int pValue)
             qLayoutChild->addWidget(qPushButtonSave);
             qLayoutChild->addWidget(qPushButtonDelete);
             qLayoutChild->addWidget(qPushButtonExecute);
+            qLayoutChild->addWidget(qPushButtonAdd);
+            qLayoutChild->addWidget(qPushButtonRemove);
+            qLayoutChild->addWidget(qPushButtonUp);
+            qLayoutChild->addWidget(qPushButtonDown);
+            qLayoutChild->addWidget(qPushButtonCopy);
+            qLayoutChild->addWidget(qPushButtonPaste);
             qLayoutMain->addItem(qLayoutChild);
             qLayoutMain->addWidget(qTableWidgetScript);
             break;
 
         case RIGHT:
-            detailsLayout = RIGHT;
+            optionsLayout = RIGHT;
             qLayoutMain = new QHBoxLayout(this);
             qLayoutChild = new QVBoxLayout();
             qLayoutChild->addWidget(qComboBoxScriptList);
@@ -365,7 +421,13 @@ void QEScript::setDetailsLayout(int pValue)
             qLayoutChild->addWidget(qPushButtonSave);
             qLayoutChild->addWidget(qPushButtonDelete);
             qLayoutChild->addWidget(qPushButtonExecute);
-            qLayoutMain->addWidget(qTableWidgetScript);
+            qLayoutChild->addWidget(qPushButtonAdd);
+            qLayoutChild->addWidget(qPushButtonRemove);
+            qLayoutChild->addWidget(qPushButtonUp);
+            qLayoutChild->addWidget(qPushButtonDown);
+            qLayoutChild->addWidget(qPushButtonCopy);
+            qLayoutChild->addWidget(qPushButtonPaste);
+            qLayoutMain->addWidget(qTableWidgetScript);            
             qLayoutMain->addItem(qLayoutChild);
     }
 
@@ -373,10 +435,10 @@ void QEScript::setDetailsLayout(int pValue)
 
 
 
-int QEScript::getDetailsLayout()
+int QEScript::getOptionsLayout()
 {
 
-    return detailsLayout;
+    return optionsLayout;
 
 }
 
@@ -1051,6 +1113,4 @@ void _QTableWidgetScript::resizeEvent(QResizeEvent *)
     }
 
 }
-
-
 

@@ -87,9 +87,15 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
         QPushButton *qPushButtonSave;
         QPushButton *qPushButtonDelete;
         QPushButton *qPushButtonExecute;
+        QPushButton *qPushButtonAdd;
+        QPushButton *qPushButtonRemove;
+        QPushButton *qPushButtonUp;
+        QPushButton *qPushButtonDown;
+        QPushButton *qPushButtonCopy;
+        QPushButton *qPushButtonPaste;
         _QTableWidgetScript *qTableWidgetScript;
         QString scriptFile;
-        int detailsLayout;
+        int optionsLayout;
         QDomDocument document;
         QString filename;
 
@@ -115,20 +121,21 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
         void setShowExecute(bool pValue);
         bool getShowExecute();
 
-        void setShowColumnTime(bool pValue);
-        bool getShowColumnTime();
+        void setShowTable(bool pValue);
+        bool getShowTable();
 
-        void setShowColumnSize(bool pValue);
-        bool getShowColumnSize();
-
-        void setShowColumnFilename(bool pValue);
-        bool getShowColumnFilename();
+        void setShowTableControl(bool pValue);
+        bool getShowTableControl();
 
         void setScriptFile(QString pValue);
         QString getScriptFile();
 
-        void setDetailsLayout(int pValue);
-        int getDetailsLayout();
+        void setExecuteText(QString pValue);
+        QString getExecuteText();
+
+
+        void setOptionsLayout(int pValue);
+        int getOptionsLayout();
 
 
         void refreshScriptList();
@@ -149,19 +156,18 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
 
         Q_PROPERTY(bool showExecute READ getShowExecute WRITE setShowExecute)
 
+        Q_PROPERTY(bool showTable READ getShowTable WRITE setShowTable)
 
-        Q_PROPERTY(bool showColumnTime READ getShowColumnTime WRITE setShowColumnTime)
-
-        Q_PROPERTY(bool showColumnSize READ getShowColumnSize WRITE setShowColumnSize)
-
-        Q_PROPERTY(bool showColumnFilename READ getShowColumnFilename WRITE setShowColumnFilename)
+        Q_PROPERTY(bool showTableControl READ getShowTableControl WRITE setShowTableControl)
 
         Q_PROPERTY(QString scriptFile READ getScriptFile WRITE setScriptFile)
 
+        Q_PROPERTY(QString executeText READ getExecuteText WRITE setExecuteText)
 
-        Q_ENUMS(detailsLayoutProperty)
-        Q_PROPERTY(detailsLayoutProperty detailsLayout READ getDetailsLayoutProperty WRITE setDetailsLayoutProperty)
-        enum detailsLayoutProperty
+
+        Q_ENUMS(optionsLayoutProperty)
+        Q_PROPERTY(optionsLayoutProperty optionsLayout READ getOptionsLayoutProperty WRITE setOptionsLayoutProperty)
+        enum optionsLayoutProperty
         {
             Top = TOP,
             Bottom = BOTTOM,
@@ -169,13 +175,13 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
             Right = RIGHT
         };        
 
-        void setDetailsLayoutProperty(detailsLayoutProperty pDetailsLayout)
+        void setOptionsLayoutProperty(optionsLayoutProperty pDetailsLayout)
         {
-            setDetailsLayout((detailsLayoutProperty) pDetailsLayout);
+            setOptionsLayout((optionsLayoutProperty) pDetailsLayout);
         }
-        detailsLayoutProperty getDetailsLayoutProperty()
+        optionsLayoutProperty getOptionsLayoutProperty()
         {
-            return (detailsLayoutProperty) getDetailsLayout();
+            return (optionsLayoutProperty) getOptionsLayout();
         }
 
 
