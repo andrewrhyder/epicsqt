@@ -23,16 +23,17 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-#ifndef QESIMPLESHAPE_H
-#define QESIMPLESHAPE_H
+#ifndef QE_SIMPLE_SHAPE_H
+#define QE_SIMPLE_SHAPE_H
 
 #include <QString>
 #include <QVector>
+
 #include <QCaObject.h>
-#include <QEWidget.h>
+#include <QCaVariableNamePropertyManager.h>
+#include <QEFrame.h>
 #include <QEInteger.h>
 #include <QEIntegerFormatting.h>
-#include <QCaVariableNamePropertyManager.h>
 #include <QEPluginLibrary_global.h>
 #include <QEStringFormattingMethods.h>
 
@@ -44,7 +45,7 @@
   When the displayAlarmState property is true, the colour is based on the alarm state, i.e. green when no alarm, yellow for minor alarm etc.
 */
 class QEPLUGINLIBRARYSHARED_EXPORT QESimpleShape :
-      public QWidget, public QEWidget, public QEStringFormattingMethods  {
+      public QEFrame, public QEStringFormattingMethods  {
 
 Q_OBJECT
     // BEGIN-SINGLE-VARIABLE-PROPERTIES ===============================================
@@ -74,90 +75,6 @@ private:
 public:
     // END-SINGLE-VARIABLE-PROPERTIES =================================================
 
-    // BEGIN-STANDARD-PROPERTIES ======================================================
-    // Standard properties
-    // These properties should be identical for every widget using them.
-    // WHEN MAKING CHANGES: Use the update_widget_properties script in the
-    // resources directory.
-public:
-    /// Use the variable as the tool tip. Default is true. Tool tip property will be overwritten by the variable name.
-    ///
-    Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
-
-    /// Allow drag/drops operations to this widget. Default is false. Any dropped text will be used as a new variable name.
-    ///
-    Q_PROPERTY(bool allowDrop READ getAllowDrop WRITE setAllowDrop)
-
-    /// Display the widget. Default is true.
-    /// Setting this property false is usefull if widget is only used to provide a signal - for example, when supplying data to a QELink widget.
-    /// Note, when false the widget will still be visible in Qt Designer.
-    Q_PROPERTY(bool visible READ getRunVisible WRITE setRunVisible)
-
-    /// Set the ID used by the message filtering system. Default is zero.
-    /// Widgets or applications that use messages from the framework have the option of filtering on this ID.
-    /// For example, by using a unique message source ID a QELog widget may be set up to only log messages from a select set of widgets.
-    Q_PROPERTY(unsigned int messageSourceId READ getMessageSourceId WRITE setMessageSourceId )
-
-    /// Style Sheet string to be applied when the widget is displayed in 'User' mode. Default is an empty string.
-    /// The syntax is the standard Qt Style Sheet syntax. For example, 'background-color: red'
-    /// This Style Sheet string will be applied by the styleManager class.
-    /// Refer to the styleManager class for details about how this Style Sheet string will be merged with any pre-existing Style Sheet string
-    /// and any Style Sheet strings generated during the display of data.
-    Q_PROPERTY(QString userLevelUserStyle READ getStyleUser WRITE setStyleUser)
-
-    /// Style Sheet string to be applied when the widget is displayed in 'Scientist' mode. Default is an empty string.
-    /// The syntax is the standard Qt Style Sheet syntax. For example, 'background-color: red'
-    /// This Style Sheet string will be applied by the styleManager class.
-    /// Refer to the styleManager class for details about how this Style Sheet string will be merged with any pre-existing Style Sheet string
-    /// and any Style Sheet strings generated during the display of data.
-    Q_PROPERTY(QString userLevelScientistStyle READ getStyleScientist WRITE setStyleScientist)
-
-    /// Style Sheet string to be applied when the widget is displayed in 'Engineer' mode. Default is an empty string.
-    /// The syntax is the standard Qt Style Sheet syntax. For example, 'background-color: red'
-    /// This Style Sheet string will be applied by the styleManager class.
-    /// Refer to the styleManager class for details about how this Style Sheet string will be merged with any pre-existing Style Sheet string
-    /// and any Style Sheet strings generated during the display of data.
-    Q_PROPERTY(QString userLevelEngineerStyle READ getStyleEngineer WRITE setStyleEngineer)
-
-    /// \enum UserLevels
-    /// User friendly enumerations for #userLevelVisibility and #userLevelEnabled properties - refer to #userLevelVisibility and #userLevelEnabled properties and userLevel enumeration for details.
-    enum UserLevels { User      = userLevelTypes::USERLEVEL_USER,          ///< Refer to USERLEVEL_USER for details
-                      Scientist = userLevelTypes::USERLEVEL_SCIENTIST,     ///< Refer to USERLEVEL_SCIENTIST for details
-                      Engineer  = userLevelTypes::USERLEVEL_ENGINEER       ///< Refer to USERLEVEL_ENGINEER for details
-                              };
-    Q_ENUMS(UserLevels)
-
-    /// Lowest user level at which the widget is visible. Default is 'User'.
-    /// Used when designing GUIs that display more and more detail according to the user mode.
-    /// The user mode is set application wide through the QELogin widget, or programatically through setUserLevel()
-    /// Widgets that are always visible should be visible at 'User'.
-    /// Widgets that are only used by scientists managing the facility should be visible at 'Scientist'.
-    /// Widgets that are only used by engineers maintaining the facility should be visible at 'Engineer'.
-    Q_PROPERTY(UserLevels userLevelVisibility READ getUserLevelVisibilityProperty WRITE setUserLevelVisibilityProperty)
-
-    /// Lowest user level at which the widget is enabled. Default is 'User'.
-    /// Used when designing GUIs that allow access to more and more detail according to the user mode.
-    /// The user mode is set application wide through the QELogin widget, or programatically through setUserLevel()
-    /// Widgets that are always accessable should be visible at 'User'.
-    /// Widgets that are only accessable to scientists managing the facility should be visible at 'Scientist'.
-    /// Widgets that are only accessable to engineers maintaining the facility should be visible at 'Engineer'.
-    Q_PROPERTY(UserLevels userLevelEnabled READ getUserLevelEnabledProperty WRITE setUserLevelEnabledProperty)
-
-    UserLevels getUserLevelVisibilityProperty() { return (UserLevels)getUserLevelVisibility(); }            ///< Access function for #userLevelVisibility property - refer to #userLevelVisibility property for details
-    void setUserLevelVisibilityProperty( UserLevels level ) { setUserLevelVisibility( (userLevelTypes::userLevels)level ); }///< Access function for #userLevelVisibility property - refer to #userLevelVisibility property for details
-    UserLevels getUserLevelEnabledProperty() { return (UserLevels)getUserLevelEnabled(); }                  ///< Access function for #userLevelEnabled property - refer to #userLevelEnabled property for details
-    void setUserLevelEnabledProperty( UserLevels level ) { setUserLevelEnabled( (userLevelTypes::userLevels)level ); }      ///< Access function for #userLevelEnabled property - refer to #userLevelEnabled property for details
-
-    /// If set (default) widget will indicate the alarm state of any variable data is displaying.
-    /// Typically the background colour is set to indicate the alarm state.
-    /// Note, this property is included in the set of standard properties as it applies to most widgets. It
-    /// will do nothing for widgets that don't display data.
-    Q_PROPERTY(bool displayAlarmState READ getDisplayAlarmState WRITE setDisplayAlarmState)
-
-public:
-    // END-STANDARD-PROPERTIES ========================================================
-
-
     // QESimpleShape specific properties ==============================================
     //
 public:
@@ -174,7 +91,7 @@ public:
     Q_PROPERTY (Shapes shape READ getShape WRITE setShape)
 
     void setShape (Shapes value);   ///< Access function for #shape property - refer to #Shapes  property for details
-    Shapes getShape ();             ///< Access function for #shape property - refer to #Shapes  property for details
+    Shapes getShape () const;       ///< Access function for #shape property - refer to #Shapes  property for details
 
 
     //----------------------------------------------------------------------------------
@@ -189,7 +106,7 @@ public:
     Q_PROPERTY (TextFormats format READ getTextFormat WRITE setTextFormat)
 
     void setTextFormat (TextFormats value);   ///< Access function for #textMode property - refer to #TextFormats  property for details
-    TextFormats getTextFormat ();             ///< Access function for #textMode property - refer to #TextFormats  property for details
+    TextFormats getTextFormat () const;       ///< Access function for #textMode property - refer to #TextFormats  property for details
 
 
     //----------------------------------------------------------------------------------
@@ -197,7 +114,7 @@ public:
     Q_PROPERTY (QString fixedText READ getFixedText WRITE setFixedText)
 
     void setFixedText (QString value);
-    QString getFixedText ();
+    QString getFixedText () const;
 
 
     //----------------------------------------------------------------------------------
@@ -274,9 +191,9 @@ public:
     // We can define the access functions using a macro.
     // Alas, due to SDK limitation, we cannot embedded the property definition itself in a macro.
     //
-    #define PROPERTY_ACCESS(slot)                                                                              \
+    #define PROPERTY_ACCESS(slot)                                                                          \
        void   setColour##slot##Property (QColor colour) { this->setColourProperty (slot, colour); }        \
-       QColor getColour##slot##Property ()       { return this->getColourProperty (slot); }
+       QColor getColour##slot##Property () const { return this->getColourProperty (slot); }
 
     PROPERTY_ACCESS  (0)
     PROPERTY_ACCESS  (1)
@@ -303,29 +220,29 @@ public:
     /// Create without a variable.
     /// Use setVariableNameProperty() and setSubstitutionsProperty() to define a variable and, optionally, macro substitutions later.
     ///
-    QESimpleShape( QWidget *parent = 0 );
+    QESimpleShape (QWidget *parent = 0);
 
     /// Create with a variable.
     /// A connection is automatically established.
     /// If macro substitutions are required, create without a variable and set the variable and macro substitutions after creation.
     ///
-    QESimpleShape( const QString &variableName, QWidget *parent = 0 );
+    QESimpleShape (const QString &variableName, QWidget *parent = 0);
 
     /// Destruction
-    virtual ~QESimpleShape(){}
+    virtual ~QESimpleShape () {}
 
     /// Extract the stores value.
     ///
-    int getValue ();
+    int getValue () const;
 
     /// Extract the stored value which is PV value modulo 16.
     ///
-    int getModuloValue ();
+    int getModuloValue () const;
 
 protected:
     QEIntegerFormatting integerFormatting;
 
-    void establishConnection( unsigned int variableIndex );
+    void establishConnection (unsigned int variableIndex );
     void stringFormattingChange() { this->update (); }
 
 private:
@@ -355,10 +272,11 @@ private:
     void paintEvent (QPaintEvent *event);
 
     void   setColourProperty (int slot, QColor color);
-    QColor getColourProperty (int slot);
+    QColor getColourProperty (int slot) const;
 
 private slots:
-    void connectionChanged (QCaConnectionInfo& connectionInfo);
+    void connectionChanged (QCaConnectionInfo& connectionInfo,
+                            const unsigned int& variableIndex);
 
     void setShapeValue (const long& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int&);
 
@@ -377,7 +295,7 @@ signals:
     /// Sent when the widget is updated following a data change
     /// Can be used to pass on EPICS data (as presented in this widget) to other widgets.
     /// For example a QList widget could log updates from this widget.
-    void dbValueChanged( const long& out );
+    void dbValueChanged (const long& out);
 
 protected:
     // Drag and Drop
@@ -391,7 +309,6 @@ protected:
     QString copyVariable();
     QVariant copyData();
     void paste( QVariant s );
-
 };
 
-#endif // QESIMPLESHAPE_H
+#endif // QE_SIMPLE_SHAPE_H
