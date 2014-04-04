@@ -78,27 +78,27 @@ QEScript::QEScript(QWidget *pParent):QWidget(pParent), QEWidget( this )
 
     qPushButtonAdd->setText("Add");
     qPushButtonAdd->setToolTip("Add row");
-    //QObject::connect(qPushButtonAdd, SIGNAL(clicked()), this, SLOT(buttonAddClicked()));
+    QObject::connect(qPushButtonAdd, SIGNAL(clicked()), this, SLOT(buttonAddClicked()));
 
     qPushButtonRemove->setText("Remove");
     qPushButtonRemove->setToolTip("Remove selected row(s)");
-    //QObject::connect(qPushButtonRemove, SIGNAL(clicked()), this, SLOT(buttonRemoveClicked()));
+    QObject::connect(qPushButtonRemove, SIGNAL(clicked()), this, SLOT(buttonRemoveClicked()));
 
     qPushButtonUp->setText("Up");
     qPushButtonUp->setToolTip("Move selected row up");
-    //QObject::connect(qPushButtonUp, SIGNAL(clicked()), this, SLOT(buttonUpClicked()));
+    QObject::connect(qPushButtonUp, SIGNAL(clicked()), this, SLOT(buttonUpClicked()));
 
     qPushButtonDown->setText("Down");
     qPushButtonDown->setToolTip("Move selected row down");
-    //QObject::connect(qPushButtonDown, SIGNAL(clicked()), this, SLOT(buttonDownClicked()));
+    QObject::connect(qPushButtonDown, SIGNAL(clicked()), this, SLOT(buttonDownClicked()));
 
     qPushButtonCopy->setText("Copy");
     qPushButtonCopy->setToolTip("Copy select row(s)");
-    //QObject::connect(qPushButtonCopy, SIGNAL(clicked()), this, SLOT(buttonCopyClicked()));
+    QObject::connect(qPushButtonCopy, SIGNAL(clicked()), this, SLOT(buttonCopyClicked()));
 
     qPushButtonPaste->setText("Paste");
     qPushButtonPaste->setToolTip("Paste row(s)");
-    //QObject::connect(qPushButtonPaste, SIGNAL(clicked()), this, SLOT(buttonPasteClicked()));
+    QObject::connect(qPushButtonPaste, SIGNAL(clicked()), this, SLOT(buttonPasteClicked()));
 
     qTableWidgetScript->setColumnCount(7);
     qTableWidgetScript->setHorizontalHeaderItem(0, new QTableWidgetItem("#"));
@@ -119,6 +119,7 @@ QEScript::QEScript(QWidget *pParent):QWidget(pParent), QEWidget( this )
 
     setShowScriptList(true);
     setOptionsLayout(TOP);
+    updateWidgets();
 
 }
 
@@ -798,6 +799,76 @@ void QEScript::buttonExecuteClicked()
 
 
 
+void QEScript::buttonAddClicked()
+{
+
+    QItemSelectionModel *qItemSelectionModel;
+
+    qItemSelectionModel = qTableWidgetScript->selectionModel();
+    if (qItemSelectionModel->selectedRows().count() == 0)
+    {
+        qTableWidgetScript->insertRow(qTableWidgetScript->rowCount());
+    }
+    else
+    {
+        qTableWidgetScript->insertRow(qItemSelectionModel->selectedRows().at(0).row() + 1);
+    }
+    updateWidgets();
+
+}
+
+
+
+void QEScript::buttonRemoveClicked()
+{
+
+    QItemSelectionModel *qItemSelectionModel;
+    int count;
+    int i;
+
+    qItemSelectionModel = qTableWidgetScript->selectionModel();
+    count = qItemSelectionModel->selectedRows().count();
+    for(i = count; i >= 0; i--)
+    {
+        qTableWidgetScript->removeRow(qItemSelectionModel->selectedRows().at(i).row());
+    }
+    updateWidgets();
+
+}
+
+
+
+void QEScript::buttonUpClicked()
+{
+
+}
+
+
+
+void QEScript::buttonDownClicked()
+{
+
+
+}
+
+
+
+void QEScript::buttonCopyClicked()
+{
+
+}
+
+
+
+void QEScript::buttonPasteClicked()
+{
+
+
+}
+
+
+
+
 void QEScript::itemActivated(QTableWidgetItem *)
 {
 
@@ -1015,47 +1086,23 @@ void QEScript::refreshButton()
 
 
 
-void QEScript::updateTable()
+void QEScript::updateWidgets()
 {
 
-    /*
-    QTableWidgetItem *qTableWidgetItem;
-    QDir directory;
-    QFileInfoList fileList;
-    int i;
-    int j;
+    int rowCount;
+    int rowSelectedCount;
 
-    qTableWidgetScript->setRowCount(0);
-    directory.setPath(qlineEditDirectoryPath->text());
-    directory.setFilter(QDir::Files);
-    if (fileFilter.isEmpty() == false)
-    {
-        directory.setNameFilters(fileFilter.split(";"));
-    }
-    fileList = directory.entryInfoList();
+    rowCount = qTableWidgetScript->rowCount();
+    rowSelectedCount = qTableWidgetScript->selectionModel()->selectedRows().count();
 
-    for(i = 0; i < fileList.size(); i++)
-    {
-        j = qTableWidgetScript->rowCount();
-        qTableWidgetScript->insertRow(j);
+    qPushButtonAdd->setEnabled(rowSelectedCount <= 1);
+    qPushButtonRemove->setEnabled(rowSelectedCount > 0);
 
-        qTableWidgetItem = new QTableWidgetItem(fileList.at(i).lastModified().toString("yyyy/MM/dd - hh:mm:ss"));
-        qTableWidgetScript->setItem(j, 0, qTableWidgetItem);
+    qPushButtonUp->setEnabled(rowSelectedCount == 1 && qTableWidgetScript->selectionModel()->selectedRows().at(0).row() > 0);
+    qPushButtonDown->setEnabled(rowSelectedCount == 1 && qTableWidgetScript->selectionModel()->selectedRows().at(0).row() < rowCount);
 
-        qTableWidgetItem = new QTableWidgetItem(QString::number(fileList.at(i).size()) + " bytes");
-        qTableWidgetScript->setItem(j, 1, qTableWidgetItem);
-
-        if (showFileExtension)
-        {
-            qTableWidgetItem = new QTableWidgetItem(fileList.at(i).fileName());
-        }
-        else
-        {
-            qTableWidgetItem = new QTableWidgetItem(fileList.at(i).baseName());
-        }
-        qTableWidgetScript->setItem(j, 2, qTableWidgetItem);
-    }
-    */
+    //qPushButtonCopy->setEnabled(rowSelectedCount > 0);
+    //qPushButtonPaste->setEnabled(rowSelectedCount > 0);
 
 }
 

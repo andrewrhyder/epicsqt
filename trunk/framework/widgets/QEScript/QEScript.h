@@ -143,7 +143,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
         void refreshButton();
 
 
-        void updateTable();
+        void updateWidgets();
 
 
         Q_PROPERTY(bool showScriptList READ getShowScriptList WRITE setShowScriptList)
@@ -284,6 +284,18 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
         void buttonDeleteClicked();
 
         void buttonExecuteClicked();
+
+        void buttonAddClicked();
+
+        void buttonRemoveClicked();
+
+        void buttonUpClicked();
+
+        void buttonDownClicked();
+
+        void buttonCopyClicked();
+
+        void buttonPasteClicked();
 
         void itemActivated(QTableWidgetItem *);
 
