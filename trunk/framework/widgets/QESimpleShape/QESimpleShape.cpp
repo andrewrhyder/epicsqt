@@ -30,47 +30,50 @@
 //-----------------------------------------------------------------------------
 // Constructor with no initialisation
 //
-QESimpleShape::QESimpleShape (QWidget * parent):QWidget (parent), QEWidget (this)
+QESimpleShape::QESimpleShape (QWidget * parent) : QEFrame (parent)
 {
    this->setup ();
 }
-
 
 //-----------------------------------------------------------------------------
 // Constructor with known variable
 //
-QESimpleShape::QESimpleShape (const QString & variableNameIn, QWidget * parent):QWidget (parent), QEWidget (this)
+QESimpleShape::QESimpleShape (const QString & variableNameIn, QWidget * parent) : QEFrame (parent)
 {
    this->setup ();
    this->setVariableName (variableNameIn, 0);
 }
-
 
 //-----------------------------------------------------------------------------
 // Setup common to all constructors
 //
 void QESimpleShape::setup ()
 {
-   int j;
+   // Set default property values
+   // Super class....
+   //
+   this->setFrameShape (QFrame::NoFrame);
+   this->setFrameShadow (QFrame::Plain);
 
-   // Set up data
    // This control uses a single data source
    //
    this->setNumVariables (1);
-
-   this->value = 0;
+   this->setVariableAsToolTip (true);
    this->setDisplayAlarmState (true);
+   this->setAllowDrop (false);
+
+   // This class properties.
+   //
+   this->value = 0;
    this->shape = rectangle;
    this->textFormat = FixedText;
    this->fixedText = "";
    this->textImage = "";
    this->isStaticValue = false;
 
-   for (j = 0; j < 16; j++) {
+   for (int j = 0; j < 16; j++) {
       this->colourList[j] = QColor (200, 200, 200, 255);
    }
-
-   this->setAllowDrop (false);
 
    // Set the initial state
    //
@@ -86,7 +89,6 @@ void QESimpleShape::setup ()
    //
    QObject::connect (&this->variableNamePropertyManager, SIGNAL (newVariableNameProperty    (QString, QString, unsigned int)),
                      this,                               SLOT   (useNewVariableNameProperty (QString, QString, unsigned int)));
-
 }
 
 //-----------------------------------------------------------------------------
@@ -133,7 +135,7 @@ void QESimpleShape::drawText (QPainter & painter, QPoint & textCentre, QString &
 
 //-----------------------------------------------------------------------------
 //
-void QESimpleShape::paintEvent (QPaintEvent * /* event */ )
+void QESimpleShape::paintEvent (QPaintEvent*)
 {
    QPainter painter (this);
    QPen pen;
@@ -141,42 +143,53 @@ void QESimpleShape::paintEvent (QPaintEvent * /* event */ )
    QRect rect;
    QPoint polygon[8];
    QColor colour;
+   QColor boarderColour;
+   bool washedOut = false;
    qcaobject::QCaObject* qca = NULL;
    QString text;
    int x0, x1, x2;
    int y0, y1, y2;
 
+   // Use value to index colour table.
+   //
    if (this->isStaticValue) {
-      // Use value to index colour table.
+      // Static - no alarm, not considered disconnected.
       //
       colour = this->getColourProperty (this->getModuloValue ());
+      washedOut = !this->isEnabled ();
    } else {
-
-      // Associated qca object - test if connected but also avoid the segmentation fault.
-      //
-      qca = this->getQcaItem (0);
-
-      if (qca && this->isConnected) {
-         if (this->getDisplayAlarmState ()) {
-            // Use alarm colour
-            //
+      if (this->getDisplayAlarmState ()) {
+         // Use alarm colour
+         // Associated qca object - test to avoid the segmentation fault.
+         //
+         qca = this->getQcaItem (0);
+         if (qca) {
             QCaAlarmInfo ai = qca->getAlarmInfo ();        // 1st param is & mode - cannot use a function.
             colour = this->getColor (ai, 255);
          } else {
-            // Use value to index colour table.
-            //
-            colour = this->getColourProperty (this->getModuloValue ());
+            colour = QColor (200, 200, 200);               // No alarm state available
          }
-         pen.setColor (QColor (0, 0, 0, 255));   // black
       } else {
-         // Not connected - use washed-out gray.
+         // Use value to index colour table.
          //
-         colour = QColor (220, 220, 220, 255);
-         pen.setColor (QColor (140, 140, 140, 255));
+         colour = this->getColourProperty (this->getModuloValue ());
       }
+      washedOut = !(this->isEnabled () && this->isConnected);
+   }
+
+   // Boarder colour is same colout just a darker colour.
+   //
+   boarderColour = QEUtilities::darkColour (colour);
+
+   if (washedOut) {
+      // Disconnected or disabled - grey out colours.
+      //
+      colour = QEUtilities::blandColour (colour);
+      boarderColour = QEUtilities::blandColour (boarderColour);
    }
 
    pen.setWidth (1);
+   pen.setColor (boarderColour);
    painter.setPen (pen);
 
    brush.setStyle (Qt::SolidPattern);
@@ -383,13 +396,12 @@ void QESimpleShape::paintEvent (QPaintEvent * /* event */ )
       //
       QPoint textCentre (this->width () / 2, this->height () / 2);
 
-      if (qca && this->isConnected) {
+      if (!washedOut) {
          pen.setColor (QEUtilities::fontColour (colour));
       } else {
          pen.setColor (QColor (140, 140, 140, 255));   // gray
       }
       painter.setPen (pen);
-
       this->drawText (painter, textCentre, text);
    }
 }
@@ -416,7 +428,7 @@ void QESimpleShape::useNewVariableNameProperty (QString variableNameIn,
 // Implementation of QEWidget's virtual funtion to create the specific type of QCaObject required.
 // For shape, a QCaObject that streams integers is required.
 //
-qcaobject::QCaObject * QESimpleShape::createQcaItem (unsigned int variableIndex)
+qcaobject::QCaObject* QESimpleShape::createQcaItem (unsigned int variableIndex)
 {
    qcaobject::QCaObject* result = NULL;
    QString pvName;
@@ -470,8 +482,8 @@ void QESimpleShape::establishConnection (unsigned int variableIndex)
       QObject::connect (qca,  SIGNAL (integerArrayChanged (const QVector < long >&, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)),
                         this, SLOT   (setShapeValues      (const QVector < long >&, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)));
 
-      QObject::connect (qca,  SIGNAL (connectionChanged (QCaConnectionInfo &)),
-                        this, SLOT   (connectionChanged (QCaConnectionInfo &)));
+      QObject::connect (qca,  SIGNAL (connectionChanged (QCaConnectionInfo &, const unsigned int &)),
+                        this, SLOT   (connectionChanged (QCaConnectionInfo &, const unsigned int &)));
    }
 }
 
@@ -481,17 +493,19 @@ void QESimpleShape::establishConnection (unsigned int variableIndex)
 // Change how the s looks and change the tool tip
 // This is the slot used to recieve connection updates from a QCaObject based class.
 //
-void QESimpleShape::connectionChanged (QCaConnectionInfo & connectionInfo)
+void QESimpleShape::connectionChanged (QCaConnectionInfo& connectionInfo,
+                                       const unsigned int& variableIndex)
 {
    // Note the connected state
-   isConnected = connectionInfo.isChannelConnected();
+   this->isConnected = connectionInfo.isChannelConnected ();
 
    // Display the connected state
-   updateToolTipConnection( isConnected );
-   updateConnectionStyle( isConnected );
+   updateToolTipConnection (this->isConnected, variableIndex);
+
+   // Widget is self draw - styleShheet not applicable per se.
+   // No need to call updateConnectionStyle( isConnected );
 
    this->isFirstUpdate = true;  // more trob. than it's worth to check if connect or disconnect.
-
    this->update ();
 }
 
@@ -500,9 +514,10 @@ void QESimpleShape::connectionChanged (QCaConnectionInfo & connectionInfo)
 // Update the shape value
 // This is the slot used to recieve data updates from a QCaObject based class.
 //
-void QESimpleShape::setShapeValue (const long &valueIn, QCaAlarmInfo & alarmInfo, QCaDateTime &, const unsigned int &)
+void QESimpleShape::setShapeValue (const long &valueIn, QCaAlarmInfo & alarmInfo,
+                                   QCaDateTime &, const unsigned int& variableIndex)
 {
-   qcaobject::QCaObject * qca;
+   qcaobject::QCaObject* qca;
 
    // Associated qca object - avoid the segmentation fault.
    //
@@ -531,7 +546,7 @@ void QESimpleShape::setShapeValue (const long &valueIn, QCaAlarmInfo & alarmInfo
    // Invoke common alarm handling processing.
    // Although this sets widget style, we invoke for tool tip processing only.
    //
-   this->processAlarmInfo (alarmInfo);
+   this->processAlarmInfo (alarmInfo, variableIndex);
 
    // This update is over, clear first update flag.
    //
@@ -581,14 +596,14 @@ void QESimpleShape::setShapeValues (const QVector<long> & values,
 
 //------------------------------------------------------------------------------
 //
-int QESimpleShape::getValue ()
+int QESimpleShape::getValue () const
 {
    return this->value;
 }
 
 //------------------------------------------------------------------------------
 //
-int QESimpleShape::getModuloValue ()
+int QESimpleShape::getModuloValue () const
 {
    return this->value & 0x0F;
 }
@@ -605,7 +620,7 @@ void QESimpleShape::setShape (Shapes shapeIn)
 
 //------------------------------------------------------------------------------
 //
-QESimpleShape::Shapes QESimpleShape::getShape ()
+QESimpleShape::Shapes QESimpleShape::getShape () const
 {
    return this->shape;
 }
@@ -645,7 +660,7 @@ void QESimpleShape::setTextFormat (TextFormats value)
 
 //------------------------------------------------------------------------------
 //
-QESimpleShape::TextFormats QESimpleShape::getTextFormat ()
+QESimpleShape::TextFormats QESimpleShape::getTextFormat () const
 {
    return this->textFormat;
 }
@@ -665,7 +680,7 @@ void QESimpleShape::setFixedText (QString value)
 
 //------------------------------------------------------------------------------
 //
-QString QESimpleShape::getFixedText ()
+QString QESimpleShape::getFixedText () const
 {
    return this->fixedText;
 }
@@ -686,7 +701,7 @@ void QESimpleShape::setColourProperty (int slot, QColor colour)
 
 //------------------------------------------------------------------------------
 //
-QColor QESimpleShape::getColourProperty (int slot)
+QColor QESimpleShape::getColourProperty (int slot) const
 {
    QColor result;
 
@@ -703,8 +718,8 @@ QColor QESimpleShape::getColourProperty (int slot)
 //
 void QESimpleShape::setDrop (QVariant drop)
 {
-   setVariableName (drop.toString (), 0);
-   establishConnection (0);
+   this->setVariableName (drop.toString (), 0);
+   this->establishConnection (0);
 }
 
 //------------------------------------------------------------------------------
@@ -712,9 +727,9 @@ void QESimpleShape::setDrop (QVariant drop)
 QVariant QESimpleShape::getDrop ()
 {
    if( isDraggingVariable() )
-      return QVariant( copyVariable() );
+      return QVariant( this->copyVariable() );
    else
-      return copyData();
+      return this->copyData();
 }
 
 //==============================================================================
