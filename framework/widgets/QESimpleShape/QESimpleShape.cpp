@@ -158,19 +158,25 @@ void QESimpleShape::paintEvent (QPaintEvent*)
       colour = this->getColourProperty (this->getModuloValue ());
       washedOut = !this->isEnabled ();
    } else {
+      // Variable driven.
+      //
       if (this->getDisplayAlarmState ()) {
          // Use alarm colour
          // Associated qca object - test to avoid the segmentation fault.
+         // and test variable is connected.
          //
          qca = this->getQcaItem (0);
-         if (qca) {
-            QCaAlarmInfo ai = qca->getAlarmInfo ();        // 1st param is & mode - cannot use a function.
+         if (qca && this->isConnected) {
+            QCaAlarmInfo ai = qca->getAlarmInfo ();   // 1st param is & mode - cannot use a function.
             colour = this->getColor (ai, 255);
          } else {
-            colour = QColor (200, 200, 200);               // No alarm state available
+            // No channel or disconnected, no alarm state available go with grey.
+            //
+            colour = QColor (200, 200, 200);
          }
       } else {
          // Use value to index colour table.
+         // If disconnected we use last know value.
          //
          colour = this->getColourProperty (this->getModuloValue ());
       }
@@ -544,7 +550,7 @@ void QESimpleShape::setShapeValue (const long &valueIn, QCaAlarmInfo & alarmInfo
    emit dbValueChanged (value);
 
    // Invoke common alarm handling processing.
-   // Although this sets widget style, we invoke for tool tip processing only.
+   // Although this sets widget style, we invoke it for tool tip processing only.
    //
    this->processAlarmInfo (alarmInfo, variableIndex);
 
