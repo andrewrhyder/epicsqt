@@ -69,6 +69,49 @@ class _QTableWidgetScript:public QTableWidget
 
 
 
+// ============================================================
+//  _QCOPYPASTE CLASS
+// ============================================================
+class _CopyPaste
+{
+
+    private:
+        QString number;
+        QString enable;
+        QString program;
+        QString parameters;
+        QString timeOut;
+        QString stop;
+        QString log;
+
+    public:
+        _CopyPaste(QString pNumber, QString pEnable, QString pProgram, QString pParameters, QString pTimeOut, QString pStop, QString pLog);
+
+        void setNumber(QString pNumber);
+        QString getNumber();
+
+        void setEnable(QString pEnable);
+        QString getEnable();
+
+        void setProgram(QString pProgram);
+        QString getProgram();
+
+        void setParameters(QString pParameters);
+        QString getParameters();
+
+        void setTimeOut(QString pTimeOut);
+        QString getTimeOut();
+
+        void setStop(QString pStop);
+        QString getStop();
+
+        void setLog(QString pLog);
+        QString getLog();
+
+};
+
+
+
 
 // ============================================================
 //  QESCRIPT METHODS
@@ -98,6 +141,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
         int optionsLayout;
         QDomDocument document;
         QString filename;
+        QList<_CopyPaste> copyPaste;
 
 
     public:
@@ -127,6 +171,27 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
         void setShowTableControl(bool pValue);
         bool getShowTableControl();
 
+        void setShowColumnNumber(bool pValue);
+        bool getShowColumnNumber();
+
+        void setShowColumnEnable(bool pValue);
+        bool getShowColumnEnable();
+
+        void setShowColumnProgram(bool pValue);
+        bool getShowColumnProgram();
+
+        void setShowColumnParameters(bool pValue);
+        bool getShowColumnParameters();
+
+        void setShowColumnTimeOut(bool pValue);
+        bool getShowColumnTimeOut();
+
+        void setShowColumnStop(bool pValue);
+        bool getShowColumnStop();
+
+        void setShowColumnLog(bool pValue);
+        bool getShowColumnLog();
+
         void setScriptFile(QString pValue);
         QString getScriptFile();
 
@@ -139,9 +204,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
 
 
         void refreshScriptList();
-
-        void refreshButton();
-
 
         void updateWidgets();
 
@@ -159,6 +221,20 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
         Q_PROPERTY(bool showTable READ getShowTable WRITE setShowTable)
 
         Q_PROPERTY(bool showTableControl READ getShowTableControl WRITE setShowTableControl)
+
+        Q_PROPERTY(bool showColumnNumber READ getShowColumnNumber WRITE setShowColumnNumber)
+
+        Q_PROPERTY(bool showColumnEnable READ getShowColumnEnable WRITE setShowColumnEnable)
+
+        Q_PROPERTY(bool showColumnProgram READ getShowColumnProgram WRITE setShowColumnProgram)
+
+        Q_PROPERTY(bool showColumnParameters READ getShowColumnParameters WRITE setShowColumnParameters)
+
+        Q_PROPERTY(bool showColumnTimeOut READ getShowColumnTimeOut WRITE setShowColumnTimeOut)
+
+        Q_PROPERTY(bool showColumnStop READ getShowColumnStop WRITE setShowColumnStop)
+
+        Q_PROPERTY(bool showColumnLog READ getShowColumnLog WRITE setShowColumnLog)
 
         Q_PROPERTY(QString scriptFile READ getScriptFile WRITE setScriptFile)
 
@@ -296,6 +372,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
         void buttonCopyClicked();
 
         void buttonPasteClicked();
+
+        void selectionChanged(const QItemSelection &, const QItemSelection &);
 
         void itemActivated(QTableWidgetItem *);
 
