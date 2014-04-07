@@ -46,9 +46,11 @@ standardProperties::standardProperties( QWidget* ownerIn )
     // Keep a handle on the underlying QWidget of the QE widgets
     owner = ownerIn;
 
+    ContainerProfile profile;
+
     visibilityLevel = userLevelTypes::USERLEVEL_USER;
     enabledLevel = userLevelTypes::USERLEVEL_USER;
-    currentLevel = userLevelTypes::USERLEVEL_USER;
+    currentLevel = profile.getUserLevel();
 
     userLevelDisabled = false;
     applicationVisibility = true;
