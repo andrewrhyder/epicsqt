@@ -76,7 +76,6 @@ class _CopyPaste
 {
 
     private:
-        QString number;
         QString enable;
         QString program;
         QString parameters;
@@ -85,10 +84,7 @@ class _CopyPaste
         QString log;
 
     public:
-        _CopyPaste(QString pNumber, QString pEnable, QString pProgram, QString pParameters, QString pTimeOut, QString pStop, QString pLog);
-
-        void setNumber(QString pNumber);
-        QString getNumber();
+        _CopyPaste(QString pEnable, QString pProgram, QString pParameters, QString pTimeOut, QString pStop, QString pLog);
 
         void setEnable(QString pEnable);
         QString getEnable();
@@ -141,7 +137,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
         int optionsLayout;
         QDomDocument document;
         QString filename;
-        QList<_CopyPaste> copyPaste;
+        QList<_CopyPaste *> copyPasteList;
 
 
     public:
