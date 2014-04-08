@@ -622,7 +622,47 @@ void QEScript::buttonDeleteClicked()
 void QEScript::buttonExecuteClicked()
 {
 
-    QMessageBox::information(this, "Info", "To be implemented soon!");
+    struct timespec ts;
+    QProcess *qProcess;
+    QString program;
+    int timeOut;
+    int i;
+
+    qProcess = new QProcess(this);
+
+    for(i = 0; i < qTableWidgetScript->rowCount(); i++)
+    {
+        program = qTableWidgetScript->item(i, 2)->text().trimmed();
+        if (program.isEmpty() == false)
+        {
+            qDebug() << "process: " << program;
+            qProcess->start(program);
+
+            if (qTableWidgetScript->item(i, 4)->text().isEmpty())
+            {
+                timeOut = -1;
+            }
+            else
+            {
+                timeOut = (qTableWidgetScript->item(i, 4)->text().toInt() + 1) * 1000;
+            }
+
+            while(true)
+            {
+                qProcess->waitForFinished(1000);
+                if (timeOut == 0)
+                {
+                    qProcess->kill();
+                    break;
+                }
+                else if (time > 0)
+                {
+                    timeOut--;
+                }
+            }
+
+        }
+    }
 
 }
 
@@ -658,6 +698,7 @@ void QEScript::buttonAddClicked()
     for(i = row; i < qTableWidgetScript->rowCount(); i++)
     {
         qTableWidgetItem = new QTableWidgetItem(QString::number(i + 1));
+        qTableWidgetItem->setFlags(qTableWidgetItem->flags() ^ Qt::ItemIsEditable);
         qTableWidgetScript->setItem(i, 0, qTableWidgetItem);
     }
 
@@ -763,10 +804,10 @@ void QEScript::buttonCopyClicked()
     int row;
     int i;
 
-    for(i = 0 ; i < copyPasteList.count(); i++)
+    while (copyPasteList.isEmpty() == false)
     {
-        delete copyPasteList.at(i);
-        copyPasteList.removeAt(i);
+        delete copyPasteList.at(0);
+        copyPasteList.removeAt(0);
     }
 
     qModelIndexList = qTableWidgetScript->selectionModel()->selectedRows();
@@ -827,7 +868,8 @@ void QEScript::buttonPasteClicked()
     for(i = 0; i < qTableWidgetScript->rowCount(); i++)
     {
         qTableWidgetItem = new QTableWidgetItem(QString::number(i + 1));
-        qTableWidgetScript->setItem(row + i, 0, qTableWidgetItem);
+        qTableWidgetItem->setFlags(qTableWidgetItem->flags() ^ Qt::ItemIsEditable);
+        qTableWidgetScript->setItem(i, 0, qTableWidgetItem);
     }
 
     updateWidgets();
