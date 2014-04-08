@@ -536,7 +536,7 @@ void QESimpleShape::connectionChanged (QCaConnectionInfo& connectionInfo,
    this->isConnected = connectionInfo.isChannelConnected ();
 
    // Display the connected state
-   updateToolTipConnection (this->isConnected, variableIndex);
+   this->updateToolTipConnection (this->isConnected, variableIndex);
 
    // Widget is self draw - styleShheet not applicable per se.
    // No need to call updateConnectionStyle( isConnected );
@@ -579,10 +579,10 @@ void QESimpleShape::setShapeValue (const long &valueIn, QCaAlarmInfo & alarmInfo
    //
    emit dbValueChanged (value);
 
-   // Invoke common alarm handling processing.
-   // Although this sets widget style, we invoke it for tool tip processing only.
+   // Invoke tool tip handling directly. We don;t want to interfer with the style
+   // as widget draws it's own stuff with own, possibly clear, colours.
    //
-   this->processAlarmInfo (alarmInfo, variableIndex);
+   this->updateToolTipAlarm (alarmInfo.severityName (), variableIndex);
 
    // This update is over, clear first update flag.
    //
