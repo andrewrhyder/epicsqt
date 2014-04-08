@@ -23,9 +23,12 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
+#include <QDebug>
 #include <QECommon.h>
+
 #include "QESimpleShape.h"
 
+#define DEBUG qDebug () << "QESimpleShape" << __LINE__ << __FUNCTION__
 
 //-----------------------------------------------------------------------------
 // Constructor with no initialisation
@@ -73,7 +76,14 @@ void QESimpleShape::setup ()
 
    for (int j = 0; j < 16; j++) {
       this->colourList[j] = QColor (200, 200, 200, 255);
+      this->flashList [j] = false;
    }
+
+   this->flashTimer = new QTimer (this);
+   this->flashStateIsOn = false;
+   this->flashOffColour = QColor (0, 0, 0, 0);  // clear
+
+   this->flashTimer->start (500);
 
    // Set the initial state
    //
@@ -89,6 +99,10 @@ void QESimpleShape::setup ()
    //
    QObject::connect (&this->variableNamePropertyManager, SIGNAL (newVariableNameProperty    (QString, QString, unsigned int)),
                      this,                               SLOT   (useNewVariableNameProperty (QString, QString, unsigned int)));
+
+   QObject::connect (this->flashTimer, SIGNAL (timeout ()),
+                     this,             SLOT   (flashTimeout ()));
+
 }
 
 //-----------------------------------------------------------------------------
@@ -142,6 +156,7 @@ void QESimpleShape::paintEvent (QPaintEvent*)
    QBrush brush;
    QRect rect;
    QPoint polygon[8];
+   int mv;
    QColor colour;
    QColor boarderColour;
    bool washedOut = false;
@@ -152,10 +167,11 @@ void QESimpleShape::paintEvent (QPaintEvent*)
 
    // Use value to index colour table.
    //
+   mv = this->getModuloValue ();  // contrained 0 .. 15
    if (this->isStaticValue) {
       // Static - no alarm, not considered disconnected.
       //
-      colour = this->getColourProperty (this->getModuloValue ());
+      colour = this->getColourProperty (mv);
       washedOut = !this->isEnabled ();
    } else {
       // Variable driven.
@@ -178,7 +194,7 @@ void QESimpleShape::paintEvent (QPaintEvent*)
          // Use value to index colour table.
          // If disconnected we use last know value.
          //
-         colour = this->getColourProperty (this->getModuloValue ());
+         colour = this->getColourProperty (mv);
       }
       washedOut = !(this->isEnabled () && this->isConnected);
    }
@@ -186,6 +202,12 @@ void QESimpleShape::paintEvent (QPaintEvent*)
    // Boarder colour is same colout just a darker colour.
    //
    boarderColour = QEUtilities::darkColour (colour);
+
+   // flash the colour, but not the boarder.
+   //
+   if (this->flashList [mv] && !this->flashStateIsOn) {
+      colour = this->flashOffColour;
+   }
 
    if (washedOut) {
       // Disconnected or disabled - grey out colours.
@@ -410,6 +432,14 @@ void QESimpleShape::paintEvent (QPaintEvent*)
       painter.setPen (pen);
       this->drawText (painter, textCentre, text);
    }
+}
+
+//------------------------------------------------------------------------------
+//
+void QESimpleShape::flashTimeout ()
+{
+   this->flashStateIsOn = !this->flashStateIsOn;
+   this->update();   // only call is current state marked as flashing???
 }
 
 //------------------------------------------------------------------------------
@@ -693,6 +723,39 @@ QString QESimpleShape::getFixedText () const
 
 //------------------------------------------------------------------------------
 //
+void QESimpleShape::setFlashPeriod (int value)
+{
+   value = LIMIT (value, 250, 4000);
+
+   // Note need half as we flash on and flash off once per cycle.
+   //
+   this->flashTimer->setInterval (value / 2);
+}
+
+//------------------------------------------------------------------------------
+//
+int QESimpleShape::getFlashPeriod () const
+{
+   return 2 * this->flashTimer->interval ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QESimpleShape::setFlashOffColour (const QColor& flashOffColourIn)
+{
+   this->flashOffColour = flashOffColourIn;
+   this->update ();
+}
+
+//------------------------------------------------------------------------------
+//
+QColor QESimpleShape::getFlashOffColour () const
+{
+   return this->flashOffColour;
+}
+
+//------------------------------------------------------------------------------
+//
 void QESimpleShape::setColourProperty (int slot, QColor colour)
 {
    if ((slot >= 0) && (slot < 16)) {
@@ -715,6 +778,28 @@ QColor QESimpleShape::getColourProperty (int slot) const
       result = this->colourList[slot];
    } else {
       result = QColor (0, 0, 0, 255);
+   }
+   return result;
+}
+
+
+//------------------------------------------------------------------------------
+//
+void QESimpleShape::setFlashProperty (int slot, bool flash)
+{
+   if ((slot >= 0) && (slot < 16)) {
+      this->flashList [slot] = flash;
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+bool QESimpleShape::getFlashProperty (int slot) const
+{
+   bool result = false;
+
+   if ((slot >= 0) && (slot < 16)) {
+      result = this->flashList[slot];
    }
    return result;
 }
@@ -743,7 +828,7 @@ QVariant QESimpleShape::getDrop ()
 //
 QString QESimpleShape::copyVariable ()
 {
-   return getSubstitutedVariableName (0);
+   return this->getSubstitutedVariableName (0);
 }
 
 //------------------------------------------------------------------------------
@@ -753,11 +838,11 @@ QVariant QESimpleShape::copyData ()
    return QVariant (this->getValue ());
 }
 
-void QESimpleShape::paste( QVariant v )
+void QESimpleShape::paste (QVariant v)
 {
    if( getAllowDrop() )
    {
-      setDrop( v );
+      this->setDrop (v);
    }
 }
 

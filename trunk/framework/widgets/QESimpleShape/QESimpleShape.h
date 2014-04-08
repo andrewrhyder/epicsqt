@@ -27,6 +27,7 @@
 #define QE_SIMPLE_SHAPE_H
 
 #include <QString>
+#include <QTimer>
 #include <QVector>
 
 #include <QCaObject.h>
@@ -124,6 +125,23 @@ public:
 
 
     //----------------------------------------------------------------------------------
+    /// Flash period in mSec - constrained 250 to 4000 (4Hz to 0.25Hz)
+    /// The default value is 1000, i.e. 1Hz flash rate.
+    Q_PROPERTY(int flashPeriod READ getFlashPeriod WRITE setFlashPeriod)
+
+    void setFlashPeriod (int);
+    int getFlashPeriod () const;
+
+
+    //----------------------------------------------------------------------------------
+    /// Flash offColour - default is clear.
+    Q_PROPERTY(QColor flashOffColour READ getFlashOffColour WRITE setFlashOffColour)
+
+    void setFlashOffColour (const QColor& colour);
+    QColor getFlashOffColour () const;
+
+
+    //----------------------------------------------------------------------------------
     // NOTE, keep in sync. The documentation below is repeated in QEStringFormatting::setLocalEnumeration() (in QEStringformatting.cpp)
     /// An enumeration list used to data values. Used only when the formatting option is 'local enumeration'.
     /// Value is converted to an integer and used to select a string from this list.
@@ -187,13 +205,38 @@ public:
     Q_PROPERTY (QColor  colour14   READ getColour14Property       WRITE setColour14Property)
     Q_PROPERTY (QColor  colour15   READ getColour15Property       WRITE setColour15Property)
 
+    //----------------------------------------------------------------------------------
+    /// When the widget's state coresponds to N and flashN is set true, the widget will
+    /// alternate its normal colour with the specified flashOffColour.
+    /// This applies irrespective displayAlarmColors value.
+    ///
+    Q_PROPERTY (bool    flash0     READ getFlash0Property         WRITE setFlash0Property)
+    Q_PROPERTY (bool    flash1     READ getFlash1Property         WRITE setFlash1Property)
+    Q_PROPERTY (bool    flash2     READ getFlash2Property         WRITE setFlash2Property)
+    Q_PROPERTY (bool    flash3     READ getFlash3Property         WRITE setFlash3Property)
+    Q_PROPERTY (bool    flash4     READ getFlash4Property         WRITE setFlash4Property)
+    Q_PROPERTY (bool    flash5     READ getFlash5Property         WRITE setFlash5Property)
+    Q_PROPERTY (bool    flash6     READ getFlash6Property         WRITE setFlash6Property)
+    Q_PROPERTY (bool    flash7     READ getFlash7Property         WRITE setFlash7Property)
+    Q_PROPERTY (bool    flash8     READ getFlash8Property         WRITE setFlash8Property)
+    Q_PROPERTY (bool    flash9     READ getFlash9Property         WRITE setFlash9Property)
+    Q_PROPERTY (bool    flash10    READ getFlash10Property        WRITE setFlash10Property)
+    Q_PROPERTY (bool    flash11    READ getFlash11Property        WRITE setFlash11Property)
+    Q_PROPERTY (bool    flash12    READ getFlash12Property        WRITE setFlash12Property)
+    Q_PROPERTY (bool    flash13    READ getFlash13Property        WRITE setFlash13Property)
+    Q_PROPERTY (bool    flash14    READ getFlash14Property        WRITE setFlash14Property)
+    Q_PROPERTY (bool    flash15    READ getFlash15Property        WRITE setFlash15Property)
+
     // Property access READ and WRITE functions.
     // We can define the access functions using a macro.
     // Alas, due to SDK limitation, we cannot embedded the property definition itself in a macro.
     //
     #define PROPERTY_ACCESS(slot)                                                                          \
        void   setColour##slot##Property (QColor colour) { this->setColourProperty (slot, colour); }        \
-       QColor getColour##slot##Property () const { return this->getColourProperty (slot); }
+       QColor getColour##slot##Property () const { return this->getColourProperty (slot); }                \
+                                                                                                           \
+       void  setFlash##slot##Property (bool flash)    { this->setFlashProperty (slot, flash); }            \
+       bool  getFlash##slot##Property () const { return this->getFlashProperty (slot); }
 
     PROPERTY_ACCESS  (0)
     PROPERTY_ACCESS  (1)
@@ -249,12 +292,16 @@ private:
     Shapes shape;
     TextFormats textFormat;
     QString fixedText;
+    bool flashStateIsOn;
+    QColor flashOffColour;
+    QTimer* flashTimer;
 
     QString textImage;
     void setTextImage ();
     QString getTextImage ();   // text image to be used.
 
     QColor colourList [16];
+    bool   flashList [16];
     bool isStaticValue;   // as opposed to is PV value.
     int value;
     bool isConnected;
@@ -274,6 +321,9 @@ private:
     void   setColourProperty (int slot, QColor color);
     QColor getColourProperty (int slot) const;
 
+    void  setFlashProperty (int slot, bool color);
+    bool  getFlashProperty (int slot) const;
+
 private slots:
     void connectionChanged (QCaConnectionInfo& connectionInfo,
                             const unsigned int& variableIndex);
@@ -287,7 +337,9 @@ private slots:
 
     void useNewVariableNameProperty (QString variableNameIn,
                                      QString variableNameSubstitutionsIn,
-                                     unsigned int variableIndex );
+                                     unsigned int variableIndex);
+
+    void flashTimeout ();
 
 signals:
     // Note, the following signals are common to many QE widgets,
