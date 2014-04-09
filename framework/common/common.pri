@@ -17,7 +17,8 @@ HEADERS += \
    common/QEOneToOne.h \
    common/QEScaling.h \
    common/PasswordDialog.h \
-   common/windowCustomisation.h
+   common/windowCustomisation.h \
+   common/macroSubstitution.h
 
 SOURCES += \
    common/QEActionRequests.cpp \
@@ -31,7 +32,8 @@ SOURCES += \
    common/QEGraphic.cpp \
    common/QEScaling.cpp \
    common/PasswordDialog.cpp \
-   common/windowCustomisation.cpp
+   common/windowCustomisation.cpp \
+   common/macroSubstitution.cpp
 
 INCLUDEPATH += \
    common
