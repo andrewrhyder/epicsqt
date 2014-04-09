@@ -32,11 +32,18 @@
 #include <QMutex>
 
 /* ffmpeg includes */
-extern "C" {
+extern "C"{
+
+#ifdef __cplusplus
+ #ifdef _STDINT_H
+  #undef _STDINT_H
+ #endif
+ # include <stdint.h>
+#endif
 #include "libavformat/avformat.h"
-//#include "libswscale/swscale.h"
 #include "libavutil/avutil.h"
 }
+
 
 #include "imageDataFormats.h"
 
