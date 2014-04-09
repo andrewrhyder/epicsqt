@@ -483,8 +483,7 @@ void ContainerProfile::setPublishedParentPath( QString publishedParentPathIn )
 }
 
 /*
-  Return the object to emit warning message signals to.
-  If NULL, there is no object available.
+  Return the current macro substitutions
   */
 QString ContainerProfile::getMacroSubstitutions()
 {

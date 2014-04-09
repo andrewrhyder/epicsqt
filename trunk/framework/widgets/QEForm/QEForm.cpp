@@ -50,6 +50,8 @@
 #include <QEForm.h>
 #include <ContainerProfile.h>
 #include <QEWidget.h>
+#include <macroSubstitution.h>
+
 
 // Constructor.
 // No UI file is read. After construction uiFileName (and macroSubstitution) properties must be set and then QEForm::readUiFile() called.
@@ -705,7 +707,13 @@ void QEForm::saveConfiguration( PersistanceManager* pm )
     macroSubs = macroSubs.trimmed();
     if( !macroSubs.isEmpty() )
     {
-        f.addValue( "MacroSubstitutions", getMacroSubstitutions() );
+        // Build a list of macro substitution parts from the string
+        //!!! this won't be nessesary when the macroSubstitutionList class is used to hold macro substitutions instead of a string
+        macroSubstitutionList parts = macroSubstitutionList( getMacroSubstitutions() );
+
+        // Add a clean macro substitutionns string from the parts
+        f.addValue( "MacroSubstitutions", parts.getString() );
+//        f.addValue( "MacroSubstitutions", getMacroSubstitutions() );
     }
 
     // Save the path list

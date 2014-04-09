@@ -158,6 +158,7 @@
 #include <PasswordDialog.h>
 #include <QEGui.h>
 #include <aboutDialog.h>
+#include <macroSubstitution.h>
 
 // Before Qt 4.8, the command to start designer is 'designer'.
 // Qt 4.8 later uses the command 'designer-qt4'
@@ -2093,7 +2094,13 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                     QString macroSubs = profile.getMacroSubstitutions();
                     if( !macroSubs.isEmpty() )
                     {
-                        form.addValue( "MacroSubstitutions", macroSubs );
+                        // Build a list of macro substitution parts from the string
+                        //!!! this won't be nessesary when the macroSubstitutionList class is used to hold macro substitutions instead of a string
+                        macroSubstitutionList parts = macroSubstitutionList( macroSubs );
+
+                        // Add a clean macro substitutionns string from the parts
+                        form.addValue( "MacroSubstitutions", parts.getString() );
+                        //form.addValue( "MacroSubstitutions", macroSubs );
                     }
 
                     // Window customisations, if any
