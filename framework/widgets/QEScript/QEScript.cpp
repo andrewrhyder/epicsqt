@@ -622,7 +622,7 @@ void QEScript::buttonDeleteClicked()
 void QEScript::buttonExecuteClicked()
 {
 
-    struct timespec ts;
+//breaks on windows and appears to be unused    struct timespec ts;
     QProcess *qProcess;
     QString program;
     int timeOut;
