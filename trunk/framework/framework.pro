@@ -212,7 +212,7 @@ isEmpty( _QE_FFMPEG ) {
     win32:LIBS += -L$$_QE_FFMPEG/lib
 
     LIBS += -lavutil -lavcodec -lavformat
-    unix:DEFINES += __STDC_CONSTANT_MACROS
+    DEFINES += __STDC_CONSTANT_MACROS
 }
 
 #
