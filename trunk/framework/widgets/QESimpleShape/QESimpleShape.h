@@ -27,7 +27,6 @@
 #define QE_SIMPLE_SHAPE_H
 
 #include <QString>
-#include <QTimer>
 #include <QVector>
 
 #include <QCaObject.h>
@@ -37,6 +36,7 @@
 #include <QEIntegerFormatting.h>
 #include <QEPluginLibrary_global.h>
 #include <QEStringFormattingMethods.h>
+#include <QEScanTimers.h>
 
 /*!
   This class is an EPICS aware simple shape.
@@ -125,12 +125,12 @@ public:
 
 
     //----------------------------------------------------------------------------------
-    /// Flash period in mSec - constrained 250 to 4000 (4Hz to 0.25Hz)
-    /// The default value is 1000, i.e. 1Hz flash rate.
-    Q_PROPERTY(int flashPeriod READ getFlashPeriod WRITE setFlashPeriod)
+    /// Flash rate.
+    /// The default value is Medium, i.e. 1Hz flash rate.
+    Q_PROPERTY(QEScanTimers::ScanRates flashRate READ getFlashRate WRITE setFlashRate)
 
-    void setFlashPeriod (int);
-    int getFlashPeriod () const;
+    void setFlashRate (QEScanTimers::ScanRates);
+    QEScanTimers::ScanRates getFlashRate () const;
 
 
     //----------------------------------------------------------------------------------
@@ -292,9 +292,9 @@ private:
     Shapes shape;
     TextFormats textFormat;
     QString fixedText;
-    bool flashStateIsOn;
     QColor flashOffColour;
-    QTimer* flashTimer;
+    QEScanTimers::ScanRates flashRate;
+    bool flashStateIsOn;
 
     QString textImage;
     void setTextImage ();
@@ -339,7 +339,7 @@ private slots:
                                      QString variableNameSubstitutionsIn,
                                      unsigned int variableIndex);
 
-    void flashTimeout ();
+    void flashTimeout (const bool);
 
 signals:
     // Note, the following signals are common to many QE widgets,
