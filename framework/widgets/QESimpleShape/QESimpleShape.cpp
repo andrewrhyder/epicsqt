@@ -73,17 +73,16 @@ void QESimpleShape::setup ()
    this->fixedText = "";
    this->textImage = "";
    this->isStaticValue = false;
+   this->flashOffColour = QColor (200, 200, 200,  0);  // clear, alpha = 0
+
+   this->flashRate = QEScanTimers::Medium;
+   QEScanTimers::attach (this, SLOT (flashTimeout (const bool)), this->flashRate);
 
    for (int j = 0; j < 16; j++) {
       this->colourList[j] = QColor (200, 200, 200, 255);
       this->flashList [j] = false;
    }
 
-   this->flashTimer = new QTimer (this);
-   this->flashStateIsOn = false;
-   this->flashOffColour = QColor (0, 0, 0, 0);  // clear
-
-   this->flashTimer->start (500);
 
    // Set the initial state
    //
@@ -99,10 +98,6 @@ void QESimpleShape::setup ()
    //
    QObject::connect (&this->variableNamePropertyManager, SIGNAL (newVariableNameProperty    (QString, QString, unsigned int)),
                      this,                               SLOT   (useNewVariableNameProperty (QString, QString, unsigned int)));
-
-   QObject::connect (this->flashTimer, SIGNAL (timeout ()),
-                     this,             SLOT   (flashTimeout ()));
-
 }
 
 //-----------------------------------------------------------------------------
@@ -436,10 +431,10 @@ void QESimpleShape::paintEvent (QPaintEvent*)
 
 //------------------------------------------------------------------------------
 //
-void QESimpleShape::flashTimeout ()
+void QESimpleShape::flashTimeout (const bool isOn)
 {
-   this->flashStateIsOn = !this->flashStateIsOn;
-   this->update();   // only call is current state marked as flashing???
+   this->flashStateIsOn = isOn;
+   this->update ();   // only call is current state marked as flashing???
 }
 
 //------------------------------------------------------------------------------
@@ -723,20 +718,22 @@ QString QESimpleShape::getFixedText () const
 
 //------------------------------------------------------------------------------
 //
-void QESimpleShape::setFlashPeriod (int value)
+void QESimpleShape::setFlashRate (QEScanTimers::ScanRates flashRateIn)
 {
-   value = LIMIT (value, 250, 4000);
+   const char* member = SLOT (flashTimeout (const bool));
 
-   // Note need half as we flash on and flash off once per cycle.
-   //
-   this->flashTimer->setInterval (value / 2);
+   if (this->flashRate != flashRateIn) {
+      QEScanTimers::detach (this, member);
+      this->flashRate = flashRateIn;
+      QEScanTimers::attach (this, member, this->flashRate);
+   }
 }
 
 //------------------------------------------------------------------------------
 //
-int QESimpleShape::getFlashPeriod () const
+QEScanTimers::ScanRates QESimpleShape::getFlashRate () const
 {
-   return 2 * this->flashTimer->interval ();
+   return this->flashRate;
 }
 
 //------------------------------------------------------------------------------
