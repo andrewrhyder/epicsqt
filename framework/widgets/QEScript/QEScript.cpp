@@ -622,7 +622,7 @@ void QEScript::buttonDeleteClicked()
 void QEScript::buttonExecuteClicked()
 {
 
-//breaks on windows and appears to be unused    struct timespec ts;
+    //breaks on windows and appears to be unused    struct timespec ts;
     QProcess *qProcess;
     QString program;
     int timeOut;
@@ -673,6 +673,8 @@ void QEScript::buttonAddClicked()
 {
 
     QTableWidgetItem *qTableWidgetItem;
+    QCheckBox *qCheckBox;
+    QSpinBox *qSpinBox;
     int row;
     int i;
 
@@ -689,6 +691,21 @@ void QEScript::buttonAddClicked()
         qTableWidgetScript->selectRow(row);
     }
 
+    qCheckBox = new QCheckBox();
+    qCheckBox->setChecked(true);
+    qTableWidgetScript->setCellWidget(row, 1, qCheckBox);
+
+    qSpinBox = new QSpinBox();
+    qSpinBox->setSuffix(" s");
+    qTableWidgetScript->setCellWidget(row, 4, qSpinBox);
+
+    qCheckBox = new QCheckBox();
+    qTableWidgetScript->setCellWidget(row, 5, qCheckBox);
+
+    qCheckBox = new QCheckBox();
+    qCheckBox->setChecked(true);
+    qTableWidgetScript->setCellWidget(row, 6, qCheckBox);
+
     for(i = 0; i < qTableWidgetScript->columnCount(); i++)
     {
         qTableWidgetItem = new QTableWidgetItem("");
@@ -701,7 +718,6 @@ void QEScript::buttonAddClicked()
         qTableWidgetItem->setFlags(qTableWidgetItem->flags() ^ Qt::ItemIsEditable);
         qTableWidgetScript->setItem(i, 0, qTableWidgetItem);
     }
-
     updateWidgets();
 
 }
@@ -749,19 +765,33 @@ void QEScript::buttonUpClicked()
 {
 
     QModelIndexList qModelIndexList;
-    QString tmp;
+    _CopyPaste *copyPaste;
     int row;
-    int i;
 
     qModelIndexList = qTableWidgetScript->selectionModel()->selectedRows();
     row = qModelIndexList.at(0).row();
 
-    for(i = 1; i < qTableWidgetScript->columnCount(); i++)
-    {
-        tmp = qTableWidgetScript->item(row - 1, i)->text();
-        qTableWidgetScript->item(row - 1, i)->setText(qTableWidgetScript->item(row, i)->text());
-        qTableWidgetScript->item(row, i)->setText(tmp);
-    }
+    copyPaste = new _CopyPaste();
+    copyPaste->setEnable(((QCheckBox *) qTableWidgetScript->cellWidget(row - 1, 1))->isChecked());
+    copyPaste->setProgram(qTableWidgetScript->item(row - 1, 2)->text());
+    copyPaste->setParameters(qTableWidgetScript->item(row - 1, 3)->text());
+    copyPaste->setTimeOut(((QSpinBox *) qTableWidgetScript->cellWidget(row - 1, 4))->value());
+    copyPaste->setStop(((QCheckBox *) qTableWidgetScript->cellWidget(row - 1, 5))->isChecked());
+    copyPaste->setLog(((QCheckBox *) qTableWidgetScript->cellWidget(row - 1, 6))->isChecked());
+
+    ((QCheckBox *) qTableWidgetScript->cellWidget(row - 1, 1))->setChecked(((QCheckBox *) qTableWidgetScript->cellWidget(row, 1))->isChecked());
+    qTableWidgetScript->item(row - 1, 2)->setText(qTableWidgetScript->item(row, 2)->text());
+    qTableWidgetScript->item(row - 1, 3)->setText(qTableWidgetScript->item(row, 3)->text());
+    ((QSpinBox *) qTableWidgetScript->cellWidget(row - 1, 4))->setValue(((QSpinBox *) qTableWidgetScript->cellWidget(row, 4))->value());
+    ((QCheckBox *) qTableWidgetScript->cellWidget(row - 1, 5))->setChecked(((QCheckBox *) qTableWidgetScript->cellWidget(row, 5))->isChecked());
+    ((QCheckBox *) qTableWidgetScript->cellWidget(row - 1, 6))->setChecked(((QCheckBox *) qTableWidgetScript->cellWidget(row, 6))->isChecked());
+
+    ((QCheckBox *) qTableWidgetScript->cellWidget(row, 1))->setChecked(copyPaste->getEnable());
+    qTableWidgetScript->item(row, 2)->setText(copyPaste->getProgram());
+    qTableWidgetScript->item(row, 3)->setText(copyPaste->getParameters());
+    ((QSpinBox *) qTableWidgetScript->cellWidget(row, 4))->setValue(copyPaste->getTimeOut());
+    ((QCheckBox *) qTableWidgetScript->cellWidget(row, 5))->setChecked(copyPaste->getStop());
+    ((QCheckBox *) qTableWidgetScript->cellWidget(row, 6))->setChecked(copyPaste->getLog());
 
     qTableWidgetScript->selectRow(row - 1);
 
@@ -775,19 +805,33 @@ void QEScript::buttonDownClicked()
 {
 
     QModelIndexList qModelIndexList;
-    QString tmp;
+    _CopyPaste *copyPaste;
     int row;
-    int i;
 
     qModelIndexList = qTableWidgetScript->selectionModel()->selectedRows();
     row = qModelIndexList.at(0).row();
 
-    for(i = 1; i < qTableWidgetScript->columnCount(); i++)
-    {
-        tmp = qTableWidgetScript->item(row + 1, i)->text();
-        qTableWidgetScript->item(row + 1, i)->setText(qTableWidgetScript->item(row, i)->text());
-        qTableWidgetScript->item(row, i)->setText(tmp);
-    }
+    copyPaste = new _CopyPaste();
+    copyPaste->setEnable(((QCheckBox *) qTableWidgetScript->cellWidget(row + 1, 1))->isChecked());
+    copyPaste->setProgram(qTableWidgetScript->item(row + 1, 2)->text());
+    copyPaste->setParameters(qTableWidgetScript->item(row + 1, 3)->text());
+    copyPaste->setTimeOut(((QSpinBox *) qTableWidgetScript->cellWidget(row + 1, 4))->value());
+    copyPaste->setStop(((QCheckBox *) qTableWidgetScript->cellWidget(row + 1, 5))->isChecked());
+    copyPaste->setLog(((QCheckBox *) qTableWidgetScript->cellWidget(row + 1, 6))->isChecked());
+
+    ((QCheckBox *) qTableWidgetScript->cellWidget(row + 1, 1))->setChecked(((QCheckBox *) qTableWidgetScript->cellWidget(row, 1))->isChecked());
+    qTableWidgetScript->item(row + 1, 2)->setText(qTableWidgetScript->item(row, 2)->text());
+    qTableWidgetScript->item(row + 1, 3)->setText(qTableWidgetScript->item(row, 3)->text());
+    ((QSpinBox *) qTableWidgetScript->cellWidget(row + 1, 4))->setValue(((QSpinBox *) qTableWidgetScript->cellWidget(row, 4))->value());
+    ((QCheckBox *) qTableWidgetScript->cellWidget(row + 1, 5))->setChecked(((QCheckBox *) qTableWidgetScript->cellWidget(row, 5))->isChecked());
+    ((QCheckBox *) qTableWidgetScript->cellWidget(row + 1, 6))->setChecked(((QCheckBox *) qTableWidgetScript->cellWidget(row, 6))->isChecked());
+
+    ((QCheckBox *) qTableWidgetScript->cellWidget(row, 1))->setChecked(copyPaste->getEnable());
+    qTableWidgetScript->item(row, 2)->setText(copyPaste->getProgram());
+    qTableWidgetScript->item(row, 3)->setText(copyPaste->getParameters());
+    ((QSpinBox *) qTableWidgetScript->cellWidget(row, 4))->setValue(copyPaste->getTimeOut());
+    ((QCheckBox *) qTableWidgetScript->cellWidget(row, 5))->setChecked(copyPaste->getStop());
+    ((QCheckBox *) qTableWidgetScript->cellWidget(row, 6))->setChecked(copyPaste->getLog());
 
     qTableWidgetScript->selectRow(row + 1);
 
@@ -801,6 +845,7 @@ void QEScript::buttonCopyClicked()
 {
 
     QModelIndexList qModelIndexList;
+    _CopyPaste *copyPaste;
     int row;
     int i;
 
@@ -814,7 +859,14 @@ void QEScript::buttonCopyClicked()
     for(i = 0; i < qModelIndexList.count(); i++)
     {
         row = qModelIndexList.at(i).row();
-        copyPasteList.append(new _CopyPaste(qTableWidgetScript->item(row, 1)->text(), qTableWidgetScript->item(row, 2)->text(), qTableWidgetScript->item(row, 3)->text(), qTableWidgetScript->item(row, 4)->text(), qTableWidgetScript->item(row, 5)->text(), qTableWidgetScript->item(row, 6)->text()));
+        copyPaste = new _CopyPaste();
+        copyPaste->setEnable(((QCheckBox *) qTableWidgetScript->cellWidget(row, 1))->isChecked());
+        copyPaste->setProgram(qTableWidgetScript->item(row, 2)->text());
+        copyPaste->setParameters(qTableWidgetScript->item(row, 3)->text());
+        copyPaste->setTimeOut(((QSpinBox *) qTableWidgetScript->cellWidget(row, 4))->value());
+        copyPaste->setStop(((QCheckBox *) qTableWidgetScript->cellWidget(row, 5))->isChecked());
+        copyPaste->setLog(((QCheckBox *) qTableWidgetScript->cellWidget(row, 6))->isChecked());
+        copyPasteList.append(copyPaste);
     }
 
     updateWidgets();
@@ -826,6 +878,8 @@ void QEScript::buttonCopyClicked()
 void QEScript::buttonPasteClicked()
 {
 
+    QCheckBox *qCheckBox;
+    QSpinBox *qSpinBox;
     QModelIndexList qModelIndexList;
     QTableWidgetItem *qTableWidgetItem;
     int row;
@@ -846,8 +900,9 @@ void QEScript::buttonPasteClicked()
     {
         qTableWidgetScript->insertRow(row + i);
 
-        qTableWidgetItem = new QTableWidgetItem(copyPasteList.at(i)->getEnable());
-        qTableWidgetScript->setItem(row + i, 1, qTableWidgetItem);
+        qCheckBox = new QCheckBox();
+        qCheckBox->setChecked(copyPasteList.at(i)->getEnable());
+        qTableWidgetScript->setCellWidget(row + i, 1, qCheckBox);
 
         qTableWidgetItem = new QTableWidgetItem(copyPasteList.at(i)->getProgram());
         qTableWidgetScript->setItem(row + i, 2, qTableWidgetItem);
@@ -855,14 +910,17 @@ void QEScript::buttonPasteClicked()
         qTableWidgetItem = new QTableWidgetItem(copyPasteList.at(i)->getParameters());
         qTableWidgetScript->setItem(row + i, 3, qTableWidgetItem);
 
-        qTableWidgetItem = new QTableWidgetItem(copyPasteList.at(i)->getTimeOut());
-        qTableWidgetScript->setItem(row + i, 4, qTableWidgetItem);
+        qSpinBox = new QSpinBox();
+        qSpinBox->setValue(copyPasteList.at(i)->getTimeOut());
+        qTableWidgetScript->setCellWidget(row + i, 4, qSpinBox);
 
-        qTableWidgetItem = new QTableWidgetItem(copyPasteList.at(i)->getStop());
-        qTableWidgetScript->setItem(row + i, 5, qTableWidgetItem);
+        qCheckBox = new QCheckBox();
+        qCheckBox->setChecked(copyPasteList.at(i)->getStop());
+        qTableWidgetScript->setCellWidget(row + i, 5, qCheckBox);
 
-        qTableWidgetItem = new QTableWidgetItem(copyPasteList.at(i)->getLog());
-        qTableWidgetScript->setItem(row + i, 6, qTableWidgetItem);
+        qCheckBox = new QCheckBox();
+        qCheckBox->setChecked(copyPasteList.at(i)->getLog());
+        qTableWidgetScript->setCellWidget(row + i, 6, qCheckBox);
     }
 
     for(i = 0; i < qTableWidgetScript->rowCount(); i++)
@@ -1032,7 +1090,26 @@ void QEScript::updateWidgets()
 // ============================================================
 //  _QCOPYPASTE CLASS
 // ============================================================
-_CopyPaste::_CopyPaste(QString pEnable, QString pProgram, QString pParameters, QString pTimeOut, QString pStop, QString pLog)
+_CopyPaste::_CopyPaste()
+{
+
+    setEnable(false);
+
+    setProgram("");
+
+    setParameters("");
+
+    setTimeOut(0);
+
+    setStop(false);
+
+    setLog(false);
+
+};
+
+
+
+_CopyPaste::_CopyPaste(bool pEnable, QString pProgram, QString pParameters, int pTimeOut, bool pStop, bool pLog)
 {
 
     setEnable(pEnable);
@@ -1052,7 +1129,7 @@ _CopyPaste::_CopyPaste(QString pEnable, QString pProgram, QString pParameters, Q
 
 
 
-void _CopyPaste::setEnable(QString pEnable)
+void _CopyPaste::setEnable(bool pEnable)
 {
 
     enable = pEnable;
@@ -1061,7 +1138,7 @@ void _CopyPaste::setEnable(QString pEnable)
 
 
 
-QString _CopyPaste::getEnable()
+bool _CopyPaste::getEnable()
 {
 
     return enable;
@@ -1107,7 +1184,7 @@ QString _CopyPaste::getParameters()
 
 
 
-void _CopyPaste::setTimeOut(QString pTimeOut)
+void _CopyPaste::setTimeOut(int pTimeOut)
 {
 
     timeOut = pTimeOut;
@@ -1116,7 +1193,7 @@ void _CopyPaste::setTimeOut(QString pTimeOut)
 
 
 
-QString _CopyPaste::getTimeOut()
+int _CopyPaste::getTimeOut()
 {
 
     return timeOut;
@@ -1126,7 +1203,7 @@ QString _CopyPaste::getTimeOut()
 
 
 
-void _CopyPaste::setStop(QString pStop)
+void _CopyPaste::setStop(bool pStop)
 {
 
     stop = pStop;
@@ -1135,7 +1212,7 @@ void _CopyPaste::setStop(QString pStop)
 
 
 
-QString _CopyPaste::getStop()
+bool _CopyPaste::getStop()
 {
 
     return stop;
@@ -1145,7 +1222,7 @@ QString _CopyPaste::getStop()
 
 
 
-void _CopyPaste::setLog(QString pLog)
+void _CopyPaste::setLog(bool pLog)
 {
 
     log = pLog;
@@ -1154,7 +1231,7 @@ void _CopyPaste::setLog(QString pLog)
 
 
 
-QString _CopyPaste::getLog()
+bool _CopyPaste::getLog()
 {
 
     return log;

@@ -76,18 +76,20 @@ class _CopyPaste
 {
 
     private:
-        QString enable;
+        bool enable;
         QString program;
         QString parameters;
-        QString timeOut;
-        QString stop;
-        QString log;
+        int timeOut;
+        bool stop;
+        bool log;
 
     public:
-        _CopyPaste(QString pEnable, QString pProgram, QString pParameters, QString pTimeOut, QString pStop, QString pLog);
+        _CopyPaste();
 
-        void setEnable(QString pEnable);
-        QString getEnable();
+        _CopyPaste(bool pEnable, QString pProgram, QString pParameters, int pTimeOut, bool pStop, bool pLog);
+
+        void setEnable(bool pEnable);
+        bool getEnable();
 
         void setProgram(QString pProgram);
         QString getProgram();
@@ -95,14 +97,14 @@ class _CopyPaste
         void setParameters(QString pParameters);
         QString getParameters();
 
-        void setTimeOut(QString pTimeOut);
-        QString getTimeOut();
+        void setTimeOut(int pTimeOut);
+        int getTimeOut();
 
-        void setStop(QString pStop);
-        QString getStop();
+        void setStop(bool pStop);
+        bool getStop();
 
-        void setLog(QString pLog);
-        QString getLog();
+        void setLog(bool pLog);
+        bool getLog();
 
 };
 
