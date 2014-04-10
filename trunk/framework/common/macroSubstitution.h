@@ -28,6 +28,7 @@
 
 #include <QString>
 #include <QList>
+#include <QEPluginLibrary_global.h>
 
 // Macro substitution key/value pair
 // Added initially as a class so extra meta information could be attached to each substitution (such as its source)
@@ -45,7 +46,7 @@ public:
 };
 
 // Set of macro substitutions
-class macroSubstitutionList
+class QEPLUGINLIBRARYSHARED_EXPORT macroSubstitutionList
 {
 public:
     macroSubstitutionList(){}                           // Constructor - empty list
