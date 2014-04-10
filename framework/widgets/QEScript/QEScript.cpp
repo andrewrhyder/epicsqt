@@ -29,6 +29,10 @@
 #include <QHeaderView>
 #include <QFileDialog>
 #include <QEScript.h>
+#include <QComboBox>
+#include <QMessageBox>
+#include <QCheckBox>
+#include <QSpinBox>
 
 
 
