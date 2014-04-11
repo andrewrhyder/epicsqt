@@ -117,11 +117,11 @@ QEScript::QEScript(QWidget *pParent):QWidget(pParent), QEWidget( this )
     qTableWidgetScript->verticalHeader()->hide();
     qFont.setPointSize(9);
     qTableWidgetScript->setFont(qFont);
-    //QObject::connect(qTableWidgetScript, SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
     QObject::connect(qTableWidgetScript->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)), this, SLOT(selectionChanged(const QItemSelection &, const QItemSelection &)));
 
     setShowScriptList(true);
     setOptionsLayout(TOP);
+    isExecuting = false;
     updateWidgets();
 
 }
@@ -625,48 +625,65 @@ void QEScript::buttonDeleteClicked()
 
 void QEScript::buttonExecuteClicked()
 {
-
-    //breaks on windows and appears to be unused    struct timespec ts;
-    QProcess *qProcess;
+    _QThread *qThread;
     QString program;
     int timeOut;
+    bool log;
     int i;
 
-    qProcess = new QProcess(this);
+
+    isExecuting = true;
+    updateWidgets();
 
     for(i = 0; i < qTableWidgetScript->rowCount(); i++)
     {
-        program = qTableWidgetScript->item(i, 2)->text().trimmed();
-        if (program.isEmpty() == false)
+        qTableWidgetScript->selectRow(i);
+        if (((QCheckBox *) qTableWidgetScript->cellWidget(i, 1))->isChecked() == false)
         {
-            qDebug() << "process: " << program;
-            qProcess->start(program);
-
-            if (qTableWidgetScript->item(i, 4)->text().isEmpty())
+            sendMessage("Skipping execution of program #" + QString::number(i + 1) + " since it is disabled");
+        }
+        else
+        {
+            program = qTableWidgetScript->item(i, 2)->text().trimmed();
+            log = ((QCheckBox *) qTableWidgetScript->cellWidget(i, 6))->isChecked();
+            if (program.isEmpty())
             {
-                timeOut = -1;
+                if (log)
+                {
+                    sendMessage("Skipping execution of program #" + QString::number(i + 1) + " since it is undefined");
+                }
             }
             else
             {
-                timeOut = (qTableWidgetScript->item(i, 4)->text().toInt() + 1) * 1000;
-            }
-
-            while(true)
-            {
-                qProcess->waitForFinished(1000);
+                timeOut = ((QSpinBox *) qTableWidgetScript->cellWidget(i, 4))->value();
                 if (timeOut == 0)
                 {
-                    qProcess->kill();
-                    break;
+                    if (log)
+                    {
+                        sendMessage("Executing program #" + QString::number(i + 1) + " until it finishes");
+                    }
+                    timeOut = -1;
                 }
-                else if (time > 0)
+                else
                 {
-                    timeOut--;
+                    if (log)
+                    {
+                        sendMessage("Executing program #" + QString::number(i + 1) + " for " + QString::number(timeOut) + " seconds");
+                    }
+                    timeOut = timeOut * 1000;
+                }
+                qThread = new _QThread(program, qTableWidgetScript->item(i, 3)->text().trimmed(), timeOut);
+                qThread->run();
+                if (log)
+                {
+                    sendMessage("Finished executing program #" + QString::number(i + 1));
                 }
             }
-
         }
     }
+
+    isExecuting = false;
+    updateWidgets();
 
 }
 
@@ -950,114 +967,9 @@ void QEScript::selectionChanged(const QItemSelection &, const QItemSelection &)
 
 
 
-void QEScript::itemActivated(QTableWidgetItem *)
-{
-
-    /*
-    QModelIndexList selectedRows;
-    QString filename;
-    QString data;
-
-
-    selectedRows = qTableWidgetScript->selectionModel()->selectedRows();
-    data = qTableWidgetScript->item(selectedRows.at(0).row(), 2)->text();
-
-    if (qlineEditDirectoryPath->text().endsWith(QDir::separator()))
-    {
-        filename = qlineEditDirectoryPath->text() + data;
-    }
-    else
-    {
-        filename = qlineEditDirectoryPath->text() + QDir::separator() + data;
-    }
-
-    emit selected(filename);
-    */
-
-}
-
-
-
-
-
 void QEScript::refreshScriptList()
 {
 
-    QDomElement rootElement;
-    QDomElement recipeElement;
-    QDomNode rootNode;
-    QString visible;
-    QString tmp;
-    bool flag;
-    int count;
-    int i;
-
-
-    qComboBoxScriptList->blockSignals(true);
-    tmp = qComboBoxScriptList->currentText();
-    qComboBoxScriptList->clear();
-    rootElement = document.documentElement();
-    if (rootElement.tagName() == "epicsqt")
-    {
-        count = 0;
-        rootNode = rootElement.firstChild();
-        while (rootNode.isNull() == false)
-        {
-            recipeElement = rootNode.toElement();
-            if (recipeElement.tagName() == "script")
-            {
-                visible = recipeElement.attribute("visible").toUpper();
-                if (visible.isEmpty())
-                {
-                    flag = true;
-                }
-                else
-                {
-                    if (visible == "USER")
-                    {
-                        flag = true;
-                    }
-                    else if (visible == "SCIENTIST")
-                    {
-                        //flag = (currentUserType > 0);
-                    }
-                    else if (visible == "ENGINEER")
-                    {
-                        //flag = (currentUserType > 1);
-                    }
-                    else
-                    {
-                        flag = false;
-                    }
-                    flag = false;
-                }
-                if (flag)
-                {
-                    if (recipeElement.attribute("name").isEmpty())
-                    {
-                        qComboBoxScriptList->addItem("Script #" + QString::number(count));
-                        count++;
-                    }
-                    else
-                    {
-                        qComboBoxScriptList->addItem(recipeElement.attribute("name"));
-                    }
-                }
-            }
-            rootNode = rootNode.nextSibling();
-        }
-    }
-    i = qComboBoxScriptList->findText(tmp);
-    if (i == -1)
-    {
-        qComboBoxScriptList->setCurrentIndex(0);
-    }
-    else
-    {
-       qComboBoxScriptList->setCurrentIndex(i);
-    }
-    //refreshButton();
-    qComboBoxScriptList->blockSignals(false);
 
 }
 
@@ -1073,18 +985,18 @@ void QEScript::updateWidgets()
     rowCount = qTableWidgetScript->rowCount();
     rowSelectedCount = qTableWidgetScript->selectionModel()->selectedRows().count();
 
-    qPushButtonSave->setDisabled(qComboBoxScriptList->currentText().isEmpty());
-    qPushButtonDelete->setDisabled(qComboBoxScriptList->currentText().isEmpty());
-    qPushButtonExecute->setDisabled(rowCount == 0);
+    qPushButtonSave->setDisabled(isExecuting == false && qComboBoxScriptList->currentText().isEmpty());
+    qPushButtonDelete->setDisabled(isExecuting == false && qComboBoxScriptList->currentText().isEmpty());
+    qPushButtonExecute->setDisabled(isExecuting == false && rowCount == 0);
 
-    qPushButtonAdd->setEnabled(rowSelectedCount <= 1);
-    qPushButtonRemove->setEnabled(rowSelectedCount > 0);
+    qPushButtonAdd->setEnabled(isExecuting == false && rowSelectedCount <= 1);
+    qPushButtonRemove->setEnabled(isExecuting == false && rowSelectedCount > 0);
 
-    qPushButtonUp->setEnabled(rowSelectedCount == 1 && qTableWidgetScript->selectionModel()->selectedRows().at(0).row() > 0);
-    qPushButtonDown->setEnabled(rowSelectedCount == 1 && qTableWidgetScript->selectionModel()->selectedRows().at(0).row() < rowCount - 1);
+    qPushButtonUp->setEnabled(isExecuting == false && rowSelectedCount == 1 && qTableWidgetScript->selectionModel()->selectedRows().at(0).row() > 0);
+    qPushButtonDown->setEnabled(isExecuting == false && rowSelectedCount == 1 && qTableWidgetScript->selectionModel()->selectedRows().at(0).row() < rowCount - 1);
 
-    qPushButtonCopy->setEnabled(rowSelectedCount > 0);
-    qPushButtonPaste->setEnabled(copyPasteList.isEmpty() == false);
+    qPushButtonCopy->setEnabled(isExecuting == false && rowSelectedCount > 0);
+    qPushButtonPaste->setEnabled(isExecuting == false && copyPasteList.isEmpty() == false);
 
 }
 
@@ -1294,6 +1206,45 @@ void _QTableWidgetScript::resizeEvent(QResizeEvent *)
         refreshSize();
         initialized = true;
     }
+
+}
+
+
+
+
+
+
+// ============================================================
+//  _QTHREAD METHODS
+// ============================================================
+_QThread::_QThread(QString pProgram, QString pParameters, int pTimeOut)
+{
+
+    program = pProgram;
+    parameters = pParameters;
+    timeOut = pTimeOut;
+
+}
+
+
+void _QThread::run()
+{
+
+    QProcess *qProcess;
+    QStringList qStringList;
+
+    qProcess = new QProcess(this);
+    if (parameters.isEmpty())
+    {
+        qProcess->start(program);
+    }
+    else
+    {
+        qStringList.append(parameters);
+        qProcess->start(program, qStringList);
+    }
+    qProcess->waitForFinished(timeOut);
+    qProcess->kill();
 
 }
 
