@@ -33,6 +33,7 @@
 #include <QMessageBox>
 #include <QCheckBox>
 #include <QSpinBox>
+#include <UserMessage.h>
 
 
 
@@ -636,12 +637,10 @@ void QEScript::buttonExecuteClicked()
     int j;
 
 
+    qProcess = new QProcess(this);
 
     isExecuting = true;
     updateWidgets();
-
-
-    qProcess = new QProcess(this);
     for(i = 0; i < qTableWidgetScript->rowCount(); i++)
     {
         qTableWidgetScript->selectRow(i);
@@ -693,23 +692,30 @@ void QEScript::buttonExecuteClicked()
                 {
                     QCoreApplication::processEvents();
                     qProcess->waitForFinished(100);
-                    if (j == 0 || qProcess->state() != QProcess::Running)
+                    if (qProcess->state() == QProcess::Running)
+                    {
+                        if (j == 0)
+                        {
+                            if (log)
+                            {
+                                sendMessage("Aborting execution of program #" + QString::number(i + 1) + " since " + QString::number(timeOut) + " seconds have passed");
+                            }
+                            qProcess->kill();
+                            break;
+                        }
+                        else if (j > 0)
+                        {
+                            j--;
+                        }
+                    }
+                    else
                     {
                         if (log)
                         {
-                            sendMessage("Aborting execution of program #" + QString::number(i + 1) + " since " + QString::number(timeOut) + " seconds have passed");
+                            sendMessage("Finished executing program #" + QString::number(i + 1));
                         }
-                        qProcess->kill();
                         break;
                     }
-                    else if (j > 0)
-                    {
-                        j--;
-                    }
-                }
-                if (log)
-                {
-                    sendMessage("Finished executing program #" + QString::number(i + 1));
                 }
             }
         }
@@ -1018,9 +1024,11 @@ void QEScript::updateWidgets()
     rowCount = qTableWidgetScript->rowCount();
     rowSelectedCount = qTableWidgetScript->selectionModel()->selectedRows().count();
 
-    qPushButtonSave->setDisabled(isExecuting == false && qComboBoxScriptList->currentText().isEmpty());
-    qPushButtonDelete->setDisabled(isExecuting == false && qComboBoxScriptList->currentText().isEmpty());
-    qPushButtonExecute->setDisabled(isExecuting == false && rowCount == 0);
+    qComboBoxScriptList->setEnabled(isExecuting == false);
+    qPushButtonNew->setEnabled(isExecuting == false);
+    qPushButtonSave->setEnabled(isExecuting == false && qComboBoxScriptList->currentText().isEmpty() == false);
+    qPushButtonDelete->setEnabled(isExecuting == false && qComboBoxScriptList->currentText().isEmpty());
+    qPushButtonExecute->setEnabled(isExecuting == false && rowCount > 0);
 
     qPushButtonAdd->setEnabled(isExecuting == false && rowSelectedCount <= 1);
     qPushButtonRemove->setEnabled(isExecuting == false && rowSelectedCount > 0);
