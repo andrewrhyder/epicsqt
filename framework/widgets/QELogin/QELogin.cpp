@@ -201,6 +201,8 @@ bool QELogin::login( userLevelTypes::userLevels level, QString password )
         userLevelTypes::userLevels currentLevel = getUserLevel();
         if( level != currentLevel )
         {
+            userLevelTypes::userLevels currentLevel = getUserLevel();
+            sendMessage("The user type was changed from '" + getUserTypeName( currentLevel ) + "' to '" + getUserTypeName( level ) + "'");
             loginHistory.push( currentLevel );
             setUserLevel( level);
             setCurrentLevelText();
