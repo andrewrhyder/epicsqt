@@ -112,33 +112,6 @@ class _CopyPaste
 
 
 // ============================================================
-//  _QTHREAD CLASS
-// ============================================================
-class _QThread : public QThread
-{
-
-    Q_OBJECT
-
-    private:
-        QString program;
-        QString parameters;
-        int timeOut;
-
-    public:
-        _QThread(QString pProgram, QString pParameters, int pTimeOut);
-
-
-    public:
-        void run();
-
-
-};
-
-
-
-
-
-// ============================================================
 //  QESCRIPT METHODS
 // ============================================================
 class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
@@ -406,8 +379,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
         void selected(QString pFilename);
 
 };
-
-
 
 
 

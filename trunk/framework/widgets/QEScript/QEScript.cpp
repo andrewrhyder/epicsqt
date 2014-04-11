@@ -625,16 +625,23 @@ void QEScript::buttonDeleteClicked()
 
 void QEScript::buttonExecuteClicked()
 {
-    _QThread *qThread;
+
+    QProcess *qProcess;
+    QStringList qStringList;
     QString program;
+    QString parameters;
     int timeOut;
     bool log;
     int i;
+    int j;
+
 
 
     isExecuting = true;
     updateWidgets();
 
+
+    qProcess = new QProcess(this);
     for(i = 0; i < qTableWidgetScript->rowCount(); i++)
     {
         qTableWidgetScript->selectRow(i);
@@ -662,7 +669,7 @@ void QEScript::buttonExecuteClicked()
                     {
                         sendMessage("Executing program #" + QString::number(i + 1) + " until it finishes");
                     }
-                    timeOut = -1;
+                    j = -1;
                 }
                 else
                 {
@@ -670,10 +677,36 @@ void QEScript::buttonExecuteClicked()
                     {
                         sendMessage("Executing program #" + QString::number(i + 1) + " for " + QString::number(timeOut) + " seconds");
                     }
-                    timeOut = timeOut * 1000;
+                    j = timeOut * 10;
                 }
-                qThread = new _QThread(program, qTableWidgetScript->item(i, 3)->text().trimmed(), timeOut);
-                qThread->run();
+                parameters = qTableWidgetScript->item(i, 3)->text().trimmed();
+                if (parameters.isEmpty())
+                {
+                    qProcess->start(program);
+                }
+                else
+                {
+                    qStringList.append(parameters);
+                    qProcess->start(program, qStringList);
+                }
+                while(true)
+                {
+                    QCoreApplication::processEvents();
+                    qProcess->waitForFinished(100);
+                    if (j == 0 || qProcess->state() != QProcess::Running)
+                    {
+                        if (log)
+                        {
+                            sendMessage("Aborting execution of program #" + QString::number(i + 1) + " since " + QString::number(timeOut) + " seconds have passed");
+                        }
+                        qProcess->kill();
+                        break;
+                    }
+                    else if (j > 0)
+                    {
+                        j--;
+                    }
+                }
                 if (log)
                 {
                     sendMessage("Finished executing program #" + QString::number(i + 1));
@@ -998,6 +1031,8 @@ void QEScript::updateWidgets()
     qPushButtonCopy->setEnabled(isExecuting == false && rowSelectedCount > 0);
     qPushButtonPaste->setEnabled(isExecuting == false && copyPasteList.isEmpty() == false);
 
+    qTableWidgetScript->setEnabled(isExecuting == false);
+
 }
 
 
@@ -1209,43 +1244,5 @@ void _QTableWidgetScript::resizeEvent(QResizeEvent *)
 
 }
 
-
-
-
-
-
-// ============================================================
-//  _QTHREAD METHODS
-// ============================================================
-_QThread::_QThread(QString pProgram, QString pParameters, int pTimeOut)
-{
-
-    program = pProgram;
-    parameters = pParameters;
-    timeOut = pTimeOut;
-
-}
-
-
-void _QThread::run()
-{
-
-    QProcess *qProcess;
-    QStringList qStringList;
-
-    qProcess = new QProcess(this);
-    if (parameters.isEmpty())
-    {
-        qProcess->start(program);
-    }
-    else
-    {
-        qStringList.append(parameters);
-        qProcess->start(program, qStringList);
-    }
-    qProcess->waitForFinished(timeOut);
-    qProcess->kill();
-
-}
 
 
