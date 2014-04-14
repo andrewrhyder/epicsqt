@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1055</width>
+    <width>1312</width>
     <height>844</height>
    </rect>
   </property>
@@ -142,13 +142,16 @@
      <property name="showTime">
       <bool>true</bool>
      </property>
-     <property name="enableBrightnessContrast">
+     <property name="enableImageDisplayProperties">
       <bool>true</bool>
      </property>
-     <property name="externalControls">
+     <property name="enableRecording">
       <bool>true</bool>
      </property>
      <property name="briefInfoArea">
+      <bool>true</bool>
+     </property>
+     <property name="enableBrightnessContrast" stdset="0">
       <bool>true</bool>
      </property>
      <property name="profileHVariable" stdset="0">
@@ -966,6 +969,11 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>QwtPlot</class>
+   <extends>QFrame</extends>
+   <header>qwt_plot.h</header>
+  </customwidget>
+  <customwidget>
    <class>QEImage</class>
    <extends>QFrame</extends>
    <header>QEImage.h</header>
@@ -979,11 +987,6 @@
    <class>QEPlot</class>
    <extends>QwtPlot</extends>
    <header>QEPlot.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QwtPlot</class>
-   <extends>QFrame</extends>
-   <header>qwt_plot.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

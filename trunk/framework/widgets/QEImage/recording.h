@@ -66,7 +66,6 @@ public:
     playbackTimer( recording* recorderIn ){ recorder = recorderIn; }
     recording* recorder;
     void timerEvent( QTimerEvent * event );
-
 };
 
 class recording : public QWidget
@@ -89,10 +88,12 @@ public:
 
 private:
 
-    void enableControls();
     void startPlaying();
     void stopPlaying();
     void showRecordedFrame( int currentFrame );
+
+    void stopRecording();
+
 
     playbackTimer* timer;
 
@@ -109,13 +110,14 @@ private slots:
     void on_pushButtonRecord_toggled(bool checked);
     void on_pushButtonClear_clicked();
 
-    void on_pushButtonPause_toggled(bool checked);
+//    void on_pushButtonPause_toggled(bool checked);
 
     void on_pushButtonLastImage_clicked();
     void on_pushButtonNextImage_clicked();
     void on_pushButtonFirstImage_clicked();
     void on_pushButtonPreviousImage_clicked();
     void on_horizontalSliderPosition_valueChanged(int value);
+    void on_radioButtonLive_toggled(bool checked);
 };
 
 #endif // RECORDING_H
