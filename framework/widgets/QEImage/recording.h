@@ -14,7 +14,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2012
+ *  Copyright (c) 2014
  *
  *  Author:
  *    Andrew Rhyder
@@ -36,17 +36,15 @@
 #include <QByteArray>
 #include <QCaAlarmInfo.h>
 #include <QCaDateTime.h>
-//#include <QDebug>
 
+// Class used to hold a record of a single image
+// Used when building a list of recorded images
 class historicImage
 {
 public:
     historicImage( QByteArray image, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& time );
+    ~historicImage(){}
 
-//    historicImage(historicImage* other ){ qDebug() << "historicImage(historicImage* other )"; image = other->image;
-//                                          dataSize = other->dataSize;
-//                                          alarmInfo = other->alarmInfo;
-//                                          time = other->time; }
     QByteArray image;
     unsigned long dataSize;
     QCaAlarmInfo alarmInfo;
@@ -59,6 +57,7 @@ namespace Ui {
 
 class recording;
 
+// Playback timer used to timer replay rate of historic images
 class playbackTimer : public QTimer
 {
     Q_OBJECT
@@ -68,6 +67,7 @@ public:
     void timerEvent( QTimerEvent * event );
 };
 
+// Class used to manage recording for QEImage including playback controls.
 class recording : public QWidget
 {
     Q_OBJECT
@@ -76,30 +76,27 @@ public:
     explicit recording( QWidget *parent = 0 );
     ~recording();
 
-    int getLimit();
-    void setLimit( int limit );
+    bool isRecording();             // Determine if in playback or record mode
+    void recordImage( QByteArray image, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& time );  // Save a new image
 
-    void reset();
-
-    bool isRecording();
-    void recordImage( QByteArray image, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& time );
-
-    void nextFrameDue();
+    void nextFrameDue();             // Present the next frame due when playing back (public so accessible by playback timer class)
 
 private:
-
-    void startPlaying();
-    void stopPlaying();
+    void reset();                   // Initialise controls
+    void startPlaying();            // Start playing back recorded images
+    void stopPlaying();             // Stop playback (still in playback mode)
     void showRecordedFrame( int currentFrame );
 
-    void stopRecording();
+    playbackTimer* timer;           // Playback timer
+    Ui::recording *ui;              // Recording and playback controls
+    QList<historicImage> history;   // Saved images
 
+    // Icons
+    QIcon* pauseIcon;
+    QIcon* playIcon;
+    QIcon* recordIcon;
+    QIcon* stopIcon;
 
-    playbackTimer* timer;
-
-    Ui::recording *ui;
-
-    QList<historicImage> history;
 
 signals:
   void byteArrayChanged( const QByteArray& value, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );

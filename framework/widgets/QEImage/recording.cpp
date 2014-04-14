@@ -14,7 +14,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2012
+ *  Copyright (c) 2014
  *
  *  Author:
  *    Andrew Rhyder
@@ -28,106 +28,91 @@
 
 #include "recording.h"
 #include "ui_recording.h"
-#include <QDebug>
 
+// Construction
 recording::recording( QWidget* parent ) :
     QWidget(parent),
     ui(new Ui::recording)
 {
+    // Present controls
     ui->setupUi(this);
 
+    // Prepare playback timer
     timer = new playbackTimer( this );
+
+    // Create icons
+    pauseIcon = new QIcon( ":/qe/image/pause.png" );
+    playIcon = new QIcon( ":/qe/image/play.png" );
+    recordIcon = new QIcon( ":/qe/image/record.png" );
+    stopIcon = new QIcon( ":/qe/image/stop.png" );
 
     // Initialise
     reset();
-
 }
 
+// Destruction
 recording::~recording()
 {
     delete ui;
+
+    delete pauseIcon;
+    delete playIcon;
+    delete recordIcon;
+    delete stopIcon;
 }
 
+// Set default control values
 void recording::reset()
 {
     ui->doubleSpinBoxPlaybackRate->setValue( 1.0 );
     ui->doubleSpinBoxPlaybackRate->setMaximum( 10.0 );
     ui->doubleSpinBoxPlaybackRate->setMinimum( 0.02 );
     ui->horizontalSliderPosition->setValue( 0 );
-    setLimit( 20 );
+    ui->spinBoxMaxImages->setValue( 20 );
     ui->groupBoxPlayback->setVisible( false );
 }
 
-int recording::getLimit()
-{
-    return ui->spinBoxMaxImages->value();
-}
-
-void recording::setLimit( int limit )
-{
-    ui->spinBoxMaxImages->setValue( limit );
-}
-
+// Return if recording is in progress
+// Used by QEImage to stop displaying live images
 bool recording::isRecording()
 {
     return ui->pushButtonRecord->isChecked();
 }
 
+// Record an image.
+// Used by QEImage to record a new image.
 void recording::recordImage( QByteArray image, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& time )
 {
-    if( history.count() >= getLimit() && !ui->radioButtonStopAtLimit->isChecked() )
+    // Determine behaviour
+    bool stopAtLimit = ui->radioButtonStopAtLimit->isChecked();
+    int limit = ui->spinBoxMaxImages->value();
+
+    // Discard images if limit has been reached and not stopping when limit is reached
+    if( history.count() >= limit && !stopAtLimit )
     {
         history.removeFirst();
-        qDebug() << "remove one";
     }
 
-    history.append( historicImage( image, dataSize, alarmInfo, time ) );
-
-    ui->horizontalSliderPosition->setMaximum( history.count()-1 );
-    ui->horizontalSliderPosition->setValue( history.count()-1 );
-    ui->labelImageCountRecord->setText( QString( "%1" ).arg( history.count() ) );
-
-
-    if( history.count() >= getLimit() && ui->radioButtonStopAtLimit->isChecked() )
+    // If not at limit, add new image
+    if( history.count() < limit )
     {
-        qDebug() << "stopping recording as limit is reached";
-        stopRecording();
+        history.append( historicImage( image, dataSize, alarmInfo, time ) );
+
+        ui->labelImageCountRecord->setText( QString( "%1" ).arg( history.count() ) );
     }
 
+    // If limit has been reached, and stopping when limit is reached, then stop recording
+    if( history.count() >= limit && stopAtLimit )
+    {
+        ui->pushButtonRecord->setChecked( false );
+    }
+
+    // At least one image is present, enable 'clear' and 'playback mode' buttons
     ui->pushButtonClear->setEnabled( true );
     ui->radioButtonPlayback->setEnabled( true );
 }
 
-void recording::on_pushButtonRecord_toggled( bool checked )
-{
-    if( checked )
-    {
-//        ui->pushButtonRecord->setIcon( stopIcon );
-        ui->pushButtonRecord->setText( "Stop" );
-    }
-    else
-    {
-//        ui->pushButtonRecord->setIcon( recordIcon );
-        ui->pushButtonRecord->setText( "Record" );
-    }
-}
-
-void recording::on_pushButtonPlay_toggled(bool checked)
-{
-    if( checked )
-    {
-        // ui->pushButtonPlay->setIcon( pauseIcon );
-        ui->pushButtonPlay->setText( "Pause" );
-        startPlaying();
-    }
-    else
-    {
-        // ui->pushButtonPlay->setIcon( playIcon );
-        ui->pushButtonPlay->setText( "Play" );
-        stopPlaying();
-    }
-}
-
+// Start playing back recorded images
 void recording::startPlaying()
 {
     if( ui->horizontalSliderPosition->value() == ui->horizontalSliderPosition->maximum() )
@@ -138,17 +123,14 @@ void recording::startPlaying()
 
 }
 
+// Stop playback (still in playback mode)
 void recording::stopPlaying()
 {
     ui->pushButtonPlay->setChecked( false );
     timer->stop();
 }
 
-void playbackTimer::timerEvent( QTimerEvent* )
-{
-    recorder->nextFrameDue();
-}
-
+// Show a specified frame in the QEImage class
 void recording::showRecordedFrame( int currentFrame )
 {
     // Get and display the frame
@@ -160,40 +142,42 @@ void recording::showRecordedFrame( int currentFrame )
     }
 }
 
-void recording::nextFrameDue()
+// ================================================
+// Control slots
+
+void recording::on_pushButtonRecord_toggled( bool checked )
 {
-    int currentFrame = ui->horizontalSliderPosition->value();
-    showRecordedFrame( currentFrame );
-
-    // If done all frames, loop if looping, otherwise stop
-    if( ui->horizontalSliderPosition->value() == ui->horizontalSliderPosition->maximum() )
+    // Set icon
+    if( checked )
     {
-        if( ui->checkBoxLoop->isChecked() )
-        {
-            ui->horizontalSliderPosition->setValue( 0 );
-        }
-        else
-        {
-            stopPlaying();
-        }
+        ui->pushButtonRecord->setIcon( *stopIcon );
     }
-
-    // If not done all frames, step on to the next
     else
     {
-        ui->horizontalSliderPosition->setValue( currentFrame+1 );
+        ui->pushButtonRecord->setIcon( *recordIcon );
     }
+}
 
-    // Set the due time for the next frame
-    timer->setInterval( ui->doubleSpinBoxPlaybackRate->value() * 1000 );
+void recording::on_pushButtonPlay_toggled(bool checked)
+{
+    // Set icon and stop or start playback
+    if( checked )
+    {
+        ui->pushButtonPlay->setIcon( *pauseIcon );
+        startPlaying();
+    }
+    else
+    {
+        ui->pushButtonPlay->setIcon( *playIcon );
+        stopPlaying();
+    }
 }
 
 void recording::on_pushButtonClear_clicked()
 {
     history.clear();
     ui->labelImageCountRecord->setText( "0" );
-    ui->horizontalSliderPosition->setMaximum( 0 );
-    ui->horizontalSliderPosition->setValue( 0 );
+    ui->radioButtonPlayback->setEnabled( false );
 }
 
 
@@ -253,20 +237,57 @@ void recording::on_radioButtonLive_toggled( bool checked )
     {
         if( ui->pushButtonRecord->isChecked() )
         {
-            stopRecording();
+            ui->pushButtonRecord->setChecked( false );
         }
+        ui->horizontalSliderPosition->setMaximum( history.count()-1 );
+
         on_pushButtonFirstImage_clicked();
     }
 
-    // Enable appropriate controls
+    // Enable appropriate controls (playback or record)
     ui->groupBoxLive->setVisible( ui->radioButtonLive->isChecked() );
     ui->groupBoxPlayback->setVisible( !ui->radioButtonLive->isChecked() );
 
+    // Signal to the QEImage that recorder is in playback or record mode
     emit playingBack( !checked );
-
 }
 
-void recording::stopRecording()
+
+// ================================================
+// Playback timer class
+void playbackTimer::timerEvent( QTimerEvent* )
 {
-    ui->pushButtonRecord->setChecked( false );
+    recorder->nextFrameDue();
 }
+// ================================================
+
+// Present the next frame due when playing back.
+// Used by the playback timer class.
+void recording::nextFrameDue()
+{
+    int currentFrame = ui->horizontalSliderPosition->value();
+    showRecordedFrame( currentFrame );
+
+    // If done all frames, loop if looping, otherwise stop
+    if( ui->horizontalSliderPosition->value() == ui->horizontalSliderPosition->maximum() )
+    {
+        if( ui->checkBoxLoop->isChecked() )
+        {
+            ui->horizontalSliderPosition->setValue( 0 );
+        }
+        else
+        {
+            stopPlaying();
+        }
+    }
+
+    // If not done all frames, step on to the next
+    else
+    {
+        ui->horizontalSliderPosition->setValue( currentFrame+1 );
+    }
+
+    // Set the due time for the next frame
+    timer->setInterval( ui->doubleSpinBoxPlaybackRate->value() * 1000 );
+}
+

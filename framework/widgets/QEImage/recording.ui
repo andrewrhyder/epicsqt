@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>550</width>
-    <height>204</height>
+    <width>549</width>
+    <height>216</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -60,11 +60,18 @@
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <widget class="QPushButton" name="pushButtonRecord">
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="toolTip">
            <string>Record live images</string>
           </property>
-          <property name="text">
-           <string>Record</string>
+          <property name="icon">
+           <iconset resource="QEImage.qrc">
+            <normaloff>:/qe/image/record.png</normaloff>:/qe/image/record.png</iconset>
           </property>
           <property name="checkable">
            <bool>true</bool>
@@ -153,11 +160,18 @@
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
            <widget class="QPushButton" name="pushButtonPlay">
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="toolTip">
              <string>Play back recorded images</string>
             </property>
-            <property name="text">
-             <string>Play</string>
+            <property name="icon">
+             <iconset resource="QEImage.qrc">
+              <normaloff>:/qe/image/play.png</normaloff>:/qe/image/play.png</iconset>
             </property>
             <property name="checkable">
              <bool>true</bool>
@@ -166,6 +180,12 @@
           </item>
           <item>
            <widget class="QDoubleSpinBox" name="doubleSpinBoxPlaybackRate">
+            <property name="maximumSize">
+             <size>
+              <width>70</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="toolTip">
              <string>Interval (in seconds) between image updates</string>
             </property>
@@ -187,6 +207,12 @@
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
            <widget class="QPushButton" name="pushButtonFirstImage">
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="toolTip">
              <string>First recorded image</string>
             </property>
@@ -197,6 +223,12 @@
           </item>
           <item>
            <widget class="QPushButton" name="pushButtonPreviousImage">
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="toolTip">
              <string>Previous recorded image</string>
             </property>
@@ -217,6 +249,12 @@
           </item>
           <item>
            <widget class="QPushButton" name="pushButtonNextImage">
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="toolTip">
              <string>Next recorded image</string>
             </property>
@@ -227,6 +265,12 @@
           </item>
           <item>
            <widget class="QPushButton" name="pushButtonLastImage">
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="toolTip">
              <string>Last recorded image</string>
             </property>
@@ -273,6 +317,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="QEImage.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -692,6 +692,9 @@
      <property name="enableImageDisplayProperties">
       <bool>true</bool>
      </property>
+     <property name="enableRecording">
+      <bool>true</bool>
+     </property>
      <property name="briefInfoArea">
       <bool>true</bool>
      </property>
