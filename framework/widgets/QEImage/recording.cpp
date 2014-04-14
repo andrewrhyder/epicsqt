@@ -55,7 +55,7 @@ void recording::reset()
     ui->doubleSpinBoxPlaybackRate->setMinimum( 0.02 );
     ui->horizontalSliderPosition->setValue( 0 );
     setLimit( 20 );
-    enableControls();
+    ui->groupBoxPlayback->setVisible( false );
 }
 
 int recording::getLimit()
@@ -75,17 +75,27 @@ bool recording::isRecording()
 
 void recording::recordImage( QByteArray image, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& time )
 {
-    if( history.count() >= getLimit() )
+    if( history.count() >= getLimit() && !ui->radioButtonStopAtLimit->isChecked() )
     {
         history.removeFirst();
+        qDebug() << "remove one";
     }
 
     history.append( historicImage( image, dataSize, alarmInfo, time ) );
 
     ui->horizontalSliderPosition->setMaximum( history.count()-1 );
     ui->horizontalSliderPosition->setValue( history.count()-1 );
-    ui->labelImageCount->setText( QString( "%1" ).arg( history.count() ) );
-    ui->pushButtonClear->setEnabled( history.count() );
+    ui->labelImageCountRecord->setText( QString( "%1" ).arg( history.count() ) );
+
+
+    if( history.count() >= getLimit() && ui->radioButtonStopAtLimit->isChecked() )
+    {
+        qDebug() << "stopping recording as limit is reached";
+        stopRecording();
+    }
+
+    ui->pushButtonClear->setEnabled( true );
+    ui->radioButtonPlayback->setEnabled( true );
 }
 
 void recording::on_pushButtonRecord_toggled( bool checked )
@@ -100,48 +110,26 @@ void recording::on_pushButtonRecord_toggled( bool checked )
 //        ui->pushButtonRecord->setIcon( recordIcon );
         ui->pushButtonRecord->setText( "Record" );
     }
-
-    enableControls();
-}
-
-void recording::enableControls()
-{
-    // playback controls should be enabled if not recording, and if history is available
-    bool playback = ( !ui->pushButtonRecord->isChecked() && history.count() );
-
-    ui->pushButtonPlay            ->setEnabled( playback );
-    ui->pushButtonFirstImage      ->setEnabled( playback );
-    ui->pushButtonPreviousImage   ->setEnabled( playback );
-    ui->pushButtonNextImage       ->setEnabled( playback );
-    ui->pushButtonLastImage       ->setEnabled( playback );
-    ui->pushButtonPause           ->setEnabled( playback && ui->pushButtonPlay->isChecked() );
-    ui->pushButtonRecord          ->setEnabled( !playback || !ui->pushButtonPlay->isChecked() );
-    ui->horizontalSliderPosition  ->setEnabled( playback );
-
-    ui->pushButtonClear->setEnabled( history.count() );
-
-    if( !ui->pushButtonPause->isEnabled() )
-    {
-        ui->pushButtonPause->setChecked( false );
-    }
 }
 
 void recording::on_pushButtonPlay_toggled(bool checked)
 {
     if( checked )
     {
+        // ui->pushButtonPlay->setIcon( pauseIcon );
+        ui->pushButtonPlay->setText( "Pause" );
         startPlaying();
     }
     else
     {
+        // ui->pushButtonPlay->setIcon( playIcon );
+        ui->pushButtonPlay->setText( "Play" );
         stopPlaying();
     }
-    enableControls();
 }
 
 void recording::startPlaying()
 {
-    emit playingBack( true );
     if( ui->horizontalSliderPosition->value() == ui->horizontalSliderPosition->maximum() )
     {
         ui->horizontalSliderPosition->setValue( 0 );
@@ -154,9 +142,6 @@ void recording::stopPlaying()
 {
     ui->pushButtonPlay->setChecked( false );
     timer->stop();
-    emit playingBack( false ); //!!! this is wrong. Should allow updates when 'live' button is pressed
-
-    enableControls();
 }
 
 void playbackTimer::timerEvent( QTimerEvent* )
@@ -169,7 +154,7 @@ void recording::showRecordedFrame( int currentFrame )
     // Get and display the frame
     if( currentFrame < history.count() )
     {
-        ui->labelImageCount->setText( QString( "%1/%2" ).arg( currentFrame ).arg( ui->horizontalSliderPosition->maximum() ) );
+        ui->labelImageCountPlayback->setText( QString( "%1/%2" ).arg( currentFrame+1 ).arg( ui->horizontalSliderPosition->maximum()+1 ) );
         historicImage frame = history.at( currentFrame );
         emit byteArrayChanged( frame.image, frame.dataSize, frame.alarmInfo, frame.time, 0 );
     }
@@ -183,7 +168,7 @@ void recording::nextFrameDue()
     // If done all frames, loop if looping, otherwise stop
     if( ui->horizontalSliderPosition->value() == ui->horizontalSliderPosition->maximum() )
     {
-        if( ui->pushButtonLoop->isChecked() )
+        if( ui->checkBoxLoop->isChecked() )
         {
             ui->horizontalSliderPosition->setValue( 0 );
         }
@@ -206,26 +191,11 @@ void recording::nextFrameDue()
 void recording::on_pushButtonClear_clicked()
 {
     history.clear();
-    ui->labelImageCount->setText( "0" );
+    ui->labelImageCountRecord->setText( "0" );
     ui->horizontalSliderPosition->setMaximum( 0 );
     ui->horizontalSliderPosition->setValue( 0 );
-    enableControls();
 }
 
-void recording::on_pushButtonPause_toggled(bool checked)
-{
-    if( checked )
-    {
-        timer->stop();
-    }
-    else
-    {
-        if( history.count() )
-        {
-            timer->start();
-        }
-    }
-}
 
 void recording::on_pushButtonPreviousImage_clicked()
 {
@@ -265,4 +235,38 @@ void recording::on_pushButtonLastImage_clicked()
 void recording::on_horizontalSliderPosition_valueChanged(int value)
 {
     showRecordedFrame( value );
+}
+
+void recording::on_radioButtonLive_toggled( bool checked )
+{
+    // If going to live mode, ensure no longer playing
+    if( checked )
+    {
+        if( ui->pushButtonPlay->isChecked() )
+        {
+            stopPlaying();
+        }
+    }
+
+    // If going to playback mode, ensure no longer recording
+    else
+    {
+        if( ui->pushButtonRecord->isChecked() )
+        {
+            stopRecording();
+        }
+        on_pushButtonFirstImage_clicked();
+    }
+
+    // Enable appropriate controls
+    ui->groupBoxLive->setVisible( ui->radioButtonLive->isChecked() );
+    ui->groupBoxPlayback->setVisible( !ui->radioButtonLive->isChecked() );
+
+    emit playingBack( !checked );
+
+}
+
+void recording::stopRecording()
+{
+    ui->pushButtonRecord->setChecked( false );
 }
