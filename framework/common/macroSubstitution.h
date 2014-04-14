@@ -67,4 +67,4 @@ private:
 
 };
 
-#endif // VARIABLENAMEMANAGER_H
+#endif // MACROSUBSTITUTION_H
