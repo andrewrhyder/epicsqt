@@ -196,7 +196,7 @@ void QEShape::establishConnection( unsigned int variableIndex ) {
 //        setValue( 0, QCaAlarmInfo(), QCaDateTime(), variableIndex );  //??? should this be moved up before the create connection? if create connection fails, then any previous data should be cleared? do for all types if required
         QObject::connect( qca,  SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
                           this, SLOT( setValue( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
-        QObject::connect( qca,  SIGNAL( integerConnectionChanged( QCaConnectionInfo&, const unsigned int&  ) ),
+        QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo&, const unsigned int&  ) ),
                           this, SLOT( connectionChanged( QCaConnectionInfo&, const unsigned int&  ) ) );
     }
 }
