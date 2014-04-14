@@ -130,25 +130,31 @@ public:
    //
    QPoint pixelDistance (const QPointF& from, const QPointF& to);
 
-   // Set and get attribute functions
+   // Set and get axis attribute functions
    //
+   void setAxisEnableX (const bool enable) { this->xAxis->setAxisEnable (enable);  }
+   bool getAxisEnableX () const            { return this->xAxis->getAxisEnable (); }
+
+   void setAxisEnableY (const bool enable) { this->xAxis->setAxisEnable (enable);  }
+   bool getAxisEnableY () const            { return this->yAxis->getAxisEnable (); }
+
    void setXScale (const double scale) { this->xAxis->setScale (scale);    }
-   double getXScale ()                 { return this->xAxis->getScale ();  }
+   double getXScale () const           { return this->xAxis->getScale ();  }
 
    void setXOffset (const double offset) { this->xAxis->setOffset (offset);   }
-   double getXOffset ()                  { return this->xAxis->getOffset ();  }
+   double getXOffset () const            { return this->xAxis->getOffset ();  }
 
    void setXLogarithmic (const bool isLog) { this->xAxis->setLogarithmic (isLog);   }
-   bool getXLogarithmic ()                 { return this->xAxis->getLogarithmic (); }
+   bool getXLogarithmic () const           { return this->xAxis->getLogarithmic (); }
 
    void setYScale (const double scale) { this->yAxis->setScale (scale);    }
-   double getYScale ()                 { return this->yAxis->getScale ();  }
+   double getYScale () const           { return this->yAxis->getScale ();  }
 
    void setYOffset (const double offset) { this->yAxis->setOffset (offset);   }
-   double getYOffset ()                  { return this->yAxis->getOffset ();  }
+   double getYOffset () const            { return this->yAxis->getOffset ();  }
 
    void setYLogarithmic (const bool isLog) { this->yAxis->setLogarithmic (isLog);   }
-   bool getYLogarithmic ()                 { return this->yAxis->getLogarithmic (); }
+   bool getYLogarithmic () const           { return this->yAxis->getLogarithmic (); }
 
    // Set and get current curve attributes.
    // These are used for internally allocated curves.
@@ -203,14 +209,17 @@ private:
 
       double scaleValue (const double coordinate) const;
 
+      void setAxisEnable (const bool axisEnable);
+      bool getAxisEnable () const;
+
       void setScale (const double scale);
-      double getScale ();
+      double getScale () const;
 
       void setOffset (const double offset);
-      double getOffset ();
+      double getOffset () const;
 
       void setLogarithmic (const bool logarithmic);
-      bool getLogarithmic ();
+      bool getLogarithmic () const;
 
    private:
       QwtPlot* plot;
@@ -220,6 +229,8 @@ private:
       AxisMajorIntervalModes intervalMode;
       int intervalValue;
       int transitionCount;
+      bool axisEnabled;
+
       bool isLogarithmic;   // vs. Linear
 
       // Data scaling x' = mx + c. This is applied before any log10 scaling.

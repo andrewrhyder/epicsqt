@@ -55,6 +55,7 @@ QEGraphic::Axis::Axis (QwtPlot* plotIn, const int axisIdIn)
    this->isLogarithmic = false;
    this->scale = 1.0;
    this->offset  = 0.0;
+   this->axisEnabled = true;
 
    // Set 'current' ranges.
    //
@@ -219,6 +220,21 @@ double QEGraphic::Axis::scaleValue (const double coordinate) const
 
 //------------------------------------------------------------------------------
 //
+void QEGraphic::Axis::setAxisEnable (const bool axisEnable)
+{
+   this->axisEnabled = axisEnable;
+   this->plot->enableAxis (this->axisId, this->axisEnabled);
+}
+
+//------------------------------------------------------------------------------
+//
+bool QEGraphic::Axis::getAxisEnable () const
+{
+   return this->axisEnabled;
+}
+
+//------------------------------------------------------------------------------
+//
 void QEGraphic::Axis::setScale (const double scaleIn)
 {
    this->scale = scaleIn;
@@ -226,7 +242,7 @@ void QEGraphic::Axis::setScale (const double scaleIn)
 
 //------------------------------------------------------------------------------
 //
-double QEGraphic::Axis::getScale ()
+double QEGraphic::Axis::getScale () const
 {
    return this->scale;
 }
@@ -240,7 +256,7 @@ void QEGraphic::Axis::setOffset (const double offsetIn)
 
 //------------------------------------------------------------------------------
 //
-double QEGraphic::Axis::getOffset ()
+double QEGraphic::Axis::getOffset () const
 {
    return this->offset;
 }
@@ -261,7 +277,7 @@ void QEGraphic::Axis::setLogarithmic (const bool logarithmicIn)
 
 //------------------------------------------------------------------------------
 //
-bool QEGraphic::Axis::getLogarithmic ()
+bool QEGraphic::Axis::getLogarithmic () const
 {
    return this->isLogarithmic;
 }
