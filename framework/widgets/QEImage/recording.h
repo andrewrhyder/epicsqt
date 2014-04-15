@@ -107,8 +107,6 @@ private slots:
     void on_pushButtonRecord_toggled(bool checked);
     void on_pushButtonClear_clicked();
 
-//    void on_pushButtonPause_toggled(bool checked);
-
     void on_pushButtonLastImage_clicked();
     void on_pushButtonNextImage_clicked();
     void on_pushButtonFirstImage_clicked();
