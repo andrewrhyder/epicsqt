@@ -1952,7 +1952,7 @@ void QEImage::displayImage()
                 BUILD_STATS
 
                 // Scale pixel for local brightness and contrast
-                ( inPixel < pixelLow ) ? inPixel = 0 : ( inPixel > pixelHigh ) ? inPixel = 255 : inPixel = (inPixel-pixelLow)*255/pixelRange;
+                ( (int)inPixel < pixelLow ) ? inPixel = 0 : ( (int)inPixel > pixelHigh ) ? inPixel = 255 : inPixel = ((int)inPixel-pixelLow)*255/pixelRange;
 
                 // Select displayed pixel
                 dataOut[buffIndex] = pixelLookup[inPixel];
@@ -2371,9 +2371,9 @@ void QEImage::displayImage()
 
                 // Scale pixel for local brightness and contrast
                 // !!! This will introduce some hue issues. Should convert to HSV to manipulate brightness and contrast????
-                ( r < pixelLow ) ? r = 0 : ( r > pixelHigh ) ? r = 255 : r = (r-pixelLow)*255/pixelRange;
-                ( g < pixelLow ) ? g = 0 : ( g > pixelHigh ) ? g = 255 : g = (g-pixelLow)*255/pixelRange;
-                ( b < pixelLow ) ? b = 0 : ( b > pixelHigh ) ? b = 255 : b = (b-pixelLow)*255/pixelRange;
+                ( (int)r < pixelLow ) ? r = 0 : ( (int)r > pixelHigh ) ? r = 255 : r = (r-pixelLow)*255/pixelRange;
+                ( (int)g < pixelLow ) ? g = 0 : ( (int)g > pixelHigh ) ? g = 255 : g = (g-pixelLow)*255/pixelRange;
+                ( (int)b < pixelLow ) ? b = 0 : ( (int)b > pixelHigh ) ? b = 255 : b = (b-pixelLow)*255/pixelRange;
 
                 // Select displayed pixel
                 dataOut[buffIndex].p[0] = pixelLookup[b].p[0];
@@ -2406,9 +2406,9 @@ void QEImage::displayImage()
 
                 // Scale pixel for local brightness and contrast
                 // !!! This will introduce some hue issues. Should convert to HSV to manipulate brightness and contrast????
-                ( r < pixelLow ) ? r = 0 : ( r > pixelHigh ) ? r = 255 : r = (r-pixelLow)*255/pixelRange;
-                ( g < pixelLow ) ? g = 0 : ( g > pixelHigh ) ? g = 255 : g = (g-pixelLow)*255/pixelRange;
-                ( b < pixelLow ) ? b = 0 : ( b > pixelHigh ) ? b = 255 : b = (b-pixelLow)*255/pixelRange;
+                ( (int)r < pixelLow ) ? r = 0 : ( (int)r > pixelHigh ) ? r = 255 : r = (r-pixelLow)*255/pixelRange;
+                ( (int)g < pixelLow ) ? g = 0 : ( (int)g > pixelHigh ) ? g = 255 : g = (g-pixelLow)*255/pixelRange;
+                ( (int)b < pixelLow ) ? b = 0 : ( (int)b > pixelHigh ) ? b = 255 : b = (b-pixelLow)*255/pixelRange;
 
                 // Select displayed pixel
                 dataOut[buffIndex].p[0] = pixelLookup[b].p[0];
@@ -2436,9 +2436,9 @@ void QEImage::displayImage()
 
                     // Scale pixel for local brightness and contrast
                     // !!! This will introduce some hue issues. Should convert to HSV to manipulate brightness and contrast????
-                    ( r < pixelLow ) ? r = 0 : ( r > pixelHigh ) ? r = 255 : r = (r-pixelLow)*255/pixelRange;
-                    ( g < pixelLow ) ? g = 0 : ( g > pixelHigh ) ? g = 255 : g = (g-pixelLow)*255/pixelRange;
-                    ( b < pixelLow ) ? b = 0 : ( b > pixelHigh ) ? b = 255 : b = (b-pixelLow)*255/pixelRange;
+                    ( (int)r < pixelLow ) ? r = 0 : ( (int)r > pixelHigh ) ? r = 255 : r = (r-pixelLow)*255/pixelRange;
+                    ( (int)g < pixelLow ) ? g = 0 : ( (int)g > pixelHigh ) ? g = 255 : g = (g-pixelLow)*255/pixelRange;
+                    ( (int)b < pixelLow ) ? b = 0 : ( (int)b > pixelHigh ) ? b = 255 : b = (b-pixelLow)*255/pixelRange;
 
                     // Select displayed pixel
                     dataOut[buffIndex].p[0] = pixelLookup[b].p[0];

@@ -769,8 +769,8 @@ public slots:
 
     bool pixelLookupValid;  // pixelLookup is valid. It is invalid if anything that affects the translation changes, such as pixel format, local brigHtness, etc
     imageDisplayProperties::rgbPixel pixelLookup[256];
-    unsigned int pixelLow;
-    unsigned int pixelHigh;
+    int pixelLow;
+    int pixelHigh;
 
     void setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 );    // Update the brightness and contrast, if in auto, to match the recently selected region
     void getPixelRange( const QRect& area, unsigned int* min, unsigned int* max ); // Determine the range of pixel values an area of the image
