@@ -62,6 +62,7 @@ private:
     imageDisplayProperties* idp;
 };
 
+// Main class to present controls
 class imageDisplayProperties : public QFrame
 {
     Q_OBJECT
@@ -115,7 +116,6 @@ private slots:
 
 private:
 
-
     // Local brightness and contrast controls and monitors
     QCheckBox* autoBrightnessCheckBox;
     QSlider* brightnessSlider;
@@ -162,8 +162,8 @@ private:
 
 public:
     // Current brightness/contrast settings
-    unsigned int zeroValue;
-    unsigned int fullValue;
+    unsigned int zeroValue;     // Pixel value displayed black
+    unsigned int fullValue;     // Pixel value displayed white
     bool defaultFullValue;
 
     unsigned int range;  // Derived

@@ -23,8 +23,21 @@
  */
 
 /*
- This class manages image recording and playback for the QEImage widget
- */
+ This class manages image recording and playback for the QEImage widget.
+
+ This class emits a signal 'byteArrayChanged' to stream saved image history
+ back to the QEImage class. Saved images from this signal are presented
+ exactly the same way immages are processed from the QEImage's QCa image
+ source or MPEG source.
+
+ This class emits a signal 'playingBack to indicate when this class in in
+ playback mode. When in playback mode the QEImage widget ensures it is not
+ displaying live images.
+
+ QEImage class can determine if this class is currently recording images by calling isRecording()
+ When recording, the QEImage class can deliver new images to record by calling recordImage()
+
+*/
 
 #include "recording.h"
 #include "ui_recording.h"
