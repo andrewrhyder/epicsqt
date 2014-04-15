@@ -36,14 +36,22 @@
 
 // Gradient scale is the tangent of the gradient.
 //
-// Internal gradient range is from pi/4 (all pixel values in range)
-// to pi/2 one pixel in range (vertical).
-// Vertical can never be reached (min and max pixels are always kept at
+// Gradient range is from almost horizontal (0) to almost
+// vertical (pi/2) with normal at pi/4.
+// Horizontal gradient can never be reached. Theoretical limit is where all
+// pixel values translate to one value. Practical limit is imposed
+// where all pixel values translate to 10% of displayed range.
+// Vertical gradient can never be reached (min and max pixels are always kept at
 // least one apart) so depending on the bit depth, maximum is near pi/2.
 //
-// User gradient range is from 0 to 1000. So scale factor is 1000/(pi/4) = 1273.239 and offset is pi/4 = 0.78539;
-#define GRADIENT_USER_SCALE_FACTOR 1273.239
-#define GRADIENT_BASE 0.78539
+// User gradient range is from 0 to 1000.
+// Angular range is from atan(1/10) = 0.099668652 rad to pi/2 rad.
+// Angular scale is pi/2-atan(1/10) = 1.471127674
+// Gradient scale factor = user gradient range / angular scale
+//                       = 1000/(pi/2-atan(1/10))
+//                       = 679.7506549
+#define GRADIENT_USER_SCALE_FACTOR 679.7506549
+#define GRADIENT_BASE 0.099668652
 
 imageDisplayProperties::imageDisplayProperties()
 {
@@ -157,7 +165,7 @@ imageDisplayProperties::imageDisplayProperties()
 
     zeroValueSpinBox = new QSpinBox( this );
     zeroValueSpinBox->setToolTip( "Pixel value at low end of brightness / colour scale (0 to range limited by bit depth)");
-    zeroValueSpinBox->setMinimum( 0 );
+    zeroValueSpinBox->setMinimum( -10000 );
     zeroValueSpinBox->setMaximum( 254 );
     zeroValueSpinBox->setValue( zeroValueSlider->value() );
     QObject::connect( zeroValueSpinBox, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( minSpinBoxChanged( int )) );
@@ -165,7 +173,7 @@ imageDisplayProperties::imageDisplayProperties()
     fullValueSpinBox = new QSpinBox( this );
     fullValueSpinBox->setToolTip( "Pixel value at high end of brightness / colour scale (0 to range limited by bit depth)");
     fullValueSpinBox->setMinimum( 1 );
-    fullValueSpinBox->setMaximum( 255 );
+    fullValueSpinBox->setMaximum( 10000 );
     fullValueSpinBox->setValue( fullValueSlider->value() );
     QObject::connect( fullValueSpinBox, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( maxSpinBoxChanged( int )) );
 
@@ -474,8 +482,10 @@ void imageDisplayProperties::updateBrightness( double val )
     // Update brightness contrast values according to new brightness
     // Note, this never alters the span, so gradient never changes
     double span = fullValue - zeroValue;
-    zeroValue = (range-span)*(1.0-val);
-    fullValue = zeroValue+span;
+//    zeroValue = (range-span)*(1.0-val);
+//    fullValue = zeroValue+span;
+    fullValue = (range+span)*val;
+    zeroValue = fullValue-span;
 
     // Update interface
     updateZeroValueInterface();
@@ -486,15 +496,15 @@ void imageDisplayProperties::updateBrightness( double val )
     hist->update();
 }
 
-void imageDisplayProperties::updateGradient( double val )
+void imageDisplayProperties::updateGradient( double angularVal )
 {
     // Gradient is range / span
-    // With zeroValue at most one less than full value, gradient can go from 1 to range
-    // validate gradient
-    val = tan( val );
-    if( val < 1.0 )
+    // Maximum gradient is limited to a zeroValue at most one less than fullValue.
+    // Minimum gradient is limited to a practical 1/10.
+    double val = tan( angularVal );
+    if( val < 0.1 )
     {
-        val = 1.0;
+        val = 0.1;
     } else if( val > range )
     {
         val = range;
@@ -504,10 +514,10 @@ void imageDisplayProperties::updateGradient( double val )
     double span = (double)range/(double)val;
 
     double low =  mid-(span/2);
-    if( low < 0.0 )
-    {
-        low = 0.0;
-    }
+//    if( low < 0.0 )
+//    {
+//        low = 0.0;
+//    }
 
     zeroValue = floor( low + 0.5 );        // Note, round() not in windows math.h. Using floor+0.5 instead
     fullValue = floor( low + span + 0.5 ); // Note, round() not in windows math.h. Using floor+0.5 instead
@@ -547,10 +557,10 @@ void imageDisplayProperties::updateFullValue( unsigned int val )
     {
         val = 1;
     }
-    else if( val > range )
-    {
-        val = range;
-    }
+//    else if( val > range )
+//    {
+//        val = range;
+//    }
 
 
     fullValue = val;
@@ -603,16 +613,17 @@ void imageDisplayProperties::updateBrightnessInterface()
 {
     // Calculate brightness (derived)
     unsigned int span = fullValue-zeroValue;
-    unsigned int brightnessScale = range-span;
+    unsigned int brightnessScale = range+span;
     double brightness;
-    if( brightnessScale )
-    {
-        brightness = 1.0-((double)zeroValue/(double)brightnessScale);
-    }
-    else
-    {
-        brightness = 0.5;
-    }
+//    if( brightnessScale )
+//    {
+//        brightness = 1.0-((double)zeroValue/(double)brightnessScale);
+//    }
+//    else
+//    {
+//        brightness = 0.5;
+//    }
+    brightness = (double)fullValue/(double)brightnessScale;
 
     // Update interface
     nonInteractive = true;
@@ -705,8 +716,10 @@ void imageDisplayProperties::setStatistics( unsigned int minPIn, unsigned int ma
     zeroValueSlider->setMaximum( range-1 );
     fullValueSlider->setMaximum( range );
 
+    zeroValueSpinBox->setMinimum( -(int)range*10 );
     zeroValueSpinBox->setMaximum( range-1 );
-    fullValueSpinBox->setMaximum( range );
+    fullValueSpinBox->setMinimum( 0 );
+    fullValueSpinBox->setMaximum( range*10 );
 
     if( defaultFullValue )
     {

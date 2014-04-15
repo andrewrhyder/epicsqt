@@ -162,8 +162,8 @@ private:
 
 public:
     // Current brightness/contrast settings
-    unsigned int zeroValue;     // Pixel value displayed black
-    unsigned int fullValue;     // Pixel value displayed white
+    int zeroValue;     // Pixel value displayed black
+    int fullValue;     // Pixel value displayed white
     bool defaultFullValue;
 
     unsigned int range;  // Derived
