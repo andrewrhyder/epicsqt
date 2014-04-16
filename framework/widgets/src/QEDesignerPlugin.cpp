@@ -64,28 +64,6 @@
 #include <QEArchiveNameSearchManager.h>
 #include <QEArchiveStatusManager.h>
 
-//======================================================
-// Deprecated widgets
-#include <ASguiFormPluginManager.h>
-#include <QCaLabelPluginManager.h>
-#include <QCaAnalogProgressBarPluginManager.h>
-#include <QCaBitStatusPluginManager.h>
-#include <QCaLineEditPluginManager.h>
-#include <QCaPvPropertiesPluginManager.h>
-#include <QCaStripChartPluginManager.h>
-#include <QCaPeriodicPluginManager.h>
-#include <QCaSpinBoxPluginManager.h>
-#include <LinkPluginManager.h>
-#include <QCaPushButtonPluginManager.h>
-#include <QCaRadioButtonPluginManager.h>
-#include <QCaSliderPluginManager.h>
-#include <QCaComboBoxPluginManager.h>
-#include <QCaPlotPluginManager.h>
-#include <QCaShapePluginManager.h>
-#include <QSubstitutedLabelPluginManager.h>
-//======================================================
-
-
 #include <QtCore/qplugin.h>
 
 #include <QEDesignerPlugin.h>
@@ -138,28 +116,6 @@ QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QEFrameManager(this));
     widgets.append(new QEGroupBoxManager(this));
     widgets.append(new QELinkManager(this));
-
-//======================================================
-// Deprecated widgets
-    widgets.append(new QCaAnalogProgressBarPluginManager(this));
-    widgets.append(new QCaBitStatusPluginManager(this));
-    widgets.append(new QCaLabelPluginManager(this));
-    widgets.append(new QCaLineEditPluginManager(this));
-    widgets.append(new QCaPvPropertiesPluginManager(this));
-    widgets.append(new QCaStripChartPluginManager(this));
-    widgets.append(new ASguiFormPluginManager(this));
-    widgets.append(new QCaPeriodicPluginManager(this));
-    widgets.append(new QCaSpinBoxPluginManager(this));
-    widgets.append(new LinkPluginManager(this));
-    widgets.append(new QCaPushButtonPluginManager(this));
-    widgets.append(new QCaRadioButtonPluginManager(this));
-    widgets.append(new QCaSliderPluginManager(this));
-    widgets.append(new QCaComboBoxPluginManager(this));
-    widgets.append(new QCaPlotPluginManager(this));
-    widgets.append(new QCaShapePluginManager(this));
-    widgets.append(new QSubstitutedLabelPluginManager(this));
-//======================================================
-
 }
 /*
     Multiplugin interface.
