@@ -123,7 +123,6 @@ include (widgets/QESlider/QESlider.pri)
 include (widgets/QESpinBox/QESpinBox.pri)
 include (widgets/QEStripChart/QEStripChart.pri)
 include (widgets/QESubstitutedLabel/QESubstitutedLabel.pri)
-include (widgets/deprecated/deprecated.pri)
 
 OTHER_FILES += analogindicator.json
 
