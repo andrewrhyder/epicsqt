@@ -69,6 +69,7 @@ imageDisplayProperties::imageDisplayProperties()
 
     zeroValue = 0;
     fullValue = 255;
+    range = 255;
 
     // Note the full value is only a default. It will be set when the first set of statistics arrive to the real full range,
     defaultFullValue = true;
@@ -89,6 +90,8 @@ imageDisplayProperties::imageDisplayProperties()
     QHBoxLayout* imageDisplayPropertiesSub1Layout = new QHBoxLayout();
     QGridLayout* imageDisplayPropertiesSub2Layout = new QGridLayout();
     QHBoxLayout* imageDisplayPropertiesSub3Layout = new QHBoxLayout();
+    QHBoxLayout* imageDisplayPropertiesSub4Layout = new QHBoxLayout();
+    QHBoxLayout* imageDisplayPropertiesSub5Layout = new QHBoxLayout();
 
     QLabel* brightnessLabel = new QLabel( "Brightness:", this );
     QLabel* gradientLabel = new QLabel( "Gradient:\n(Contrast)", this );
@@ -109,25 +112,23 @@ imageDisplayProperties::imageDisplayProperties()
     brightnessSlider = new QSlider( Qt::Horizontal, this );
     brightnessSlider->setMinimum( 0 );
     brightnessSlider->setMaximum( 100 );
-    brightnessSlider->setValue( 50 );
     QObject::connect( brightnessSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( brightnessSliderValueChanged( int )) );
 
     gradientSlider = new QSlider( Qt::Horizontal, this );
     gradientSlider->setMinimum( 0 );
     gradientSlider->setMaximum( 1000 );
-    gradientSlider->setValue( 0 );
     QObject::connect( gradientSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( gradientSliderValueChanged( int )) );
 
     zeroValueSlider = new QSlider( Qt::Horizontal, this );
     zeroValueSlider->setMinimum( 0 );
-    zeroValueSlider->setMaximum( 254 );
-    zeroValueSlider->setValue( 0 );
+    zeroValueSlider->setMaximum( 1000 );
+    zeroValueSlider->setValue( toExponentialHeadSlider( 0 ) );
     QObject::connect( zeroValueSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( minSliderValueChanged( int )) );
 
     fullValueSlider = new QSlider( Qt::Horizontal, this );
-    fullValueSlider->setMinimum( 1 );
-    fullValueSlider->setMaximum( 255 );
-    fullValueSlider->setValue( 255 );
+    fullValueSlider->setMinimum( 0 );
+    fullValueSlider->setMaximum( 1000 );
+    fullValueSlider->setValue( toExponentialTailSlider( 255 ) );
     QObject::connect( fullValueSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( maxSliderValueChanged( int )) );
 
     hist = new histogram( this, this );
@@ -167,14 +168,14 @@ imageDisplayProperties::imageDisplayProperties()
     zeroValueSpinBox->setToolTip( "Pixel value at low end of brightness / colour scale (0 to range limited by bit depth)");
     zeroValueSpinBox->setMinimum( -10000 );
     zeroValueSpinBox->setMaximum( 254 );
-    zeroValueSpinBox->setValue( zeroValueSlider->value() );
+    zeroValueSpinBox->setValue( fromExponentialHeadSlider( zeroValueSlider->value() ) );
     QObject::connect( zeroValueSpinBox, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( minSpinBoxChanged( int )) );
 
     fullValueSpinBox = new QSpinBox( this );
     fullValueSpinBox->setToolTip( "Pixel value at high end of brightness / colour scale (0 to range limited by bit depth)");
     fullValueSpinBox->setMinimum( 1 );
     fullValueSpinBox->setMaximum( 10000 );
-    fullValueSpinBox->setValue( fullValueSlider->value() );
+    fullValueSpinBox->setValue( fromExponentialTailSlider( fullValueSlider->value() ) );
     QObject::connect( fullValueSpinBox, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( maxSpinBoxChanged( int )) );
 
     contrastReversalCheckBox = new QCheckBox( "Contrast Reversal", this );
@@ -201,12 +202,20 @@ imageDisplayProperties::imageDisplayProperties()
     imageDisplayPropertiesSub2Layout->addWidget( gradientSlider,    1, 1 );
     imageDisplayPropertiesSub2Layout->addWidget( gradientSpinBox,   1, 2 );
 
+    imageDisplayPropertiesSub4Layout->setMargin( 0 );
+    imageDisplayPropertiesSub4Layout->addWidget( zeroValueSlider,     100 );
+    imageDisplayPropertiesSub4Layout->addWidget( new QWidget( this ), 20 );
+
     imageDisplayPropertiesSub2Layout->addWidget( minLabel,          2, 0 );
-    imageDisplayPropertiesSub2Layout->addWidget( zeroValueSlider,   2, 1 );
+    imageDisplayPropertiesSub2Layout->addLayout( imageDisplayPropertiesSub4Layout,   2, 1 );
     imageDisplayPropertiesSub2Layout->addWidget( zeroValueSpinBox,  2, 2 );
 
+    imageDisplayPropertiesSub5Layout->setMargin( 0 );
+    imageDisplayPropertiesSub5Layout->addWidget( new QWidget( this ), 20 );
+    imageDisplayPropertiesSub5Layout->addWidget( fullValueSlider,     100 );
+
     imageDisplayPropertiesSub2Layout->addWidget( maxLabel,          3, 0 );
-    imageDisplayPropertiesSub2Layout->addWidget( fullValueSlider,   3, 1 );
+    imageDisplayPropertiesSub2Layout->addLayout( imageDisplayPropertiesSub5Layout, 3, 1 );
     imageDisplayPropertiesSub2Layout->addWidget( fullValueSpinBox,  3, 2 );
 
     imageDisplayPropertiesSub2Layout->setColumnStretch( 1, 1 );  // Sliders to take all spare room
@@ -223,37 +232,27 @@ imageDisplayProperties::imageDisplayProperties()
     imageDisplayPropertiesMainLayout->addWidget( histScroll, 0, 2, 3, 1 );
     imageDisplayPropertiesMainLayout->setColumnStretch( 1, 2 );  // Histogram to take all spare room
 
-    range = 0;
+    // Update brightness and contrast to match zero and full values
+    updateBrightnessInterface();
+    updateGradientInterface();
 
+    // Apply the layouts
     adjustSize();
 }
 
 imageDisplayProperties::~imageDisplayProperties()
 {
-
-    // !!!What needs to be deleted since they are all children of the form?
-    delete autoBrightnessCheckBox;
-    delete brightnessSlider;
-    delete zeroValueSlider;
-    delete fullValueSlider;
-    delete gradientSlider;
-    delete brightnessSpinBox;
-    delete zeroValueSpinBox;
-    delete fullValueSpinBox;
-    delete gradientSpinBox;
-    delete contrastReversalCheckBox;
-    delete logCheckBox;
-    delete falseColourCheckBox;
-
-    delete histScroll;
-    delete histZoom;
 }
 
+// Return the 'black' pixel value.
+// All pixel values will be translated to be black below this value and increasing in brightness above.
 int imageDisplayProperties::getLowPixel()
 {
     return zeroValue;
 }
 
+// Return the 'white' pixel value.
+// All pixel values will be translated to be white above this value and decreasing in brightness below.
 int imageDisplayProperties::getHighPixel()
 {
     return fullValue;
@@ -415,7 +414,7 @@ void imageDisplayProperties::minSliderValueChanged( int value )
     }
 
     inZeroValueSliderCallback = true;
-    updateZeroValue( value );
+    updateZeroValue( fromExponentialHeadSlider( value ) );
     inZeroValueSliderCallback = false;
 
     emit imageDisplayPropertiesChange();
@@ -444,7 +443,7 @@ void imageDisplayProperties::maxSliderValueChanged( int value )
     }
 
     inFullValueSliderCallback = true;
-    updateFullValue( value );
+    updateFullValue( fromExponentialTailSlider( value ) );
     inFullValueSliderCallback = false;
 
     emit imageDisplayPropertiesChange();
@@ -467,6 +466,7 @@ void imageDisplayProperties::maxSpinBoxChanged( int value )
 
 //=========================================================
 
+// Update the zero and full values based on a brightness change.
 void imageDisplayProperties::updateBrightness( double val )
 {
     // Brightness ranges from 0.0 (0%) to 1.0 (100%)
@@ -530,9 +530,9 @@ void imageDisplayProperties::updateGradient( double angularVal )
     hist->update();
 }
 
-void imageDisplayProperties::updateZeroValue( unsigned int val )
+void imageDisplayProperties::updateZeroValue( int val )
 {
-    if( val >= range )
+    if( val >= (int)range )
     {
         val = range-1;
     }
@@ -674,7 +674,7 @@ void imageDisplayProperties::updateZeroValueInterface()
 
     if( !inZeroValueSliderCallback )
     {
-        zeroValueSlider->setValue( zeroValue );
+        zeroValueSlider->setValue( toExponentialHeadSlider( (double)zeroValue/(double)range*256.0 ) );
     }
 
     nonInteractive = false;
@@ -692,7 +692,7 @@ void imageDisplayProperties::updateFullValueInterface()
 
     if( !inFullValueSliderCallback )
     {
-        fullValueSlider->setValue( fullValue );
+        fullValueSlider->setValue( toExponentialTailSlider( (double)fullValue/(double)range*256.0 ) );
     }
 
     nonInteractive = false;
@@ -713,8 +713,8 @@ void imageDisplayProperties::setStatistics( unsigned int minPIn, unsigned int ma
     range = (1<<depth)-1;
 
     // Apply changes
-    zeroValueSlider->setMaximum( range-1 );
-    fullValueSlider->setMaximum( range );
+//    zeroValueSlider->setMaximum( range-1 );
+//    fullValueSlider->setMaximum( range );
 
     zeroValueSpinBox->setMinimum( -(int)range*10 );
     zeroValueSpinBox->setMaximum( range-1 );
@@ -818,8 +818,8 @@ void histogram::paintEvent(QPaintEvent* )
 
     // Determine bin stuff
     unsigned int bitsPerBin;
-    unsigned int minBin;
-    unsigned int maxBin;
+    int minBin;
+    int maxBin;
 
     if( idp->depth<=8)
     {
@@ -832,7 +832,7 @@ void histogram::paintEvent(QPaintEvent* )
         // Determine bins for maximum and minimum values
         bitsPerBin = idp->depth-8;
 
-        minBin = idp->zeroValue>>bitsPerBin;
+        minBin = idp->zeroValue/(1<<bitsPerBin); // OK for negative values
         if( minBin > 254 )
         {
             minBin = 254;
@@ -845,13 +845,13 @@ void histogram::paintEvent(QPaintEvent* )
         }
     }
 
-     QPainter p( this );
+    QPainter p( this );
 
     // Draw the histogram with scale...
 
     // Determine overall size
-     int h = height()-1-SCALE_HEIGHT;
-     double w = width();
+    int h = height()-1-SCALE_HEIGHT;
+    double w = width();
 
     // Initialise rectangle used for both histogram and scale
     QRectF barRect;
@@ -909,7 +909,7 @@ void histogram::paintEvent(QPaintEvent* )
         colourRect.moveLeft( colourRect.right() );
     }
 
-    // Prepare to draw the bounds an gradient
+    // Prepare to draw the bounds and gradient
 
     QPen pen( Qt::blue );
     p.setPen( pen );
@@ -926,4 +926,159 @@ void histogram::paintEvent(QPaintEvent* )
     p.setPen( pen );
 
     p.drawLine( minScaled,h,maxScaled,0);
+}
+
+// Translate from a composite exponential-linear slider value.
+// Translate a slider value converting the slider range to a composite of an
+// exponential range for the first 20% (the head) followed by a linear range for
+// the remaining 80%.
+// This allows the slider to display zeroValue with a wide linear range for
+// the full pixel range, and a narrow exponential range for an extended region
+// below the pixel range.
+// The translated output value is for a pixel range of 256 and should be scaled
+// according to the bit depth.
+//
+//        zeroValue
+//           ^
+//           |
+//        400-
+//           |
+//           |
+//           |                                                 x
+//        200-                                         x
+//           |                                 x
+//           |                         x
+//           |                 x
+//    -------+---------x---------|---------|---------|---------|----> Slider value
+//           0      x 200       400       600       800       1000
+//           |     x
+//           |
+//       -200-    x
+//           |
+//           |
+//           |
+//       -400-
+//           |
+//           |
+//           |
+//       -600-  x
+//           |
+//           |
+//           |
+//       -800-
+//           |
+//           |
+//           |
+//      -1000-
+//           |
+//           |
+//           |
+//      -1200-
+//           |x
+//           |
+//           |
+//      -1400-
+//           |
+//
+double imageDisplayProperties::fromExponentialHeadSlider( int value )
+{
+    if( value > 200.0 )
+    {
+        return (256.0/800.0)*((double)(value)-200.0);
+    }
+    else
+    {
+        return -(pow( 10, (0.01*(0-(double)(value))+3.145)) - 13.9639 );
+    }
+}
+
+// Translate from a composite linear-exponential slider value.
+// Translate a slider value converting the slider range to a composite of a
+// linear range for the first 80% followed by an exponential range for the last
+// 20% (the tail)
+// This allows the slider to display fullValue with a wide linear range for
+// the full pixel range, and a narrow exponential range for an extended region
+// above the pixel range.
+// The translated output value is for a pixel range of 256 and should be scaled
+// according to the bit depth.
+//
+//        fullValue
+//           ^
+//           |
+//       1400-                                              x
+//           |
+//           |
+//           |
+//       1200-
+//           |
+//           |
+//           |
+//       1000-
+//           |
+//           |
+//           |
+//        800-                                             x
+//           |
+//           |
+//           |
+//        600-
+//           |
+//           |
+//           |
+//        400-                                           x
+//           |
+//           |                                          x
+//           |                                       x
+//        200-                               x
+//           |                       x
+//           |               x
+//           |       x
+//    -------x---------|---------|---------|---------|---------|----> Slider value
+//           0        200       400       600       800       1000
+//           |
+//
+double imageDisplayProperties::fromExponentialTailSlider( int value )
+{
+    if( value < 800.0 )
+    {
+        return (double)(value)*(256.0/800.0);
+    }
+    else
+    {
+        return pow( 10, 0.01*(double)(value)-6.83 ) + 241.207;
+    }
+}
+
+// Translate to a composite exponential-linear slider value.
+// Translate a pixel value to a slider value wherte the slider range is a composite of an
+// exponential range for the first 20% (the head) followed by a linear range for
+// the remaining 80%.
+// This is the inverse function to fromExponentialHeadSlider(). See that function for full details.
+int imageDisplayProperties::toExponentialHeadSlider( double value )
+{
+    if( value > 0.0 )
+    {
+        return value/(256.0/800.0)+200.0;
+    }
+    else
+    {
+        return -(log10(13.9639-value)-3.145)/0.01;
+    }
+}
+
+// Translate to a composite linear-exponential slider value.
+// Translate a pixel value to a slider value where the slider range is a composite of a
+// linear range for the first 80% followed by an exponential range for the last
+// 20% (the tail).
+// This is the inverse function to fromExponentialTailSlider(). See that function for full details.
+int imageDisplayProperties::toExponentialTailSlider( double value )
+{
+    if( value < 256.0 )
+    {
+        return value * (800.0/256.0);
+    }
+    else
+    {
+        return (log10(value-241.207)+6.83)/0.01;
+    }
 }

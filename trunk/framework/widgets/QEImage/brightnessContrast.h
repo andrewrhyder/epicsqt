@@ -72,50 +72,57 @@ public:
     ~imageDisplayProperties();
 
     void setBrightnessContrast( const unsigned int max, const unsigned int min );
-    void setAutoBrightnessContrast( bool autoBrightnessContrast );
-    void setContrastReversal( bool contrastReversal );
-    void setLog( bool log );
-    void setFalseColour( bool falseColour );
+    void setAutoBrightnessContrast( bool autoBrightnessContrast );  // Set 'Auto Brightness' function on or off
+    void setContrastReversal( bool contrastReversal );              // Set contrast reversal state on or off
+    void setLog( bool log );                                        // Set logarithmic scale on or off
+    void setFalseColour( bool falseColour );                        // Set false colour on or off
 
-    bool getAutoBrightnessContrast();
-    bool getContrastReversal();
-    bool getLog();
-    bool getFalseColour();
+    bool getAutoBrightnessContrast();   // Return true if 'Auto Brightness' function is on
+    bool getContrastReversal();         // Return true if contrast reversal is on
+    bool getLog();                      // Return true if logarithmic scale is to be used
+    bool getFalseColour();              // Return true if false colour is to be applied
 
-    int getLowPixel();
-    int getHighPixel();
+    int getLowPixel();                  // Return the 'black' pixel value.
+    int getHighPixel();                 // Return the 'white' pixel value.
 
-    struct rgbPixel
+    struct rgbPixel                     // Structure used when setting current image statistics
     {
         unsigned char p[4]; // R/G/B/Alpha
     };
-    void setStatistics( unsigned int minPIn, unsigned int maxPIn, unsigned int bitDepth, unsigned int binsIn[HISTOGRAM_BINS], rgbPixel pixelLookup[256] );
+    void setStatistics( unsigned int minPIn,    // Set current image statistics
+                        unsigned int maxPIn,
+                        unsigned int bitDepth,
+                        unsigned int binsIn[HISTOGRAM_BINS],
+                        rgbPixel pixelLookup[256] );
 
 signals:
-    void brightnessContrastAutoImage();
-    void imageDisplayPropertiesChange();
+    void brightnessContrastAutoImage();     // Issue a request to set the brightness and contrast to match the current image
+    void imageDisplayPropertiesChange();    // Notify a change in the image display properties
 
 private slots:
+
+    // Slider motion
     void brightnessSliderValueChanged( int value );
     void minSliderValueChanged( int value );
     void maxSliderValueChanged( int value );
     void gradientSliderValueChanged( int value );
 
+    void histZoomSliderValueChanged( int value );
+
+    // Spinbox changes
     void brightnessSpinBoxChanged( int );
     void gradientSpinBoxChanged( int );
     void minSpinBoxChanged( int );
     void maxSpinBoxChanged( int );
 
+    // Buttons
     void brightnessContrastResetClicked( bool state );
     void brightnessContrastAutoImageClicked();
     void contrastReversalToggled( bool );
     void logToggled( bool );
     void falseColourToggled( bool );
 
-    void histZoomSliderValueChanged( int value );
-
 private:
-
     // Local brightness and contrast controls and monitors
     QCheckBox* autoBrightnessCheckBox;
     QSlider* brightnessSlider;
@@ -147,18 +154,25 @@ private:
     bool inZeroValueEditCallback;
     bool inFullValueEditCallback;
 
-    //
+    // Functions to update zero and full pixel values based on new values for zero or full values,
+    // or derived brightness and contrast valuse, and set controls acordingly.
     void updateBrightness( double val );
     void updateGradient( double val );
-    void updateZeroValue( unsigned int val );
+    void updateZeroValue( int val );
     void updateFullValue( unsigned int val );
     void updateZeroValueFullValue( unsigned int min, unsigned int max );
 
-
+    // Update controls to match updated values
     void updateBrightnessInterface();
     void updateGradientInterface();
     void updateZeroValueInterface();
     void updateFullValueInterface();
+
+    // Manage exponential sliders
+    double fromExponentialHeadSlider( int value ); // Translate from a composite exponential-linear slider value.
+    double fromExponentialTailSlider( int value ); // Translate from a composite linear-exponential slider value.
+    int toExponentialHeadSlider( double value );   // Translate to a composite exponential-linear slider value.
+    int toExponentialTailSlider( double value );   // Translate to a composite linear-exponential slider value.
 
 public:
     // Current brightness/contrast settings
@@ -166,15 +180,15 @@ public:
     int fullValue;     // Pixel value displayed white
     bool defaultFullValue;
 
-    unsigned int range;  // Derived
+    unsigned int range;  // Pixel range derived from bit depth
 
     // Current image stats
     void initialiseImageStats();
-    unsigned int maxP;
-    unsigned int minP;
-    unsigned int depth;
-    unsigned int* bins; // [HISTOGRAM_BINS]
-    rgbPixel* pixelLookup; // [256]
+    unsigned int maxP;  // Highest pixel value in image
+    unsigned int minP;  // Lowest pixel value in image
+    unsigned int depth; // Bit depth
+    unsigned int* bins; // Histogram bins [HISTOGRAM_BINS]
+    rgbPixel* pixelLookup; // Pixel lookup table used to present colour scale in histogram
 
     QLabel* histXLabel;
 
