@@ -36,6 +36,7 @@ SUBDIRS = \
     framework \
     applications/QEGuiApp \
     applications/QEReadArchiveApp \
-    applications/QEMonitorApp
+    applications/QEMonitorApp \
+    applications/DetectorEditorApp
 
 # end

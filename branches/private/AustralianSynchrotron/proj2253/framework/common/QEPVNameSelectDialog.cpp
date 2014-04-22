@@ -29,12 +29,14 @@
 #include <QRegExp>
 #include <QStringList>
 #include <QUiLoader>
+#include <QMessageBox>
 
 #include <QEPVNameSelectDialog.h>
 #include <ui_QEPVNameSelectDialog.h>
 
 #include <QEArchiveManager.h>
 #include <QEScaling.h>
+#include <QtSql>
 
 #define DEBUG  qDebug () << "QEPVNameSelectDialog::" << __FUNCTION__ << __LINE__
 
@@ -46,7 +48,7 @@ QWidget* QEPVNameSelectDialog::helpUi = NULL;
 //
 QEPVNameSelectDialog::QEPVNameSelectDialog (QWidget *parent) :
       QEDialog (parent),
-      ui (new Ui::QEPVNameSelectDialog)
+      ui (new Ui::QEPVNameSelectDialog), listSource(QEPVNameSelectDialog::Archiver)
 {
    this->ui->setupUi (this);
 
@@ -100,9 +102,110 @@ QEPVNameSelectDialog::QEPVNameSelectDialog (QWidget *parent) :
 
 //------------------------------------------------------------------------------
 //
+QEPVNameSelectDialog::QEPVNameSelectDialog (ListSources source, QString fileName, QString title, QWidget *parent) :
+      QEDialog (parent),
+    ui (new Ui::QEPVNameSelectDialog), listSource(source)
+{
+   this->ui->setupUi (this);
+
+    if (!title.isEmpty()){
+        setWindowTitle(title);
+    }
+
+   // Ensure the dialog centres using this widget as reference point.
+   //
+   this->setSourceWidget (this->ui->pvNameEdit);
+    // hide filter widgets
+    ui->filterEdit->hide();
+    ui->helpButton->hide();
+    ui->label_2->hide();
+
+    if (listSource == QEPVNameSelectDialog::File){
+        // Read file
+        getListFromFile(fileName);
+        this->ui->matchCountLabel->setText (QString ("%1").arg (list.count()));
+    }
+    else if (listSource == QEPVNameSelectDialog::Database){
+        // get list from database if on file exists
+        getListFromDatabase(fileName);
+        this->ui->matchCountLabel->setText (QString ("%1").arg (list.count()));
+    }
+
+   this->returnIsMasked = false;
+
+   QObject::connect (this->ui->pvNameEdit,  SIGNAL (editTextChanged (const QString&)),
+                     this,                  SLOT   (editTextChanged (const QString&)));
+
+   QObject::connect (this->ui->helpButton,  SIGNAL (clicked       (bool)),
+                     this,                  SLOT   (helpClicked   (bool)));
+
+#ifndef QT_NO_COMPLETER
+   // Could not get completer to work - yet.
+   this->ui->pvNameEdit->setAutoCompletion (true);
+   this->ui->pvNameEdit->setAutoCompletionCaseSensitivity (Qt::CaseSensitive);
+#endif
+
+}
+
+//------------------------------------------------------------------------------
+//
 QEPVNameSelectDialog::~QEPVNameSelectDialog ()
 {
    delete ui;
+}
+
+bool QEPVNameSelectDialog::getListFromFile(QString fileName){
+    // Read file
+    QFile file(fileName);
+    if(file.exists()){
+        if(!file.open(QIODevice::ReadOnly)) {
+            QMessageBox::information(0, "Error", file.errorString());
+            return true;
+        }
+        QTextStream in(&file);
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            list.append(line);
+        }
+    }
+    else{
+        QMessageBox::information(0, "Error", "File " + fileName + " dosen't exist");
+        return false;
+    }
+    file.close();
+    return true;
+}
+
+void QEPVNameSelectDialog::getListFromDatabase(QString fileName){
+    // Read file
+    if(!getListFromFile(fileName)){
+        // read database and create the file
+       QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL3");
+       db.setConnectOptions();
+       db.setHostName("localhost");
+       db.setDatabaseName("test");
+       db.setUserName("root");
+       db.setPassword("Beam123Line");
+       if(db.open()) {
+           qDebug() << "Opened!";
+           QSqlQuery qry;
+           if(qry.exec("select * from fruits;")) {
+               while(qry.next()) {
+                    qDebug() << qry.value(0).toString();
+               }
+           }
+           else {
+                qDebug() << db.lastError().text();
+           }
+           qDebug() << "Closing…";
+           db.close();
+       }
+       else {
+            qDebug() << "Something went Wrong:" << db.lastError().text();
+       }        // .....
+       // then read file
+       getListFromFile(fileName);
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -119,6 +222,9 @@ void QEPVNameSelectDialog::setPvName (QString pvNameIn)
    //
    this->ui->pvNameEdit->setFocus ();
    this->returnIsMasked = false;
+    if (listSource != QEPVNameSelectDialog::Archiver){
+       this->ui->pvNameEdit->insertItems (0, list);
+    }
 }
 
 //------------------------------------------------------------------------------

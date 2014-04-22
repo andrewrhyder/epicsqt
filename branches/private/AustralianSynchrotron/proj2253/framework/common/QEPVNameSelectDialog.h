@@ -43,7 +43,10 @@ class QEPVNameSelectDialog : public QEDialog
    Q_OBJECT
 
 public:
-   explicit QEPVNameSelectDialog (QWidget *parent = 0);
+    enum ListSources { Archiver, File, Database };
+
+    explicit QEPVNameSelectDialog (QWidget *parent = 0);
+    explicit QEPVNameSelectDialog (ListSources source, QString fileName, QString title, QWidget *parent = 0);
    ~QEPVNameSelectDialog ();
 
    void setPvName (QString pvNameIn);
@@ -51,12 +54,16 @@ public:
 
 protected:
    void closeEvent (QCloseEvent * e);
+   bool getListFromFile(QString fileName);
+   void getListFromDatabase(QString fileName);
 
 private:
    Ui::QEPVNameSelectDialog *ui;
    static QWidget *helpUi;
    QString originalPvName;
    bool returnIsMasked;
+   ListSources listSource;
+   QStringList list;
 
    void applyFilter ();
    void closeHelp ();

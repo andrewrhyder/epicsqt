@@ -43,7 +43,7 @@ win32QMAKE_LFLAGS += -Wl,-enable-auto-import
 # Qt 4 configuration
 equals( QT_MAJOR_VERSION, 4 ) {
     CONFIG += plugin debug_and_release uitools designer qwt
-    QT += core gui xml network
+    QT += core gui xml network sql
 }
 
 # Qt 5 configuration
@@ -120,6 +120,7 @@ include (widgets/QESpinBox/QESpinBox.pri)
 include (widgets/QEStripChart/QEStripChart.pri)
 include (widgets/QESubstitutedLabel/QESubstitutedLabel.pri)
 include (widgets/deprecated/deprecated.pri)
+include (widgets/project_based/project_based.pri)
 
 OTHER_FILES += analogindicator.json
 
