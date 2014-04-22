@@ -86,7 +86,7 @@ void QEScratchPad::createInternalWidgets ()
 
    for (int slot = 0; slot < ARRAY_LENGTH (this->items); slot++) {
 
-      DataSets* item = &(this->items [slot]);
+      DataSets* item = (DataSets*)this->items[slot];
 
       item->menu = new QEScratchPadMenu (slot, this);
 
@@ -189,6 +189,10 @@ void QEScratchPad::DataSets::setHighLighted (const bool isHighLightedIn)
 //
 QEScratchPad::QEScratchPad (QWidget* parent) : QEFrame (parent)
 {
+    // create Data sets
+    for ( int i = 0; i < NUMBER_OF_ITEMS; i++ ){
+        this->items[i] = new DataSets();
+    }
 
    this->createInternalWidgets ();
 
@@ -250,8 +254,8 @@ int QEScratchPad::findSlot (QObject *obj)
    int result = -1;
 
    for (int slot = 0 ; slot < ARRAY_LENGTH (this->items); slot++) {
-      if ((obj == this->items [slot].frame) ||
-          (obj == this->items [slot].pvName)) {
+      if ((obj == this->items [slot]->frame) ||
+          (obj == this->items [slot]->pvName)) {
          // found it.
          //
          result = slot;
@@ -274,7 +278,7 @@ void QEScratchPad::calcMinimumHeight ()
    //
    last = -1;
    for (int slot = 0; slot < ARRAY_LENGTH (this->items); slot++) {
-      if (this->items [slot].isInUse ()) {
+      if (this->items [slot]->isInUse ()) {
          last = slot;
       }
    }
@@ -286,7 +290,7 @@ void QEScratchPad::calcMinimumHeight ()
    // Set visibility accordingly
    //
    for (int slot = 0; slot < ARRAY_LENGTH (this->items); slot++) {
-      this->items [slot].frame->setVisible (slot <= last);
+      this->items [slot]->frame->setVisible (slot <= last);
       if (slot <= last) {
       }
    }
@@ -320,12 +324,12 @@ void QEScratchPad::selectItem (const int slot, const bool toggle)
 
    if (this->selectedItem != previousSelection) {
       if (previousSelection != NULL_SELECTION) {
-         DataSets* item = &(this->items [previousSelection]);
+         BaseDataSets* item = this->items [previousSelection];
          item->frame->setStyleSheet ("");
       }
 
       if (this->selectedItem != NULL_SELECTION) {
-         DataSets* item = &(this->items [this->selectedItem]);
+         BaseDataSets* item = this->items [this->selectedItem];
          QString styleSheet = QEUtilities::colourToStyle (clSelected);
          item->frame->setStyleSheet (styleSheet);
       }
@@ -342,7 +346,7 @@ void QEScratchPad::contextMenuRequested (const QPoint& pos)
 
    QWidget* w = dynamic_cast<QWidget*> (obj);
    if (w) {
-      DataSets* item = &(this->items [slot]);
+      BaseDataSets* item = this->items [slot];
       QPoint golbalPos = w->mapToGlobal(pos);
       item->menu->setIsInUse (item->isInUse ());
       item->menu->exec (golbalPos, 0);
@@ -371,7 +375,7 @@ void QEScratchPad::contextMenuSelected (const int slot, const QEScratchPadMenu::
       case QEScratchPadMenu::SCRATCHPAD_ADD_PV_NAME:
       case QEScratchPadMenu::SCRATCHPAD_EDIT_PV_NAME:
          this->pvNameSelectDialog->setPvName (this->getPvName (slot));
-         n = this->pvNameSelectDialog->exec (this->items [slot].pvName);
+         n = this->pvNameSelectDialog->exec (this->items [slot]->pvName);
          if (n == 1) {
             this->setPvName (slot, this->pvNameSelectDialog->getPvName ());
          }
@@ -420,7 +424,7 @@ void QEScratchPad::widgetMenuSelected  (QAction* action)
          //
          text = "";
          for (int slot = 0; slot < ARRAY_LENGTH (this->items); slot++) {
-            DataSets* item = &(this->items [slot]);
+            BaseDataSets* item = this->items [slot];
 
             if (item->isInUse()) {
                if (!text.isEmpty()) {
@@ -493,7 +497,7 @@ void QEScratchPad::pvNameDropEvent (const int slot, QDropEvent *event)
 void QEScratchPad::addPvName (const QString& pvName)
 {
    for (int slot = 0; slot < ARRAY_LENGTH (this->items); slot++) {
-      DataSets* item = &(this->items [slot]);
+      BaseDataSets* item = this->items [slot];
       if (item->isInUse() == false) {
          // Found an empty slot.
          //
@@ -533,7 +537,7 @@ bool QEScratchPad::eventFilter (QObject *obj, QEvent *event)
          slot = this->findSlot (obj);
          if (slot >= 0 && (mouseEvent->button () ==  Qt::LeftButton)) {
             this->selectItem (slot, true);
-            if (obj == this->items [slot].pvName) {
+            if (obj == this->items [slot]->pvName) {
                // Leverage of menu handler
                this->contextMenuSelected (slot, QEScratchPadMenu::SCRATCHPAD_ADD_PV_NAME);
             }
@@ -560,13 +564,13 @@ bool QEScratchPad::eventFilter (QObject *obj, QEvent *event)
             // Can only drop if text and not in use.
             //
             if ((dragEnterEvent->mimeData()->hasText ()) &&
-                (!this->items [slot].isInUse ())) {
+                (!this->items [slot]->isInUse ())) {
                dragEnterEvent->setDropAction (Qt::CopyAction);
                dragEnterEvent->accept ();
-               this->items [slot].setHighLighted (true);
+               this->items [slot]->setHighLighted (true);
             } else {
                dragEnterEvent->ignore ();
-               this->items [slot].setHighLighted (false);
+               this->items [slot]->setHighLighted (false);
             }
             return true;
          }
@@ -575,7 +579,7 @@ bool QEScratchPad::eventFilter (QObject *obj, QEvent *event)
       case QEvent::DragLeave:
          slot = this->findSlot (obj);
          if (slot >= 0) {
-            this->items [slot].setHighLighted (false);
+            this->items [slot]->setHighLighted (false);
             return true;
          }
          break;
@@ -586,7 +590,7 @@ bool QEScratchPad::eventFilter (QObject *obj, QEvent *event)
          if (slot >= 0) {
             QDropEvent* dropEvent = static_cast<QDropEvent*> (event);
             this->pvNameDropEvent (slot, dropEvent);
-            this->items [slot].setHighLighted (false);
+            this->items [slot]->setHighLighted (false);
             return true;
          }
          break;
@@ -607,7 +611,7 @@ void QEScratchPad::setPvName (const int slot, const QString& pvName)
    SLOT_CHECK (slot,);
    QString descPv;
 
-   DataSets* item = &(this->items [slot]);
+   DataSets* item = (DataSets*)this->items [slot];
 
    item->thePvName = pvName.trimmed ();
    item->pvName->setText (item->thePvName);
@@ -642,7 +646,7 @@ void QEScratchPad::setPvName (const int slot, const QString& pvName)
 QString QEScratchPad::getPvName (const int slot)
 {
    SLOT_CHECK (slot, "");
-   return this->items [slot].thePvName;
+   return this->items [slot]->thePvName;
 }
 
 //---------------------------------------------------------------------------------
@@ -679,7 +683,7 @@ void QEScratchPad::saveConfiguration (PersistanceManager* pm)
    PMElement pvListElement = formElement.addElement ("PV_List");
 
    for (int slot = 0; slot < ARRAY_LENGTH (this->items); slot++) {
-      DataSets* item = &(this->items [slot]);
+      BaseDataSets* item = this->items [slot];
       if (item->isInUse()) {
          PMElement pvElement = pvListElement.addElement ("PV");
          pvElement.addAttribute ("id", slot);

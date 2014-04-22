@@ -35,6 +35,7 @@
 #include <QHBoxLayout>
 
 #include <QEFrame.h>
+#include <QEForm.h>
 #include <QELabel.h>
 #include <QCaVariableNamePropertyManager.h>
 #include <persistanceManager.h>
@@ -52,7 +53,8 @@
 class QEPLUGINLIBRARYSHARED_EXPORT QEScratchPad : public QEFrame {
    Q_OBJECT
 public:
-   explicit QEScratchPad (QWidget *parent = 0);
+    explicit QEScratchPad (QWidget *parent = 0);
+    explicit QEScratchPad (bool isDefault, QWidget *parent = 0) : QEFrame (parent){ Q_UNUSED(isDefault);}
    ~QEScratchPad();
    QSize sizeHint () const;
 
@@ -60,7 +62,7 @@ public:
 
    // Set (and clear is pvName is null).
    //
-   void    setPvName (const int slot, const QString& pvName);
+   virtual void    setPvName (const int slot, const QString& pvName);
    QString getPvName (const int slot);
 
 protected:
@@ -78,7 +80,6 @@ protected:
    bool eventFilter (QObject *obj, QEvent *event);
    int findSlot (QObject *obj);
 
-private:
    // Internal widgets.
    //
    QVBoxLayout* vLayout;
@@ -93,33 +94,41 @@ private:
 
    int selectedItem;
 
-   class DataSets {
+   class BaseDataSets : QObject {
+   public:
+       explicit BaseDataSets (): QObject() {}
+
+       bool isInUse () { return !(this->thePvName.isEmpty ()); }
+       virtual void setHighLighted (const bool isHigh) = 0;
+
+       QString thePvName;
+       bool isHighLighted;
+       QHBoxLayout* hLayout;
+       QFrame* frame;
+       QLabel* pvName;
+       QEScratchPadMenu* menu;
+   };
+
+   class DataSets : public BaseDataSets {
    public:
       explicit DataSets ();
 
-      bool isInUse () { return !(this->thePvName.isEmpty ()); }
       void setHighLighted (const bool isHigh);
 
-      QString thePvName;
       bool isHighLighted;
 
       // Widgets.
-      //
-      QHBoxLayout* hLayout;
-      QFrame* frame;
-      QLabel* pvName;
       QELabel* description;
       QELabel* value;
-      QEScratchPadMenu* menu;
    };
 
    // Slot 0 used for X data - some redundancy (e.g. colour)
    //
-   DataSets items [NUMBER_OF_ITEMS];
+   BaseDataSets *items [NUMBER_OF_ITEMS];
 
-   void createInternalWidgets ();
+   virtual void createInternalWidgets ();
    void selectItem (const int slot, const bool toggle);
-   void calcMinimumHeight ();
+   virtual void calcMinimumHeight ();
 
    // Perform a pvNameDropEvent 'drop'
    //
@@ -128,9 +137,9 @@ private:
    void addPvName (const QString& pvName);
    void addPvNameSet (const QString& pvNameSet);
 
-private slots:
+protected slots:
    void contextMenuRequested (const QPoint& pos);
-   void contextMenuSelected  (const int slot, const QEScratchPadMenu::ContextMenuOptions option);
+   virtual void contextMenuSelected  (const int slot, const QEScratchPadMenu::ContextMenuOptions option);
 
    void widgetMenuRequested (const QPoint& pos);
    void widgetMenuSelected  (QAction* action);

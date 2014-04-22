@@ -64,6 +64,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
         QString getContainedFrameworkVersion(); // Get the versino of the first QE widget (if any) of QE widgets by QUILoader
         QString getUniqueIdentifier(){ return uniqueIdentifier; }
         void setUniqueIdentifier( QString name ){ uniqueIdentifier = name; }
+        void removeUi(){ if( ui ){ delete ui; ui = NULL; displayPlaceholder(false); } }
 
     public slots:
         bool readUiFile();

@@ -85,6 +85,11 @@
 #include <QSubstitutedLabelPluginManager.h>
 //======================================================
 
+//======================================================
+// Project based widgets
+#include <QEDevicePadManager.h>
+//======================================================
+
 
 #include <QtCore/qplugin.h>
 
@@ -158,6 +163,11 @@ QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QCaPlotPluginManager(this));
     widgets.append(new QCaShapePluginManager(this));
     widgets.append(new QSubstitutedLabelPluginManager(this));
+//======================================================
+
+//======================================================
+// Project based widgets
+    widgets.append(new QEDevicePadManager(this));
 //======================================================
 
 }

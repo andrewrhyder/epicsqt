@@ -154,7 +154,7 @@ void QEForm::establishConnection( unsigned int variableIndex )
     QString newFileName = getSubstitutedVariableName( variableIndex );
 
     // Mark up the widget if there is no file name available
-    if( newFileName.isEmpty() )
+    if( newFileName.isEmpty() && !uiFileName.isEmpty() )
     {
         displayPlaceholder( true, "No file name" );
         return;
