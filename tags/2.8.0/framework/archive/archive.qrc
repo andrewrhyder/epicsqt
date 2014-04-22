@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/qe/archive">
+        <file>archive_status.png</file>
+        <file>name_search.png</file>
+    </qresource>
+</RCC>
