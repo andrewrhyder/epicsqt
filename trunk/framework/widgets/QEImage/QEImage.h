@@ -187,6 +187,8 @@ public:
 
     selectOptions getSelectionOption();    // Get the current selection option
 
+    enum imageUses { IMAGE_USE_DISPLAY, IMAGE_USE_SAVE, IMAGE_USE_DISPLAY_AND_SAVE };
+
 public:
     // Property convenience functions
 
@@ -555,6 +557,7 @@ public slots:
     void componentHostRequest( const QEActionRequests& request );
 
   private:
+    imageUses imageUse;
     void useTargetingData();
 //    void useAllMarkupData();
     void useROIData( const unsigned int& variableIndex );

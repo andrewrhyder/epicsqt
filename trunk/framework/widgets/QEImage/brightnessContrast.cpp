@@ -110,22 +110,26 @@ imageDisplayProperties::imageDisplayProperties()
     QObject::connect( resetButton, SIGNAL( clicked ( bool ) ), this,  SLOT  ( brightnessContrastResetClicked( bool )) );
 
     brightnessSlider = new QSlider( Qt::Horizontal, this );
+    brightnessSlider->setToolTip( "Set brightness.");
     brightnessSlider->setMinimum( 0 );
     brightnessSlider->setMaximum( 100 );
     QObject::connect( brightnessSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( brightnessSliderValueChanged( int )) );
 
     gradientSlider = new QSlider( Qt::Horizontal, this );
+    gradientSlider->setToolTip( "Set contrast (gradient).");
     gradientSlider->setMinimum( 0 );
     gradientSlider->setMaximum( 1000 );
     QObject::connect( gradientSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( gradientSliderValueChanged( int )) );
 
     zeroValueSlider = new QSlider( Qt::Horizontal, this );
+    zeroValueSlider->setToolTip( "Pixel value at low end of brightness / colour scale");
     zeroValueSlider->setMinimum( 0 );
     zeroValueSlider->setMaximum( 1000 );
     zeroValueSlider->setValue( toExponentialHeadSlider( 0 ) );
     QObject::connect( zeroValueSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( minSliderValueChanged( int )) );
 
     fullValueSlider = new QSlider( Qt::Horizontal, this );
+    zeroValueSlider->setToolTip( "Pixel value at high end of brightness / colour scale");
     fullValueSlider->setMinimum( 0 );
     fullValueSlider->setMaximum( 1000 );
     fullValueSlider->setValue( toExponentialTailSlider( 255 ) );
@@ -165,14 +169,14 @@ imageDisplayProperties::imageDisplayProperties()
     QObject::connect( gradientSpinBox, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( gradientSpinBoxChanged( int )) );
 
     zeroValueSpinBox = new QSpinBox( this );
-    zeroValueSpinBox->setToolTip( "Pixel value at low end of brightness / colour scale (0 to range limited by bit depth)");
+    zeroValueSpinBox->setToolTip( "Pixel value at low end of brightness / colour scale");
     zeroValueSpinBox->setMinimum( -10000 );
     zeroValueSpinBox->setMaximum( 254 );
     zeroValueSpinBox->setValue( fromExponentialHeadSlider( zeroValueSlider->value() ) );
     QObject::connect( zeroValueSpinBox, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( minSpinBoxChanged( int )) );
 
     fullValueSpinBox = new QSpinBox( this );
-    fullValueSpinBox->setToolTip( "Pixel value at high end of brightness / colour scale (0 to range limited by bit depth)");
+    fullValueSpinBox->setToolTip( "Pixel value at high end of brightness / colour scale");
     fullValueSpinBox->setMinimum( 1 );
     fullValueSpinBox->setMaximum( 10000 );
     fullValueSpinBox->setValue( fromExponentialTailSlider( fullValueSlider->value() ) );
@@ -700,7 +704,12 @@ void imageDisplayProperties::updateFullValueInterface()
 
 //=========================================================
 
-void imageDisplayProperties::setStatistics( unsigned int minPIn, unsigned int maxPIn, unsigned int bitDepth, unsigned int binsIn[HISTOGRAM_BINS], rgbPixel pixelLookupIn[256] )
+// Set current image statistics
+void imageDisplayProperties::setStatistics( unsigned int minPIn,
+                                            unsigned int maxPIn,
+                                            unsigned int bitDepth,
+                                            unsigned int binsIn[HISTOGRAM_BINS],
+                                            rgbPixel pixelLookupIn[256] )
 {
     // Update image statistics
     minP = minPIn;
@@ -713,9 +722,6 @@ void imageDisplayProperties::setStatistics( unsigned int minPIn, unsigned int ma
     range = (1<<depth)-1;
 
     // Apply changes
-//    zeroValueSlider->setMaximum( range-1 );
-//    fullValueSlider->setMaximum( range );
-
     zeroValueSpinBox->setMinimum( -(int)range*10 );
     zeroValueSpinBox->setMaximum( range-1 );
     fullValueSpinBox->setMinimum( 0 );
@@ -1058,10 +1064,12 @@ int imageDisplayProperties::toExponentialHeadSlider( double value )
 {
     if( value > 0.0 )
     {
+        // Inverse of: (256.0/800.0)*((double)(value)-200.0);
         return value/(256.0/800.0)+200.0;
     }
     else
     {
+        // Inverse of -(pow( 10, (0.01*(0-(double)(value))+3.145)) - 13.9639 );
         return -(log10(13.9639-value)-3.145)/0.01;
     }
 }
@@ -1075,10 +1083,12 @@ int imageDisplayProperties::toExponentialTailSlider( double value )
 {
     if( value < 256.0 )
     {
+        // Inverse of: (double)(value)*(256.0/800.0);
         return value * (800.0/256.0);
     }
     else
     {
+        // Inverse of: pow( 10, 0.01*(double)(value)-6.83 ) + 241.207;
         return (log10(value-241.207)+6.83)/0.01;
     }
 }
