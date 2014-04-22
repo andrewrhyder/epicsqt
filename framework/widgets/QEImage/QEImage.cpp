@@ -143,6 +143,8 @@ void QEImage::setup() {
     fullScreen = false;
     fullScreenMainWindow = NULL;
 
+    imageUse = IMAGE_USE_DISPLAY;
+
     // With so many variables involved, don't bother alterning the presentation of the widget when any one variable goes into alarm
     setDisplayAlarmState( false );
 
