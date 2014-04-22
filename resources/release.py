@@ -68,19 +68,6 @@ try:
 		if answer.upper() == "N":
 			sys.exit(0)
 	print
-	while True:
-	 	print "If the QEImage widge was built with ffmpeg support the build output would contain something like:"
-	 	print "    Project WARNING: MPEG viewer will be included in QEImage"
-	 	print "If the QEImage widge was built without ffmpeg support the build output would contain something like:"
-	 	print "    Project WARNING: MPEG viewer will not be included in QEImage"
-		answer = raw_input("Was the build built with FFMPEG (y/n): ")
-		if answer.upper() == "Y":
-			__FFMPEG__ = True
-			break
-		if answer.upper() == "N":
-			__FFMPEG__ = False
-			break
-	print
 	path = os.path.dirname(os.path.abspath(sys.argv[0])).split("/")
 	base_path = ""
 	for i in range(0, len(path) - 2):
@@ -476,15 +463,11 @@ try:
 	#  CREATE TAR FILE
 	# ===========================================================
 	try:
-		if __FFMPEG__:
-			ffmpeg_name = "ffmpeg"
-		else:
-			ffmpeg_name = ""
 		if tag_name is None:
-			tar_file = "epicsqt-%s-%s-src.tar.gz" % (ffmpeg_name, new_release_version)
+                                                   tar_file = "epicsqt-%s-%s-src.tar.gz" % new_release_version
 			command = "rm -f %s/%s ; tar -cvzf %s/%s -C %s/tags %s 1>/dev/null" % (__TEMP_DIRECTORY__, tar_file, __TEMP_DIRECTORY__, tar_file, __TEMP_DIRECTORY__, new_release_version)
 		else:
-			tar_file = "epicsqt-%s-src.tar.gz" % (ffmpeg_name, tag_name)
+                                                   tar_file = "epicsqt-%s-src.tar.gz" % tag_name
 			command = "rm -f %s/%s ; tar -cvzf %s/%s -C %s/tags %s 1>/dev/null" % (__TEMP_DIRECTORY__, tar_file, __TEMP_DIRECTORY__, tar_file, __TEMP_DIRECTORY__, tag_name)
 		print "Creating TAR file '%s/%s'..." % (__TEMP_DIRECTORY__, tar_file)
 		print
