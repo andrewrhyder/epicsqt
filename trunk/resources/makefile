@@ -43,7 +43,15 @@ ifdef TAG
 	FRAMEWORK_VERSION = tags/$(TAG)
 endif
 
-
+# ================================================
+#  DEFINE FFMPEG COMPONENT OF RPM name
+# ================================================
+#FFMPEG_INDICATOR = $(FFMPEG)
+ifeq ( $(FFMPEG),)
+	FFMPEG_NAME = "_ffmpeg"
+else
+	FFMPEG_NAME = ""
+endif
 
 # ================================================
 #  MAKE ALL; DEFAULT TARGET WHEN NOTHING IS SPECIFIED WHEN EXECUTING make
@@ -208,7 +216,7 @@ endif
 	@echo "Creating RPM of the framework in directory '$(RPM_DIRECTORY)'..."
 	@mkdir -p $(RPM_DIRECTORY) $(RPM_DIRECTORY)/SPECS $(RPM_DIRECTORY)/SOURCES $(RPM_DIRECTORY)/BUILD $(RPM_DIRECTORY)/BUILDROOT $(RPM_DIRECTORY)/RPMS $(RPM_DIRECTORY)/SRPMS
 	@echo "%_topdir $(PWD)/rpmbuild" > $(HOME)/.rpmmacros
-	@echo "Name: epics_qt_framework" > $(SPEC_FILE)
+	@echo "Name: epics_qt_framework"$(FFMPEG_NAME) > $(SPEC_FILE)
 	@echo "Summary: A layered framework based on Qt for accessing Experimental Physics and Industrial Control System (EPICS) data using Channel Access (CA). Designed for rapid development of control system graphical interfaces." >> $(SPEC_FILE)
 	@cd $(PACKAGE_DIRECTORY) ; ./executeQEGui -v | $(GREP) "Framework version: " | $(SED) 's/Framework\ version:\ //' | $(SED) 's/\ .*//' | $(SED) 's/\([0-9]*\).\([0-9]*\).\([0-9]*\)/Version: \1.\2/' >> ../$(SPEC_FILE) ; cd ..
 	@cd $(PACKAGE_DIRECTORY) ; ./executeQEGui -v | $(GREP) "Framework version: " | $(SED) 's/Framework\ version:\ //' | $(SED) 's/\ .*//' | $(SED) 's/\([0-9]*\).\([0-9]*\).\([0-9]*\)/Release: \3%{?dist}/' >> ../$(SPEC_FILE) ; cd ..
