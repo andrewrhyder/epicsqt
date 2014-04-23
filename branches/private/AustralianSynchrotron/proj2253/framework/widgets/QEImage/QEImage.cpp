@@ -213,13 +213,23 @@ void QEImage::setup() {
     scrollArea->setBackgroundRole(QPalette::Dark);
     scrollArea->setWidget( videoWidget );
 
-    // Local brightness and contrast controls
-    localBC = new localBrightnessContrast;
-    QObject::connect( localBC, SIGNAL( brightnessContrastChange() ),
-                      this,    SLOT  ( brightnessContrastChanged()) );
-    QObject::connect( localBC, SIGNAL( brightnessContrastAutoImage() ),
+    // Image display properties controls
+    imageDisplayProps = new imageDisplayProperties;
+    QObject::connect( imageDisplayProps, SIGNAL( imageDisplayPropertiesChange() ),
+                      this,    SLOT  ( imageDisplayPropertiesChanged()) );
+    QObject::connect( imageDisplayProps, SIGNAL( brightnessContrastAutoImage() ),
                       this,    SLOT  ( brightnessContrastAutoImageRequest() ) );
-    QObject::connect(localBC, SIGNAL(destroyed(QObject*)), this, SLOT(localBCDestroyed(QObject*)));
+    QObject::connect(imageDisplayProps, SIGNAL(destroyed(QObject*)), this, SLOT(imageDisplayPropsDestroyed(QObject*)));
+
+    // Create image recorder
+//    recorder = NULL;//!!TEMP
+///* TEMP
+    recorder = new recording( this );
+    QObject::connect(recorder, SIGNAL(destroyed(QObject*)), this, SLOT(recorderDestroyed(QObject*)));
+    QObject::connect(recorder, SIGNAL(playingBack(bool)), this, SLOT(playingBack(bool)));
+    QObject::connect( recorder,  SIGNAL( byteArrayChanged( const QByteArray&, unsigned long, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+                      this, SLOT( setImage( const QByteArray&, unsigned long, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
+//*/
 
     // Create vertical, horizontal, and general profile plots
     vSliceLabel = new QLabel( "Vertical Profile" );
@@ -324,18 +334,18 @@ void QEImage::setup() {
     graphicsLayout->addWidget( hSliceLabel,    2, 0 );
     graphicsLayout->addWidget( profileLabel,   4, 0 );
 
-    mainLayout->addWidget( buttonGroup, 0, 0 );
+    mainLayout->addWidget( buttonGroup, 2, 0 );
 
     presentControls();
 
     graphicsLayout->setColumnStretch( 0, 1 );  // display image to take all spare room
     graphicsLayout->setRowStretch( 0, 1 );  // display image to take all spare room
 
-    mainLayout->addLayout( graphicsLayout, 1, 0, 1, 0 );
+    mainLayout->addLayout( graphicsLayout, 3, 0, 1, 0 );
 
     // Set graphics to take all spare room
-    mainLayout->setColumnStretch( 1, 1 );
-    mainLayout->setRowStretch( 1, 1 );
+    mainLayout->setColumnStretch( 0, 1 );
+    mainLayout->setRowStretch( 3, 1 );
 
     setLayout( mainLayout );
 
@@ -388,14 +398,14 @@ QEImage::~QEImage()
     // Note, the application may already have deleted them in which case we will
     // have recieved a destroyed signal and set the reference to the component to NULL.
     // An example of this scenario is if a QEGui main window is closed while a GUI is displayed.
-    // Components not hosted by the application will be part of the widget hierarcy under this
+    // Components not hosted by the application will be part of the widget hierarchy under this
     // widget and will not need explicit deletion.
     if( appHostsControls && hostingAppAvailable )
     {
-        if( localBC )
+        if( imageDisplayProps )
         {
-            QObject::disconnect( localBC, 0, this, 0);
-            delete localBC;
+            QObject::disconnect( imageDisplayProps, 0, this, 0);
+            delete imageDisplayProps;
         }
 
         if( vSliceDisplay )
@@ -415,16 +425,22 @@ QEImage::~QEImage()
             QObject::disconnect( profileDisplay, 0, this, 0);
             delete profileDisplay;
         }
+
+        if( recorder )
+        {
+            QObject::disconnect( recorder, 0, this, 0);
+            delete recorder;
+        }
     }
     delete videoWidget;
 }
 
 // If an object handed over to the application (which we have a reference to) has been deleted, then clear the reference
-void QEImage::localBCDestroyed( QObject* ){ localBC = NULL; }
+void QEImage::imageDisplayPropsDestroyed( QObject* ){ imageDisplayProps = NULL; }
 void QEImage::vSliceDisplayDestroyed( QObject* ){ vSliceDisplay = NULL; }
 void QEImage::hSliceDisplayDestroyed( QObject* ){ hSliceDisplay = NULL; }
 void QEImage::profileDisplayDestroyed( QObject* ){ profileDisplay = NULL; }
-
+void QEImage::recorderDestroyed( QObject* ){ recorder = NULL; }
 
 // Put the controls where they should go.
 // (within this widget, or hosted by the application containing this widget)
@@ -436,13 +452,18 @@ void QEImage::presentControls()
     //  has gone wrong perhaps the appliction has deleted them, so don't assume they are present)
     if( appHostsControls && hostingAppAvailable )
     {
-/*
         QList<componentHostListItem> components;
 
-        if( localBC )
+        if( imageDisplayProps )
         {
-            mainLayout->removeWidget( localBC );
-            components.append( componentHostListItem( localBC, QEActionRequests::OptionTopDockWindow, true, "Brightness / Contrast" ) );
+            mainLayout->removeWidget( imageDisplayProps );
+            components.append( componentHostListItem( imageDisplayProps, QEActionRequests::OptionTopDockWindow, true, "Image Display Properties" ) );
+        }
+
+        if( recorder )
+        {
+            mainLayout->removeWidget( recorder );
+            components.append( componentHostListItem( recorder, QEActionRequests::OptionTopDockWindow, true, "Recorder" ) );
         }
 
         vSliceLabel->setVisible( false );
@@ -466,13 +487,10 @@ void QEImage::presentControls()
             graphicsLayout->removeWidget( profileDisplay );
             components.append( componentHostListItem( profileDisplay, QEActionRequests::OptionTopDockWindow, true, "Arbitrary Profile" ) );
         }
-*/
-        enableVertSlicePresentation = false;
-        enableHozSlicePresentation = false;
-        enableProfilePresentation = false;
+
         buttonGroup->hide();
 
-//        emitComponentHostRequest( QEActionRequests( components ) );
+        emitComponentHostRequest( QEActionRequests( components ) );
 
     }
 
@@ -481,9 +499,14 @@ void QEImage::presentControls()
     //  has gone wrong perhaps the appliction has deleted them, so don't assume they are present)
     else
     {
-        if( localBC )
+        if( imageDisplayProps )
         {
-            mainLayout->addWidget( localBC, 0, 1 );
+            mainLayout->addWidget( imageDisplayProps, 0, 0 );
+        }
+
+        if( recorder )
+        {
+            mainLayout->addWidget( recorder, 1, 0 );
         }
 
         if( vSliceDisplay && enableVertSlicePresentation )
@@ -1456,6 +1479,25 @@ void QEImage::useAllMarkupData()
     useEllipseData();
 }
 
+//====================================================
+// Slot from recorder control to indicate playback has started or stopped.
+// When playing back, live sources should be stopped.
+void QEImage::playingBack( bool playing )
+{
+    if( playing )
+    {
+        deleteQcaItem( IMAGE_VARIABLE, true );
+        stopStream();
+    }
+    else
+    {
+        establishConnection( IMAGE_VARIABLE );
+        startStream();
+    }
+}
+
+//====================================================
+
 // Update image from non CA souce (no associated CA timestamp or alarm info available)
 void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long elements, unsigned long width, unsigned long height, imageDataFormats::formatOptions format, unsigned int depth )
 {
@@ -1499,6 +1541,12 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
         return;
     }
 
+    // If recording, save image
+    if( recorder && recorder->isRecording() )
+    {
+        recorder->recordImage(  image, dataSize, alarmInfo, time );
+    }
+
     // Signal a database value change to any Link widgets
     emit dbValueChanged( "image" );
 
@@ -1533,7 +1581,7 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
     }
 
     // Indicate another image has arrived
-    freshImage();
+    freshImage( time );
 
     // Display invalid if invalid
     if( alarmInfo.isInvalid() )
@@ -1543,57 +1591,9 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
     }
 }
 
-// Generate a lookup table to convert the top 8 bits of raw pixel values to display pixel values taking into
-// account, clipping, contrast reversal, and local brightness and contrast.
-// Only the top 8 bits are used as all presentation is performed using 8 bit.
+// Generate a lookup table to convert raw pixel values to display pixel values taking into
+// account, clipping, and contrast reversal.
 // Note, the table will be used to translate each colour in an RGB format.
-//
-// The following example assumes:
-//  - a user set contrast of 150%
-//  - a user set brightness of -15%
-//
-//       (A)    (B)    (C)    (D)    (E)
-//
-//   382         *
-//               *
-//               *
-//               *      *
-//               *      *
-//               *      *      *
-//   255  *      *      *      *-
-//        *      *      *      * -
-//        *      *      *      *  -
-//        *      *      *      *   -
-//        *    --*--    *      *    --*-----
-//        *  --  *  --  *      *      *
-//      --*--    *    --*--    *      *
-//        *      *      *  --  *      *
-//        *      *      *    --*      *
-//        *      *      *      *      *
-//        *      *      *      *      *
-//     0  *------*------*------*------*------
-//                      *      *
-//                      *      *
-//                      *      *
-//                             *
-//                             *
-//
-// (A) Top 8 bits in each pixel in the image has a range of values from 0 to 255.
-//     Note central mid grey is marked.
-//
-// (B) Range of values is extended by contrast.
-//     In this example, 150% contrast results in 4096 values ranging from 0 to 382.
-//     If left like this the top 127 values would be lost in the white.
-//
-// (C) Range of values is offset so half of the extended range is lost in the white and half in the black.
-//     The values now range from -64 to 318.
-//
-// (D) Range of values is offset by a user set brightness.
-//     The brightness range of -100% to +100% is meant to bring the highest value down to 0 (black) or the lowest value up to white.
-//     The offset applied by the user brightness value must take into account the varying range of values caused by contrast changes.
-//     In the example, the brightness is lowered by 15%. -100% would bring 318 down to 0. +100% would take -64 up to 255.
-//
-// (E) Values matching the original range of values are selected from the translated table.
 //
 void QEImage::getPixelTranslation()
 {
@@ -1603,14 +1603,17 @@ void QEImage::getPixelTranslation()
     bool contrastReversal;
     bool logBrightness;
 
-    if( localBC )
+    // If there is an image options control, get the relevent options
+    if( imageDisplayProps )
     {
-        pixelLow = localBC->getLowPixel();
-        pixelHigh = localBC->getHighPixel();
+        pixelLow = imageDisplayProps->getLowPixel();
+        pixelHigh = imageDisplayProps->getHighPixel();
 
-        contrastReversal = localBC->getContrastReversal();
-        logBrightness = localBC->getLog();
+        contrastReversal = imageDisplayProps->getContrastReversal();
+        logBrightness = imageDisplayProps->getLog();
     }
+
+    // If there is no image options control, assume no pixel manipulation
     else
     {
         pixelLow = 0;
@@ -1619,8 +1622,6 @@ void QEImage::getPixelTranslation()
         contrastReversal = false;
         logBrightness = false;
     }
-
-    unsigned int pixelRange = pixelHigh-pixelLow;
 
     // Loop populating table with pixel translations for every pixel value
     unsigned int value = 0;
@@ -1654,20 +1655,17 @@ void QEImage::getPixelTranslation()
         // Translate pixel value if not clipped
         if( !clipped )
         {
-            int translatedValue;
+            // Start with original value
+            int translatedValue = value;
 
+            // Logarithmic brightness if required
             if( logBrightness )
             {
                 translatedValue = int( log10( value+1 ) * 105.8864 );
             }
-            else
-            {
-                translatedValue = value;
-            }
 
-            qDebug() << value<<translatedValue;
             // Reverse contrast if required
-            if( localBC->getContrastReversal() )
+            if( contrastReversal )
             {
                 translatedValue = MAX_VALUE - translatedValue;
             }
@@ -1691,25 +1689,47 @@ void QEImage::getPixelTranslation()
 }
 
 // Get a false color representation for an entry from the color lookup table
-QEImage::rgbPixel QEImage::getFalseColor (const unsigned char value) {
-    rgbPixel result;
+imageDisplayProperties::rgbPixel QEImage::getFalseColor (const unsigned char value) {
+
+    const int max = 0xFF;
+    const int half = 0x80;
+    const int lightness_slope = 4;
+    const int low_hue = 240;    // blue.
+    const int high_hue = 0;     // red
+
+    int bp1;
+    int bp2;
+    imageDisplayProperties::rgbPixel result;
     int h, l;
     QColor c;
 
-    // Hue goes 300 (blue) down to 0 (red) as monochrome value goes 0 up to 255.
+    // Range of inputs broken into three bands:
+    // [0 .. bp1], [bp1 .. bp2] and [bp2 .. max]
     //
-    h = (300 * (0xFF - value)) / 0xFF;
+    bp1 = half / lightness_slope;
+    bp2 = max - (max - half) / lightness_slope;
 
-    // Intesity ramps up to a max of 128
-    //
-    l = MIN (4*value, 128);
+    if( value < bp1 ){
+        // Constant hue (blue), lightness ramps up to 128
+        h = low_hue;
+        l = lightness_slope*value;
+    } else if( value > bp2 ){
+        // Constant hue (red), lightness ramps up from 128 to 255
+        h = high_hue;
+        l = max - lightness_slope*(max-value);
+    } else {
+        // The bit in the middle.
+        // Contant lightness, hue varies blue to red.
+        h = ((value - bp1)*high_hue + (bp2 - value)*low_hue) / (bp2 - bp1);
+        l = half;
+    }
 
-    c.setHsl (h, 0xFF, l);   // Saturation always 100%
+    c.setHsl( h, max, l );   // Saturation always 100%
 
     result.p[0] = (unsigned char) c.blue();
     result.p[1] = (unsigned char) c.green();
     result.p[2] = (unsigned char) c.red();
-    result.p[3] = (unsigned char) 0xFF; // Alpha always 100%
+    result.p[3] = (unsigned char) max; // Alpha always 100%
 
     return result;
 }
@@ -1772,7 +1792,7 @@ void QEImage::displayImage()
 
     // Set up input and output pointers and counters ready to process each pixel
     const unsigned char* dataIn = (unsigned char*)image.constData();
-    rgbPixel* dataOut = (rgbPixel*)(imageBuff.data());
+    imageDisplayProperties::rgbPixel* dataOut = (imageDisplayProperties::rgbPixel*)(imageBuff.data());
     unsigned long buffIndex = 0;
     unsigned long dataIndex = 0;
 
@@ -1881,19 +1901,21 @@ void QEImage::displayImage()
         pixelRange = 1;
     }
 
+    unsigned int mask = (1<<bitDepth)-1;
+
     // Prepare for building image stats while processing image data
     unsigned int maxP = 0;
     unsigned int minP = UINT_MAX;
     static unsigned int bins[HISTOGRAM_BINS];
     unsigned int valP;
-    unsigned int bitsPerBin = (bitDepth<=8)?1:bitDepth-8;
+    unsigned int binShift = (bitDepth<8)?0:bitDepth-8;
     unsigned int bin;
     for( int i = 0; i < HISTOGRAM_BINS-1; i++ )
     {
         bins[i]=0;
     }
 #define BUILD_STATS \
-    bin = valP>>(bitsPerBin-1); \
+    bin = valP>>binShift; \
     bins[bin] = bins[bin]+1; \
     if( valP < minP ) minP = valP; \
     else if( valP > maxP ) maxP = valP;
@@ -1920,41 +1942,17 @@ void QEImage::displayImage()
         case imageDataFormats::MONO:
         {
             LOOP_START
-                quint64 inPixel;
-                if( bitDepth <= 8 )
-                {
-                    inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
-                }
-                else if( bitDepth <= 16 )
-                {
-                    inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
-                }
-                else if( bitDepth <= 24 )
-                {
-                    inPixel = (*(unsigned long*)(&dataIn[dataIndex*bytesPerPixel]))&0xffffff;
-                }
-                else
-                {
-                    inPixel = *(unsigned long*)(&dataIn[dataIndex*bytesPerPixel]);
-                }
+                unsigned int inPixel;
+
+                // Extract pixel
+                inPixel =  (*(unsigned int*) (&dataIn[dataIndex*bytesPerPixel]))&mask;
 
                 // Accumulate pixel statistics
                 valP = inPixel;
                 BUILD_STATS
 
                 // Scale pixel for local brightness and contrast
-                if( inPixel < pixelLow )
-                {
-                    inPixel = 0;
-                }
-                else if( inPixel > pixelHigh )
-                {
-                    inPixel = 255;
-                }
-                else
-                {
-                    inPixel = (inPixel-pixelLow)*255/pixelRange;
-                }
+                ( (int)inPixel < pixelLow ) ? inPixel = 0 : ( (int)inPixel > pixelHigh ) ? inPixel = 255 : inPixel = ((int)inPixel-pixelLow)*255/pixelRange;
 
                 // Select displayed pixel
                 dataOut[buffIndex] = pixelLookup[inPixel];
@@ -1988,6 +1986,9 @@ void QEImage::displayImage()
             quint32 b3;
             quint32 b4;
 
+            quint32 r;
+            quint32 g;
+            quint32 b;
 
 
             int outLast = outCount-1;
@@ -2148,9 +2149,9 @@ void QEImage::displayImage()
 
                         }
 
-                        dataOut[buffIndex].p[2] = pixelLookup[r1>>shift].p[0];                  // red
-                        dataOut[buffIndex].p[1] = pixelLookup[(g1+g2+g3+g4)>>(shift+2)].p[0];   // green
-                        dataOut[buffIndex].p[0] = pixelLookup[(b1+b2+b3+b4)>>(shift+2)].p[0];   // blue
+                        r = r1>>shift;
+                        g = (g1+g2+g3+g4)>>(shift+2);
+                        b = (b1+b2+b3+b4)>>(shift+2);
 
                         break;
 
@@ -2212,9 +2213,9 @@ void QEImage::displayImage()
 
                         }
 
-                        dataOut[buffIndex].p[2] = pixelLookup[(r1+r2)>>(shift+1)].p[0]; // red
-                        dataOut[buffIndex].p[1] = pixelLookup[g1>>shift].p[0];          // green
-                        dataOut[buffIndex].p[0] = pixelLookup[(b1+b2)>>(shift+1)].p[0]; // blue
+                        r = pixelLookup[(r1+r2)>>(shift+1)].p[0];
+                        g = pixelLookup[g1>>shift].p[0];
+                        b = pixelLookup[(b1+b2)>>(shift+1)].p[0];
 
                         break;
 
@@ -2275,9 +2276,9 @@ void QEImage::displayImage()
                                 break;
                         }
 
-                        dataOut[buffIndex].p[2] = pixelLookup[(r1+r2)>>(shift+1)].p[0]; // red
-                        dataOut[buffIndex].p[1] = pixelLookup[g2>>shift].p[0];          // green
-                        dataOut[buffIndex].p[0] = pixelLookup[(b1+b2)>>(shift+1)].p[0]; // blue
+                        r = (r1+r2)>>(shift+1);
+                        g = g2>>shift;
+                        b = (b1+b2)>>(shift+1);
 
                         break;
 
@@ -2347,127 +2348,112 @@ void QEImage::displayImage()
 
                         }
 
-                        dataOut[buffIndex].p[2] = pixelLookup[(r1+r2+r3+r4)>>(shift+2)].p[0];   // red
-                        dataOut[buffIndex].p[1] = pixelLookup[(g1+g2+g3+g4)>>(shift+2)].p[0];   // green
-                        dataOut[buffIndex].p[0] = pixelLookup[b1>>shift].p[0];                  // blue
+                        r = (r1+r2+r3+r4)>>(shift+2);
+                        g = (g1+g2+g3+g4)>>(shift+2);
+                        b = b1>>shift;
 
                         break;
+
+                    // Should never get here.
+                    // Included to avoid compilation warnings on some compilers
+                    default:
+                        r = 0;
+                        b = 0;
+                        g = 0;
+                        break;
                 }
+
+
+
+                // Accumulate pixel statistics
+                valP = g; // use all three colors!!!
+                BUILD_STATS
+
+                // Scale pixel for local brightness and contrast
+                // !!! This will introduce some hue issues. Should convert to HSV to manipulate brightness and contrast????
+                ( (int)r < pixelLow ) ? r = 0 : ( (int)r > pixelHigh ) ? r = 255 : r = (r-pixelLow)*255/pixelRange;
+                ( (int)g < pixelLow ) ? g = 0 : ( (int)g > pixelHigh ) ? g = 255 : g = (g-pixelLow)*255/pixelRange;
+                ( (int)b < pixelLow ) ? b = 0 : ( (int)b > pixelHigh ) ? b = 255 : b = (b-pixelLow)*255/pixelRange;
+
+                // Select displayed pixel
+                dataOut[buffIndex].p[0] = pixelLookup[b].p[0];
+                dataOut[buffIndex].p[1] = pixelLookup[g].p[0];
+                dataOut[buffIndex].p[2] = pixelLookup[r].p[0];
+                dataOut[buffIndex].p[3] = 0xff;
 
             LOOP_END
             break;
         }
 
         case imageDataFormats::RGB1:
+        case imageDataFormats::RGB2: //!!! not done yet - just do the same as RGB1 for the time being and hope
+        case imageDataFormats::RGB3: //!!! not done yet - just do the same as RGB1 for the time being and hope
         {
             //unsigned int rOffset = 0*imageDataSize;
             unsigned int gOffset = imageDataSize;
             unsigned int bOffset = 2*imageDataSize;
-//            qint64 start = QDateTime::currentMSecsSinceEpoch();
             LOOP_START
+
+                // Extract pixel
                 unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
+                unsigned int r = *inPixel;
+                unsigned int g = inPixel[gOffset];
+                unsigned int b = inPixel[bOffset];
 
-                unsigned char r = *inPixel;
-                unsigned char g = inPixel[gOffset];
-                unsigned char b = inPixel[bOffset];
+                // Accumulate pixel statistics
+                valP = g; // use all three colors!!!
+                BUILD_STATS
 
+                // Scale pixel for local brightness and contrast
+                // !!! This will introduce some hue issues. Should convert to HSV to manipulate brightness and contrast????
+                ( (int)r < pixelLow ) ? r = 0 : ( (int)r > pixelHigh ) ? r = 255 : r = (r-pixelLow)*255/pixelRange;
+                ( (int)g < pixelLow ) ? g = 0 : ( (int)g > pixelHigh ) ? g = 255 : g = (g-pixelLow)*255/pixelRange;
+                ( (int)b < pixelLow ) ? b = 0 : ( (int)b > pixelHigh ) ? b = 255 : b = (b-pixelLow)*255/pixelRange;
 
+                // Select displayed pixel
                 dataOut[buffIndex].p[0] = pixelLookup[b].p[0];
                 dataOut[buffIndex].p[1] = pixelLookup[g].p[0];
                 dataOut[buffIndex].p[2] = pixelLookup[r].p[0];
                 dataOut[buffIndex].p[3] = 0xff;
 
-                valP = g; // use all three colors!!!
-                BUILD_STATS
             LOOP_END
             break;
         }
 
-        case imageDataFormats::RGB2:
+        case imageDataFormats::YUV444: //!!! not done yet
+        case imageDataFormats::YUV422: //!!! not done yet. do the same as for YUV444
+        case imageDataFormats::YUV421: //!!! not done yet. do the same as for YUV444
         {
-            //!!! not done yet - this is a copy of RGB1
-            //unsigned int rOffset = 0*imageDataSize;
-            unsigned int gOffset = imageDataSize;
-            unsigned int bOffset = 2*imageDataSize;
             LOOP_START
-                unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
-                dataOut[buffIndex].p[0] = pixelLookup[inPixel[bOffset]].p[0];
-                dataOut[buffIndex].p[1] = pixelLookup[inPixel[gOffset]].p[0];
-                dataOut[buffIndex].p[2] = pixelLookup[*inPixel].p[0];
-                dataOut[buffIndex].p[3] = 0xff;
-            LOOP_END
-            break;
-        }
+                    // Extract pixel
+                    unsigned int r = 0;
+                    unsigned int g = 0;
+                    unsigned int b = 0;
 
-        case imageDataFormats::RGB3:
-        {
-            //!!! not done yet - this is a copy of RGB1
-            //unsigned int rOffset = 0*imageDataSize;
-            unsigned int gOffset = imageDataSize;
-            unsigned int bOffset = 2*imageDataSize;
-            LOOP_START
-                unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
-                dataOut[buffIndex].p[0] = pixelLookup[inPixel[bOffset]].p[0];
-                dataOut[buffIndex].p[1] = pixelLookup[inPixel[gOffset]].p[0];
-                dataOut[buffIndex].p[2] = pixelLookup[*inPixel].p[0];
-                dataOut[buffIndex].p[3] = 0xff;
-            LOOP_END
-            break;
-        }
+                    // Accumulate pixel statistics
+                    valP = g; // use all three colors!!!
+                    BUILD_STATS
 
-        case imageDataFormats::YUV444:
-        {
-            //!!! not done yet - this is a copy of RGB1
-            //unsigned int rOffset = 0*imageDataSize;
-            unsigned int gOffset = imageDataSize;
-            unsigned int bOffset = 2*imageDataSize;
-            LOOP_START
-                unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
-                dataOut[buffIndex].p[0] = pixelLookup[inPixel[bOffset]].p[0];
-                dataOut[buffIndex].p[1] = pixelLookup[inPixel[gOffset]].p[0];
-                dataOut[buffIndex].p[2] = pixelLookup[*inPixel].p[0];
-                dataOut[buffIndex].p[3] = 0xff;
-            LOOP_END
-            break;
-        }
+                    // Scale pixel for local brightness and contrast
+                    // !!! This will introduce some hue issues. Should convert to HSV to manipulate brightness and contrast????
+                    ( (int)r < pixelLow ) ? r = 0 : ( (int)r > pixelHigh ) ? r = 255 : r = (r-pixelLow)*255/pixelRange;
+                    ( (int)g < pixelLow ) ? g = 0 : ( (int)g > pixelHigh ) ? g = 255 : g = (g-pixelLow)*255/pixelRange;
+                    ( (int)b < pixelLow ) ? b = 0 : ( (int)b > pixelHigh ) ? b = 255 : b = (b-pixelLow)*255/pixelRange;
 
-        case imageDataFormats::YUV422:
-        {
-            //!!! not done yet - this is a copy of RGB1
-            //unsigned int rOffset = 0*imageDataSize;
-            unsigned int gOffset = imageDataSize;
-            unsigned int bOffset = 2*imageDataSize;
-            LOOP_START
-                unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
-                dataOut[buffIndex].p[0] = pixelLookup[inPixel[bOffset]].p[0];
-                dataOut[buffIndex].p[1] = pixelLookup[inPixel[gOffset]].p[0];
-                dataOut[buffIndex].p[2] = pixelLookup[*inPixel].p[0];
-                dataOut[buffIndex].p[3] = 0xff;
-            LOOP_END
-            break;
-        }
-
-        case imageDataFormats::YUV421:
-        {
-            //!!! not done yet - this is a copy of RGB1
-            //unsigned int rOffset = 0*imageDataSize;
-            unsigned int gOffset = imageDataSize;
-            unsigned int bOffset = 2*imageDataSize;
-            LOOP_START
-                unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
-                dataOut[buffIndex].p[0] = pixelLookup[inPixel[bOffset]].p[0];
-                dataOut[buffIndex].p[1] = pixelLookup[inPixel[gOffset]].p[0];
-                dataOut[buffIndex].p[2] = pixelLookup[*inPixel].p[0];
-                dataOut[buffIndex].p[3] = 0xff;
+                    // Select displayed pixel
+                    dataOut[buffIndex].p[0] = pixelLookup[b].p[0];
+                    dataOut[buffIndex].p[1] = pixelLookup[g].p[0];
+                    dataOut[buffIndex].p[2] = pixelLookup[r].p[0];
+                    dataOut[buffIndex].p[3] = 0xff;
             LOOP_END
             break;
         }
     }
 
-    // Update the local brightness/contrast control if present
-    if( localBC )
+    // Update the image display properties controls if present
+    if( imageDisplayProps )
     {
-        localBC->setStatistics( minP, maxP, bitDepth, bins );
+        imageDisplayProps->setStatistics( minP, maxP, bitDepth, bins, pixelLookup );
     }
 
     // Generate a frame from the data
@@ -2953,15 +2939,26 @@ void QEImage::resizeEvent(QResizeEvent* )
 
 //==============================================================================
 
-// Manage local brightness and contrast controls
-void QEImage::doEnableBrightnessContrast( bool enableBrightnessContrast )
+// Manage image display properties controls such as brightness and contrast
+void QEImage::doEnableImageDisplayProperties( bool enableImageDisplayProperties )
 {
-    if( !localBC )
+    if( !imageDisplayProps )
     {
         return;
     }
 
-    localBC->setVisible( enableBrightnessContrast );
+    imageDisplayProps->setVisible( enableImageDisplayProperties );
+}
+
+// Manage image display properties controls such as brightness and contrast
+void QEImage::doEnableRecording( bool enableRecording )
+{
+    if( !recorder )
+    {
+        return;
+    }
+
+    recorder->setVisible( enableRecording );
 }
 
 // Manage contrast reversal
@@ -3296,21 +3293,21 @@ bool QEImage::getVerticalFlip()
 // Automatic setting of brightness and contrast on region selection
 void QEImage::setAutoBrightnessContrast( bool autoBrightnessContrastIn )
 {
-    if( !localBC )
+    if( !imageDisplayProps )
     {
         return;
     }
 
-    localBC->setAutoBrightnessContrast( autoBrightnessContrastIn );
+    imageDisplayProps->setAutoBrightnessContrast( autoBrightnessContrastIn );
 }
 
 bool QEImage::getAutoBrightnessContrast()
 {
-    if( !localBC )
+    if( !imageDisplayProps )
     {
         return false;
     }
-    return localBC->getAutoBrightnessContrast();
+    return imageDisplayProps->getAutoBrightnessContrast();
 }
 
 // Resize options
@@ -3358,23 +3355,23 @@ int QEImage::getInitialVertScrollPos()
 // Show time
 void QEImage::setShowTime(bool value)
 {
-    videoWidget->setShowTime( value );
+    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_TIME, value );
 }
 
 bool QEImage::getShowTime()
 {
-    return videoWidget->getShowTime();
+    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_TIME );
 }
 
 // Use False Colour
 void QEImage::setUseFalseColour(bool value)
 {
-    localBC->setFalseColour( value );
+    imageDisplayProps->setFalseColour( value );
 }
 
 bool QEImage::getUseFalseColour()
 {
-    return localBC->getFalseColour();
+    return imageDisplayProps->getFalseColour();
 }
 
 // Vertical slice markup colour
@@ -3493,23 +3490,23 @@ bool QEImage::getDisplayCursorPixelInfo()
 // Show contrast reversal
 void QEImage::setContrastReversal( bool contrastReversal )
 {
-    localBC->setContrastReversal( contrastReversal );
+    imageDisplayProps->setContrastReversal( contrastReversal );
 }
 
 bool QEImage::getContrastReversal()
 {
-    return localBC->getContrastReversal();
+    return imageDisplayProps->getContrastReversal();
 }
 
 // Show log brightness scale
 void QEImage::setLog( bool log )
 {
-    localBC->setLog( log );
+    imageDisplayProps->setLog( log );
 }
 
 bool QEImage::getLog()
 {
-    return localBC->getLog();
+    return imageDisplayProps->getLog();
 }
 
 // Enable vertical slice selection
@@ -3765,14 +3762,25 @@ bool QEImage::getDisplayEllipse()
 //==================
 
 // Enable local brightness and contrast controls if required
-void QEImage::setEnableBrightnessContrast( bool enableBrightnessContrast )
+void QEImage::setEnableImageDisplayProperties( bool enableImageDisplayProperties )
 {
-    optionsDialog->optionSet( imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST, enableBrightnessContrast );
+    optionsDialog->optionSet( imageContextMenu::ICM_DISPLAY_IMAGE_DISPLAY_PROPERTIES, enableImageDisplayProperties );
 }
 
-bool QEImage::getEnableBrightnessContrast()
+bool QEImage::getEnableImageDisplayProperties()
 {
-    return optionsDialog->optionGet( imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST );
+    return optionsDialog->optionGet( imageContextMenu::ICM_DISPLAY_IMAGE_DISPLAY_PROPERTIES );
+}
+
+// Enable recording and playback
+void QEImage::setEnableRecording( bool enableRecording )
+{
+    optionsDialog->optionSet( imageContextMenu::ICM_DISPLAY_RECORDER, enableRecording );
+}
+
+bool QEImage::getEnableRecording()
+{
+    return optionsDialog->optionGet( imageContextMenu::ICM_DISPLAY_RECORDER );
 }
 
 // Request the application host controls such as toolbars and profile views for this widget
@@ -3855,12 +3863,7 @@ void    QEImage::setEllipseLegend       ( QString legend ){        videoWidget->
 void QEImage::setSubstitutedUrl( QString urlIn )
 {
     url = urlIn;
-// Only include the mpeg stuff if required.
-// To include mpeg stuff, don't define QE_USE_MPEG directly, define environment variable
-// QE_FFMPEG to be processed by framework.pro
-#ifdef QE_USE_MPEG
     setURL( substituteThis( url ));
-#endif
 }
 
 QString QEImage::getSubstitutedUrl()
@@ -4069,7 +4072,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 zMenu->enableAreaSelected( haveSelectedArea1 );
 
                 displaySelectedAreaInfo( 1, point1, point2 );
-                if( localBC && localBC->getAutoBrightnessContrast() )
+                if( imageDisplayProps && imageDisplayProps->getAutoBrightnessContrast() )
                 {
                     setRegionAutoBrightnessContrast( point1, point2 );
                 }
@@ -4086,7 +4089,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveSelectedArea2 = true;
 
                 displaySelectedAreaInfo( 2, point1, point2 );
-                if( localBC && localBC->getAutoBrightnessContrast() )
+                if( imageDisplayProps && imageDisplayProps->getAutoBrightnessContrast() )
                 {
                     setRegionAutoBrightnessContrast( point1, point2 );
                 }
@@ -4103,7 +4106,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveSelectedArea3 = true;
 
                 displaySelectedAreaInfo( 3, point1, point2 );
-                if( localBC && localBC->getAutoBrightnessContrast() )
+                if( imageDisplayProps && imageDisplayProps->getAutoBrightnessContrast() )
                 {
                     setRegionAutoBrightnessContrast( point1, point2 );
                 }
@@ -4120,7 +4123,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveSelectedArea4 = true;
 
                 displaySelectedAreaInfo( 4, point1, point2 );
-                if( localBC && localBC->getAutoBrightnessContrast() )
+                if( imageDisplayProps && imageDisplayProps->getAutoBrightnessContrast() )
                 {
                     setRegionAutoBrightnessContrast( point1, point2 );
                 }
@@ -4429,9 +4432,9 @@ void QEImage::setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 )
     unsigned int min, max;
     getPixelRange( area, &min, &max );
 
-    if( localBC )
+    if( imageDisplayProps )
     {
-        localBC->setBrightnessContrast( max, min );
+        imageDisplayProps->setBrightnessContrast( max, min );
     }
 }
 
@@ -4486,7 +4489,7 @@ void QEImage::getPixelRange( const QRect& area, unsigned int* min, unsigned int*
 // Slots to use signals from the Brightness/contrast control
 
 // The brightness or contrast or contrast reversal has changed
-void QEImage::brightnessContrastChanged()
+void QEImage::imageDisplayPropertiesChanged()
 {
     // Flag that the current pixel lookup table needs recalculating
     pixelLookupValid = false;
@@ -5519,24 +5522,25 @@ void QEImage::optionAction( imageContextMenu::imageContextMenuOptions option, bo
         default:
         case imageContextMenu::ICM_NONE: break;
 
-        case imageContextMenu::ICM_SAVE:                        saveClicked();                         break;
-        case imageContextMenu::ICM_PAUSE:                       pauseClicked();                        break;
-        case imageContextMenu::ICM_ENABLE_CURSOR_PIXEL:         showInfo                  ( checked ); break;
-        case imageContextMenu::ICM_ABOUT_IMAGE:                 showImageAboutDialog();                break;
-        case imageContextMenu::ICM_ENABLE_TIME:                 setShowTime               ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_VERT:                 doEnableVertSliceSelection( checked ); break;
-        case imageContextMenu::ICM_ENABLE_HOZ:                  doEnableHozSliceSelection ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_AREA1:                doEnableAreaSelection     ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_AREA2:                doEnableAreaSelection     ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_AREA3:                doEnableAreaSelection     ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_AREA4:                doEnableAreaSelection     ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_LINE:                 doEnableProfileSelection  ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_TARGET:               doEnableTargetSelection   ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_BEAM:                 doEnableBeamSelection     ( checked ); break;
-        case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:          buttonGroup->setVisible   ( checked ); break;
-        case imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST: doEnableBrightnessContrast( checked ); break;
-        case imageContextMenu::ICM_FULL_SCREEN:                 setFullScreen             ( checked ); break;
-        case imageContextMenu::ICM_OPTIONS:                     optionsDialog->exec( this );           break;
+        case imageContextMenu::ICM_SAVE:                             saveClicked();                             break;
+        case imageContextMenu::ICM_PAUSE:                            pauseClicked();                            break;
+        case imageContextMenu::ICM_ENABLE_CURSOR_PIXEL:              showInfo                  ( checked );     break;
+        case imageContextMenu::ICM_ABOUT_IMAGE:                      showImageAboutDialog();                    break;
+        case imageContextMenu::ICM_ENABLE_TIME:                      videoWidget->setShowTime  ( checked );     break;
+        case imageContextMenu::ICM_ENABLE_VERT:                      doEnableVertSliceSelection( checked );     break;
+        case imageContextMenu::ICM_ENABLE_HOZ:                       doEnableHozSliceSelection ( checked );     break;
+        case imageContextMenu::ICM_ENABLE_AREA1:                     doEnableAreaSelection     ( checked );     break;
+        case imageContextMenu::ICM_ENABLE_AREA2:                     doEnableAreaSelection     ( checked );     break;
+        case imageContextMenu::ICM_ENABLE_AREA3:                     doEnableAreaSelection     ( checked );     break;
+        case imageContextMenu::ICM_ENABLE_AREA4:                     doEnableAreaSelection     ( checked );     break;
+        case imageContextMenu::ICM_ENABLE_LINE:                      doEnableProfileSelection  ( checked );     break;
+        case imageContextMenu::ICM_ENABLE_TARGET:                    doEnableTargetSelection   ( checked );     break;
+        case imageContextMenu::ICM_ENABLE_BEAM:                      doEnableBeamSelection     ( checked );     break;
+        case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:               buttonGroup->setVisible   ( checked );     break;
+        case imageContextMenu::ICM_DISPLAY_IMAGE_DISPLAY_PROPERTIES: doEnableImageDisplayProperties( checked ); break;
+        case imageContextMenu::ICM_DISPLAY_RECORDER:                 doEnableRecording         ( checked ); break;
+        case imageContextMenu::ICM_FULL_SCREEN:                      setFullScreen             ( checked );     break;
+        case imageContextMenu::ICM_OPTIONS:                          optionsDialog->exec( this );               break;
 
         // Note, zoom options caught by zoom menu signal
         // Note, rotate and flip options caught by flip rotate menu signal
@@ -5889,23 +5893,6 @@ void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool ini
         }
     }
 
-    // About image button
-    else if( action == "Brightness / Contrast" )
-    {
-        if( appHostsControls && hostingAppAvailable ){
-            if( !initialise )
-            {
-                if( localBC )
-                {
-                    QList<componentHostListItem> components;
-                    mainLayout->removeWidget( localBC );
-                    components.append( componentHostListItem( localBC, QEActionRequests::OptionFloatingDockWindow, false, "Brightness / Contrast" ) );
-                    emitComponentHostRequest( QEActionRequests( components ) );
-                }
-            }
-        }
-    }
-
     // Launch Application 1
     else if( action == "LaunchApplication1" )
     {
@@ -5939,6 +5926,16 @@ void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool ini
         sendMessage( QString( "QEImage widget has recieved the following unimplemented action request: ").append( action ));
     }
 
+}
+
+historicImage::historicImage( QByteArray imageIn, unsigned long dataSizeIn, QCaAlarmInfo& alarmInfoIn, QCaDateTime& timeIn )
+{
+    image = imageIn;
+    image.resize( image.count()+1); // force deep copy. original image data is only valid until the next update
+
+    dataSize = dataSizeIn;
+    alarmInfo = alarmInfoIn;
+    time = timeIn;
 }
 
 // end

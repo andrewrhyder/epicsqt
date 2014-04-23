@@ -260,9 +260,9 @@ protected:
     QString persistantName( QString prefix );               // Returns a string that will not change between runs of the application (given the same configuration)
 
     virtual void actionRequest( QString, QStringList, bool, QAction* ){} // Perform a named action
+    void deleteQcaItem( unsigned int variableIndex, bool disconnect );       // Delete a stream of CA updates
 
 private:
-    void deleteQcaItem( unsigned int variableIndex, bool disconnect );       // Delete a stream of CA updates
     unsigned int numVariables;                              // The number of process variables that will be managed for the QE widgets.
     qcaobject::QCaObject** qcaItem;                         // CA access - provides a stream of updates. One for each variable name used by the QE widgets
 

@@ -23,7 +23,7 @@
  */
 
 /*
-  This class manages the QEImage local brightness and contrast controls.
+  This class manages the QEImage image display properties controls such as brightness and contrast controls.
  */
 
 #include <brightnessContrast.h>
@@ -32,19 +32,49 @@
 #include <QPainter>
 #include <math.h>
 
-localBrightnessContrast::localBrightnessContrast()
+#define SCALE_HEIGHT 20
+
+// Gradient scale is the tangent of the gradient.
+//
+// Gradient range is from almost horizontal (0) to almost
+// vertical (pi/2) with normal at pi/4.
+// Horizontal gradient can never be reached. Theoretical limit is where all
+// pixel values translate to one value. Practical limit is imposed
+// where all pixel values translate to 10% of displayed range.
+// Vertical gradient can never be reached (min and max pixels are always kept at
+// least one apart) so depending on the bit depth, maximum is near pi/2.
+//
+// User gradient range is from 0 to 1000.
+// Angular range is from atan(1/10) = 0.099668652 rad to pi/2 rad.
+// Angular scale is pi/2-atan(1/10) = 1.471127674
+// Gradient scale factor = user gradient range / angular scale
+//                       = 1000/(pi/2-atan(1/10))
+//                       = 679.7506549
+#define GRADIENT_USER_SCALE_FACTOR 679.7506549
+#define GRADIENT_BASE 0.099668652
+
+imageDisplayProperties::imageDisplayProperties()
 {
     nonInteractive = false;
 
-    inBrightnessCallback = false;
-    inGradientCallback = false;
-    inZeroValueCallback = false;
-    inFullValueCallback = false;
+    inBrightnessSliderCallback = false;
+    inGradientSliderCallback = false;
+    inZeroValueSliderCallback = false;
+    inFullValueSliderCallback = false;
+
+    inBrightnessEditCallback = false;
+    inGradientEditCallback = false;
+    inZeroValueEditCallback = false;
+    inFullValueEditCallback = false;
 
     zeroValue = 0;
     fullValue = 255;
     range = 255;
 
+    // Note the full value is only a default. It will be set when the first set of statistics arrive to the real full range,
+    defaultFullValue = true;
+
+    range = 255;
 
     // Initialise image stats
     bins = NULL;
@@ -53,13 +83,15 @@ localBrightnessContrast::localBrightnessContrast()
 
     setFrameStyle( QFrame::StyledPanel|QFrame::Raised );
 
-    QGridLayout* brightnessContrastMainLayout = new QGridLayout();
-    brightnessContrastMainLayout->setSpacing( 10 );
-    setLayout( brightnessContrastMainLayout );
+    QGridLayout* imageDisplayPropertiesMainLayout = new QGridLayout();
+    imageDisplayPropertiesMainLayout->setSpacing( 10 );
+    setLayout( imageDisplayPropertiesMainLayout );
 
-    QHBoxLayout* brightnessContrastSub1Layout = new QHBoxLayout();
-    QGridLayout* brightnessContrastSub2Layout = new QGridLayout();
-    QHBoxLayout* brightnessContrastSub3Layout = new QHBoxLayout();
+    QHBoxLayout* imageDisplayPropertiesSub1Layout = new QHBoxLayout();
+    QGridLayout* imageDisplayPropertiesSub2Layout = new QGridLayout();
+    QHBoxLayout* imageDisplayPropertiesSub3Layout = new QHBoxLayout();
+    QHBoxLayout* imageDisplayPropertiesSub4Layout = new QHBoxLayout();
+    QHBoxLayout* imageDisplayPropertiesSub5Layout = new QHBoxLayout();
 
     QLabel* brightnessLabel = new QLabel( "Brightness:", this );
     QLabel* gradientLabel = new QLabel( "Gradient:\n(Contrast)", this );
@@ -80,42 +112,71 @@ localBrightnessContrast::localBrightnessContrast()
     brightnessSlider = new QSlider( Qt::Horizontal, this );
     brightnessSlider->setMinimum( 0 );
     brightnessSlider->setMaximum( 100 );
-    brightnessSlider->setValue( 50 );
     QObject::connect( brightnessSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( brightnessSliderValueChanged( int )) );
 
     gradientSlider = new QSlider( Qt::Horizontal, this );
-    gradientSlider->setMinimum( 1 );
-    gradientSlider->setMaximum( 255 );
-    gradientSlider->setValue( 1 );
+    gradientSlider->setMinimum( 0 );
+    gradientSlider->setMaximum( 1000 );
     QObject::connect( gradientSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( gradientSliderValueChanged( int )) );
 
-    minSlider = new QSlider( Qt::Horizontal, this );
-    minSlider->setMinimum( 0 );
-    minSlider->setMaximum( 255 );
-    minSlider->setValue( 0 );
-    QObject::connect( minSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( minSliderValueChanged( int )) );
+    zeroValueSlider = new QSlider( Qt::Horizontal, this );
+    zeroValueSlider->setMinimum( 0 );
+    zeroValueSlider->setMaximum( 1000 );
+    zeroValueSlider->setValue( toExponentialHeadSlider( 0 ) );
+    QObject::connect( zeroValueSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( minSliderValueChanged( int )) );
 
-    maxSlider = new QSlider( Qt::Horizontal, this );
-    maxSlider->setMinimum( 0 );
-    maxSlider->setMaximum( 255 );
-    maxSlider->setValue( 255 );
-    QObject::connect( maxSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( maxSliderValueChanged( int )) );
+    fullValueSlider = new QSlider( Qt::Horizontal, this );
+    fullValueSlider->setMinimum( 0 );
+    fullValueSlider->setMaximum( 1000 );
+    fullValueSlider->setValue( toExponentialTailSlider( 255 ) );
+    QObject::connect( fullValueSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( maxSliderValueChanged( int )) );
 
     hist = new histogram( this, this );
 
-    brightnessRBLabel = new QLabel( this );
-    brightnessRBLabel->setText( QString( "%1%" ).arg( brightnessSlider->value() ) );
+    histScroll = new histogramScroll( this, this );
+    histScroll->setMinimumWidth( 256 );
+    histScroll->setMinimumHeight(200 );
+    histScroll->setWidget( hist );
 
-    brightnessRBLabel->setMinimumWidth( 100 ); // Set width for all readbacks
+    histZoom = new QSlider( Qt::Vertical, this );
+    histZoom->setMinimum( 100 );
+    histZoom->setMaximum( 1000 );
+    histZoom->setValue( 100 );
+    histZoom->setToolTip( "Zoom histogram");
+    QObject::connect( histZoom, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( histZoomSliderValueChanged( int )) );
 
-    gradientRBLabel = new QLabel( this );
-    gradientRBLabel->setText( QString( "%1" ).arg( gradientSlider->value() ) );
+    histXLabel = new QLabel( hist );
+    histXLabel->setAlignment( Qt::AlignRight );
 
-    minRBLabel = new QLabel( this );
-    minRBLabel->setText( QString( "%1" ).arg( minSlider->value() ) );
+    brightnessSpinBox = new QSpinBox( this );
+    brightnessSpinBox->setToolTip( "Brightness percentage (0 to 100)");
+    brightnessSpinBox->setMinimum( 0 );
+    brightnessSpinBox->setMaximum( 100 );
+    brightnessSpinBox->setValue( brightnessSlider->value() );
+    QObject::connect( brightnessSpinBox, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( brightnessSpinBoxChanged( int )) );
 
-    maxRBLabel = new QLabel( this );
-    maxRBLabel->setText( QString( "%1" ).arg( maxSlider->value() ) );
+    brightnessSpinBox->setMinimumWidth( 60 ); // Set width for all
+
+    gradientSpinBox = new QSpinBox( this );
+    gradientSpinBox->setToolTip( "Gradient (0 to 1000)");
+    gradientSpinBox->setMinimum( 0 );
+    gradientSpinBox->setMaximum( 1000 );
+    gradientSpinBox->setValue( gradientSlider->value() );
+    QObject::connect( gradientSpinBox, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( gradientSpinBoxChanged( int )) );
+
+    zeroValueSpinBox = new QSpinBox( this );
+    zeroValueSpinBox->setToolTip( "Pixel value at low end of brightness / colour scale (0 to range limited by bit depth)");
+    zeroValueSpinBox->setMinimum( -10000 );
+    zeroValueSpinBox->setMaximum( 254 );
+    zeroValueSpinBox->setValue( fromExponentialHeadSlider( zeroValueSlider->value() ) );
+    QObject::connect( zeroValueSpinBox, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( minSpinBoxChanged( int )) );
+
+    fullValueSpinBox = new QSpinBox( this );
+    fullValueSpinBox->setToolTip( "Pixel value at high end of brightness / colour scale (0 to range limited by bit depth)");
+    fullValueSpinBox->setMinimum( 1 );
+    fullValueSpinBox->setMaximum( 10000 );
+    fullValueSpinBox->setValue( fromExponentialTailSlider( fullValueSlider->value() ) );
+    QObject::connect( fullValueSpinBox, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( maxSpinBoxChanged( int )) );
 
     contrastReversalCheckBox = new QCheckBox( "Contrast Reversal", this );
     contrastReversalCheckBox->setToolTip( "Reverse light for dark");
@@ -129,95 +190,97 @@ localBrightnessContrast::localBrightnessContrast()
     falseColourCheckBox->setToolTip( "Interpret intensitiy scale as a range of colours");
     QObject::connect( falseColourCheckBox, SIGNAL( toggled( bool ) ), this,  SLOT  ( falseColourToggled( bool )) );
 
-    brightnessContrastSub1Layout->addWidget( autoBrightnessCheckBox, 0, Qt::AlignLeft );
-    brightnessContrastSub1Layout->addWidget( autoImageButton, 0, Qt::AlignLeft );
-    brightnessContrastSub1Layout->addWidget( resetButton, 1, Qt::AlignLeft );
+    imageDisplayPropertiesSub1Layout->addWidget( autoBrightnessCheckBox, 0, Qt::AlignLeft );
+    imageDisplayPropertiesSub1Layout->addWidget( autoImageButton,        0, Qt::AlignLeft );
+    imageDisplayPropertiesSub1Layout->addWidget( resetButton,            1, Qt::AlignLeft );
 
-    brightnessContrastSub2Layout->addWidget( brightnessLabel,   0, 0 );
-    brightnessContrastSub2Layout->addWidget( brightnessSlider,  0, 1 );
-    brightnessContrastSub2Layout->addWidget( brightnessRBLabel, 0, 2 );
+    imageDisplayPropertiesSub2Layout->addWidget( brightnessLabel,   0, 0 );
+    imageDisplayPropertiesSub2Layout->addWidget( brightnessSlider,  0, 1 );
+    imageDisplayPropertiesSub2Layout->addWidget( brightnessSpinBox, 0, 2 );
 
-    brightnessContrastSub2Layout->addWidget( gradientLabel,     1, 0 );
-    brightnessContrastSub2Layout->addWidget( gradientSlider,    1, 1 );
-    brightnessContrastSub2Layout->addWidget( gradientRBLabel,   1, 2 );
+    imageDisplayPropertiesSub2Layout->addWidget( gradientLabel,     1, 0 );
+    imageDisplayPropertiesSub2Layout->addWidget( gradientSlider,    1, 1 );
+    imageDisplayPropertiesSub2Layout->addWidget( gradientSpinBox,   1, 2 );
 
-    brightnessContrastSub2Layout->addWidget( minLabel,          2, 0 );
-    brightnessContrastSub2Layout->addWidget( minSlider,         2, 1 );
-    brightnessContrastSub2Layout->addWidget( minRBLabel,        2, 2 );
+    imageDisplayPropertiesSub4Layout->setMargin( 0 );
+    imageDisplayPropertiesSub4Layout->addWidget( zeroValueSlider,     100 );
+    imageDisplayPropertiesSub4Layout->addWidget( new QWidget( this ), 20 );
 
-    brightnessContrastSub2Layout->addWidget( maxLabel,          3, 0 );
-    brightnessContrastSub2Layout->addWidget( maxSlider,         3, 1 );
-    brightnessContrastSub2Layout->addWidget( maxRBLabel,        3, 2 );
+    imageDisplayPropertiesSub2Layout->addWidget( minLabel,          2, 0 );
+    imageDisplayPropertiesSub2Layout->addLayout( imageDisplayPropertiesSub4Layout,   2, 1 );
+    imageDisplayPropertiesSub2Layout->addWidget( zeroValueSpinBox,  2, 2 );
 
-    brightnessContrastSub2Layout->setColumnStretch( 1, 1 );  // Read back labels to take all spare room
+    imageDisplayPropertiesSub5Layout->setMargin( 0 );
+    imageDisplayPropertiesSub5Layout->addWidget( new QWidget( this ), 20 );
+    imageDisplayPropertiesSub5Layout->addWidget( fullValueSlider,     100 );
 
-    brightnessContrastSub3Layout->addWidget( contrastReversalCheckBox, 0, Qt::AlignLeft );
-    brightnessContrastSub3Layout->addWidget( falseColourCheckBox,      0, Qt::AlignLeft );
-    brightnessContrastSub3Layout->addWidget( logCheckBox,              1, Qt::AlignLeft );
+    imageDisplayPropertiesSub2Layout->addWidget( maxLabel,          3, 0 );
+    imageDisplayPropertiesSub2Layout->addLayout( imageDisplayPropertiesSub5Layout, 3, 1 );
+    imageDisplayPropertiesSub2Layout->addWidget( fullValueSpinBox,  3, 2 );
 
-    brightnessContrastMainLayout->addLayout( brightnessContrastSub1Layout, 0, 0 );
-    brightnessContrastMainLayout->addLayout( brightnessContrastSub2Layout, 1, 0 );
-    brightnessContrastMainLayout->addLayout( brightnessContrastSub3Layout, 2, 0 );
+    imageDisplayPropertiesSub2Layout->setColumnStretch( 1, 1 );  // Sliders to take all spare room
 
-    brightnessContrastMainLayout->addWidget( hist, 0, 1, 3, 1 );
+    imageDisplayPropertiesSub3Layout->addWidget( contrastReversalCheckBox, 0, Qt::AlignLeft );
+    imageDisplayPropertiesSub3Layout->addWidget( falseColourCheckBox,      0, Qt::AlignLeft );
+    imageDisplayPropertiesSub3Layout->addWidget( logCheckBox,              1, Qt::AlignLeft );
 
-    range = 0;
+    imageDisplayPropertiesMainLayout->addLayout( imageDisplayPropertiesSub1Layout, 0, 0 );
+    imageDisplayPropertiesMainLayout->addLayout( imageDisplayPropertiesSub2Layout, 1, 0 );
+    imageDisplayPropertiesMainLayout->addLayout( imageDisplayPropertiesSub3Layout, 2, 0 );
 
+    imageDisplayPropertiesMainLayout->addWidget( histZoom, 0, 1, 3, 1 );
+    imageDisplayPropertiesMainLayout->addWidget( histScroll, 0, 2, 3, 1 );
+    imageDisplayPropertiesMainLayout->setColumnStretch( 1, 2 );  // Histogram to take all spare room
+
+    // Update brightness and contrast to match zero and full values
+    updateBrightnessInterface();
+    updateGradientInterface();
+
+    // Apply the layouts
     adjustSize();
 }
 
-localBrightnessContrast::~localBrightnessContrast()
+imageDisplayProperties::~imageDisplayProperties()
 {
-    delete autoBrightnessCheckBox;
-    delete brightnessSlider;
-    delete minSlider;
-    delete maxSlider;
-    delete gradientSlider;
-    delete brightnessRBLabel;
-    delete minRBLabel;
-    delete maxRBLabel;
-    delete gradientRBLabel;
-    delete contrastReversalCheckBox;
-    delete logCheckBox;
-    delete falseColourCheckBox;
-
-    delete hist;
 }
 
-int localBrightnessContrast::getLowPixel()
+// Return the 'black' pixel value.
+// All pixel values will be translated to be black below this value and increasing in brightness above.
+int imageDisplayProperties::getLowPixel()
 {
     return zeroValue;
 }
 
-int localBrightnessContrast::getHighPixel()
+// Return the 'white' pixel value.
+// All pixel values will be translated to be white above this value and decreasing in brightness below.
+int imageDisplayProperties::getHighPixel()
 {
     return fullValue;
 }
 
-bool localBrightnessContrast::getAutoBrightnessContrast()
+bool imageDisplayProperties::getAutoBrightnessContrast()
 {
     return autoBrightnessCheckBox->isChecked();
 }
 
-bool localBrightnessContrast::getContrastReversal()
+bool imageDisplayProperties::getContrastReversal()
 {
     return contrastReversalCheckBox->isChecked();
 }
 
-bool localBrightnessContrast::getLog()
+bool imageDisplayProperties::getLog()
 {
     return logCheckBox->isChecked();
 }
 
-bool localBrightnessContrast::getFalseColour()
+bool imageDisplayProperties::getFalseColour()
 {
     return falseColourCheckBox->isChecked();
 }
 
 // Reset the brightness and contrast to normal
-void localBrightnessContrast::brightnessContrastResetClicked( bool )
+void imageDisplayProperties::brightnessContrastResetClicked( bool )
 {
-    qDebug() << range;
     zeroValue = 0;
     fullValue = range;
 
@@ -226,128 +289,185 @@ void localBrightnessContrast::brightnessContrastResetClicked( bool )
     updateZeroValueInterface();
     updateFullValueInterface();
 
-    emit brightnessContrastChange();
+    emit imageDisplayPropertiesChange();
 }
 
 // Auto brightness and contrast check box has been checked or unchecked
-void localBrightnessContrast::brightnessContrastAutoImageClicked()
+void imageDisplayProperties::brightnessContrastAutoImageClicked()
 {
     emit brightnessContrastAutoImage();
 }
 
 // Contrast reversal check box has been checked or unchecked
-void localBrightnessContrast::contrastReversalToggled( bool )
+void imageDisplayProperties::contrastReversalToggled( bool )
 {
-    emit brightnessContrastChange();
+    emit imageDisplayPropertiesChange();
 }
 
 // Log brightness check box has been checked or unchecked
-void localBrightnessContrast::logToggled( bool )
+void imageDisplayProperties::logToggled( bool )
 {
-    emit brightnessContrastChange();
+    emit imageDisplayPropertiesChange();
 }
 
 // False colour check box has been checked or unchecked
-void localBrightnessContrast::falseColourToggled( bool )
+void imageDisplayProperties::falseColourToggled( bool )
 {
-    emit brightnessContrastChange();
+    emit imageDisplayPropertiesChange();
 }
 
 //=============================================
 
 
 // Set brightness and contrast based on a values for black and white
-void localBrightnessContrast::setBrightnessContrast( const unsigned int max, const unsigned int min )
+void imageDisplayProperties::setBrightnessContrast( const unsigned int max, const unsigned int min )
 {
     updateZeroValueFullValue( min, max );
-    emit brightnessContrastChange();
+    emit imageDisplayPropertiesChange();
 }
 
-void localBrightnessContrast::setAutoBrightnessContrast( bool autoBrightnessContrast )
+void imageDisplayProperties::setAutoBrightnessContrast( bool autoBrightnessContrast )
 {
     autoBrightnessCheckBox->setChecked( autoBrightnessContrast );
 }
 
-void localBrightnessContrast::setContrastReversal( bool contrastReversal )
+void imageDisplayProperties::setContrastReversal( bool contrastReversal )
 {
     contrastReversalCheckBox->setChecked( contrastReversal );
 }
 
-void localBrightnessContrast::setLog( bool log )
+void imageDisplayProperties::setLog( bool log )
 {
     logCheckBox->setChecked( log );
 }
 
-void localBrightnessContrast::setFalseColour( bool falseColour )
+void imageDisplayProperties::setFalseColour( bool falseColour )
 {
-    logCheckBox->setChecked( falseColour );
+    falseColourCheckBox->setChecked( falseColour );
 }
 
 //==========================================================
 
 // The local brightness slider has been moved
-void localBrightnessContrast::brightnessSliderValueChanged( int localBrightnessIn )
+void imageDisplayProperties::brightnessSliderValueChanged( int localBrightnessIn )
 {
     if( nonInteractive )
     {
         return;
     }
 
-    inBrightnessCallback = true;
-    updateBrightness( (double)localBrightnessIn/100.0 );
-    inBrightnessCallback = false;
+    inBrightnessSliderCallback = true;
+    updateBrightness( (double)(localBrightnessIn)/100.0 );
+    inBrightnessSliderCallback = false;
 
-    emit brightnessContrastChange();
+    emit imageDisplayPropertiesChange();
+}
+
+void imageDisplayProperties::brightnessSpinBoxChanged( int value )
+{
+    if( nonInteractive )
+    {
+        return;
+    }
+
+    inBrightnessEditCallback = true;
+    updateBrightness( value/100.0 );
+    inBrightnessEditCallback = false;
+
 }
 
 // The gradient slider has been moved
-void localBrightnessContrast::gradientSliderValueChanged( int value )
+void imageDisplayProperties::gradientSliderValueChanged( int value )
 {
     if( nonInteractive )
     {
         return;
     }
 
-    inGradientCallback = true;
-    updateGradient( (double)value );
-    inGradientCallback = false;
+    inGradientSliderCallback = true;
+    updateGradient( (double)(value)/GRADIENT_USER_SCALE_FACTOR+GRADIENT_BASE );
+    inGradientSliderCallback = false;
 
-    emit brightnessContrastChange();
+    emit imageDisplayPropertiesChange();
+}
+
+void imageDisplayProperties::gradientSpinBoxChanged( int value )
+{
+    if( nonInteractive )
+    {
+        return;
+    }
+
+    inGradientEditCallback = true;
+    updateGradient( (double)(value)/GRADIENT_USER_SCALE_FACTOR+GRADIENT_BASE );
+    inGradientEditCallback = false;
+
+    emit imageDisplayPropertiesChange();
 }
 
 // The minimum slider has been moved
-void localBrightnessContrast::minSliderValueChanged( int value )
+void imageDisplayProperties::minSliderValueChanged( int value )
 {
     if( nonInteractive )
     {
         return;
     }
 
-    inZeroValueCallback = true;
-    updateZeroValue( value );
-    inZeroValueCallback = false;
+    inZeroValueSliderCallback = true;
+    updateZeroValue( fromExponentialHeadSlider( value ) );
+    inZeroValueSliderCallback = false;
 
-    emit brightnessContrastChange();
+    emit imageDisplayPropertiesChange();
+}
+
+void imageDisplayProperties::minSpinBoxChanged( int value )
+{
+    if( nonInteractive )
+    {
+        return;
+    }
+
+    inZeroValueEditCallback = true;
+    updateZeroValue( value );
+    inZeroValueEditCallback = false;
+
+    emit imageDisplayPropertiesChange();
 }
 
 // The maximum slider has been moved
-void localBrightnessContrast::maxSliderValueChanged( int value )
+void imageDisplayProperties::maxSliderValueChanged( int value )
 {
     if( nonInteractive )
     {
         return;
     }
 
-    inFullValueCallback = true;
-    updateFullValue( value );
-    inFullValueCallback = false;
+    inFullValueSliderCallback = true;
+    updateFullValue( fromExponentialTailSlider( value ) );
+    inFullValueSliderCallback = false;
 
-    emit brightnessContrastChange();
+    emit imageDisplayPropertiesChange();
+}
+
+void imageDisplayProperties::maxSpinBoxChanged( int value )
+{
+    if( nonInteractive )
+    {
+        return;
+    }
+
+    inFullValueEditCallback = true;
+    updateFullValue( value );
+    inFullValueEditCallback = false;
+
+
+    emit imageDisplayPropertiesChange();
 }
 
 //=========================================================
 
-void localBrightnessContrast::updateBrightness( double val )
+// Update the zero and full values based on a brightness change.
+void imageDisplayProperties::updateBrightness( double val )
 {
     // Brightness ranges from 0.0 (0%) to 1.0 (100%)
     // Validate brightness
@@ -362,8 +482,10 @@ void localBrightnessContrast::updateBrightness( double val )
     // Update brightness contrast values according to new brightness
     // Note, this never alters the span, so gradient never changes
     double span = fullValue - zeroValue;
-    zeroValue = (range-span)*(1.0-val);
-    fullValue = zeroValue+span;
+//    zeroValue = (range-span)*(1.0-val);
+//    fullValue = zeroValue+span;
+    fullValue = (range+span)*val;
+    zeroValue = fullValue-span;
 
     // Update interface
     updateZeroValueInterface();
@@ -374,16 +496,15 @@ void localBrightnessContrast::updateBrightness( double val )
     hist->update();
 }
 
-void localBrightnessContrast::updateGradient( double val )
+void imageDisplayProperties::updateGradient( double angularVal )
 {
     // Gradient is range / span
-    // With zeroValue at most one less than full value, gradient can go from 1 to range
-    // validate gradient
-    val = tan( val/1000 );
-    qDebug() << "before" << "val"<<val << "zeroValue"<<zeroValue<<"fullValue"<<fullValue;
-    if( val < 1.0 )
+    // Maximum gradient is limited to a zeroValue at most one less than fullValue.
+    // Minimum gradient is limited to a practical 1/10.
+    double val = tan( angularVal );
+    if( val < 0.1 )
     {
-        val = 1.0;
+        val = 0.1;
     } else if( val > range )
     {
         val = range;
@@ -393,15 +514,13 @@ void localBrightnessContrast::updateGradient( double val )
     double span = (double)range/(double)val;
 
     double low =  mid-(span/2);
-    if( low < 0.0 )
-    {
-        low = 0.0;
-    }
+//    if( low < 0.0 )
+//    {
+//        low = 0.0;
+//    }
 
     zeroValue = floor( low + 0.5 );        // Note, round() not in windows math.h. Using floor+0.5 instead
     fullValue = floor( low + span + 0.5 ); // Note, round() not in windows math.h. Using floor+0.5 instead
-
-    qDebug() << "after" << "val"<<val << "zeroValue"<<zeroValue<<"fullValue"<<fullValue<<"mid"<<mid<<"span"<<span;
 
     updateZeroValueInterface();
     updateFullValueInterface();
@@ -411,9 +530,9 @@ void localBrightnessContrast::updateGradient( double val )
     hist->update();
 }
 
-void localBrightnessContrast::updateZeroValue( unsigned int val )
+void imageDisplayProperties::updateZeroValue( int val )
 {
-    if( val >= range )
+    if( val >= (int)range )
     {
         val = range-1;
     }
@@ -432,16 +551,16 @@ void localBrightnessContrast::updateZeroValue( unsigned int val )
     hist->update();
 }
 
-void localBrightnessContrast::updateFullValue( unsigned int val )
+void imageDisplayProperties::updateFullValue( unsigned int val )
 {
     if( val < 1 )
     {
         val = 1;
     }
-    else if( val > range )
-    {
-        val = range;
-    }
+//    else if( val > range )
+//    {
+//        val = range;
+//    }
 
 
     fullValue = val;
@@ -459,7 +578,7 @@ void localBrightnessContrast::updateFullValue( unsigned int val )
     hist->update();
 }
 
-void localBrightnessContrast::updateZeroValueFullValue( unsigned int min, unsigned int max )
+void imageDisplayProperties::updateZeroValueFullValue( unsigned int min, unsigned int max )
 {
     if( min >= range )
     {
@@ -490,100 +609,193 @@ void localBrightnessContrast::updateZeroValueFullValue( unsigned int min, unsign
 
 //=========================================================
 
-void localBrightnessContrast::updateBrightnessInterface()
+void imageDisplayProperties::updateBrightnessInterface()
 {
+    // Calculate brightness (derived)
     unsigned int span = fullValue-zeroValue;
-    unsigned int brightnessScale = range-span;
+    unsigned int brightnessScale = range+span;
     double brightness;
-    if( brightnessScale )
+//    if( brightnessScale )
+//    {
+//        brightness = 1.0-((double)zeroValue/(double)brightnessScale);
+//    }
+//    else
+//    {
+//        brightness = 0.5;
+//    }
+    brightness = (double)fullValue/(double)brightnessScale;
+
+    // Update interface
+    nonInteractive = true;
+
+    if( !inBrightnessEditCallback )
     {
-        brightness = 1.0-((double)zeroValue/(double)brightnessScale);
-    }
-    else
-    {
-        brightness = 0.5;
+        brightnessSpinBox->setValue( (int)(brightness*100) );
     }
 
-    brightnessRBLabel->setText( QString( "%1" ).arg( (int)(brightness*100) ));
-    if( !inBrightnessCallback )
+    if( !inBrightnessSliderCallback )
     {
-        nonInteractive = true;
         brightnessSlider->setValue( brightness*100 );
-        nonInteractive = false;
     }
+
+    nonInteractive = false;
 }
 
-void localBrightnessContrast::updateGradientInterface()
+void imageDisplayProperties::updateGradientInterface()
 {
-    gradientSlider->setMinimum( 785 );  // 1000*pi/4
-    gradientSlider->setMaximum( 1570 ); // 1000*pi/2
-    double gradient = atan((double)range/(double)(fullValue-zeroValue))*1000;
+    // Calculate gradient (derived)
+    double gradient = (atan((double)range/(double)(fullValue-zeroValue))-GRADIENT_BASE)*GRADIENT_USER_SCALE_FACTOR;
 
-    gradientRBLabel->setText( QString( "%1" ).arg( ((int)(gradient)-785)*1000/785 ));
-    if( !inGradientCallback )
+    // Update interface
+    nonInteractive = true;
+
+    if( !inGradientEditCallback )
     {
-        nonInteractive = true;
+        gradientSpinBox->setValue( gradient );
+    }
+
+    if( !inGradientSliderCallback )
+    {
         gradientSlider->setValue( gradient );
-        nonInteractive = false;
     }
+
+    nonInteractive = false;
 }
 
-void localBrightnessContrast::updateZeroValueInterface()
+void imageDisplayProperties::updateZeroValueInterface()
 {
-    minRBLabel->setText( QString( "%1" ).arg( zeroValue ));
-    if( !inZeroValueCallback )
+    // Update interface
+    nonInteractive = true;
+
+    if( !inZeroValueEditCallback )
     {
-        nonInteractive = true;
-        minSlider->setValue( zeroValue );
-        nonInteractive = false;
+        zeroValueSpinBox->setValue( zeroValue );
     }
+
+    if( !inZeroValueSliderCallback )
+    {
+        zeroValueSlider->setValue( toExponentialHeadSlider( (double)zeroValue/(double)range*256.0 ) );
+    }
+
+    nonInteractive = false;
 }
 
-void localBrightnessContrast::updateFullValueInterface()
+void imageDisplayProperties::updateFullValueInterface()
 {
-    maxRBLabel->setText( QString( "%1" ).arg( fullValue ));
-    if( !inFullValueCallback )
+    // Update interface
+    nonInteractive = true;
+
+    if( !inFullValueEditCallback )
     {
-        nonInteractive = true;
-        maxSlider->setValue( fullValue );
-        nonInteractive = false;
+        fullValueSpinBox->setValue( fullValue );
     }
+
+    if( !inFullValueSliderCallback )
+    {
+        fullValueSlider->setValue( toExponentialTailSlider( (double)fullValue/(double)range*256.0 ) );
+    }
+
+    nonInteractive = false;
 }
 
 //=========================================================
 
-void localBrightnessContrast::setStatistics( unsigned int minPIn, unsigned int maxPIn, unsigned int bitDepth, unsigned int binsIn[HISTOGRAM_BINS] )
+void imageDisplayProperties::setStatistics( unsigned int minPIn, unsigned int maxPIn, unsigned int bitDepth, unsigned int binsIn[HISTOGRAM_BINS], rgbPixel pixelLookupIn[256] )
 {
     // Update image statistics
     minP = minPIn;
     maxP = maxPIn;
     depth = bitDepth;
     bins = binsIn;
+    pixelLookup = pixelLookupIn;
 
     // Recalculate dependand variables
     range = (1<<depth)-1;
 
     // Apply changes
-    minSlider->setMaximum( range );
-    maxSlider->setMaximum( range );
+//    zeroValueSlider->setMaximum( range-1 );
+//    fullValueSlider->setMaximum( range );
+
+    zeroValueSpinBox->setMinimum( -(int)range*10 );
+    zeroValueSpinBox->setMaximum( range-1 );
+    fullValueSpinBox->setMinimum( 0 );
+    fullValueSpinBox->setMaximum( range*10 );
+
+    if( defaultFullValue )
+    {
+        defaultFullValue = false;
+
+        fullValue = range;
+        updateFullValueInterface();
+    }
+
+    histXLabel->setText( QString( "%1" ).arg( range ) );
 
     hist->update();
 }
 
-histogram::histogram( QWidget* parent, localBrightnessContrast* lbcIn )
+// The histogram zoom slider has been moved
+void imageDisplayProperties::histZoomSliderValueChanged( int value )
+{
+    setHistZoom( value );
+}
+
+// The histogram zoom slider has been moved
+void imageDisplayProperties::setHistZoom( int value )
+{
+    // Determine the width and height that will just fit without scroll bars
+    double fitWidth  = (double)(histScroll->width()  - histScroll->contentsMargins().left()*2 );//  - histScroll->frameWidth()*2);
+    double fitHeight = (double)(histScroll->height() - histScroll->contentsMargins().top()*2 );//  - histScroll->frameWidth()*2);
+
+    // Set the new zoomed size
+    QRect currentGeom = hist->geometry();
+    hist->setGeometry( currentGeom.x(), currentGeom.y(), (double)(value)/100*fitWidth, (double)(value)/100*fitHeight );
+}
+
+// Get the current histogram zoom percentage
+int imageDisplayProperties::getHistZoom()
+{
+    return histZoom->value();
+}
+
+// Construct the histogram
+histogramScroll::histogramScroll( QWidget* parent, imageDisplayProperties* idpIn )
+    : QScrollArea( parent )
+{
+    idp = idpIn;
+}
+
+// Histogram resize event
+void histogramScroll::resizeEvent( QResizeEvent* )
+{
+    idp->setHistZoom( idp->getHistZoom() );
+}
+
+
+// Construct the histogram
+histogram::histogram( QWidget* parent, imageDisplayProperties* idpIn )
     : QFrame( parent )
 {
     setFrameStyle( QFrame::Panel );
-    setMinimumWidth(256 );
-    setMinimumHeight(200 );
-
-    lbc = lbcIn;
+    idp = idpIn;
 }
 
+// Histogram resize event
+void histogram::resizeEvent( QResizeEvent* )
+{
+    // Keep the X asis label in the bottom right of the histogram
+    idp->histXLabel->setGeometry( width()-idp->histXLabel->width()-2,
+                                  height()-idp->histXLabel->height()-10, //SCALE_HEIGHT,
+                                  idp->histXLabel->width(),
+                                  idp->histXLabel->height());
+}
+
+// Histogram repaint event
 void histogram::paintEvent(QPaintEvent* )
 {
+
     // Do nothing if no image info yet
-    if( lbc->bins == NULL )
+    if( idp->bins == NULL )
     {
         return;
     }
@@ -592,34 +804,281 @@ void histogram::paintEvent(QPaintEvent* )
     unsigned int binRange = 0;
     for( int i = 1; i < HISTOGRAM_BINS-1; i++ )
     {
-        if( lbc->bins[i] > binRange )
+        if( idp->bins[i] > binRange )
         {
-            binRange = lbc->bins[i];
+            binRange = idp->bins[i];
         }
     }
+
+    // Do nothing if no data present
     if( binRange == 0 )
     {
         return;
     }
-    int h = height()-1;
-    QPoint pnt1(0,h - lbc->bins[0]*h/binRange);
-    QPoint pnt2;
-    QPainter p( this );
-    p.setPen(Qt::red);
-    for( int i = 1; i < HISTOGRAM_BINS-1; i++ )
+
+    // Determine bin stuff
+    unsigned int bitsPerBin;
+    int minBin;
+    int maxBin;
+
+    if( idp->depth<=8)
     {
-        pnt2.setX(i);
-        pnt2.setY(h - lbc->bins[i]*h/binRange );
-        p.drawLine(pnt1,pnt2);
-        pnt1=pnt2;
+        bitsPerBin = 1;
+        minBin = idp->zeroValue;
+        maxBin = idp->fullValue;
     }
-    unsigned int bitsPerBin = (lbc->depth<=8)?1:lbc->depth-8;
-    unsigned int minBin = lbc->zeroValue>>(bitsPerBin-1);
-    unsigned int maxBin = lbc->fullValue>>(bitsPerBin-1);
+    else
+    {
+        // Determine bins for maximum and minimum values
+        bitsPerBin = idp->depth-8;
 
-    p.setPen(Qt::blue);
+        minBin = idp->zeroValue/(1<<bitsPerBin); // OK for negative values
+        if( minBin > 254 )
+        {
+            minBin = 254;
+        }
 
-    p.drawLine( minBin,0,minBin,h);
-    p.drawLine( maxBin,0,maxBin,h);
-    p.drawLine( minBin,h,maxBin,0);
+        maxBin = idp->fullValue>>bitsPerBin;
+        if( maxBin <= minBin )
+        {
+            maxBin = minBin+1;
+        }
+    }
+
+    QPainter p( this );
+
+    // Draw the histogram with scale...
+
+    // Determine overall size
+    int h = height()-1-SCALE_HEIGHT;
+    double w = width();
+
+    // Initialise rectangle used for both histogram and scale
+    QRectF barRect;
+
+    barRect.setBottom( h+1 );
+
+    barRect.setLeft( 0 );
+    barRect.setWidth( w/HISTOGRAM_BINS );
+
+    // Draw histogram bins
+    for( unsigned int i = 0; i < HISTOGRAM_BINS; i++ )
+    {
+        // Draw histogram bar
+        barRect.setTop( h - (double)(idp->bins[i])*h/binRange );
+        p.fillRect( barRect, Qt::red );
+
+        // Move on to the next bar
+        barRect.moveLeft( barRect.right() );
+    }
+
+    // Draw scale bar
+    int minX = idp->zeroValue*w/idp->range;
+    int maxX = idp->fullValue*w/idp->range;
+    imageDisplayProperties::rgbPixel* col;
+
+    int scaleTop = h+3;
+    int scaleHeight = SCALE_HEIGHT-4;
+
+    // Draw the first colour in the lookup table for the entire area to the left of the minimum value
+    QRect scaleRect = QRect( 0, scaleTop, minX, scaleHeight );
+    col = &(idp->pixelLookup[0] );
+    p.fillRect( scaleRect, QColor( col->p[2], col->p[1], col->p[0] ) );
+
+    // Draw the last colour in the lookup table for the entire area to the right of the maximum value
+    scaleRect = QRect( maxX, scaleTop, w-maxX, scaleHeight );
+    col = &(idp->pixelLookup[255] );
+    p.fillRect( scaleRect, QColor( col->p[2], col->p[1], col->p[0] ) );
+
+    // Display all colors in the lookup table
+    QRectF colourRect;
+
+    colourRect.setTop( scaleTop );
+    colourRect.setBottom( scaleTop + scaleHeight );
+
+    colourRect.setLeft( minX );
+    colourRect.setWidth( (double)(maxX-minX)/255 );
+
+    for( unsigned int i = 0; i < 256; i++ )
+    {
+        // Draw the color rectangle
+        imageDisplayProperties::rgbPixel* col = &(idp->pixelLookup[i] );
+        p.fillRect( colourRect, QColor( col->p[2], col->p[1], col->p[0] ) );
+
+        // Move on to the next colour
+        colourRect.moveLeft( colourRect.right() );
+    }
+
+    // Prepare to draw the bounds and gradient
+
+    QPen pen( Qt::blue );
+    p.setPen( pen );
+
+    // Draw max and min
+    pen.setStyle( Qt::DashLine );
+    double minScaled = (double)(minBin)*w/HISTOGRAM_BINS;
+    double maxScaled = (double)(maxBin)*w/HISTOGRAM_BINS;
+    p.drawLine( minScaled,0,minScaled,h);
+    p.drawLine( maxScaled,0,maxScaled,h);
+
+    // Draw gradient
+    pen.setStyle( Qt::SolidLine );
+    p.setPen( pen );
+
+    p.drawLine( minScaled,h,maxScaled,0);
+}
+
+// Translate from a composite exponential-linear slider value.
+// Translate a slider value converting the slider range to a composite of an
+// exponential range for the first 20% (the head) followed by a linear range for
+// the remaining 80%.
+// This allows the slider to display zeroValue with a wide linear range for
+// the full pixel range, and a narrow exponential range for an extended region
+// below the pixel range.
+// The translated output value is for a pixel range of 256 and should be scaled
+// according to the bit depth.
+//
+//        zeroValue
+//           ^
+//           |
+//        400-
+//           |
+//           |
+//           |                                                 x
+//        200-                                         x
+//           |                                 x
+//           |                         x
+//           |                 x
+//    -------+---------x---------|---------|---------|---------|----> Slider value
+//           0      x 200       400       600       800       1000
+//           |     x
+//           |
+//       -200-    x
+//           |
+//           |
+//           |
+//       -400-
+//           |
+//           |
+//           |
+//       -600-  x
+//           |
+//           |
+//           |
+//       -800-
+//           |
+//           |
+//           |
+//      -1000-
+//           |
+//           |
+//           |
+//      -1200-
+//           |x
+//           |
+//           |
+//      -1400-
+//           |
+//
+double imageDisplayProperties::fromExponentialHeadSlider( int value )
+{
+    if( value > 200.0 )
+    {
+        return (256.0/800.0)*((double)(value)-200.0);
+    }
+    else
+    {
+        return -(pow( 10, (0.01*(0-(double)(value))+3.145)) - 13.9639 );
+    }
+}
+
+// Translate from a composite linear-exponential slider value.
+// Translate a slider value converting the slider range to a composite of a
+// linear range for the first 80% followed by an exponential range for the last
+// 20% (the tail)
+// This allows the slider to display fullValue with a wide linear range for
+// the full pixel range, and a narrow exponential range for an extended region
+// above the pixel range.
+// The translated output value is for a pixel range of 256 and should be scaled
+// according to the bit depth.
+//
+//        fullValue
+//           ^
+//           |
+//       1400-                                              x
+//           |
+//           |
+//           |
+//       1200-
+//           |
+//           |
+//           |
+//       1000-
+//           |
+//           |
+//           |
+//        800-                                             x
+//           |
+//           |
+//           |
+//        600-
+//           |
+//           |
+//           |
+//        400-                                           x
+//           |
+//           |                                          x
+//           |                                       x
+//        200-                               x
+//           |                       x
+//           |               x
+//           |       x
+//    -------x---------|---------|---------|---------|---------|----> Slider value
+//           0        200       400       600       800       1000
+//           |
+//
+double imageDisplayProperties::fromExponentialTailSlider( int value )
+{
+    if( value < 800.0 )
+    {
+        return (double)(value)*(256.0/800.0);
+    }
+    else
+    {
+        return pow( 10, 0.01*(double)(value)-6.83 ) + 241.207;
+    }
+}
+
+// Translate to a composite exponential-linear slider value.
+// Translate a pixel value to a slider value wherte the slider range is a composite of an
+// exponential range for the first 20% (the head) followed by a linear range for
+// the remaining 80%.
+// This is the inverse function to fromExponentialHeadSlider(). See that function for full details.
+int imageDisplayProperties::toExponentialHeadSlider( double value )
+{
+    if( value > 0.0 )
+    {
+        return value/(256.0/800.0)+200.0;
+    }
+    else
+    {
+        return -(log10(13.9639-value)-3.145)/0.01;
+    }
+}
+
+// Translate to a composite linear-exponential slider value.
+// Translate a pixel value to a slider value where the slider range is a composite of a
+// linear range for the first 80% followed by an exponential range for the last
+// 20% (the tail).
+// This is the inverse function to fromExponentialTailSlider(). See that function for full details.
+int imageDisplayProperties::toExponentialTailSlider( double value )
+{
+    if( value < 256.0 )
+    {
+        return value * (800.0/256.0);
+    }
+    else
+    {
+        return (log10(value-241.207)+6.83)/0.01;
+    }
 }

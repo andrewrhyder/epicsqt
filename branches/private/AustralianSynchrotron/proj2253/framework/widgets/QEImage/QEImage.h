@@ -49,6 +49,7 @@
 #include <QEIntegerFormatting.h>
 #include <QEFloatingFormatting.h>
 #include <fullScreenWindow.h>
+#include <recording.h>
 
 // Only include the mpeg stuff if required.
 // To include mpeg stuff, don't define QE_USE_MPEG directly, define environment variable
@@ -57,9 +58,13 @@
 #include <mpeg.h>
 #else
 // Define a stub mpegSource class in place of the class defined when mpeg.h is included.
-// this is reauired as mpegSource is a base class for QEImage
+// this is required as mpegSource is a base class for QEImage
 class mpegSource
 {
+public:
+    void setURL( QString ){}
+    void startStream(){}
+    void stopStream(){}
 };
 #endif // QE_USE_MPEG
 
@@ -296,8 +301,11 @@ public:
     void setEnableBeamSelection( bool enableBeamSelectionIn );          ///< Access function for #enableBeamSelection property - refer to #enableBeamSelection property for details
     bool getEnableBeamSelection();                                      ///< Access function for #enableBeamSelection property - refer to #enableBeamSelection property for details
 
-    void setEnableBrightnessContrast( bool enableBrightnessContrastIn );///< Access function for #enableBrightnessContrast property - refer to #enableBrightnessContrast property for details
-    bool getEnableBrightnessContrast();                                 ///< Access function for #enableBrightnessContrast property - refer to #enableBrightnessContrast property for details
+    void setEnableImageDisplayProperties( bool enableImageDisplayPropertiesIn );///< Access function for #enableImageDisplayProperties property - refer to #enableImageDisplayProperties property for details
+    bool getEnableImageDisplayProperties();                                     ///< Access function for #enableImageDisplayProperties property - refer to #enableImageDisplayProperties property for details
+
+    void setEnableRecording( bool enableRecordingIn );                  ///< Access function for #enableRecording property - refer to #enableRecording property for details
+    bool getEnableRecording();                                          ///< Access function for #enableRecording property - refer to #enableRecording property for details
 
     void setAutoBrightnessContrast( bool autoBrightnessContrastIn );    ///< Access function for #autoBrightnessContrast property - refer to #autoBrightnessContrast property for details
     bool getAutoBrightnessContrast();                                   ///< Access function for #autoBrightnessContrast property - refer to #autoBrightnessContrast property for details
@@ -437,6 +445,9 @@ public:
     bool displayButtonBar;      // True if button bar should be displayed
     QImage copyImage();         // Return a QImage based on the current image
 
+    void redisplayAllMarkups();
+    void resizeFullScreen();        // Resize full screen once it has been managed
+
 private slots:
     // QCa data update slots
     void connectionChanged( QCaConnectionInfo& connectionInfo );
@@ -465,7 +476,7 @@ private slots:
 
     void panModeClicked();
 
-    void brightnessContrastChanged();
+    void imageDisplayPropertiesChanged();
     void brightnessContrastAutoImageRequest();
 
     // !! move this functionality into QEWidget???
@@ -500,11 +511,9 @@ private slots:
     void setLineProfileControlsNotVisible();
 
     void useAllMarkupData();
-    void redisplayAllMarkups();
-
     void raiseFullScreen();         // Ensure the full screen main window is in front of the application.
 
-    void resizeFullScreen();        // Resize full screen once it has been managed
+    void playingBack( bool playing );
 
 public slots:
     void setImageFile( QString name );
@@ -527,10 +536,11 @@ public slots:
 
     void targetClicked();      ///< Framework use only. Slot to allow external setting of selection menu options
 
-    void localBCDestroyed( QObject* ); ///< Framework use only. Slot to catch deletion of components (such as profile plots) that have been passed to the application for presentation
+    void imageDisplayPropsDestroyed( QObject* ); ///< Framework use only. Slot to catch deletion of components (such as profile plots) that have been passed to the application for presentation
     void vSliceDisplayDestroyed( QObject* ); ///< Framework use only. Slot to catch deletion of components (such as profile plots) that have been passed to the application for presentation
     void hSliceDisplayDestroyed( QObject* ); ///< Framework use only. Slot to catch deletion of components (such as profile plots) that have been passed to the application for presentation
     void profileDisplayDestroyed( QObject* ); ///< Framework use only. Slot to catch deletion of components (such as profile plots) that have been passed to the application for presentation
+    void recorderDestroyed( QObject* ); ///< Framework use only. Slot to catch deletion of components (such as profile plots) that have been passed to the application for presentation
 
   signals:
     // Note, the following signals are common to many QE widgets,
@@ -621,7 +631,7 @@ public slots:
     profilePlot* hSliceDisplay;
     profilePlot* profileDisplay;
 
-    localBrightnessContrast* localBC;
+    imageDisplayProperties* imageDisplayProps;
 
     // Menus
     zoomMenu*       zMenu;
@@ -662,6 +672,9 @@ public slots:
     unsigned long imageDimension0; // Image data dimension 0. If two dimensions, this is the width, if three dimensions, this is the pixel depth (the elements used to represent each pixel)
     unsigned long imageDimension1; // Image data dimension 1. If two dimensions, this is the height, if three dimensions, this is the width
     unsigned long imageDimension2; // Image data dimension 2. If two dimensions, this is not used, if three dimensions, this is the height
+
+    // Image history
+    recording* recorder;
 
     // Region of interest information
     areaInfo roiInfo[4];
@@ -750,24 +763,20 @@ public slots:
     unsigned int clippingLow;
     unsigned int clippingHigh;
 
-    struct rgbPixel
-    {
-        unsigned char p[4]; // R/G/B/Alpha
-    };
-    //    const rgbPixel* getPixelTranslation();    // Get a table of translated pixel values (from pixelLookup) creating it first if required
     void getPixelTranslation();
 
-    QEImage::rgbPixel getFalseColor (const unsigned char value);    // Get a false color representation for an entry fro the color lookup table
+    imageDisplayProperties::rgbPixel getFalseColor (const unsigned char value);    // Get a false color representation for an entry fro the color lookup table
 
     bool pixelLookupValid;  // pixelLookup is valid. It is invalid if anything that affects the translation changes, such as pixel format, local brigHtness, etc
-    QEImage::rgbPixel pixelLookup[HISTOGRAM_BINS];
-    unsigned int pixelLow;
-    unsigned int pixelHigh;
+    imageDisplayProperties::rgbPixel pixelLookup[256];
+    int pixelLow;
+    int pixelHigh;
 
     void setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 );    // Update the brightness and contrast, if in auto, to match the recently selected region
     void getPixelRange( const QRect& area, unsigned int* min, unsigned int* max ); // Determine the range of pixel values an area of the image
 
-    void doEnableBrightnessContrast( bool enableBrightnessContrast );
+    void doEnableImageDisplayProperties( bool enableBrightnessContrast );
+    void doEnableRecording( bool enableRecording );
     void doContrastReversal( bool contrastReversal );
     void doEnableVertSliceSelection( bool enableVSliceSelection );
     void doEnableHozSliceSelection( bool enableHSliceSelection );
@@ -1434,11 +1443,13 @@ public:
     /// Used to set up an initial view when zoomed in.
     Q_PROPERTY(int initialVertScrollPos READ getInitialVertScrollPos WRITE setInitialVertScrollPos)
 
-    /// If true, auto set local brightness and contrast when any area is selected.
-    /// The brightness and contrast is set to use the full range of pixels in the selected area.
-    Q_PROPERTY(bool enableBrightnessContrast READ getEnableBrightnessContrast WRITE setEnableBrightnessContrast)
+    /// If true, the local Image Display Properties controls are displayed.
+    Q_PROPERTY(bool enableImageDisplayProperties READ getEnableImageDisplayProperties WRITE setEnableImageDisplayProperties)
 
-    /// If true, local brightness and contrast controls are displayed.
+    /// If true, the recording controls are displayed.
+    Q_PROPERTY(bool enableRecording READ getEnableRecording WRITE setEnableRecording)
+
+    /// If true, auto set local brightness and contrast when any area is selected.
     /// The brightness and contrast is set to use the full range of pixels in the selected area.
     Q_PROPERTY(bool autoBrightnessContrast READ getAutoBrightnessContrast WRITE setAutoBrightnessContrast)
 
