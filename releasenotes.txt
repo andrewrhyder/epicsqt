@@ -23,7 +23,7 @@ New widgets and classes:
 ========================
 QEUtilities: 
  This class provides a number of general purpose utility/support functions used by a number of the QE Framework widgets.
- All the functions are static – this class maintains no state data. The header file (QECommon.h) also provides a number of utility macros.
+ All the functions are static and this class maintains no state data. The header file (QECommon.h) also provides a number of utility macros.
  This class is exported from the framework as the functionality may be useful in the development of 3rd party widgets. 
 
 QEStripChart/QEPlotter
@@ -37,11 +37,12 @@ QEArchiveStatus
  Provides status on the archives (traditional channel archivers) defined by the QE_ARCHIVE_LIST environment variable, namely hostname, port and endpoint as defined by QE_ARCHIVE_LIST together with status, number of indices available, number read and PV count.
 
 QEArchiveNameSearch
- While the strip chart uses a strict name search using regular expressions, this widget provides a more relaxed means of searching for PV names available from the archiver. E.g. searching for “ABC  DEF” finds any PV name that contains ABC and/or DEF in any order, and is case insignificant. The usual right click context menu applies to each item in the list.
+ While the strip chart uses a strict name search using regular expressions, this widget provides a more relaxed means of searching for PV names available from the archiver.
+ E.g. searching for "ABC  DEF" finds any PV name that contains ABC and/or DEF in any order, and is case insignificant. The usual right click context menu applies to each item in the list.
 
 QEGeneralEdit
- When in engineer user level, and additional context menu appears – “Edit PV” which brings up a generic PV value editor.
- For numeric types, it presented a QENumericEdit widget, for enumeration types it presents a QERadioGroup, and for string types is presents a QELineEdit widget to the user.
+ When in engineer user level, and additional context menu appears "Edit PV" which brings up a generic PV value editor.
+ For numeric types, it presents a QENumericEdit widget, for enumeration types it presents a QERadioGroup, and for string types is presents a QELineEdit widget to the user.
 
 QEDialog
   This is the base class for a number of dialogs.  It allows the dialog to be centred over the widget or  window of interest as opposed to the centre of the screen.
@@ -75,7 +76,9 @@ Windows build under Microsoft compiler (as well as gnu)
 
 Deprecation:
 ============
-QE Widgets deprecated in version 2.0 have been removed. All deprecated widgets were only unique in name only, being light wrappers around current QE widgets. For example, QCaLabel was implemented using QELabel. Any code or .ui files referencing deprecared QCa widgets can be modified to use the current version by renaming any widget names from QCa<name> to QE<name>
+QE Widgets deprecated in version 2.0 have been removed. All deprecated widgets were only unique in name only, being light wrappers around current QE widgets.
+For example, QCaLabel was implemented using QELabel. Any code or .ui files referencing deprecared QCa widgets can be modified to use the current version by
+renaming any widget names from QCa<name> to QE<name>
 
 DETAIL:
 ------------------------------------------------------------------------
