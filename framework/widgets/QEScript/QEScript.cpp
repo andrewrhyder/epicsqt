@@ -51,6 +51,7 @@ QEScript::QEScript(QWidget *pParent):QWidget(pParent), QEWidget( this )
     qPushButtonSave = new QPushButton(this);
     qPushButtonDelete = new QPushButton(this);
     qPushButtonExecute = new QPushButton(this);
+    qPushButtonAbort = new QPushButton(this);
     qPushButtonAdd = new QPushButton(this);
     qPushButtonRemove = new QPushButton(this);
     qPushButtonUp = new QPushButton(this);
@@ -77,9 +78,12 @@ QEScript::QEScript(QWidget *pParent):QWidget(pParent), QEWidget( this )
     QObject::connect(qPushButtonDelete, SIGNAL(clicked()), this, SLOT(buttonDeleteClicked()));
 
     qPushButtonExecute->setText("Execute");
-    qPushButtonExecute->setToolTip("Execute");
+    qPushButtonExecute->setToolTip("Execute program(s)");
     QObject::connect(qPushButtonExecute, SIGNAL(clicked()), this, SLOT(buttonExecuteClicked()));
 
+    qPushButtonAbort->setText("Abort");
+    qPushButtonAbort->setToolTip("Abort execution of program(s)");
+    QObject::connect(qPushButtonAbort, SIGNAL(clicked()), this, SLOT(buttonAbortClicked()));
 
     qPushButtonAdd->setText("Add");
     qPushButtonAdd->setToolTip("Add row");
@@ -221,6 +225,22 @@ bool QEScript::getShowExecute()
 }
 
 
+
+void QEScript::setShowAbort(bool pValue)
+{
+
+    qPushButtonAbort->setVisible(pValue);
+
+}
+
+
+
+bool QEScript::getShowAbort()
+{
+
+    return qPushButtonAbort->isVisible();
+
+}
 
 
 void QEScript::setShowTable(bool pValue)
@@ -499,6 +519,7 @@ void QEScript::setOptionsLayout(int pValue)
             qLayoutChild->addWidget(qPushButtonSave);
             qLayoutChild->addWidget(qPushButtonDelete);
             qLayoutChild->addWidget(qPushButtonExecute);
+            qLayoutChild->addWidget(qPushButtonAbort);
             qLayoutMain->addItem(qLayoutChild);
             qLayoutChild = new QHBoxLayout();
             qLayoutChild->addWidget(qPushButtonAdd);
@@ -521,6 +542,7 @@ void QEScript::setOptionsLayout(int pValue)
             qLayoutChild->addWidget(qPushButtonSave);
             qLayoutChild->addWidget(qPushButtonDelete);
             qLayoutChild->addWidget(qPushButtonExecute);
+            qLayoutChild->addWidget(qPushButtonAbort);
             qLayoutMain->addItem(qLayoutChild);
             qLayoutChild = new QHBoxLayout();
             qLayoutChild->addWidget(qPushButtonAdd);
@@ -541,6 +563,7 @@ void QEScript::setOptionsLayout(int pValue)
             qLayoutChild->addWidget(qPushButtonSave);
             qLayoutChild->addWidget(qPushButtonDelete);
             qLayoutChild->addWidget(qPushButtonExecute);
+            qLayoutChild->addWidget(qPushButtonAbort);
             qLayoutChild->addWidget(qPushButtonAdd);
             qLayoutChild->addWidget(qPushButtonRemove);
             qLayoutChild->addWidget(qPushButtonUp);
@@ -560,6 +583,7 @@ void QEScript::setOptionsLayout(int pValue)
             qLayoutChild->addWidget(qPushButtonSave);
             qLayoutChild->addWidget(qPushButtonDelete);
             qLayoutChild->addWidget(qPushButtonExecute);
+            qLayoutChild->addWidget(qPushButtonAbort);
             qLayoutChild->addWidget(qPushButtonAdd);
             qLayoutChild->addWidget(qPushButtonRemove);
             qLayoutChild->addWidget(qPushButtonUp);
@@ -641,7 +665,7 @@ void QEScript::buttonExecuteClicked()
 
     isExecuting = true;
     updateWidgets();
-    for(i = 0; i < qTableWidgetScript->rowCount(); i++)
+    for(i = 0; isExecuting == true && i < qTableWidgetScript->rowCount(); i++)
     {
         qTableWidgetScript->selectRow(i);
         if (((QCheckBox *) qTableWidgetScript->cellWidget(i, 1))->isChecked() == false)
@@ -676,7 +700,7 @@ void QEScript::buttonExecuteClicked()
                     {
                         sendMessage("Executing program #" + QString::number(i + 1) + " for " + QString::number(timeOut) + " seconds");
                     }
-                    j = timeOut * 10;
+                    j = timeOut * 20;
                 }
                 parameters = qTableWidgetScript->item(i, 3)->text().trimmed();
                 if (parameters.isEmpty())
@@ -691,29 +715,38 @@ void QEScript::buttonExecuteClicked()
                 while(true)
                 {
                     QCoreApplication::processEvents();
-                    qProcess->waitForFinished(100);
-                    if (qProcess->state() == QProcess::Running)
+                    qProcess->waitForFinished(50);
+                    if (isExecuting == true)
                     {
-                        if (j == 0)
+                        if (qProcess->state() == QProcess::Running)
+                        {
+                            if (j == 0)
+                            {
+                                if (log)
+                                {
+                                    sendMessage("Aborting execution of program #" + QString::number(i + 1) + " since " + QString::number(timeOut) + " seconds have passed");
+                                }
+                                qProcess->kill();
+                                break;
+                            }
+                            else if (j > 0)
+                            {
+                                j--;
+                            }
+                        }
+                        else
                         {
                             if (log)
                             {
-                                sendMessage("Aborting execution of program #" + QString::number(i + 1) + " since " + QString::number(timeOut) + " seconds have passed");
+                                sendMessage("Finished executing program #" + QString::number(i + 1));
                             }
-                            qProcess->kill();
                             break;
-                        }
-                        else if (j > 0)
-                        {
-                            j--;
                         }
                     }
                     else
                     {
-                        if (log)
-                        {
-                            sendMessage("Finished executing program #" + QString::number(i + 1));
-                        }
+                        sendMessage("Abort execution of program(s)");
+                        qProcess->kill();
                         break;
                     }
                 }
@@ -723,6 +756,16 @@ void QEScript::buttonExecuteClicked()
 
     isExecuting = false;
     updateWidgets();
+
+}
+
+
+
+
+void QEScript::buttonAbortClicked()
+{
+
+    isExecuting = false;
 
 }
 
@@ -1029,13 +1072,12 @@ void QEScript::updateWidgets()
     qPushButtonSave->setEnabled(isExecuting == false && qComboBoxScriptList->currentText().isEmpty() == false);
     qPushButtonDelete->setEnabled(isExecuting == false && qComboBoxScriptList->currentText().isEmpty());
     qPushButtonExecute->setEnabled(isExecuting == false && rowCount > 0);
+    qPushButtonAbort->setEnabled(isExecuting == true);
 
     qPushButtonAdd->setEnabled(isExecuting == false && rowSelectedCount <= 1);
     qPushButtonRemove->setEnabled(isExecuting == false && rowSelectedCount > 0);
-
     qPushButtonUp->setEnabled(isExecuting == false && rowSelectedCount == 1 && qTableWidgetScript->selectionModel()->selectedRows().at(0).row() > 0);
     qPushButtonDown->setEnabled(isExecuting == false && rowSelectedCount == 1 && qTableWidgetScript->selectionModel()->selectedRows().at(0).row() < rowCount - 1);
-
     qPushButtonCopy->setEnabled(isExecuting == false && rowSelectedCount > 0);
     qPushButtonPaste->setEnabled(isExecuting == false && copyPasteList.isEmpty() == false);
 
