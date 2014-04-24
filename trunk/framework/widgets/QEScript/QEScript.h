@@ -128,6 +128,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
         QPushButton *qPushButtonSave;
         QPushButton *qPushButtonDelete;
         QPushButton *qPushButtonExecute;
+        QPushButton *qPushButtonAbort;
         QPushButton *qPushButtonAdd;
         QPushButton *qPushButtonRemove;
         QPushButton *qPushButtonUp;
@@ -163,6 +164,9 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
 
         void setShowExecute(bool pValue);
         bool getShowExecute();
+
+        void setShowAbort(bool pValue);
+        bool getShowAbort();
 
         void setShowTable(bool pValue);
         bool getShowTable();
@@ -216,6 +220,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
         Q_PROPERTY(bool showDelete READ getShowDelete WRITE setShowDelete)
 
         Q_PROPERTY(bool showExecute READ getShowExecute WRITE setShowExecute)
+
+        Q_PROPERTY(bool showAbort READ getShowAbort WRITE setShowAbort)
 
         Q_PROPERTY(bool showTable READ getShowTable WRITE setShowTable)
 
@@ -359,6 +365,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
         void buttonDeleteClicked();
 
         void buttonExecuteClicked();
+
+        void buttonAbortClicked();
 
         void buttonAddClicked();
 
