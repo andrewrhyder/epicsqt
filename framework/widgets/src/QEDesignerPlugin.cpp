@@ -63,6 +63,8 @@
 #include <QESimpleShapeManager.h>
 #include <QEArchiveNameSearchManager.h>
 #include <QEArchiveStatusManager.h>
+#include <QEScalarHistogramManager.h>
+#include <QEWaveformHistogramManager.h>
 
 #include <QtCore/qplugin.h>
 
@@ -98,6 +100,7 @@ QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QERadioButtonManager(this));
     widgets.append(new QERadioGroupManager(this));
     widgets.append(new QERecipeManager(this));
+    widgets.append(new QEScalarHistogramManager(this));
     widgets.append(new QEScratchPadManager(this));
     widgets.append(new QEScriptManager(this));
     widgets.append(new QEShapeManager(this));
@@ -106,6 +109,7 @@ QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QESpinBoxManager(this));
     widgets.append(new QEStripChartManager(this));
     widgets.append(new QESubstitutedLabelManager(this));
+    widgets.append(new QEWaveformHistogramManager(this));
 
     // Non-EPICS aware framework widgets.
     //
