@@ -436,6 +436,7 @@ int QEHistogram::maxPaintTextWidth (QPainter& painter) const
    for (j = 0; true; j++) {
       value = this->drawMinimum + (j*this->drawMajor);
       if (value > this->drawMaximum) break;
+      if (j > 1000) break;  // sainity check
 
       text = this->coordinateText (value);
       w = fm.width (text);
@@ -473,6 +474,7 @@ void QEHistogram::paintGrid (QPainter& painter) const
    for (j = 0; true; j++) {
       value = this->drawMinimum + (j*this->drawMajor);
       if (value > this->drawMaximum) break;
+      if (j > 1000) break;  // sainity check
 
       fraction = (value             - this->drawMinimum) /
                  (this->drawMaximum - this->drawMinimum);
@@ -542,15 +544,24 @@ void QEHistogram::paintAllItems ()
       }
    }
 
-   // Now calc draw min max  - log of min / max if necessar.
+   // Do not allow ultra small spans, which will occur when autoscaling
+   // a histogram with a single value.
+   //
+   if ((useMaximum - useMinimum) < MINIMUM_SPAN) {
+      double midway = (useMaximum + useMinimum)/2.0;
+      useMinimum = midway - MINIMUM_SPAN/2.0;
+      useMaximum = midway + MINIMUM_SPAN/2.0;
+   }
+
+   // Now calc draw min max  - log of min / max if necessary.
    //
    displayRange.setRange (useMinimum, useMaximum);
+
    if (this->mLogScale) {
       displayRange.adjustLogMinMax (this->drawMinimum, this->drawMaximum, this->drawMajor);
    } else {
       displayRange.adjustMinMax (numberGrid, true, this->drawMinimum, this->drawMaximum, this->drawMajor);
    }
-
 
    // Define actual chart draw area ...
    //
@@ -565,7 +576,6 @@ void QEHistogram::paintAllItems ()
    // Do grid and axis - not this might tweak useMinimum/useMaximum.
    //
    this->paintGrid (painter);
-
 
    this->useGap = this->mGap;
    this->useBarWidth = this->mBarWidth;

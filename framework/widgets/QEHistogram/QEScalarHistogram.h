@@ -67,13 +67,24 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScalarHistogram:public QEFrame {
    Q_PROPERTY (QString variableSubstitutions READ getPvNameSubstitutions WRITE
                setPvNameSubstitutions)
 
+public:
+   /// \enum ScaleModes
+   enum ScaleModes {
+      Manual,              ///< Use property minimum/maximum to scale histogram
+      Auto,                ///< Dynamically scale based on minimum/maximum displayed value
+      OperationalRange     ///< Use process variable operational range (LOPR/HOPR).
+   };
+
+   Q_ENUMS (ScaleModes)
+
    // Histogram properties
    //
    Q_PROPERTY (bool   autoBarGapWidths READ getAutoBarGapWidths WRITE setAutoBarGapWidths)
    Q_PROPERTY (int    barWidth         READ getBarWidth         WRITE setBarWidth)
    Q_PROPERTY (int    gap              READ getGap              WRITE setGap)
-   Q_PROPERTY (double maximum          READ getMaximum          WRITE setMaximum)
+   Q_PROPERTY (ScaleModes scaleMode    READ getScaleMode        WRITE setScaleMode)
    Q_PROPERTY (double minimum          READ getMinimum          WRITE setMinimum)
+   Q_PROPERTY (double maximum          READ getMaximum          WRITE setMaximum)
    Q_PROPERTY (double baseLine         READ getBaseLine         WRITE setBaseLine)
    Q_PROPERTY (bool   logScale         READ getLogScale         WRITE setLogScale  )
    // When dislayAlarmState set ture, this property value effectively ignored.
@@ -187,6 +198,10 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScalarHistogram:public QEFrame {
 
 public:
    explicit QEScalarHistogram (QWidget* parent = 0);
+   ~QEScalarHistogram () { }
+
+   void setScaleMode (const ScaleModes scaleMode);
+   ScaleModes getScaleMode () const;
 
    // Expose access to the internal widget's set/get functions.
    //
@@ -221,6 +236,7 @@ protected:
 private:
    void setPvNameSubstitutions (const QString& subs);
    QString getPvNameSubstitutions () const;
+   void updateHistogramScale ();
    void setReadOut (const QString& text);
    void genReadOut (const int index);
 
@@ -229,6 +245,8 @@ private:
    QCaVariableNamePropertyManager vnpm [QE_HISTOGRAM_NUMBER_VARIABLES];
    QEFloatingFormatting floatingFormatting;
    int selectedChannel;         //
+   ScaleModes mScaleMode;
+   bool isFirstUpdate [QE_HISTOGRAM_NUMBER_VARIABLES];
 
 private slots:
    void newVariableNameProperty (QString pvName, QString subs, unsigned int variableIndex);

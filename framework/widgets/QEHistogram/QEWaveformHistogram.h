@@ -76,9 +76,9 @@ public:
    Q_PROPERTY (bool   autoBarGapWidths READ getAutoBarGapWidths WRITE setAutoBarGapWidths)
    Q_PROPERTY (int    barWidth         READ getBarWidth         WRITE setBarWidth)
    Q_PROPERTY (int    gap              READ getGap              WRITE setGap)
-   Q_PROPERTY (ScaleModes  scaleMode   READ getScaleMode        WRITE setScaleMode)
-   Q_PROPERTY (double maximum          READ getMaximum          WRITE setMaximum)
+   Q_PROPERTY (ScaleModes scaleMode    READ getScaleMode        WRITE setScaleMode)
    Q_PROPERTY (double minimum          READ getMinimum          WRITE setMinimum)
+   Q_PROPERTY (double maximum          READ getMaximum          WRITE setMaximum)
    Q_PROPERTY (double baseLine         READ getBaseLine         WRITE setBaseLine)
    Q_PROPERTY (bool   logScale         READ getLogScale         WRITE setLogScale)
    // When dislayAlarmState set ture, this property value effectively ignored.
@@ -88,11 +88,10 @@ public:
 
 public:
    explicit QEWaveformHistogram (QWidget* parent = 0);
-
-   Q_PROPERTY (ScaleModes  scaleMode   READ getScaleMode        WRITE setScaleMode)
+   ~QEWaveformHistogram () { }
 
    void setScaleMode (const ScaleModes scaleMode);
-   ScaleModes getScaleMode ();
+   ScaleModes getScaleMode () const;
 
    // Expose access to the internal widget's set/get functions.
    //
@@ -138,6 +137,7 @@ private:
    QEFloatingFormatting floatingFormatting;
    int selectedChannel;         //
    ScaleModes mScaleMode;
+   bool isFirstUpdate;
 
 private slots:
    void newVariableNameProperty (QString pvName, QString subs, unsigned int variableIndex);
