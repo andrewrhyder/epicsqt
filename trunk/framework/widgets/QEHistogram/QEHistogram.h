@@ -50,8 +50,8 @@ public:
    Q_PROPERTY (int    barWidth         READ getBarWidth         WRITE setBarWidth)
    Q_PROPERTY (int    gap              READ getGap              WRITE setGap)
    Q_PROPERTY (bool   autoScale        READ getAutoScale        WRITE setAutoScale)
-   Q_PROPERTY (double maximum          READ getMaximum          WRITE setMaximum)
    Q_PROPERTY (double minimum          READ getMinimum          WRITE setMinimum)
+   Q_PROPERTY (double maximum          READ getMaximum          WRITE setMaximum)
    Q_PROPERTY (double baseLine         READ getBaseLine         WRITE setBaseLine)
    Q_PROPERTY (bool   logScale         READ getLogScale         WRITE setLogScale)
    // Where possible I spell colour properly.

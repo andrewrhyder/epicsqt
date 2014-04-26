@@ -26,6 +26,7 @@
 
 
 #include <QDebug>
+#include <QECommon.h>
 #include <QCaObject.h>
 #include <QEScalarHistogram.h>
 
@@ -57,6 +58,12 @@ QEScalarHistogram::QEScalarHistogram (QWidget * parent) : QEFrame (parent)
 
    this->histogram->setMouseTracking (true);
    this->histogram->installEventFilter (this);
+
+   this->mScaleMode = Manual;
+
+   for (int j = 0; j < ARRAY_LENGTH (this->isFirstUpdate); j++) {
+      this->isFirstUpdate [j] = true;
+   }
 
    // Set up data
    //
@@ -159,7 +166,6 @@ void QEScalarHistogram::connectionChanged (QCaConnectionInfo & connectionInfo,
    //
    this->updateToolTipConnection (pvConnected, variableIndex);
 
-
    // This is a multi PV widget.
    // Do not use updateConnectionStyle.
    //
@@ -167,7 +173,68 @@ void QEScalarHistogram::connectionChanged (QCaConnectionInfo & connectionInfo,
    // If this is a connect, we will soon change from gray to required colour.
    //
    this->histogram->setColour ((int) variableIndex, QColor (0xe8e8e8));
+
+   // More trob. than it's worth to check if this is a connect or disconnect.
+   //
+   this->isFirstUpdate [variableIndex] = true;
 }
+
+//------------------------------------------------------------------------------
+//
+void QEScalarHistogram::updateHistogramScale ()
+{
+   qcaobject::QCaObject* qca = NULL;
+   double lopr;
+   double hopr;
+
+   switch (this->mScaleMode) {
+
+      case Manual:
+         this->histogram->setAutoScale (false);
+         break;
+
+      case Auto:
+         this->histogram->setAutoScale (true);
+         break;
+
+      case OperationalRange:
+         lopr = 0.0;
+         hopr = 0.0;
+         for (int j = 0; j < QE_HISTOGRAM_NUMBER_VARIABLES; j++) {
+            qca = this->getQcaItem (j);
+            if (qca) {
+               double lowLim = qca->getDisplayLimitLower ();
+               double upLim = qca->getDisplayLimitUpper ();
+
+DEBUG << j << lowLim << upLim;
+
+               // Has the operating range been defined??
+               //
+               if ((lowLim != 0.0) || (upLim != 0.0)) {
+                  // Yes - incorporate into overall operating range.
+                  //
+                  lopr = MIN (lopr, lowLim);
+                  hopr = MAX (hopr, upLim);
+               }
+            }
+         }
+
+         // Has at least one PV specified a valid range?
+         //
+         if ((lopr != 0.0) || (hopr != 0.0)) {
+            // Yes - use the range.
+            //
+            this->histogram->setMinimum (lopr);
+            this->histogram->setMaximum (hopr);
+            this->histogram->setAutoScale (false);
+         }
+         // else just leave as is.
+
+         break;
+   }
+}
+
+
 
 //------------------------------------------------------------------------------
 // Update the histogram bar value
@@ -194,6 +261,12 @@ void QEScalarHistogram::setChannelValue (const double& value,
    this->histogram->setColour ((int) variableIndex, colour);
    this->histogram->setValue ((int) variableIndex, value);
 
+   // First update (for this connection).
+   //
+   if (this->isFirstUpdate [variableIndex]) {
+      this->updateHistogramScale ();
+   }
+
    // Don't invoke common alarm handling processing.
    // Invoke for tool tip processing directly.
    //
@@ -218,6 +291,21 @@ QString QEScalarHistogram::getPvNameSubstitutions () const
    // All the same - any will do.
    //
    return this->vnpm [0].getSubstitutionsProperty ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QEScalarHistogram::setScaleMode (const ScaleModes scaleModeIn)
+{
+   this->mScaleMode = scaleModeIn;
+   this->updateHistogramScale ();
+}
+
+//------------------------------------------------------------------------------
+//
+QEScalarHistogram::ScaleModes QEScalarHistogram::getScaleMode () const
+{
+   return this->mScaleMode;
 }
 
 //------------------------------------------------------------------------------

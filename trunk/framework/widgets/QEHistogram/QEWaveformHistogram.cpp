@@ -59,6 +59,7 @@ QEWaveformHistogram::QEWaveformHistogram (QWidget * parent) : QEFrame (parent)
    this->histogram->installEventFilter (this);
 
    this->mScaleMode = Manual;
+   this->isFirstUpdate = true;
 
    // Set up data
    //
@@ -170,6 +171,10 @@ void QEWaveformHistogram::connectionChanged (QCaConnectionInfo & connectionInfo,
    for (int j = 0; j < n; j++ ) {
       this->histogram->setColour (j, QColor (0xe8e8e8));
    }
+
+   // More trob. than it's worth to check if this is a connect or disconnect.
+   //
+   this->isFirstUpdate = true;
 }
 
 //------------------------------------------------------------------------------
@@ -177,6 +182,9 @@ void QEWaveformHistogram::connectionChanged (QCaConnectionInfo & connectionInfo,
 void QEWaveformHistogram::updateHistogramScale ()
 {
    qcaobject::QCaObject* qca = NULL;
+   double lopr;
+   double hopr;
+
    switch (this->mScaleMode) {
 
       case Manual:
@@ -188,12 +196,24 @@ void QEWaveformHistogram::updateHistogramScale ()
          break;
 
       case OperationalRange:
+         lopr = 0.0;
+         hopr = 0.0;
          qca = this->getQcaItem (0);
          if (qca) {
-            this->histogram->setMinimum (qca->getDisplayLimitLower ());
-            this->histogram->setMaximum (qca->getDisplayLimitUpper ());
+            lopr = qca->getDisplayLimitLower ();
+            hopr = qca->getDisplayLimitUpper ();
+         }
+
+         // Has the PV specified a valid range?
+         //
+         if ((lopr != 0.0) || (hopr != 0.0)) {
+            // Yes - use the range.
+            //
+            this->histogram->setMinimum (lopr);
+            this->histogram->setMaximum (hopr);
             this->histogram->setAutoScale (false);
          }
+         // else just leave as is.
          break;
    }
 }
@@ -226,12 +246,16 @@ void QEWaveformHistogram::setChannelArrayValue (const QVector<double>& value,
       }
    }
 
-   this->updateHistogramScale ();
+   // First update (for this connection).
+   //
+   if (this->isFirstUpdate) {
+      this->updateHistogramScale ();
+   }
 
    // Don't invoke common alarm handling processing.
    // Invoke for tool tip processing directly.
    //
-   this->updateToolTipAlarm (alarmInfo.severityName (), 0);
+   this->updateToolTipAlarm (alarmInfo.severityName (), variableIndex);
 }
 
 //------------------------------------------------------------------------------
@@ -272,7 +296,7 @@ void QEWaveformHistogram::setScaleMode (const ScaleModes scaleModeIn)
 
 //------------------------------------------------------------------------------
 //
-QEWaveformHistogram::ScaleModes QEWaveformHistogram::getScaleMode ()
+QEWaveformHistogram::ScaleModes QEWaveformHistogram::getScaleMode () const
 {
    return this->mScaleMode;
 }
