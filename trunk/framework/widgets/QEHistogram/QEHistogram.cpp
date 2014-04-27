@@ -242,7 +242,6 @@ int QEHistogram::scrollMaximum () const
 //
 void QEHistogram::scrollBarValueChanged (int value)
 {
-   DEBUG << value;
    this->firstDisplayed = LIMIT (value, 0, (MAX_CAPACITY - 1));
    this->update ();
 }
