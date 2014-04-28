@@ -501,6 +501,7 @@ void QEScript::setScriptFile(QString pValue)
             document.appendChild(rootElement);
         }
         refreshScriptList();
+        qComboBoxScriptList->setCurrentIndex(-1);
     }
 
 }
@@ -532,6 +533,7 @@ void QEScript::setScriptText(QString pValue)
             document.appendChild(rootElement);
         }
         refreshScriptList();
+        qComboBoxScriptList->setCurrentIndex(-1);
     }
 
 }
@@ -724,7 +726,7 @@ void QEScript::comboBoxScriptSelected(int)
                         rowElement = rootNode.toElement();
                         if (rowElement.tagName() == "row")
                         {
-                            insertRow(rowElement.attribute("enable").compare("1"), rowElement.attribute("program"), rowElement.attribute("parameters"), rowElement.attribute("directory"), rowElement.attribute("timeout").toInt(), rowElement.attribute("stop").compare("1"), rowElement.attribute("log").compare("1"));
+                            insertRow(rowElement.attribute("enable").compare("1") == 0, rowElement.attribute("program"), rowElement.attribute("parameters"), rowElement.attribute("directory"), rowElement.attribute("timeout").toInt(), rowElement.attribute("stop").compare("1") == 0, rowElement.attribute("log").compare("1") == 0);
                         }
                         rootNode = rootNode.nextSibling();
                     }
@@ -1029,7 +1031,7 @@ void QEScript::buttonExecuteClicked()
                     j = timeOut * 20;
                 }
                 workingDirectory = qTableWidgetScript->item(i, 4)->text().trimmed();
-                if (workingDirectory.isEmpty())
+                if (workingDirectory.isEmpty() == false)
                 {
                     qProcess->setWorkingDirectory(workingDirectory);
                 }
@@ -1049,23 +1051,7 @@ void QEScript::buttonExecuteClicked()
                     qProcess->waitForFinished(50);
                     if (isExecuting == true)
                     {
-                        if (qProcess->state() == QProcess::Running)
-                        {
-                            if (j == 0)
-                            {
-                                if (log)
-                                {
-                                    sendMessage("Aborting execution of program #" + QString::number(i + 1) + " since " + QString::number(timeOut) + " seconds have passed", message_types(MESSAGE_TYPE_WARNING));
-                                }
-                                qProcess->kill();
-                                break;
-                            }
-                            else if (j > 0)
-                            {
-                                j--;
-                            }
-                        }
-                        else
+                        if (qProcess->state() == QProcess::NotRunning)
                         {
                             exitCode = qProcess->exitCode();
                             if (log)
@@ -1084,6 +1070,22 @@ void QEScript::buttonExecuteClicked()
                                 }
                             }
                             break;
+                        }
+                        else
+                        {
+                            if (j == 0)
+                            {
+                                if (log)
+                                {
+                                    sendMessage("Aborting execution of program #" + QString::number(i + 1) + " since " + QString::number(timeOut) + " seconds have passed", message_types(MESSAGE_TYPE_WARNING));
+                                }
+                                qProcess->kill();
+                                break;
+                            }
+                            else if (j > 0)
+                            {
+                                j--;
+                            }
                         }
                     }
                     else
@@ -1538,6 +1540,8 @@ _CopyPaste::_CopyPaste()
 
     setParameters("");
 
+    setWorkingDirectory("");
+
     setTimeOut(0);
 
     setStop(false);
@@ -1548,7 +1552,7 @@ _CopyPaste::_CopyPaste()
 
 
 
-_CopyPaste::_CopyPaste(bool pEnable, QString pProgram, QString pParameters, int pTimeOut, bool pStop, bool pLog)
+_CopyPaste::_CopyPaste(bool pEnable, QString pProgram, QString pParameters, QString pWorkingDirectory, int pTimeOut, bool pStop, bool pLog)
 {
 
     setEnable(pEnable);
@@ -1556,6 +1560,8 @@ _CopyPaste::_CopyPaste(bool pEnable, QString pProgram, QString pParameters, int 
     setProgram(pProgram);
 
     setParameters(pParameters);
+
+    setWorkingDirectory(pWorkingDirectory);
 
     setTimeOut(pTimeOut);
 

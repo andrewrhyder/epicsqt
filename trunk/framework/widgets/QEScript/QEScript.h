@@ -93,7 +93,7 @@ class _CopyPaste
     public:
         _CopyPaste();
 
-        _CopyPaste(bool pEnable, QString pProgram, QString pParameters, int pTimeOut, bool pStop, bool pLog);
+        _CopyPaste(bool pEnable, QString pProgram, QString pParameters, QString pWorkingDirectory, int pTimeOut, bool pStop, bool pLog);
 
         void setEnable(bool pEnable);
         bool getEnable();
