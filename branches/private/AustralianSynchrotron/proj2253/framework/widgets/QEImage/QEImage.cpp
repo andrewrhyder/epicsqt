@@ -143,6 +143,10 @@ void QEImage::setup() {
     fullScreen = false;
     fullScreenMainWindow = NULL;
 
+    ellipseVariableUsage = CENTRE_AND_SIZE;
+
+    imageUse = IMAGE_USE_DISPLAY;
+
     // With so many variables involved, don't bother alterning the presentation of the widget when any one variable goes into alarm
     setDisplayAlarmState( false );
 
@@ -452,6 +456,7 @@ void QEImage::presentControls()
     //  has gone wrong perhaps the appliction has deleted them, so don't assume they are present)
     if( appHostsControls && hostingAppAvailable )
     {
+/*
         QList<componentHostListItem> components;
 
         if( imageDisplayProps )
@@ -487,10 +492,10 @@ void QEImage::presentControls()
             graphicsLayout->removeWidget( profileDisplay );
             components.append( componentHostListItem( profileDisplay, QEActionRequests::OptionTopDockWindow, true, "Arbitrary Profile" ) );
         }
-
+*/
         buttonGroup->hide();
 
-        emitComponentHostRequest( QEActionRequests( components ) );
+//        emitComponentHostRequest( QEActionRequests( components ) );
 
     }
 
@@ -626,10 +631,10 @@ qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
         case LINE_PROFILE_Y2_VARIABLE:
         case LINE_PROFILE_THICKNESS_VARIABLE:
 
-        case ELLIPSE_X1_VARIABLE:
-        case ELLIPSE_Y1_VARIABLE:
-        case ELLIPSE_X2_VARIABLE:
-        case ELLIPSE_Y2_VARIABLE:
+        case ELLIPSE_X_VARIABLE:
+        case ELLIPSE_Y_VARIABLE:
+        case ELLIPSE_W_VARIABLE:
+        case ELLIPSE_H_VARIABLE:
 
             return new QEInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
 
@@ -811,10 +816,10 @@ void QEImage::establishConnection( unsigned int variableIndex ) {
             break;
 
         // Connect to ellipse variables
-        case ELLIPSE_X1_VARIABLE:
-        case ELLIPSE_Y1_VARIABLE:
-        case ELLIPSE_X2_VARIABLE:
-        case ELLIPSE_Y2_VARIABLE:
+        case ELLIPSE_X_VARIABLE:
+        case ELLIPSE_Y_VARIABLE:
+        case ELLIPSE_W_VARIABLE:
+        case ELLIPSE_H_VARIABLE:
             if(  qca )
             {
                 QObject::connect( qca,  SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
@@ -1348,10 +1353,10 @@ void QEImage::setEllipse( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTim
     {
         switch( variableIndex )
         {
-            case ELLIPSE_X1_VARIABLE: ellipseInfo.clearX1(); break;
-            case ELLIPSE_Y1_VARIABLE: ellipseInfo.clearY1(); break;
-            case ELLIPSE_X2_VARIABLE: ellipseInfo.clearX2(); break;
-            case ELLIPSE_Y2_VARIABLE: ellipseInfo.clearY2(); break;
+            case ELLIPSE_X_VARIABLE: ellipseInfo.clearX(); break;
+            case ELLIPSE_Y_VARIABLE: ellipseInfo.clearY(); break;
+            case ELLIPSE_W_VARIABLE: ellipseInfo.clearW(); break;
+            case ELLIPSE_H_VARIABLE: ellipseInfo.clearH(); break;
         }
     }
 
@@ -1362,10 +1367,10 @@ void QEImage::setEllipse( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTim
         // Save the ellipse data
         switch( variableIndex )
         {
-            case ELLIPSE_X1_VARIABLE: ellipseInfo.setX1( value ); break;
-            case ELLIPSE_Y1_VARIABLE: ellipseInfo.setY1( value ); break;
-            case ELLIPSE_X2_VARIABLE: ellipseInfo.setX2( value ); break;
-            case ELLIPSE_Y2_VARIABLE: ellipseInfo.setY2( value ); break;
+            case ELLIPSE_X_VARIABLE: ellipseInfo.setX( value ); break;
+            case ELLIPSE_Y_VARIABLE: ellipseInfo.setY( value ); break;
+            case ELLIPSE_W_VARIABLE: ellipseInfo.setW( value ); break;
+            case ELLIPSE_H_VARIABLE: ellipseInfo.setH( value ); break;
         }
 
         // If there is an image, present the ellipse data
@@ -1384,7 +1389,24 @@ void QEImage::useEllipseData()
 {
     if( ellipseInfo.getStatus() )
     {
-        QRect scaledArea = videoWidget->scaleImageRectangle( rotateFlipToImageRectangle( ellipseInfo.getArea() ));
+        // Get the ellipse area from the two points defining the area
+        QRect area = ellipseInfo.getArea();
+        switch( ellipseVariableUsage )
+        {
+            // The area defines a bounding rectangle
+            case BOUNDING_RECTANGLE:
+                // Nothing to change
+                break;
+
+            // The area defines centre and size
+            case CENTRE_AND_SIZE:
+                // Correct to be around centre
+                area.moveCenter( area.topLeft() );
+                break;
+        }
+
+        // Scale, flip, and rotate the area then display the markup
+        QRect scaledArea = videoWidget->scaleImageRectangle( rotateFlipToImageRectangle( area ));
         videoWidget->markupEllipseValueChange( scaledArea.topLeft(), scaledArea.bottomRight(), displayMarkups );
     }
 }
@@ -3756,6 +3778,17 @@ bool QEImage::getDisplayEllipse()
     return videoWidget->isMarkupVisible( imageMarkup::MARKUP_ID_ELLIPSE );
 }
 
+// Ellipse variable usage
+void QEImage::setEllipseVariableDefinition( ellipseVariableDefinitions variableUsage )
+{
+    ellipseVariableUsage = variableUsage;
+}
+
+QEImage::ellipseVariableDefinitions QEImage::getEllipseVariableDefinition()
+{
+    return ellipseVariableUsage;
+}
+
 
 //videoWidget->displayMarkup( imageMarkup::MARKUP_ID_TIMESTAMP, selectedItem->isChecked() );
 
@@ -5890,6 +5923,40 @@ void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool ini
         if( !initialise )
         {
             contextMenuTriggered( CM_COPY_DATA );
+        }
+    }
+
+    // Image Display Properties
+    else if( action == "Image Display Properties" )
+    {
+        if( appHostsControls && hostingAppAvailable ){
+            if( !initialise )
+            {
+                if( imageDisplayProps )
+                {
+                    QList<componentHostListItem> components;
+                    mainLayout->removeWidget( imageDisplayProps );
+                    components.append( componentHostListItem( imageDisplayProps, QEActionRequests::OptionFloatingDockWindow, false, "Image Display Properties" ) );
+                    emitComponentHostRequest( QEActionRequests( components ) );
+                }
+            }
+        }
+    }
+
+    // Image Recorder
+    else if( action == "Recorder" )
+    {
+        if( appHostsControls && hostingAppAvailable ){
+            if( !initialise )
+            {
+                if( recorder )
+                {
+                    QList<componentHostListItem> components;
+                    mainLayout->removeWidget( recorder );
+                    components.append( componentHostListItem( recorder, QEActionRequests::OptionFloatingDockWindow, false, "Recorder" ) );
+                    emitComponentHostRequest( QEActionRequests( components ) );
+                }
+            }
         }
     }
 

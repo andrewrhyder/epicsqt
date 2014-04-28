@@ -187,6 +187,8 @@ public:
 
     selectOptions getSelectionOption();    // Get the current selection option
 
+    enum imageUses { IMAGE_USE_DISPLAY, IMAGE_USE_SAVE, IMAGE_USE_DISPLAY_AND_SAVE };
+
 public:
     // Property convenience functions
 
@@ -357,6 +359,14 @@ public:
     void setDisplayEllipse( bool displayEllipse );                              ///< Access function for #displayEllipse property - refer to #displayEllipse property for details
     bool getDisplayEllipse();                                                   ///< Access function for #displayEllipse property - refer to #displayEllipse property for details
 
+    ///  \enum ellipseVariableDefinitions.
+    /// Options for the use of ellipse markup variables.
+    enum ellipseVariableDefinitions { BOUNDING_RECTANGLE,                       ///< Variables define bounding rectagle of ellipse
+                                      CENTRE_AND_SIZE };                        ///< Variables define centre and size of ellipse
+    ellipseVariableDefinitions getEllipseVariableDefinition();                  ///< Access function for #ellipseVariableDefinition property - refer to #ellipseVariableDefinition property for details
+    void setEllipseVariableDefinition( ellipseVariableDefinitions def );        ///< Access function for #ellipseVariableDefinition property - refer to #ellipseVariableDefinition property for details
+
+
     void setDisplayMarkups( bool displayMarkupsIn );                    ///< Access function for #displayMarkups property - refer to #displayMarkups property for details
     bool getDisplayMarkups();                                           ///< Access function for #displayMarkups property - refer to #displayMarkups property for details
 
@@ -429,7 +439,7 @@ public:
                           PROFILE_V_VARIABLE, PROFILE_V_THICKNESS_VARIABLE,
                           LINE_PROFILE_X1_VARIABLE, LINE_PROFILE_Y1_VARIABLE, LINE_PROFILE_X2_VARIABLE, LINE_PROFILE_Y2_VARIABLE, LINE_PROFILE_THICKNESS_VARIABLE,
                           PROFILE_H_ARRAY, PROFILE_V_ARRAY, PROFILE_LINE_ARRAY,
-                          ELLIPSE_X1_VARIABLE, ELLIPSE_Y1_VARIABLE, ELLIPSE_X2_VARIABLE, ELLIPSE_Y2_VARIABLE,
+                          ELLIPSE_X_VARIABLE, ELLIPSE_Y_VARIABLE, ELLIPSE_W_VARIABLE, ELLIPSE_H_VARIABLE,
 
                           QEIMAGE_NUM_VARIABLES /*Must be last*/ };
 
@@ -555,6 +565,7 @@ public slots:
     void componentHostRequest( const QEActionRequests& request );
 
   private:
+    imageUses imageUse;
     void useTargetingData();
 //    void useAllMarkupData();
     void useROIData( const unsigned int& variableIndex );
@@ -789,6 +800,8 @@ public slots:
     applicationLauncher programLauncher2;
 
     QString url;                            // URL (before macro substitutions) used when sourcing images from an MPEG stream
+
+    ellipseVariableDefinitions ellipseVariableUsage;    // Determines how ellipse variables are used ( bounding rectangle, or centre and size)
 
     // Drag and Drop
 protected:
@@ -1051,23 +1064,23 @@ protected:
 
     VARIABLE_PROPERTY_ACCESS(45)
     /// EPICS variable name (CA PV).
-    /// This variable is used to read an ellipse start X.
-    Q_PROPERTY(QString ellipseX1Variable READ getVariableName45Property WRITE setVariableName45Property)
+    /// This variable is used to read an ellipse X (center or top left corner of bounding rectangle depending on property ellipseDefinition).
+    Q_PROPERTY(QString ellipseXVariable READ getVariableName45Property WRITE setVariableName45Property)
 
     VARIABLE_PROPERTY_ACCESS(46)
     /// EPICS variable name (CA PV).
-    /// This variable is used to read an ellipse start Y.
-    Q_PROPERTY(QString ellipseY1Variable READ getVariableName46Property WRITE setVariableName46Property)
+    /// This variable is used to read an ellipse Y (center or top left corner of bounding rectangle depending on property ellipseDefinition).
+    Q_PROPERTY(QString ellipseYVariable READ getVariableName46Property WRITE setVariableName46Property)
 
     VARIABLE_PROPERTY_ACCESS(47)
     /// EPICS variable name (CA PV).
-    /// This variable is used to read an ellipse end X.
-    Q_PROPERTY(QString ellipseX2Variable READ getVariableName47Property WRITE setVariableName47Property)
+    /// This variable is used to read an ellipse width.
+    Q_PROPERTY(QString ellipseWVariable READ getVariableName47Property WRITE setVariableName47Property)
 
     VARIABLE_PROPERTY_ACCESS(48)
     /// EPICS variable name (CA PV).
-    /// This variable is used to read an ellipse end Y.
-    Q_PROPERTY(QString ellipseY2Variable READ getVariableName48Property WRITE setVariableName48Property)
+    /// This variable is used to read an ellipse height
+    Q_PROPERTY(QString ellipseHVariable READ getVariableName48Property WRITE setVariableName48Property)
 
     /// Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1[,] NAME2=VALUE2... Values may be quoted strings. For example, 'CAM=1, NAME = "Image 1"'
     /// These substitutions are applied to all the variable names.
@@ -1337,6 +1350,19 @@ public:
     /// If true, the ellipse markup will be displayed on the image.
     ///
     Q_PROPERTY(bool displayEllipse READ getDisplayEllipse WRITE setDisplayEllipse)
+
+    Q_ENUMS(EllipseVariableDefinitions)
+    /// \enum EllipseVariableDefinitions
+    /// User friendly enumerations for #ellipseVariableDefinition property - refer to #ellipseVariableDefinition property for details.
+    enum EllipseVariableDefinitions { BoundingRectangle = BOUNDING_RECTANGLE,       ///< Refer to BOUNDING_RECTANGLE for details
+                                      CenterAndSize     = CENTRE_AND_SIZE           ///< Refer to CENTRE_AND_SIZE for details
+                                    };
+
+    /// Definition of how ellipse variables are to be used.
+    Q_PROPERTY(EllipseVariableDefinitions ellipseVariableDefinition READ getEllipseVariableDefinitionProperty WRITE setEllipseVariableDefinitionProperty)
+            EllipseVariableDefinitions getEllipseVariableDefinitionProperty() { return (EllipseVariableDefinitions)getEllipseVariableDefinition(); }            ///< Access function for #EllipseVariableDefinitions property - refer to #EllipseVariableDefinitions property for details
+            void setEllipseVariableDefinitionProperty( EllipseVariableDefinitions variableUsage ) { setEllipseVariableDefinition( (ellipseVariableDefinitions)variableUsage ); }///< Access function for #EllipseVariableDefinitions property - refer to #EllipseVariableDefinitions property for details
+
 
     //=========
 
