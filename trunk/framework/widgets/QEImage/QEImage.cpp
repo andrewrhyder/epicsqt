@@ -143,6 +143,8 @@ void QEImage::setup() {
     fullScreen = false;
     fullScreenMainWindow = NULL;
 
+    ellipseVariableUsage = CENTRE_AND_SIZE;
+
     imageUse = IMAGE_USE_DISPLAY;
 
     // With so many variables involved, don't bother alterning the presentation of the widget when any one variable goes into alarm
@@ -628,10 +630,10 @@ qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
         case LINE_PROFILE_Y2_VARIABLE:
         case LINE_PROFILE_THICKNESS_VARIABLE:
 
-        case ELLIPSE_X1_VARIABLE:
-        case ELLIPSE_Y1_VARIABLE:
-        case ELLIPSE_X2_VARIABLE:
-        case ELLIPSE_Y2_VARIABLE:
+        case ELLIPSE_X_VARIABLE:
+        case ELLIPSE_Y_VARIABLE:
+        case ELLIPSE_W_VARIABLE:
+        case ELLIPSE_H_VARIABLE:
 
             return new QEInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
 
@@ -813,10 +815,10 @@ void QEImage::establishConnection( unsigned int variableIndex ) {
             break;
 
         // Connect to ellipse variables
-        case ELLIPSE_X1_VARIABLE:
-        case ELLIPSE_Y1_VARIABLE:
-        case ELLIPSE_X2_VARIABLE:
-        case ELLIPSE_Y2_VARIABLE:
+        case ELLIPSE_X_VARIABLE:
+        case ELLIPSE_Y_VARIABLE:
+        case ELLIPSE_W_VARIABLE:
+        case ELLIPSE_H_VARIABLE:
             if(  qca )
             {
                 QObject::connect( qca,  SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
@@ -1350,10 +1352,10 @@ void QEImage::setEllipse( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTim
     {
         switch( variableIndex )
         {
-            case ELLIPSE_X1_VARIABLE: ellipseInfo.clearX1(); break;
-            case ELLIPSE_Y1_VARIABLE: ellipseInfo.clearY1(); break;
-            case ELLIPSE_X2_VARIABLE: ellipseInfo.clearX2(); break;
-            case ELLIPSE_Y2_VARIABLE: ellipseInfo.clearY2(); break;
+            case ELLIPSE_X_VARIABLE: ellipseInfo.clearX(); break;
+            case ELLIPSE_Y_VARIABLE: ellipseInfo.clearY(); break;
+            case ELLIPSE_W_VARIABLE: ellipseInfo.clearW(); break;
+            case ELLIPSE_H_VARIABLE: ellipseInfo.clearH(); break;
         }
     }
 
@@ -1364,10 +1366,10 @@ void QEImage::setEllipse( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTim
         // Save the ellipse data
         switch( variableIndex )
         {
-            case ELLIPSE_X1_VARIABLE: ellipseInfo.setX1( value ); break;
-            case ELLIPSE_Y1_VARIABLE: ellipseInfo.setY1( value ); break;
-            case ELLIPSE_X2_VARIABLE: ellipseInfo.setX2( value ); break;
-            case ELLIPSE_Y2_VARIABLE: ellipseInfo.setY2( value ); break;
+            case ELLIPSE_X_VARIABLE: ellipseInfo.setX( value ); break;
+            case ELLIPSE_Y_VARIABLE: ellipseInfo.setY( value ); break;
+            case ELLIPSE_W_VARIABLE: ellipseInfo.setW( value ); break;
+            case ELLIPSE_H_VARIABLE: ellipseInfo.setH( value ); break;
         }
 
         // If there is an image, present the ellipse data
@@ -1386,7 +1388,24 @@ void QEImage::useEllipseData()
 {
     if( ellipseInfo.getStatus() )
     {
-        QRect scaledArea = videoWidget->scaleImageRectangle( rotateFlipToImageRectangle( ellipseInfo.getArea() ));
+        // Get the ellipse area from the two points defining the area
+        QRect area = ellipseInfo.getArea();
+        switch( ellipseVariableUsage )
+        {
+            // The area defines a bounding rectangle
+            case BOUNDING_RECTANGLE:
+                // Nothing to change
+                break;
+
+            // The area defines centre and size
+            case CENTRE_AND_SIZE:
+                // Correct to be around centre
+                area.moveCenter( area.topLeft() );
+                break;
+        }
+
+        // Scale, flip, and rotate the area then display the markup
+        QRect scaledArea = videoWidget->scaleImageRectangle( rotateFlipToImageRectangle( area ));
         videoWidget->markupEllipseValueChange( scaledArea.topLeft(), scaledArea.bottomRight(), displayMarkups );
     }
 }
@@ -3756,6 +3775,17 @@ void QEImage::setDisplayEllipse( bool displayEllipse )
 bool QEImage::getDisplayEllipse()
 {
     return videoWidget->isMarkupVisible( imageMarkup::MARKUP_ID_ELLIPSE );
+}
+
+// Ellipse variable usage
+void QEImage::setEllipseVariableDefinition( ellipseVariableDefinitions variableUsage )
+{
+    ellipseVariableUsage = variableUsage;
+}
+
+QEImage::ellipseVariableDefinitions QEImage::getEllipseVariableDefinition()
+{
+    return ellipseVariableUsage;
 }
 
 
