@@ -477,21 +477,21 @@ void QELocalEnumeration::setLocalEnumeration( const QString &  localEnumerationI
 
 //-----------------------------------------------------------------------------
 //
-QString QELocalEnumeration::getLocalEnumeration()
+QString QELocalEnumeration::getLocalEnumeration() const
 {
    return localEnumerationString;
 }
 
 //-----------------------------------------------------------------------------
 //
-bool  QELocalEnumeration::isDefined()
+bool  QELocalEnumeration::isDefined() const
 {
    return (localEnumeration.count() > 0);
 }
 
 //-----------------------------------------------------------------------------
 //
-QString QELocalEnumeration::valueToText( const QVariant & value , bool& match )
+QString QELocalEnumeration::valueToText( const QVariant & value , bool& match ) const
 {
     QString result;
     QTextStream stream (&result);
@@ -586,7 +586,7 @@ QString QELocalEnumeration::valueToText( const QVariant & value , bool& match )
 
 //-----------------------------------------------------------------------------
 //
-QVariant QELocalEnumeration::textToValue( const QString & text, bool &ok )
+QVariant QELocalEnumeration::textToValue( const QString & text, bool &ok ) const
 {
     QVariant value (QVariant::Invalid);
 
@@ -614,7 +614,7 @@ QVariant QELocalEnumeration::textToValue( const QString & text, bool &ok )
 
 //-----------------------------------------------------------------------------
 //
-int QELocalEnumeration::textToInt( const QString & text, bool& ok )
+int QELocalEnumeration::textToInt( const QString & text, bool& ok ) const
 {
    QVariant v;
    int result = 0;
@@ -628,7 +628,7 @@ int QELocalEnumeration::textToInt( const QString & text, bool& ok )
 
 //-----------------------------------------------------------------------------
 //
-double QELocalEnumeration::textToDouble( const QString & text, bool& ok )
+double QELocalEnumeration::textToDouble( const QString & text, bool& ok ) const
 {
    QVariant v;
    double result = 0.0;
