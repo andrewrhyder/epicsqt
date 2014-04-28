@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1312</width>
+    <width>1352</width>
     <height>844</height>
    </rect>
   </property>
@@ -112,6 +112,18 @@
      <property name="lineProfileArrayVariable" stdset="0">
       <string>LINE:ARRAY</string>
      </property>
+     <property name="ellipseXVariable" stdset="0">
+      <string>ROI1:X</string>
+     </property>
+     <property name="ellipseYVariable" stdset="0">
+      <string>ROI1:Y</string>
+     </property>
+     <property name="ellipseWVariable" stdset="0">
+      <string>ROI1:W</string>
+     </property>
+     <property name="ellipseHVariable" stdset="0">
+      <string>ROI1:H</string>
+     </property>
      <property name="enableVertSliceSelection">
       <bool>true</bool>
      </property>
@@ -132,6 +144,12 @@
      </property>
      <property name="enableTargetSelection">
       <bool>true</bool>
+     </property>
+     <property name="displayEllipse">
+      <bool>true</bool>
+     </property>
+     <property name="ellipseVariableDefinition" stdset="0">
+      <enum>QEImage::BoundingRectangle</enum>
      </property>
      <property name="displayCursorPixelInfo">
       <bool>true</bool>
@@ -969,11 +987,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QwtPlot</class>
-   <extends>QFrame</extends>
-   <header>qwt_plot.h</header>
-  </customwidget>
-  <customwidget>
    <class>QEImage</class>
    <extends>QFrame</extends>
    <header>QEImage.h</header>
@@ -987,6 +1000,11 @@
    <class>QEPlot</class>
    <extends>QwtPlot</extends>
    <header>QEPlot.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwtPlot</class>
+   <extends>QFrame</extends>
+   <header>qwt_plot.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
