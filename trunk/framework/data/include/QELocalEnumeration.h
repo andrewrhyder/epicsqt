@@ -97,25 +97,25 @@ public:
 
     /// Get the local enumeration strings. See setLocalEnumeration() for the use of 'localEnumeration'.
     ///
-    QString getLocalEnumeration();
+    QString getLocalEnumeration() const;
 
 
     /// Evaluates: getLocalEnumeration.count() > 0
     ///
-    bool isDefined();
+    bool isDefined() const;
 
     /// Format a variant value using local enumeration list.
     /// If the value is numeric, then the value is compared to the numeric
     /// interpretation of the enumeration values, if the value is textual,
     /// then the value is compared to the textual enumeration values.
     ///
-    QString valueToText( const QVariant & value, bool& match );
+    QString valueToText( const QVariant & value, bool& match ) const;
 
     /// Generate a value given a string, using formatting defined within this class.
     /// If the value can be formatted the formatted value is returned and 'ok' is true.
     /// If the value can't be formatted an error string is returned and 'ok' is false
     ///
-    QVariant textToValue( const QString & text, bool& ok );
+    QVariant textToValue( const QString & text, bool& ok ) const;
 
     // Convenience wrapper functions.
     //
@@ -123,13 +123,13 @@ public:
     /// If the value can be formatted the formatted value is returned and 'ok' is true.
     /// If the value can't be formatted then 0 is returned and 'ok' is false.
     ///
-    int textToInt( const QString & text, bool& ok );
+    int textToInt( const QString & text, bool& ok ) const;
 
     /// Generate a double value given a string, using formatting defined within this class.
     /// If the value can be formatted the formatted value is returned and 'ok' is true.
     /// If the value can't be formatted then 0.0 is returned and 'ok' is false.
     ///
-    double textToDouble( const QString & text, bool& ok );
+    double textToDouble( const QString & text, bool& ok ) const;
 
 private:
     // Support class used to build the localEnumeration list in the QEStringFormatting class
