@@ -39,6 +39,12 @@ enum details
 };
 
 
+enum script
+{
+    FROM_FILE,
+    FROM_TEXT
+};
+
 
 // ============================================================
 //  _QTABLEWIDGETSCRIPT CLASS
@@ -79,6 +85,7 @@ class _CopyPaste
         bool enable;
         QString program;
         QString parameters;
+        QString workingDirectory;
         int timeOut;
         bool stop;
         bool log;
@@ -96,6 +103,9 @@ class _CopyPaste
 
         void setParameters(QString pParameters);
         QString getParameters();
+
+        void setWorkingDirectory(QString pWorkingDirectory);
+        QString getWorkingDirectory();
 
         void setTimeOut(int pTimeOut);
         int getTimeOut();
@@ -137,6 +147,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
         QPushButton *qPushButtonPaste;
         _QTableWidgetScript *qTableWidgetScript;
         QString scriptFile;
+        QString scriptText;
+        int scriptType;
         int optionsLayout;
         QDomDocument document;
         QString filename;
@@ -186,8 +198,11 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
         void setShowColumnParameters(bool pValue);
         bool getShowColumnParameters();
 
-        void setShowColumnTimeOut(bool pValue);
-        bool getShowColumnTimeOut();
+        void setShowColumnWorkingDirectory(bool pValue);
+        bool getShowColumnWorkingDirectory();
+
+        void setShowColumnTimeout(bool pValue);
+        bool getShowColumnTimeout();
 
         void setShowColumnStop(bool pValue);
         bool getShowColumnStop();
@@ -195,20 +210,28 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
         void setShowColumnLog(bool pValue);
         bool getShowColumnLog();
 
+        void setScriptType(int pValue);
+        int getScriptType();
+
         void setScriptFile(QString pValue);
         QString getScriptFile();
+
+        void setScriptText(QString pValue);
+        QString getScriptText();
 
         void setExecuteText(QString pValue);
         QString getExecuteText();
 
-
         void setOptionsLayout(int pValue);
         int getOptionsLayout();
 
+        void insertRow(bool pEnable, QString pProgram, QString pParameter, QString pWorkingDirectory, int pTimeOut, bool pStop, bool pLog);
+
+        bool saveScriptList();
 
         void refreshScriptList();
 
-        void updateWidgets();
+        void refreshWidgets();
 
 
         Q_PROPERTY(bool showScriptList READ getShowScriptList WRITE setShowScriptList)
@@ -235,13 +258,35 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
 
         Q_PROPERTY(bool showColumnParameters READ getShowColumnParameters WRITE setShowColumnParameters)
 
-        Q_PROPERTY(bool showColumnTimeOut READ getShowColumnTimeOut WRITE setShowColumnTimeOut)
+        Q_PROPERTY(bool showColumnWorkingDirectory READ getShowColumnWorkingDirectory WRITE setShowColumnWorkingDirectory)
+
+        Q_PROPERTY(bool showColumnTimeout READ getShowColumnTimeout WRITE setShowColumnTimeout)
 
         Q_PROPERTY(bool showColumnStop READ getShowColumnStop WRITE setShowColumnStop)
 
         Q_PROPERTY(bool showColumnLog READ getShowColumnLog WRITE setShowColumnLog)
 
+        Q_ENUMS(scriptTypesProperty)
+        Q_PROPERTY(scriptTypesProperty scriptType READ getScriptTypeProperty WRITE setScriptTypeProperty)
+        enum scriptTypesProperty
+        {
+            File = FROM_FILE,
+            Text = FROM_TEXT
+        };
+
+        void setScriptTypeProperty(scriptTypesProperty pScriptType)
+        {
+            setScriptType((scriptTypesProperty) pScriptType);
+        }
+        scriptTypesProperty getScriptTypeProperty()
+        {
+            return (scriptTypesProperty) getScriptType();
+        }
+
         Q_PROPERTY(QString scriptFile READ getScriptFile WRITE setScriptFile)
+
+        Q_PROPERTY(QString scriptText READ getScriptText WRITE setScriptText)
+
 
         Q_PROPERTY(QString executeText READ getExecuteText WRITE setExecuteText)
 
