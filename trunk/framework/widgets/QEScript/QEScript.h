@@ -148,6 +148,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
         _QTableWidgetScript *qTableWidgetScript;
         QString scriptFile;
         QString scriptText;
+        QString scriptDefault;
         int scriptType;
         int optionsLayout;
         QDomDocument document;
@@ -219,6 +220,9 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
         void setScriptText(QString pValue);
         QString getScriptText();
 
+        void setScriptDefault(QString pValue);
+        QString getScriptDefault();
+
         void setExecuteText(QString pValue);
         QString getExecuteText();
 
@@ -287,6 +291,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
 
         Q_PROPERTY(QString scriptText READ getScriptText WRITE setScriptText)
 
+        Q_PROPERTY(QString scriptDefault READ getScriptDefault WRITE setScriptDefault)
 
         Q_PROPERTY(QString executeText READ getExecuteText WRITE setExecuteText)
 
