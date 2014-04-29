@@ -290,7 +290,7 @@
             <enum>Qt::Vertical</enum>
            </property>
           </widget>
-          <widget class="QCaShapePlugin" name="qcashapeplugin">
+          <widget class="QEShape" name="qcashapeplugin">
            <property name="geometry">
             <rect>
              <x>0</x>
@@ -382,7 +382,7 @@
             </color>
            </property>
            <property name="shape" stdset="0">
-            <enum>QCaShapePlugin::Ellipse</enum>
+            <enum>QEShape::Ellipse</enum>
            </property>
           </widget>
           <zorder>qcashapeplugin</zorder>
@@ -458,7 +458,7 @@
            <string>SR10BM02IMG01:HEIGHT_MONITOR</string>
           </property>
           <property name="formatOption" stdset="0">
-           <enum>QEImage::Grey_8</enum>
+           <enum>QEImage::Mono</enum>
           </property>
           <property name="enableProfileSelection">
            <bool>true</bool>
@@ -500,9 +500,9 @@
    <header>QEShape.h</header>
   </customwidget>
   <customwidget>
-   <class>QCaShapePlugin</class>
-   <extends>QEShape</extends>
-   <header>QCaShapePlugin.h</header>
+   <class>QEShape</class>
+   <extends>QWidget</extends>
+   <header>QEShape.h</header>
   </customwidget>
   <customwidget>
    <class>QwtPlot</class>

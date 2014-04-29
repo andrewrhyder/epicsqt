@@ -36,7 +36,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QCaLineEditPlugin" name="qcalineeditplugin">
+     <widget class="QELineEdit" name="qcalineeditplugin">
       <property name="font">
        <font>
         <pointsize>20</pointsize>
@@ -100,11 +100,6 @@
    <class>QELineEdit</class>
    <extends>QLineEdit</extends>
    <header>QELineEdit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QCaLineEditPlugin</class>
-   <extends>QELineEdit</extends>
-   <header>QCaLineEditPlugin.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

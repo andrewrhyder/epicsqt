@@ -475,7 +475,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QCaPushButtonPlugin" name="guipushbuttonplugin_17">
+     <widget class="QEPushButton" name="guipushbuttonplugin_17">
       <property name="text">
        <string>Current History</string>
       </property>
@@ -483,7 +483,7 @@
        <string>CurrentHistory.ui</string>
       </property>
       <property name="creationOption" stdset="0">
-       <enum>QCaPushButtonPlugin::NewWindow</enum>
+       <enum>QEPushButton::NewWindow</enum>
       </property>
      </widget>
     </item>
@@ -513,7 +513,7 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QCaPushButtonPlugin" name="guipushbuttonplugin_12">
+  <widget class="QEPushButton" name="guipushbuttonplugin_12">
    <property name="geometry">
     <rect>
      <x>583</x>
@@ -529,10 +529,10 @@
     <string>SVS12.ui</string>
    </property>
    <property name="creationOption" stdset="0">
-    <enum>QCaPushButtonPlugin::NewWindow</enum>
+    <enum>QEPushButton::NewWindow</enum>
    </property>
   </widget>
-  <widget class="QCaPushButtonPlugin" name="guipushbuttonplugin_13">
+  <widget class="QEPushButton" name="guipushbuttonplugin_13">
    <property name="geometry">
     <rect>
      <x>613</x>
@@ -548,10 +548,10 @@
     <string>SVS13.ui</string>
    </property>
    <property name="creationOption" stdset="0">
-    <enum>QCaPushButtonPlugin::NewWindow</enum>
+    <enum>QEPushButton::NewWindow</enum>
    </property>
   </widget>
-  <widget class="QCaPushButtonPlugin" name="guipushbuttonplugin_9">
+  <widget class="QEPushButton" name="guipushbuttonplugin_9">
    <property name="geometry">
     <rect>
      <x>781</x>
@@ -567,10 +567,10 @@
     <string>SVS03.ui</string>
    </property>
    <property name="creationOption" stdset="0">
-    <enum>QCaPushButtonPlugin::NewWindow</enum>
+    <enum>QEPushButton::NewWindow</enum>
    </property>
   </widget>
-  <widget class="QCaPushButtonPlugin" name="guipushbuttonplugin_14">
+  <widget class="QEPushButton" name="guipushbuttonplugin_14">
    <property name="geometry">
     <rect>
      <x>659</x>
@@ -586,10 +586,10 @@
     <string>SVS14.ui</string>
    </property>
    <property name="creationOption" stdset="0">
-    <enum>QCaPushButtonPlugin::NewWindow</enum>
+    <enum>QEPushButton::NewWindow</enum>
    </property>
   </widget>
-  <widget class="QCaPushButtonPlugin" name="guipushbuttonplugin">
+  <widget class="QEPushButton" name="guipushbuttonplugin">
    <property name="geometry">
     <rect>
      <x>703</x>
@@ -605,10 +605,10 @@
     <string>SVS01.ui</string>
    </property>
    <property name="creationOption" stdset="0">
-    <enum>QCaPushButtonPlugin::NewWindow</enum>
+    <enum>QEPushButton::NewWindow</enum>
    </property>
   </widget>
-  <widget class="QCaPushButtonPlugin" name="guipushbuttonplugin_10">
+  <widget class="QEPushButton" name="guipushbuttonplugin_10">
    <property name="geometry">
     <rect>
      <x>579</x>
@@ -624,10 +624,10 @@
     <string>SVS10.ui</string>
    </property>
    <property name="creationOption" stdset="0">
-    <enum>QCaPushButtonPlugin::NewWindow</enum>
+    <enum>QEPushButton::NewWindow</enum>
    </property>
   </widget>
-  <widget class="QCaPushButtonPlugin" name="guipushbuttonplugin_7">
+  <widget class="QEPushButton" name="guipushbuttonplugin_7">
    <property name="geometry">
     <rect>
      <x>746</x>
@@ -643,10 +643,10 @@
     <string>SVS06.ui</string>
    </property>
    <property name="creationOption" stdset="0">
-    <enum>QCaPushButtonPlugin::NewWindow</enum>
+    <enum>QEPushButton::NewWindow</enum>
    </property>
   </widget>
-  <widget class="QCaPushButtonPlugin" name="guipushbuttonplugin_2">
+  <widget class="QEPushButton" name="guipushbuttonplugin_2">
    <property name="geometry">
     <rect>
      <x>643</x>
@@ -662,10 +662,10 @@
     <string>SVS08.ui</string>
    </property>
    <property name="creationOption" stdset="0">
-    <enum>QCaPushButtonPlugin::NewWindow</enum>
+    <enum>QEPushButton::NewWindow</enum>
    </property>
   </widget>
-  <widget class="QCaPushButtonPlugin" name="guipushbuttonplugin_3">
+  <widget class="QEPushButton" name="guipushbuttonplugin_3">
    <property name="geometry">
     <rect>
      <x>603</x>
@@ -681,10 +681,10 @@
     <string>SVS09.ui</string>
    </property>
    <property name="creationOption" stdset="0">
-    <enum>QCaPushButtonPlugin::NewWindow</enum>
+    <enum>QEPushButton::NewWindow</enum>
    </property>
   </widget>
-  <widget class="QCaPushButtonPlugin" name="guipushbuttonplugin_6">
+  <widget class="QEPushButton" name="guipushbuttonplugin_6">
    <property name="geometry">
     <rect>
      <x>783</x>
@@ -700,10 +700,10 @@
     <string>SVS05.ui</string>
    </property>
    <property name="creationOption" stdset="0">
-    <enum>QCaPushButtonPlugin::NewWindow</enum>
+    <enum>QEPushButton::NewWindow</enum>
    </property>
   </widget>
-  <widget class="QCaPushButtonPlugin" name="guipushbuttonplugin_8">
+  <widget class="QEPushButton" name="guipushbuttonplugin_8">
    <property name="geometry">
     <rect>
      <x>693</x>
@@ -719,10 +719,10 @@
     <string>SVS07.ui</string>
    </property>
    <property name="creationOption" stdset="0">
-    <enum>QCaPushButtonPlugin::NewWindow</enum>
+    <enum>QEPushButton::NewWindow</enum>
    </property>
   </widget>
-  <widget class="QCaPushButtonPlugin" name="guipushbuttonplugin_11">
+  <widget class="QEPushButton" name="guipushbuttonplugin_11">
    <property name="geometry">
     <rect>
      <x>573</x>
@@ -738,10 +738,10 @@
     <string>SVS11.ui</string>
    </property>
    <property name="creationOption" stdset="0">
-    <enum>QCaPushButtonPlugin::NewWindow</enum>
+    <enum>QEPushButton::NewWindow</enum>
    </property>
   </widget>
-  <widget class="QCaPushButtonPlugin" name="guipushbuttonplugin_5">
+  <widget class="QEPushButton" name="guipushbuttonplugin_5">
    <property name="geometry">
     <rect>
      <x>793</x>
@@ -757,10 +757,10 @@
     <string>SVS04.ui</string>
    </property>
    <property name="creationOption" stdset="0">
-    <enum>QCaPushButtonPlugin::NewWindow</enum>
+    <enum>QEPushButton::NewWindow</enum>
    </property>
   </widget>
-  <widget class="QCaPushButtonPlugin" name="guipushbuttonplugin_4">
+  <widget class="QEPushButton" name="guipushbuttonplugin_4">
    <property name="geometry">
     <rect>
      <x>750</x>
@@ -776,7 +776,7 @@
     <string>SVS02.ui</string>
    </property>
    <property name="creationOption" stdset="0">
-    <enum>QCaPushButtonPlugin::NewWindow</enum>
+    <enum>QEPushButton::NewWindow</enum>
    </property>
   </widget>
   <widget class="QWidget" name="verticalLayoutWidget_2">
@@ -790,7 +790,7 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
-     <widget class="QCaPushButtonPlugin" name="guipushbuttonplugin_16">
+     <widget class="QEPushButton" name="guipushbuttonplugin_16">
       <property name="text">
        <string>BPM</string>
       </property>
@@ -798,12 +798,12 @@
        <string>bpm.ui</string>
       </property>
       <property name="creationOption" stdset="0">
-       <enum>QCaPushButtonPlugin::NewWindow</enum>
+       <enum>QEPushButton::NewWindow</enum>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QCaPushButtonPlugin" name="cmdpushbuttonplugin">
+     <widget class="QEPushButton" name="cmdpushbuttonplugin">
       <property name="text">
        <string>AS web site</string>
       </property>
@@ -818,7 +818,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QCaPushButtonPlugin" name="cmdpushbuttonplugin_2">
+     <widget class="QEPushButton" name="cmdpushbuttonplugin_2">
       <property name="text">
        <string>MEDM</string>
       </property>
@@ -828,7 +828,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QCaPushButtonPlugin" name="guipushbuttonplugin_18">
+     <widget class="QEPushButton" name="guipushbuttonplugin_18">
       <property name="text">
        <string>Apple II</string>
       </property>
@@ -836,7 +836,7 @@
        <string>sr14_appleii_epu_gui.ui</string>
       </property>
       <property name="creationOption" stdset="0">
-       <enum>QCaPushButtonPlugin::NewTab</enum>
+       <enum>QEPushButton::NewTab</enum>
       </property>
      </widget>
     </item>
@@ -855,13 +855,13 @@
    <header>QELabel.h</header>
   </customwidget>
   <customwidget>
-   <class>QCaPushButtonPlugin</class>
+   <class>QEPushButton</class>
    <extends>QPushButton</extends>
-   <header>QCaPushButtonPlugin.h</header>
+   <header>QEPushButton.h</header>
   </customwidget>
   <customwidget>
    <class>QEForm</class>
-   <extends>QScrollArea</extends>
+   <extends>QWidget</extends>
    <header>QEForm.h</header>
   </customwidget>
  </customwidgets>

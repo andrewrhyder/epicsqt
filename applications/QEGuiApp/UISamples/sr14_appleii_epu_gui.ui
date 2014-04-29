@@ -117,7 +117,7 @@
          <item>
           <layout class="QGridLayout" name="gridLayout_14">
            <item row="0" column="0">
-            <widget class="QCaComboBoxPlugin" name="qcacomboboxplugin">
+            <widget class="QEComboBox" name="qcacomboboxplugin">
              <property name="minimumSize">
               <size>
                <width>140</width>
@@ -319,7 +319,7 @@
          <item>
           <layout class="QGridLayout" name="gridLayout_10">
            <item row="0" column="0">
-            <widget class="QCaLineEditPlugin" name="qcalineeditplugin_3">
+            <widget class="QELineEdit" name="qcalineeditplugin_3">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -527,7 +527,7 @@
          <item>
           <layout class="QGridLayout" name="gridLayout_7">
            <item row="0" column="0">
-            <widget class="QCaLineEditPlugin" name="qcalineeditplugin">
+            <widget class="QELineEdit" name="qcalineeditplugin">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -735,7 +735,7 @@
          <item>
           <layout class="QGridLayout" name="gridLayout_9">
            <item row="0" column="0">
-            <widget class="QCaLineEditPlugin" name="qcalineeditplugin_2">
+            <widget class="QELineEdit" name="qcalineeditplugin_2">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -1230,7 +1230,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QCaPushButtonPlugin" name="qcapushbuttonplugin_2">
+        <widget class="QEPushButton" name="QEPushButton_2">
          <property name="minimumSize">
           <size>
            <width>140</width>
@@ -1252,7 +1252,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QCaPushButtonPlugin" name="qcapushbuttonplugin_3">
+        <widget class="QEPushButton" name="QEPushButton_3">
          <property name="minimumSize">
           <size>
            <width>140</width>
@@ -1371,12 +1371,12 @@
           <UInt>3</UInt>
          </property>
          <property name="buddy">
-          <cstring>qcapushbuttonplugin</cstring>
+          <cstring>QEPushButton</cstring>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCaPushButtonPlugin" name="qcapushbuttonplugin">
+        <widget class="QEPushButton" name="QEPushButton">
          <property name="minimumSize">
           <size>
            <width>140</width>
@@ -1426,7 +1426,7 @@
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <widget class="QCaShapePlugin" name="qcashapeplugin_3">
+         <widget class="QEShape" name="qcashapeplugin_3">
           <property name="geometry">
            <rect>
             <x>10</x>
@@ -1448,13 +1448,13 @@
            <string>rhyderaHost:aiStatic1</string>
           </property>
           <property name="animation1" stdset="0">
-           <enum>QCaShapePlugin::Rotation</enum>
+           <enum>QEShape::Rotation</enum>
           </property>
           <property name="animation2" stdset="0">
-           <enum>QCaShapePlugin::Y</enum>
+           <enum>QEShape::Y</enum>
           </property>
           <property name="animation5" stdset="0">
-           <enum>QCaShapePlugin::X</enum>
+           <enum>QEShape::X</enum>
           </property>
           <property name="scale1" stdset="0">
            <double>0.050000000000000</double>
@@ -1466,7 +1466,7 @@
            <double>0.000000000000000</double>
           </property>
           <property name="shape" stdset="0">
-           <enum>QCaShapePlugin::Rect</enum>
+           <enum>QEShape::Rect</enum>
           </property>
           <property name="originTranslation" stdset="0">
            <point>
@@ -1494,7 +1494,7 @@
            </color>
           </property>
          </widget>
-         <widget class="QCaShapePlugin" name="qcashapeplugin_4">
+         <widget class="QEShape" name="qcashapeplugin_4">
           <property name="geometry">
            <rect>
             <x>10</x>
@@ -1516,10 +1516,10 @@
            <string>rhyderaHost:aiStatic1</string>
           </property>
           <property name="animation1" stdset="0">
-           <enum>QCaShapePlugin::Rotation</enum>
+           <enum>QEShape::Rotation</enum>
           </property>
           <property name="animation2" stdset="0">
-           <enum>QCaShapePlugin::Y</enum>
+           <enum>QEShape::Y</enum>
           </property>
           <property name="scale1" stdset="0">
            <double>-0.050000000000000</double>
@@ -1531,7 +1531,7 @@
            <double>0.000000000000000</double>
           </property>
           <property name="shape" stdset="0">
-           <enum>QCaShapePlugin::Rect</enum>
+           <enum>QEShape::Rect</enum>
           </property>
           <property name="originTranslation" stdset="0">
            <point>
@@ -1559,7 +1559,7 @@
            </color>
           </property>
          </widget>
-         <widget class="QCaShapePlugin" name="qcashapeplugin_2">
+         <widget class="QEShape" name="qcashapeplugin_2">
           <property name="geometry">
            <rect>
             <x>10</x>
@@ -1572,7 +1572,7 @@
            <string>rhyderaHost:aiStatic3</string>
           </property>
           <property name="animation1" stdset="0">
-           <enum>QCaShapePlugin::Transperency</enum>
+           <enum>QEShape::Transperency</enum>
           </property>
           <property name="scale1" stdset="0">
            <double>1.000000000000000</double>
@@ -1581,7 +1581,7 @@
            <double>0.000000000000000</double>
           </property>
           <property name="shape" stdset="0">
-           <enum>QCaShapePlugin::Rect</enum>
+           <enum>QEShape::Rect</enum>
           </property>
           <property name="point2" stdset="0">
            <point>
@@ -1601,7 +1601,7 @@
     <item row="3" column="2">
      <layout class="QGridLayout" name="gridLayout_11">
       <item row="0" column="0">
-       <widget class="QCaSliderPlugin" name="qcasliderplugin">
+       <widget class="QESlider" name="qcasliderplugin">
         <property name="maximum">
          <number>80</number>
         </property>
@@ -1611,7 +1611,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QCaSliderPlugin" name="qcasliderplugin_2">
+       <widget class="QESlider" name="qcasliderplugin_2">
         <property name="minimum">
          <number>-50</number>
         </property>
@@ -1624,7 +1624,7 @@
        </widget>
       </item>
       <item row="0" column="2">
-       <widget class="QCaSliderPlugin" name="qcasliderplugin_3">
+       <widget class="QESlider" name="qcasliderplugin_3">
         <property name="minimum">
          <number>0</number>
         </property>
@@ -1670,35 +1670,35 @@
    <header>QELabel.h</header>
   </customwidget>
   <customwidget>
-   <class>QCaLineEditPlugin</class>
+   <class>QELineEdit</class>
    <extends>QLineEdit</extends>
-   <header>QCaLineEditPlugin.h</header>
+   <header>QELineEdit.h</header>
   </customwidget>
   <customwidget>
-   <class>QCaPushButtonPlugin</class>
+   <class>QEPushButton</class>
    <extends>QPushButton</extends>
-   <header>QCaPushButtonPlugin.h</header>
+   <header>QEPushButton.h</header>
   </customwidget>
   <customwidget>
-   <class>QCaShapePlugin</class>
+   <class>QEShape</class>
    <extends>QWidget</extends>
-   <header>QCaShapePlugin.h</header>
+   <header>QEShape.h</header>
   </customwidget>
   <customwidget>
-   <class>QCaSliderPlugin</class>
+   <class>QESlider</class>
    <extends>QSlider</extends>
-   <header>QCaSliderPlugin.h</header>
+   <header>QESlider.h</header>
   </customwidget>
   <customwidget>
-   <class>QCaComboBoxPlugin</class>
+   <class>QEComboBox</class>
    <extends>QComboBox</extends>
-   <header>QCaComboBoxPlugin.h</header>
+   <header>QEComboBox.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>qcapushbuttonplugin</tabstop>
-  <tabstop>qcapushbuttonplugin_2</tabstop>
-  <tabstop>qcapushbuttonplugin_3</tabstop>
+  <tabstop>QEPushButton</tabstop>
+  <tabstop>QEPushButton_2</tabstop>
+  <tabstop>QEPushButton_3</tabstop>
  </tabstops>
  <resources/>
  <connections/>
