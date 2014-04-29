@@ -125,6 +125,10 @@ QEScript::QEScript(QWidget *pParent):QWidget(pParent), QEWidget( this )
     qTableWidgetScript->setFont(qFont);
     QObject::connect(qTableWidgetScript->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)), this, SLOT(selectionChanged(const QItemSelection &, const QItemSelection &)));
 
+    setScriptType(FROM_FILE);
+    setScriptFile("");
+    setScriptText("");
+    setScriptDefault("");
     setOptionsLayout(TOP);
     isExecuting = false;
     refreshWidgets();
