@@ -66,11 +66,11 @@ QEScript::QEScript(QWidget *pParent):QWidget(pParent), QEWidget( this )
     QObject::connect(qComboBoxScriptList, SIGNAL(currentIndexChanged(int)), this, SLOT(comboBoxScriptSelected(int)));
 
     qPushButtonNew->setText("New");
-    qPushButtonNew->setToolTip("Create new script");
+    qPushButtonNew->setToolTip("Create new script (reset table)");
     QObject::connect(qPushButtonNew, SIGNAL(clicked()), this, SLOT(buttonNewClicked()));
 
     qPushButtonSave->setText("Save");
-    qPushButtonSave->setToolTip("Save selected script");
+    qPushButtonSave->setToolTip("Save script");
     QObject::connect(qPushButtonSave, SIGNAL(clicked()), this, SLOT(buttonSaveClicked()));
 
     qPushButtonDelete->setText("Delete");
@@ -125,9 +125,6 @@ QEScript::QEScript(QWidget *pParent):QWidget(pParent), QEWidget( this )
     qTableWidgetScript->setFont(qFont);
     QObject::connect(qTableWidgetScript->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)), this, SLOT(selectionChanged(const QItemSelection &, const QItemSelection &)));
 
-    setScriptFile("");
-    setScriptText("");
-    setScriptType(FROM_FILE);
     setOptionsLayout(TOP);
     isExecuting = false;
     refreshWidgets();
@@ -541,7 +538,6 @@ void QEScript::setScriptText(QString pValue)
 
 
 
-
 QString QEScript::getScriptText()
 {
 
@@ -549,6 +545,46 @@ QString QEScript::getScriptText()
 
 }
 
+
+
+
+void QEScript::setScriptDefault(QString pValue)
+{
+    bool flag;
+    int i;
+
+    scriptDefault = pValue;
+    flag = true;
+    for(i = 0; i < qComboBoxScriptList->count(); i++)
+    {
+        if (qComboBoxScriptList->itemText(i).compare(scriptDefault) == 0)
+        {
+            flag = false;
+            qComboBoxScriptList->setCurrentIndex(i);
+            break;
+        }
+    }
+    if (flag)
+    {
+        while (qTableWidgetScript->rowCount() > 0)
+        {
+            qTableWidgetScript->removeRow(0);
+        }
+        qComboBoxScriptList->setCurrentIndex(-1);
+    }
+
+}
+
+
+
+
+
+QString QEScript::getScriptDefault()
+{
+
+    return scriptDefault;
+
+}
 
 
 
@@ -688,13 +724,9 @@ void QEScript::comboBoxScriptSelected(int)
     QDomElement rowElement;
     QDomNode rootNode;
     QString currentName;
-    QString name;
-    int count;
 
 
     currentName = qComboBoxScriptList->currentText();
-
-    count = 0;
     rootElement = document.documentElement();
     if (rootElement.tagName() == "epicsqt")
     {
@@ -704,22 +736,12 @@ void QEScript::comboBoxScriptSelected(int)
             scriptElement = rootNode.toElement();
             if (scriptElement.tagName() == "script")
             {
-                if (scriptElement.attribute("name").isEmpty())
-                {
-                    name = "Script #" + QString::number(count);
-                    count++;
-                }
-                else
-                {
-                    name = scriptElement.attribute("name");
-                }
-                if (currentName.compare(name) == 0)
+                if (currentName.compare(scriptElement.attribute("name")) == 0)
                 {
                     while (qTableWidgetScript->rowCount() > 0)
                     {
                         qTableWidgetScript->removeRow(0);
                     }
-
                     rootNode = scriptElement.firstChild();
                     while (rootNode.isNull() == false)
                     {
@@ -737,7 +759,6 @@ void QEScript::comboBoxScriptSelected(int)
             rootNode = rootNode.nextSibling();
         }
     }
-
     refreshWidgets();
 
 }
@@ -748,6 +769,23 @@ void QEScript::comboBoxScriptSelected(int)
 void QEScript::buttonNewClicked()
 {
 
+    if (QMessageBox::question(this, "Info", "Do you want to create a new script (reset table)?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
+    {
+        while (qTableWidgetScript->rowCount() > 0)
+        {
+            qTableWidgetScript->removeRow(0);
+        }
+        qComboBoxScriptList->setCurrentIndex(-1);
+    }
+
+}
+
+
+
+
+void QEScript::buttonSaveClicked()
+{
+
     QDomElement rootElement;
     QDomElement scriptElement;
     QDomElement rowElement;
@@ -755,20 +793,18 @@ void QEScript::buttonNewClicked()
     QString currentName;
     QString name;
     bool flag;
-    int count;
     int i;
 
 
+    currentName = qComboBoxScriptList->currentText();
     do
     {
-        name = QInputDialog::getText(this, "New script", "Name:", QLineEdit::Normal , "", &flag);
+        name = QInputDialog::getText(this, "Script name", "Name:", QLineEdit::Normal , currentName, &flag);
     }
     while(flag && name.isEmpty());
 
-    if (name.isEmpty() == false)
+    if (flag)
     {
-        flag = true;
-        count = 0;
         rootElement = document.documentElement();
         if (rootElement.tagName() == "epicsqt")
         {
@@ -778,16 +814,7 @@ void QEScript::buttonNewClicked()
                 scriptElement = rootNode.toElement();
                 if (scriptElement.tagName() == "script")
                 {
-                    if (scriptElement.attribute("name").isEmpty())
-                    {
-                        currentName = "Script #" + QString::number(count);
-                        count++;
-                    }
-                    else
-                    {
-                        currentName = scriptElement.attribute("name");
-                    }
-                    if (currentName.compare(name) == 0)
+                    if (name.compare(scriptElement.attribute("name")) == 0)
                     {
                         flag = false;
                         break;
@@ -798,10 +825,10 @@ void QEScript::buttonNewClicked()
         }
         if (flag == false)
         {
-            flag = (QMessageBox::question(this, "Info", "Do you want to replace existing script '" + name + "'?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes);
-            if (flag)
+            if (QMessageBox::question(this, "Info", "Do you want to overwrite existing script '" + name + "'?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
             {
                 rootElement.removeChild(rootNode);
+                flag = true;
             }
         }
         if (flag)
@@ -823,90 +850,15 @@ void QEScript::buttonNewClicked()
             rootElement.appendChild(scriptElement);
             if (saveScriptList())
             {
-                QMessageBox::information(this, "Info", "The script '" + name + "' was successfully created!");
+                i = qComboBoxScriptList->findText(name);
+                qComboBoxScriptList->setCurrentIndex(i);
+                QMessageBox::information(this, "Info", "The script '" + name + "' was successfully saved!");
             }
             else
             {
                 // TODO: restore original document if there is an error
-                QMessageBox::critical(this, "Error", "Unable to create script '" + name + "' in file '" + filename + "'!");
+                QMessageBox::critical(this, "Error", "Unable to save script '" + name + "' in file '" + filename + "'!");
             }
-        }
-    }
-
-}
-
-
-
-
-void QEScript::buttonSaveClicked()
-{
-
-    QDomElement rootElement;
-    QDomElement scriptElement;
-    QDomElement rowElement;
-    QDomNode rootNode;
-    QString currentName;
-    QString name;
-    int count;
-    int i;
-
-
-    currentName = qComboBoxScriptList->currentText();
-
-    if (QMessageBox::question(this, "Info", "Do you want to save the values in script '" + currentName + "'?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
-    {
-        count = 0;
-        rootElement = document.documentElement();
-        if (rootElement.tagName() == "epicsqt")
-        {
-            rootNode = rootElement.firstChild();
-            while (rootNode.isNull() == false)
-            {
-                scriptElement = rootNode.toElement();
-                if (scriptElement.tagName() == "script")
-                {
-                    if (scriptElement.attribute("name").isEmpty())
-                    {
-                        name= "Script #" + QString::number(count);
-                        count++;
-                    }
-                    else
-                    {
-                        name = scriptElement.attribute("name");
-                    }
-                    if (currentName.compare(name) == 0)
-                    {
-                        break;
-                    }
-                }
-                rootNode = rootNode.nextSibling();
-            }
-        }
-        while (scriptElement.hasChildNodes())
-        {
-            scriptElement.removeChild(scriptElement.lastChild());
-        }
-        for(i = 0; i < qTableWidgetScript->rowCount(); i++)
-        {
-            rowElement = document.createElement("row");
-            rowElement.setAttribute("enable", ((QCheckBox *) qTableWidgetScript->cellWidget(i, 1))->isChecked());
-            rowElement.setAttribute("program", qTableWidgetScript->item(i, 2)->text().trimmed());
-            rowElement.setAttribute("parameters", qTableWidgetScript->item(i, 3)->text().trimmed());
-            rowElement.setAttribute("directory", qTableWidgetScript->item(i, 4)->text().trimmed());
-            rowElement.setAttribute("timeout", ((QSpinBox *) qTableWidgetScript->cellWidget(i, 5))->value());
-            rowElement.setAttribute("stop", ((QCheckBox *) qTableWidgetScript->cellWidget(i, 6))->isChecked());
-            rowElement.setAttribute("log", ((QCheckBox *) qTableWidgetScript->cellWidget(i, 7))->isChecked());
-            scriptElement.appendChild(rowElement);
-        }
-        rootElement.appendChild(scriptElement);
-        if (saveScriptList())
-        {
-            QMessageBox::information(this, "Info", "The script '" + currentName + "' was successfully saved!");
-        }
-        else
-        {
-            // TODO: restore original document if there is an error
-            QMessageBox::critical(this, "Error", "Unable to save script '" + currentName + "' in file '" + filename + "'!");
         }
     }
 
@@ -922,12 +874,10 @@ void QEScript::buttonDeleteClicked()
     QDomElement scriptElement;
     QDomNode rootNode;
     QString currentName;
-    QString name;
     int count;
 
 
     currentName = qComboBoxScriptList->currentText();
-
     if (QMessageBox::question(this, "Info", "Do you want to delete script '" + currentName + "'?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
     {
         count = 0;
@@ -940,16 +890,7 @@ void QEScript::buttonDeleteClicked()
                 scriptElement = rootNode.toElement();
                 if (scriptElement.tagName() == "script")
                 {
-                    if (scriptElement.attribute("name").isEmpty())
-                    {
-                        name = "Script #" + QString::number(count);
-                        count++;
-                    }
-                    else
-                    {
-                        name = scriptElement.attribute("name");
-                    }
-                    if (currentName.compare(name) == 0)
+                    if (currentName.compare(scriptElement.attribute("name")) == 0)
                     {
                         rootElement.removeChild(rootNode);
                         break;
@@ -960,6 +901,11 @@ void QEScript::buttonDeleteClicked()
         }
         if (saveScriptList())
         {
+            while (qTableWidgetScript->rowCount() > 0)
+            {
+                qTableWidgetScript->removeRow(0);
+            }
+            qComboBoxScriptList->setCurrentIndex(-1);
             QMessageBox::information(this, "Info", "The script '" + currentName + "' was successfully delete!");
         }
         else
@@ -1419,8 +1365,6 @@ void QEScript::insertRow(bool pEnable, QString pProgram, QString pParameters, QS
 
 
 
-
-
 bool QEScript::saveScriptList()
 {
 
@@ -1451,7 +1395,6 @@ void QEScript::refreshScriptList()
     QDomElement scriptElement;
     QDomNode rootNode;
     QString tmp;
-    int count;
     int i;
 
 
@@ -1461,22 +1404,13 @@ void QEScript::refreshScriptList()
     rootElement = document.documentElement();
     if (rootElement.tagName() == "epicsqt")
     {
-        count = 0;
         rootNode = rootElement.firstChild();
         while (rootNode.isNull() == false)
         {
             scriptElement = rootNode.toElement();
             if (scriptElement.tagName() == "script")
             {
-                if (scriptElement.attribute("name").isEmpty())
-                {
-                    qComboBoxScriptList->addItem("Script #" + QString::number(count));
-                    count++;
-                }
-                else
-                {
-                    qComboBoxScriptList->addItem(scriptElement.attribute("name"));
-                }
+                qComboBoxScriptList->addItem(scriptElement.attribute("name"));
             }
             rootNode = rootNode.nextSibling();
         }
@@ -1509,7 +1443,7 @@ void QEScript::refreshWidgets()
 
     qComboBoxScriptList->setEnabled(isExecuting == false);
     qPushButtonNew->setEnabled(scriptType == FROM_FILE && isExecuting == false);
-    qPushButtonSave->setEnabled(scriptType == FROM_FILE && isExecuting == false && qComboBoxScriptList->currentText().isEmpty() == false);
+    qPushButtonSave->setEnabled(scriptType == FROM_FILE && isExecuting == false && qTableWidgetScript->rowCount() > 0);
     qPushButtonDelete->setEnabled(scriptType == FROM_FILE && isExecuting == false && qComboBoxScriptList->currentText().isEmpty() == false);
     qPushButtonExecute->setEnabled(isExecuting == false && rowCount > 0);
     qPushButtonAbort->setEnabled(isExecuting == true);
