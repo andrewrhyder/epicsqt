@@ -152,6 +152,10 @@ public:
     void displayMarkup( markupIds markupId, bool state );       // Hide or reveal a markup
     bool isMarkupVisible( markupIds mode );                     // Is a specified markup visible
 
+    double getZoomScale(){ return zoomScale; }
+    QSize getImageSize(){ return imageSize; }
+    void setImageSize( const QSize& imageSizeIn );
+
 protected:
     void drawMarkups( QPainter& p, const QRect& rect );         // The image has changed, redraw the markups if any
     bool anyVisibleMarkups();                                   // Are there any markups visible
@@ -163,13 +167,16 @@ protected:
     bool markupMouseReleaseEvent ( QMouseEvent* event, bool panning ); // User has released a button
     bool markupMouseMoveEvent( QMouseEvent* event, bool panning );     // User has moved the mouse
 
-    void markupResize( const QSize& newSize, const QSize& oldSize, const double scale );           // The viewport size has changed
+    void markupResize( const double scale );           // The image size has changes, or the viewport has been zoomed
 
 
     virtual void markupChange( QVector<QRect>& changedAreas )=0;    // The markup overlay has changed, redraw part of it
     virtual void markupAction( markupIds mode, bool complete, bool clearing, QPoint point1, QPoint point2, unsigned int thickness )=0;     // There is an application task to do in response to user interaction with the markups
 
 private:
+    double zoomScale;   // Scale factor to be applied when drawing markups
+    QSize imageSize;    // Original image size
+
     void setActiveItem( const QPoint& pos );                            // Determine if the user clicked over an interactive, visible item
     void setThickness( markupIds markupId, unsigned int newThickness ); // Set a markup to a thickness
     void setSinglePixelThickness( markupIds markupId );                 // Set a markup to signel pixel thickness

@@ -35,22 +35,26 @@ markupTarget::markupTarget( imageMarkup* ownerIn, const bool interactiveIn, cons
 
 void markupTarget::drawMarkup( QPainter& p )
 {
+    // Scale markup
+    double scale = getZoomScale();
+    QPoint scaledPos = QPoint( pos.x() * scale, pos.y() * scale );
+
     // Draw markup
     QPen pen = p.pen();
     pen.setStyle( Qt::DashLine );
     p.setPen( pen );
-    p.drawLine( pos.x(), 0, pos.x(), imageSize.height() );
-    p.drawLine( 0, pos.y(), imageSize.width(), pos.y() );
+    p.drawLine( scaledPos.x(), 0, scaledPos.x(), getImageSize().height() );
+    p.drawLine( 0, scaledPos.y(), getImageSize().width(), scaledPos.y() );
     pen.setStyle( Qt::SolidLine );
     p.setPen( pen );
 
     // Draw markup legend
-    drawLegend( p, pos, ABOVE_RIGHT );
+    drawLegend( p, scaledPos, ABOVE_RIGHT );
 }
 
 void markupTarget::setArea()
 {
-    area = QRect( QPoint(0,0), imageSize );
+    area = QRect( QPoint(0,0), getImageSize() );
 
     addLegendArea();
 
@@ -112,12 +116,6 @@ QPoint markupTarget::getPoint2()
 QCursor markupTarget::defaultCursor()
 {
     return owner->getTargetCursor();
-}
-
-void markupTarget::scaleSpecific( const double xScale, const double yScale, const double )
-{
-    pos.setX( pos.x() * xScale );
-    pos.setY( pos.y() * yScale );
 }
 
 void markupTarget::nonInteractiveUpdate( QPoint p1, QPoint )

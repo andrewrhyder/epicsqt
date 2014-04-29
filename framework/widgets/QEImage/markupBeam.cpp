@@ -37,21 +37,25 @@ markupBeam::markupBeam( imageMarkup* ownerIn, const bool interactiveIn, const bo
 
 void markupBeam::drawMarkup( QPainter& p )
 {
+    // Scale markup
+    double scale = getZoomScale();
+    QPoint scaledPos = QPoint( pos.x() * scale, pos.y() * scale );
+
     // Draw markup
-    p.drawLine( pos.x()-1, pos.y()+1, pos.x()-1, pos.y()+armSize );
-    p.drawLine( pos.x()+1, pos.y()+1, pos.x()+1, pos.y()+armSize );
+    p.drawLine( scaledPos.x()-1, scaledPos.y()+1, scaledPos.x()-1,       scaledPos.y()+armSize );
+    p.drawLine( scaledPos.x()+1, scaledPos.y()+1, scaledPos.x()+1,       scaledPos.y()+armSize );
 
-    p.drawLine( pos.x()-1, pos.y()-1, pos.x()-1, pos.y()-armSize );
-    p.drawLine( pos.x()+1, pos.y()-1, pos.x()+1, pos.y()-armSize );
+    p.drawLine( scaledPos.x()-1, scaledPos.y()-1, scaledPos.x()-1,       scaledPos.y()-armSize );
+    p.drawLine( scaledPos.x()+1, scaledPos.y()-1, scaledPos.x()+1,       scaledPos.y()-armSize );
 
-    p.drawLine( pos.x()+1, pos.y()-1, pos.x()+armSize, pos.y()-1 );
-    p.drawLine( pos.x()+1, pos.y()+1, pos.x()+armSize, pos.y()+1 );
+    p.drawLine( scaledPos.x()+1, scaledPos.y()-1, scaledPos.x()+armSize, scaledPos.y()-1 );
+    p.drawLine( scaledPos.x()+1, scaledPos.y()+1, scaledPos.x()+armSize, scaledPos.y()+1 );
 
-    p.drawLine( pos.x()-1, pos.y()-1, pos.x()-armSize, pos.y()-1 );
-    p.drawLine( pos.x()-1, pos.y()+1, pos.x()-armSize, pos.y()+1 );
+    p.drawLine( scaledPos.x()-1, scaledPos.y()-1, scaledPos.x()-armSize, scaledPos.y()-1 );
+    p.drawLine( scaledPos.x()-1, scaledPos.y()+1, scaledPos.x()-armSize, scaledPos.y()+1 );
 
     // Draw markup legend
-    drawLegend( p, pos, BELOW_LEFT );
+    drawLegend( p, scaledPos, BELOW_LEFT );
 }
 
 void markupBeam::setArea()
@@ -124,12 +128,6 @@ QPoint markupBeam::getPoint2()
 QCursor markupBeam::defaultCursor()
 {
     return owner->getTargetCursor();
-}
-
-void markupBeam::scaleSpecific( const double xScale, const double yScale, const double )
-{
-    pos.setX( pos.x() * xScale );
-    pos.setY( pos.y() * yScale );
 }
 
 void markupBeam::nonInteractiveUpdate( QPoint p1, QPoint )
