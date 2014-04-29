@@ -47,7 +47,7 @@
     <string>SR=11 SRPREV=10</string>
    </property>
   </widget>
-  <widget class="QCaPushButtonPlugin" name="guipushbuttonplugin">
+  <widget class="QEPushButton" name="guipushbuttonplugin">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -63,10 +63,10 @@
     <string>SVS10.ui</string>
    </property>
    <property name="creationOption" stdset="0">
-    <enum>QCaPushButtonPlugin::Open</enum>
+    <enum>QEPushButton::Open</enum>
    </property>
   </widget>
-  <widget class="QCaPushButtonPlugin" name="guipushbuttonplugin_2">
+  <widget class="QEPushButton" name="guipushbuttonplugin_2">
    <property name="geometry">
     <rect>
      <x>550</x>
@@ -82,15 +82,15 @@
     <string>SVS12.ui</string>
    </property>
    <property name="creationOption" stdset="0">
-    <enum>QCaPushButtonPlugin::Open</enum>
+    <enum>QEPushButton::Open</enum>
    </property>
   </widget>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QCaPushButtonPlugin</class>
+   <class>QEPushButton</class>
    <extends>QPushButton</extends>
-   <header>QCaPushButtonPlugin.h</header>
+   <header>QEPushButton.h</header>
   </customwidget>
   <customwidget>
    <class>QEFormPlugin</class>

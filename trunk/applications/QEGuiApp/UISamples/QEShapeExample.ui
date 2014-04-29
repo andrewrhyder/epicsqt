@@ -15,7 +15,7 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
-    <widget class="QCaSliderPlugin" name="qcasliderplugin_2">
+    <widget class="QESlider" name="qcasliderplugin_2">
      <property name="variable" stdset="0">
       <string>MY:ao</string>
      </property>
@@ -257,11 +257,6 @@
    <class>QESlider</class>
    <extends>QSlider</extends>
    <header>QESlider.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QCaSliderPlugin</class>
-   <extends>QESlider</extends>
-   <header>QCaSliderPlugin.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -54,7 +54,7 @@
    <property name="frameShadow">
     <enum>QFrame::Raised</enum>
    </property>
-   <widget class="QCaShapePlugin" name="qcashapeplugin">
+   <widget class="QEShape" name="qcashapeplugin">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -103,7 +103,7 @@
      <double>0.000000000000000</double>
     </property>
     <property name="shape" stdset="0">
-     <enum>QCaShapePlugin::Ellipse</enum>
+     <enum>QEShape::Ellipse</enum>
     </property>
     <property name="originTranslation">
      <point>
@@ -298,9 +298,9 @@
    <header>QELabel.h</header>
   </customwidget>
   <customwidget>
-   <class>QCaShapePlugin</class>
+   <class>QEShape</class>
    <extends>QWidget</extends>
-   <header>QCaShapePlugin.h</header>
+   <header>QEShape.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

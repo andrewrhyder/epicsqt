@@ -38,7 +38,7 @@
     <enum>QELabel::Scientific</enum>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_20">
+  <widget class="QEShape" name="qcashapeplugin_20">
    <property name="geometry">
     <rect>
      <x>540</x>
@@ -48,7 +48,7 @@
     </rect>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Line</enum>
+    <enum>QEShape::Line</enum>
    </property>
    <property name="originTranslation" stdset="0">
     <point>
@@ -69,7 +69,7 @@
     <UInt>3</UInt>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_15">
+  <widget class="QEShape" name="qcashapeplugin_15">
    <property name="geometry">
     <rect>
      <x>361</x>
@@ -79,7 +79,7 @@
     </rect>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Line</enum>
+    <enum>QEShape::Line</enum>
    </property>
    <property name="originTranslation" stdset="0">
     <point>
@@ -125,7 +125,7 @@
     <enum>QELabel::Scientific</enum>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_3">
+  <widget class="QEShape" name="qcashapeplugin_3">
    <property name="geometry">
     <rect>
      <x>310</x>
@@ -141,10 +141,10 @@
     <string/>
    </property>
    <property name="animation1" stdset="0">
-    <enum>QCaShapePlugin::ColourIndex</enum>
+    <enum>QEShape::ColourIndex</enum>
    </property>
    <property name="animation2" stdset="0">
-    <enum>QCaShapePlugin::ColourValue</enum>
+    <enum>QEShape::ColourValue</enum>
    </property>
    <property name="scale1" stdset="0">
     <double>1.000000000000000</double>
@@ -153,7 +153,7 @@
     <string>SR=01 SRPREV=14</string>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Polygon</enum>
+    <enum>QEShape::Polygon</enum>
    </property>
    <property name="numPoints" stdset="0">
     <UInt>6</UInt>
@@ -212,7 +212,7 @@
     </color>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_11">
+  <widget class="QEShape" name="qcashapeplugin_11">
    <property name="geometry">
     <rect>
      <x>440</x>
@@ -225,13 +225,13 @@
     <string>SR$(SR)PRG01:PRESSURE_MONITOR.STAT</string>
    </property>
    <property name="animation1" stdset="0">
-    <enum>QCaShapePlugin::ColourIndex</enum>
+    <enum>QEShape::ColourIndex</enum>
    </property>
    <property name="variableSubstitutions" stdset="0">
     <string>SR=01</string>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Ellipse</enum>
+    <enum>QEShape::Ellipse</enum>
    </property>
    <property name="point2" stdset="0">
     <point>
@@ -293,7 +293,7 @@
     <enum>QELabel::Scientific</enum>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_2">
+  <widget class="QEShape" name="qcashapeplugin_2">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -309,10 +309,10 @@
     <string/>
    </property>
    <property name="animation1" stdset="0">
-    <enum>QCaShapePlugin::ColourIndex</enum>
+    <enum>QEShape::ColourIndex</enum>
    </property>
    <property name="animation2" stdset="0">
-    <enum>QCaShapePlugin::ColourValue</enum>
+    <enum>QEShape::ColourValue</enum>
    </property>
    <property name="scale1" stdset="0">
     <double>1.000000000000000</double>
@@ -321,7 +321,7 @@
     <string>SRPREV=14</string>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Polygon</enum>
+    <enum>QEShape::Polygon</enum>
    </property>
    <property name="numPoints" stdset="0">
     <UInt>6</UInt>
@@ -455,7 +455,7 @@
     <enum>QELabel::Scientific</enum>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_16">
+  <widget class="QEShape" name="qcashapeplugin_16">
    <property name="geometry">
     <rect>
      <x>352</x>
@@ -468,13 +468,13 @@
     <string>SR$(SR)IPC01:CHAN01_PRESSURE_MONITOR.STAT</string>
    </property>
    <property name="animation1" stdset="0">
-    <enum>QCaShapePlugin::ColourIndex</enum>
+    <enum>QEShape::ColourIndex</enum>
    </property>
    <property name="variableSubstitutions" stdset="0">
     <string>SR=01</string>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Rect</enum>
+    <enum>QEShape::Rect</enum>
    </property>
    <property name="point2" stdset="0">
     <point>
@@ -536,7 +536,7 @@
     <enum>QELabel::Scientific</enum>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin">
+  <widget class="QEShape" name="qcashapeplugin">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -559,7 +559,7 @@
     </color>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_13">
+  <widget class="QEShape" name="qcashapeplugin_13">
    <property name="geometry">
     <rect>
      <x>410</x>
@@ -569,7 +569,7 @@
     </rect>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Line</enum>
+    <enum>QEShape::Line</enum>
    </property>
    <property name="originTranslation" stdset="0">
     <point>
@@ -590,7 +590,7 @@
     <UInt>3</UInt>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_10">
+  <widget class="QEShape" name="qcashapeplugin_10">
    <property name="geometry">
     <rect>
      <x>191</x>
@@ -603,13 +603,13 @@
     <string>SR$(SR)PRG02:PRESSURE_MONITOR.STAT</string>
    </property>
    <property name="animation1" stdset="0">
-    <enum>QCaShapePlugin::ColourIndex</enum>
+    <enum>QEShape::ColourIndex</enum>
    </property>
    <property name="variableSubstitutions" stdset="0">
     <string>SR=01</string>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Ellipse</enum>
+    <enum>QEShape::Ellipse</enum>
    </property>
    <property name="point2" stdset="0">
     <point>
@@ -646,7 +646,7 @@
     </color>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_4">
+  <widget class="QEShape" name="qcashapeplugin_4">
    <property name="geometry">
     <rect>
      <x>566</x>
@@ -662,10 +662,10 @@
     <string/>
    </property>
    <property name="animation1" stdset="0">
-    <enum>QCaShapePlugin::ColourIndex</enum>
+    <enum>QEShape::ColourIndex</enum>
    </property>
    <property name="animation2" stdset="0">
-    <enum>QCaShapePlugin::ColourValue</enum>
+    <enum>QEShape::ColourValue</enum>
    </property>
    <property name="scale1" stdset="0">
     <double>1.000000000000000</double>
@@ -674,7 +674,7 @@
     <string>SR=01 SRPREV=14</string>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Polygon</enum>
+    <enum>QEShape::Polygon</enum>
    </property>
    <property name="numPoints" stdset="0">
     <UInt>6</UInt>
@@ -733,7 +733,7 @@
     </color>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_14">
+  <widget class="QEShape" name="qcashapeplugin_14">
    <property name="geometry">
     <rect>
      <x>400</x>
@@ -746,13 +746,13 @@
     <string>SR$(SR)CCG01:PRESSURE_MONITOR.STAT</string>
    </property>
    <property name="animation1" stdset="0">
-    <enum>QCaShapePlugin::ColourIndex</enum>
+    <enum>QEShape::ColourIndex</enum>
    </property>
    <property name="variableSubstitutions" stdset="0">
     <string>SR=01</string>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Ellipse</enum>
+    <enum>QEShape::Ellipse</enum>
    </property>
    <property name="point2" stdset="0">
     <point>
@@ -789,7 +789,7 @@
     </color>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_19">
+  <widget class="QEShape" name="qcashapeplugin_19">
    <property name="geometry">
     <rect>
      <x>531</x>
@@ -802,13 +802,13 @@
     <string>SR$(SR)CCG02:PRESSURE_MONITOR.STAT</string>
    </property>
    <property name="animation1" stdset="0">
-    <enum>QCaShapePlugin::ColourIndex</enum>
+    <enum>QEShape::ColourIndex</enum>
    </property>
    <property name="variableSubstitutions" stdset="0">
     <string>SR=01</string>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Ellipse</enum>
+    <enum>QEShape::Ellipse</enum>
    </property>
    <property name="point2" stdset="0">
     <point>
@@ -845,7 +845,7 @@
     </color>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_6">
+  <widget class="QEShape" name="qcashapeplugin_6">
    <property name="geometry">
     <rect>
      <x>140</x>
@@ -855,7 +855,7 @@
     </rect>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Line</enum>
+    <enum>QEShape::Line</enum>
    </property>
    <property name="originTranslation" stdset="0">
     <point>
@@ -876,7 +876,7 @@
     <UInt>3</UInt>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_12">
+  <widget class="QEShape" name="qcashapeplugin_12">
    <property name="geometry">
     <rect>
      <x>449</x>
@@ -886,7 +886,7 @@
     </rect>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Line</enum>
+    <enum>QEShape::Line</enum>
    </property>
    <property name="originTranslation" stdset="0">
     <point>
@@ -907,7 +907,7 @@
     <UInt>3</UInt>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_8">
+  <widget class="QEShape" name="qcashapeplugin_8">
    <property name="geometry">
     <rect>
      <x>61</x>
@@ -920,13 +920,13 @@
     <string>SR$(SR)IPC03:CHAN01_PRESSURE_MONITOR.STAT</string>
    </property>
    <property name="animation1" stdset="0">
-    <enum>QCaShapePlugin::ColourIndex</enum>
+    <enum>QEShape::ColourIndex</enum>
    </property>
    <property name="variableSubstitutions" stdset="0">
     <string>SR=01</string>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Rect</enum>
+    <enum>QEShape::Rect</enum>
    </property>
    <property name="point2" stdset="0">
     <point>
@@ -963,7 +963,7 @@
     </color>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_7">
+  <widget class="QEShape" name="qcashapeplugin_7">
    <property name="geometry">
     <rect>
      <x>130</x>
@@ -976,13 +976,13 @@
     <string>SR$(SR)CCG03:PRESSURE_MONITOR.STAT</string>
    </property>
    <property name="animation1" stdset="0">
-    <enum>QCaShapePlugin::ColourIndex</enum>
+    <enum>QEShape::ColourIndex</enum>
    </property>
    <property name="variableSubstitutions" stdset="0">
     <string>SR=01</string>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Ellipse</enum>
+    <enum>QEShape::Ellipse</enum>
    </property>
    <property name="point2" stdset="0">
     <point>
@@ -1019,7 +1019,7 @@
     </color>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_5">
+  <widget class="QEShape" name="qcashapeplugin_5">
    <property name="geometry">
     <rect>
      <x>70</x>
@@ -1029,7 +1029,7 @@
     </rect>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Line</enum>
+    <enum>QEShape::Line</enum>
    </property>
    <property name="originTranslation" stdset="0">
     <point>
@@ -1075,7 +1075,7 @@
     <enum>QELabel::Scientific</enum>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_18">
+  <widget class="QEShape" name="qcashapeplugin_18">
    <property name="geometry">
     <rect>
      <x>481</x>
@@ -1085,7 +1085,7 @@
     </rect>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Line</enum>
+    <enum>QEShape::Line</enum>
    </property>
    <property name="originTranslation" stdset="0">
     <point>
@@ -1106,7 +1106,7 @@
     <UInt>3</UInt>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_17">
+  <widget class="QEShape" name="qcashapeplugin_17">
    <property name="geometry">
     <rect>
      <x>472</x>
@@ -1119,13 +1119,13 @@
     <string>SR$(SR)IPC01:CHAN01_PRESSURE_MONITOR.STAT</string>
    </property>
    <property name="animation1" stdset="0">
-    <enum>QCaShapePlugin::ColourIndex</enum>
+    <enum>QEShape::ColourIndex</enum>
    </property>
    <property name="variableSubstitutions" stdset="0">
     <string>SR=01</string>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Rect</enum>
+    <enum>QEShape::Rect</enum>
    </property>
    <property name="point2" stdset="0">
     <point>
@@ -1162,7 +1162,7 @@
     </color>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_9">
+  <widget class="QEShape" name="qcashapeplugin_9">
    <property name="geometry">
     <rect>
      <x>200</x>
@@ -1172,7 +1172,7 @@
     </rect>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Line</enum>
+    <enum>QEShape::Line</enum>
    </property>
    <property name="originTranslation" stdset="0">
     <point>
@@ -1229,9 +1229,9 @@
    <header>QELabel.h</header>
   </customwidget>
   <customwidget>
-   <class>QCaShapePlugin</class>
+   <class>QEShape</class>
    <extends>QWidget</extends>
-   <header>QCaShapePlugin.h</header>
+   <header>QEShape.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_2">
+  <widget class="QEShape" name="qcashapeplugin_2">
    <property name="geometry">
     <rect>
      <x>48</x>
@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Ellipse</enum>
+    <enum>QEShape::Ellipse</enum>
    </property>
    <property name="point2" stdset="0">
     <point>
@@ -32,7 +32,7 @@
     </point>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin">
+  <widget class="QEShape" name="qcashapeplugin">
    <property name="geometry">
     <rect>
      <x>52</x>
@@ -42,7 +42,7 @@
     </rect>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Ellipse</enum>
+    <enum>QEShape::Ellipse</enum>
    </property>
    <property name="point2" stdset="0">
     <point>
@@ -51,7 +51,7 @@
     </point>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_3">
+  <widget class="QEShape" name="qcashapeplugin_3">
    <property name="geometry">
     <rect>
      <x>53</x>
@@ -61,7 +61,7 @@
     </rect>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Ellipse</enum>
+    <enum>QEShape::Ellipse</enum>
    </property>
    <property name="point2" stdset="0">
     <point>
@@ -70,7 +70,7 @@
     </point>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_5">
+  <widget class="QEShape" name="qcashapeplugin_5">
    <property name="geometry">
     <rect>
      <x>50</x>
@@ -80,7 +80,7 @@
     </rect>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Ellipse</enum>
+    <enum>QEShape::Ellipse</enum>
    </property>
    <property name="point2" stdset="0">
     <point>
@@ -89,7 +89,7 @@
     </point>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_6">
+  <widget class="QEShape" name="qcashapeplugin_6">
    <property name="geometry">
     <rect>
      <x>44</x>
@@ -99,7 +99,7 @@
     </rect>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Ellipse</enum>
+    <enum>QEShape::Ellipse</enum>
    </property>
    <property name="point2" stdset="0">
     <point>
@@ -108,7 +108,7 @@
     </point>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_7">
+  <widget class="QEShape" name="qcashapeplugin_7">
    <property name="geometry">
     <rect>
      <x>36</x>
@@ -118,7 +118,7 @@
     </rect>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Ellipse</enum>
+    <enum>QEShape::Ellipse</enum>
    </property>
    <property name="point2" stdset="0">
     <point>
@@ -127,7 +127,7 @@
     </point>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_8">
+  <widget class="QEShape" name="qcashapeplugin_8">
    <property name="geometry">
     <rect>
      <x>27</x>
@@ -137,7 +137,7 @@
     </rect>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Ellipse</enum>
+    <enum>QEShape::Ellipse</enum>
    </property>
    <property name="point2" stdset="0">
     <point>
@@ -146,7 +146,7 @@
     </point>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_9">
+  <widget class="QEShape" name="qcashapeplugin_9">
    <property name="geometry">
     <rect>
      <x>19</x>
@@ -156,7 +156,7 @@
     </rect>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Ellipse</enum>
+    <enum>QEShape::Ellipse</enum>
    </property>
    <property name="point2" stdset="0">
     <point>
@@ -165,7 +165,7 @@
     </point>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_10">
+  <widget class="QEShape" name="qcashapeplugin_10">
    <property name="geometry">
     <rect>
      <x>14</x>
@@ -175,7 +175,7 @@
     </rect>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Ellipse</enum>
+    <enum>QEShape::Ellipse</enum>
    </property>
    <property name="point2" stdset="0">
     <point>
@@ -184,7 +184,7 @@
     </point>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_11">
+  <widget class="QEShape" name="qcashapeplugin_11">
    <property name="geometry">
     <rect>
      <x>13</x>
@@ -194,7 +194,7 @@
     </rect>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Ellipse</enum>
+    <enum>QEShape::Ellipse</enum>
    </property>
    <property name="point2" stdset="0">
     <point>
@@ -203,7 +203,7 @@
     </point>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_12">
+  <widget class="QEShape" name="qcashapeplugin_12">
    <property name="geometry">
     <rect>
      <x>16</x>
@@ -213,7 +213,7 @@
     </rect>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Ellipse</enum>
+    <enum>QEShape::Ellipse</enum>
    </property>
    <property name="point2" stdset="0">
     <point>
@@ -222,7 +222,7 @@
     </point>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_13">
+  <widget class="QEShape" name="qcashapeplugin_13">
    <property name="geometry">
     <rect>
      <x>22</x>
@@ -232,7 +232,7 @@
     </rect>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Ellipse</enum>
+    <enum>QEShape::Ellipse</enum>
    </property>
    <property name="point2" stdset="0">
     <point>
@@ -241,7 +241,7 @@
     </point>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_14">
+  <widget class="QEShape" name="qcashapeplugin_14">
    <property name="geometry">
     <rect>
      <x>31</x>
@@ -251,7 +251,7 @@
     </rect>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Ellipse</enum>
+    <enum>QEShape::Ellipse</enum>
    </property>
    <property name="point2" stdset="0">
     <point>
@@ -260,7 +260,7 @@
     </point>
    </property>
   </widget>
-  <widget class="QCaShapePlugin" name="qcashapeplugin_15">
+  <widget class="QEShape" name="qcashapeplugin_15">
    <property name="geometry">
     <rect>
      <x>40</x>
@@ -270,7 +270,7 @@
     </rect>
    </property>
    <property name="shape" stdset="0">
-    <enum>QCaShapePlugin::Ellipse</enum>
+    <enum>QEShape::Ellipse</enum>
    </property>
    <property name="point2" stdset="0">
     <point>
@@ -289,9 +289,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QCaShapePlugin</class>
+   <class>QEShape</class>
    <extends>QWidget</extends>
-   <header>QCaShapePlugin.h</header>
+   <header>QEShape.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

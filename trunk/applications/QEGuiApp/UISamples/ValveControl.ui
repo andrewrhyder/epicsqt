@@ -164,7 +164,7 @@
       <item row="5" column="1">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QCaPushButtonPlugin" name="qcapushbuttonplugin_2">
+         <widget class="QEPushButton" name="QEPushButton_2">
           <property name="palette">
            <palette>
             <active>
@@ -598,7 +598,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QCaPushButtonPlugin" name="qcapushbuttonplugin">
+         <widget class="QEPushButton" name="QEPushButton">
           <property name="palette">
            <palette>
             <active>
@@ -1039,7 +1039,7 @@
       <item row="5" column="2">
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
-         <widget class="QCaPushButtonPlugin" name="qcapushbuttonplugin_6">
+         <widget class="QEPushButton" name="QEPushButton_6">
           <property name="palette">
            <palette>
             <active>
@@ -1476,7 +1476,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QCaPushButtonPlugin" name="qcapushbuttonplugin_5">
+         <widget class="QEPushButton" name="QEPushButton_5">
           <property name="palette">
            <palette>
             <active>
@@ -1952,7 +1952,7 @@
        </widget>
       </item>
       <item row="7" column="1">
-       <widget class="QCaPushButtonPlugin" name="qcapushbuttonplugin_3">
+       <widget class="QEPushButton" name="QEPushButton_3">
         <property name="autoFillBackground">
          <bool>false</bool>
         </property>
@@ -1974,7 +1974,7 @@
        </widget>
       </item>
       <item row="7" column="2">
-       <widget class="QCaPushButtonPlugin" name="qcapushbuttonplugin_4">
+       <widget class="QEPushButton" name="QEPushButton_4">
         <property name="autoFillBackground">
          <bool>false</bool>
         </property>
@@ -2038,9 +2038,9 @@
    <header>QSubstitutedLabelPlugin.h</header>
   </customwidget>
   <customwidget>
-   <class>QCaPushButtonPlugin</class>
+   <class>QEPushButton</class>
    <extends>QPushButton</extends>
-   <header>QCaPushButtonPlugin.h</header>
+   <header>QEPushButton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
