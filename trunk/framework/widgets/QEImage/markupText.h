@@ -58,7 +58,6 @@ public:
     QPoint getPoint1();
     QPoint getPoint2();
     QCursor defaultCursor();
-    void scaleSpecific( const double xScale, const double yScale, const double zoomScale );
     //==================================================================
 
 private:

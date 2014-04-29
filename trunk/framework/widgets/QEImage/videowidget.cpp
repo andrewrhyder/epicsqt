@@ -80,6 +80,7 @@ bool VideoWidget::createRefImage()
 // The displayed image has changed, redraw it
 void VideoWidget::setNewImage( const QImage image, QCaDateTime& time )
 {
+
     // Take a copy of the current image
     // (cheap - creates a shallow copy)
     currentImage = image;
@@ -105,6 +106,9 @@ void VideoWidget::setNewImage( const QImage image, QCaDateTime& time )
 
     // Note the time for markups
     setMarkupTime( time );
+
+    // Ensure the markup system is aware of the image size
+    setImageSize( currentImage.size() );
 
     // Cause a repaint with the new image
     update();
@@ -201,7 +205,7 @@ void VideoWidget::resizeEvent( QResizeEvent *event )
     }
 
     // Ensure the markups match the new size
-    markupResize( event->size(), event->oldSize(), getScale() );
+    markupResize( getScale() );
 }
 
 // Act on a markup change

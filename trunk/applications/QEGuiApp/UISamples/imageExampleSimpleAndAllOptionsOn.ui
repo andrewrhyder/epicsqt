@@ -15,7 +15,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="QEImage" name="qeimage">
+    <widget class="QEImage" name="BeamImage">
      <property name="imageVariable" stdset="0">
       <string>IMG:image1:ArrayData</string>
      </property>
@@ -104,13 +104,13 @@
       <string>LINE:Y2</string>
      </property>
      <property name="profileHozArrayVariable" stdset="0">
-      <string>HOZLINE:ARRAY</string>
+      <string>PROFILE:HOZ_DATA</string>
      </property>
      <property name="profileVertArrayVariable" stdset="0">
-      <string>VERTLINE:ARRAY</string>
+      <string>PROFILE:VERT_DATA</string>
      </property>
      <property name="lineProfileArrayVariable" stdset="0">
-      <string>LINE:ARRAY</string>
+      <string>PROFILE:LINE_DATA</string>
      </property>
      <property name="ellipseXVariable" stdset="0">
       <string>ROI1:X</string>
@@ -145,9 +145,6 @@
      <property name="enableTargetSelection">
       <bool>true</bool>
      </property>
-     <property name="displayEllipse">
-      <bool>true</bool>
-     </property>
      <property name="ellipseVariableDefinition" stdset="0">
       <enum>QEImage::BoundingRectangle</enum>
      </property>
@@ -155,7 +152,7 @@
       <bool>true</bool>
      </property>
      <property name="contrastReversal">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <property name="showTime">
       <bool>true</bool>
@@ -949,7 +946,7 @@
           </size>
          </property>
          <property name="variable1" stdset="0">
-          <string>HOZLINE:ARRAY</string>
+          <string>PROFILE:HOZ_DATA</string>
          </property>
         </widget>
        </item>
@@ -962,7 +959,7 @@
           </size>
          </property>
          <property name="variable1" stdset="0">
-          <string>VERTLINE:ARRAY</string>
+          <string>PROFILE:VERT_DATA</string>
          </property>
         </widget>
        </item>
@@ -975,7 +972,7 @@
           </size>
          </property>
          <property name="variable1" stdset="0">
-          <string>LINE:ARRAY</string>
+          <string>PROFILE:LINE_DATA</string>
          </property>
         </widget>
        </item>

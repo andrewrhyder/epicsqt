@@ -37,27 +37,32 @@ markupLine::markupLine( imageMarkup* ownerIn, const bool interactiveIn, const bo
 
 void markupLine::drawMarkup( QPainter& p )
 {
-    // Draw markup
-    p.drawLine( start, end );
+    // Scale markup
+    double scale = getZoomScale();
+    QPoint startScaled = QPoint( start.x()*scale, start.y()*scale );
+    QPoint endScaled = QPoint( end.x()*scale, end.y()*scale );
 
-    if(( abs(QPoint( end-start ).x()) > (HANDLE_SIZE + 2) ) ||
-       ( abs(QPoint( end-start ).y()) > (HANDLE_SIZE + 2) ))
+    // Draw markup
+    p.drawLine( startScaled, endScaled );
+
+    if(( abs(QPoint( endScaled-startScaled ).x()) > (HANDLE_SIZE + 2) ) ||
+       ( abs(QPoint( endScaled-startScaled ).y()) > (HANDLE_SIZE + 2) ))
     {
         QRect handle( 0, 0, HANDLE_SIZE, HANDLE_SIZE );
         QPoint halfHandle( HANDLE_SIZE/2, HANDLE_SIZE/2 );
 
-        handle.moveTo( start - halfHandle );
+        handle.moveTo( startScaled - halfHandle );
         p.drawEllipse( handle );
 
-        handle.moveTo( end - halfHandle );
+        handle.moveTo( endScaled - halfHandle );
         p.drawRect( handle );
     }
 
     // If single pixel thickness, draw a single handle in the middle
     if( thickness == 1 )
     {
-        int x = (start.x()+end.x()-HANDLE_SIZE)/2;
-        int y = (start.y()+end.y()-HANDLE_SIZE)/2;
+        int x = (startScaled.x()+endScaled.x()-HANDLE_SIZE)/2;
+        int y = (startScaled.y()+endScaled.y()-HANDLE_SIZE)/2;
         QRect handle( x, y, HANDLE_SIZE, HANDLE_SIZE );
         p.drawRect( handle );
     }
@@ -66,8 +71,10 @@ void markupLine::drawMarkup( QPainter& p )
     // and draw two handles, one on each border
     else
     {
-        int dX = end.x()-start.x();
-        int dY = end.y()-start.y();
+        int thicknessScaled = thickness*scale;
+
+        int dX = endScaled.x()-startScaled.x();
+        int dY = endScaled.y()-startScaled.y();
         if( dX || dY )
         {
             QPen pen = p.pen();
@@ -76,10 +83,10 @@ void markupLine::drawMarkup( QPainter& p )
 
             int len = (int)sqrt( double ( (dX*dX)+(dY*dY) ) );
 
-            QPoint offset( (int)(thickness) * -dY / (2*len), int(thickness) * dX / (2*len) );
+            QPoint offset( (int)(thicknessScaled) * -dY / (2*len), int(thicknessScaled) * dX / (2*len) );
 
-            p.drawLine( start+offset, end+offset );
-            p.drawLine( start-offset, end-offset );
+            p.drawLine( startScaled+offset, endScaled+offset );
+            p.drawLine( startScaled-offset, endScaled-offset );
 
             pen.setStyle( Qt::SolidLine );
             p.setPen( pen );
@@ -88,8 +95,9 @@ void markupLine::drawMarkup( QPainter& p )
 
     // Draw markup legend
     legendJustification just;
-    (( start.x() < end.x() && start.y() < end.y() ) || ( start.x() > end.x() && start.y() > end.y() ) ) ? just = ABOVE_RIGHT : just = BELOW_RIGHT;
-    drawLegend( p, (end-start)/2+start, just );
+    (( startScaled.x() < endScaled.x() && startScaled.y() < endScaled.y() ) ||
+     ( startScaled.x() > endScaled.x() && startScaled.y() > endScaled.y() ) ) ? just = ABOVE_RIGHT : just = BELOW_RIGHT;
+    drawLegend( p, (endScaled-startScaled)/2+startScaled, just );
 }
 
 void markupLine::setArea()
@@ -350,23 +358,6 @@ QPoint markupLine::getPoint2()
 QCursor markupLine::defaultCursor()
 {
     return owner->getLineCursor();
-}
-
-void markupLine::scaleSpecific( const double xScale, const double yScale, const double zoomScale )
-{
-    // Scale the line position
-    start.setX( start.x() * xScale );
-    start.setY( start.y() * yScale );
-    end.setX( end.x() * xScale );
-    end.setY( end.y() * yScale );
-
-    // Scale the line thickness.
-    // Note, one pixel wide is always one pixel wide
-    if( thickness != 1 )
-    {
-        thickness *= xScale;
-    }
-    maxThickness = THICKNESS_MAX * zoomScale;
 }
 
 void markupLine::nonInteractiveUpdate( QPoint p1, QPoint p2 )

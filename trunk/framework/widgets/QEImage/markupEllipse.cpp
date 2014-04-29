@@ -35,11 +35,19 @@ markupEllipse::markupEllipse( imageMarkup* ownerIn, const bool interactiveIn, co
 
 void markupEllipse::drawMarkup( QPainter& p )
 {
+    // Scale markup
+    QRect scaledRect = rect;
+    double scale = getZoomScale();
+    scaledRect.moveTo( rect.x() * scale, rect.y() * scale );
+
+    scaledRect.setWidth( rect.width() * scale );
+    scaledRect.setHeight( rect.height() * scale );
+
     // Draw markup
-    p.drawEllipse( rect );
+    p.drawEllipse( scaledRect );
 
     // Draw markup legend
-    drawLegend( p, rect.topLeft(), ABOVE_RIGHT );
+    drawLegend( p, scaledRect.topLeft(), ABOVE_RIGHT );
 }
 
 void markupEllipse::setArea()
@@ -116,14 +124,6 @@ QPoint markupEllipse::getPoint2()
 QCursor markupEllipse::defaultCursor()
 {
     return Qt::CrossCursor;
-}
-
-void markupEllipse::scaleSpecific( const double xScale, const double yScale, const double )
-{
-    rect.moveTo( rect.x() * xScale, rect.y() * yScale );
-
-    rect.setWidth( rect.width() * xScale );
-    rect.setHeight( rect.height() * yScale );
 }
 
 void markupEllipse::nonInteractiveUpdate( QPoint p1, QPoint p2 )

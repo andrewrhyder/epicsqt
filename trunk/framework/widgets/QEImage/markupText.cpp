@@ -35,11 +35,20 @@ markupText::markupText( imageMarkup* ownerIn, const bool interactiveIn, const bo
 
 void markupText::drawMarkup( QPainter& p )
 {
+    // Scale markup
+    QRect scaledRect = rect;
+    // Text is not scaled
+    //double scale = getZoomScale();
+    //scaledRect.moveTo( rect.x() * scale, rect.y() * scale );
+
+    //scaledRect.setWidth( rect.width() * scale );
+    //scaledRect.setHeight( rect.height() * scale );
+
     // Draw markup
 
     // Draw the text
     p.setFont( owner->legendFont );
-    p.drawText( rect, Qt::AlignLeft, text, &rect );
+    p.drawText( scaledRect, Qt::AlignLeft, text, &scaledRect );
 
     // Draw markup legend
     // never a legend for text drawLegend( p, ???, ABOVE_RIGHT );
@@ -126,9 +135,4 @@ QPoint markupText::getPoint2()
 QCursor markupText::defaultCursor()
 {
     return Qt::CrossCursor;
-}
-
-void markupText::scaleSpecific( const double xScale, const double yScale, const double )
-{
-    rect.moveTo( rect.x() * xScale, rect.y() * yScale );
 }
