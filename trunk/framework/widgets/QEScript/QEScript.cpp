@@ -34,6 +34,7 @@
 #include <QCheckBox>
 #include <QSpinBox>
 #include <UserMessage.h>
+#include <QInputDialog>
 
 
 
