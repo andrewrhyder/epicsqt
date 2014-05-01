@@ -27,7 +27,6 @@
   This class is a analog version of the Qt progress bar widget.
  */
 
-#include <math.h>
 #include <QEAnalogIndicator.h>
 
 #include <QDebug>
@@ -37,6 +36,9 @@
 #include <QPoint>
 #include <QPolygon>
 #include <QECommon.h>
+
+#define  _USE_MATH_DEFINES
+#include <math.h>
 
 #define DEBUG qDebug () << __FUNCTION__ << __LINE__
 
