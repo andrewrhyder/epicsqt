@@ -30,6 +30,7 @@
 #include <QVBoxLayout>
 #include <QHeaderView>
 #include <QApplication>
+#include <QClipboard>
 
 #include <QECommon.h>
 #include <QEScaling.h>

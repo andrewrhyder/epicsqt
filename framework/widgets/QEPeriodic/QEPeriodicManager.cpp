@@ -22,7 +22,8 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#include <QtDesigner>
+#include <QExtensionManager>
+#include <QDesignerFormEditorInterface>
 #include <QEPeriodicManager.h>
 #include <QEPeriodic.h>
 #include <QEPeriodicTaskMenu.h>

@@ -52,8 +52,9 @@
 
  */
 
-#include <QtGui>
 #include <QWidget>
+#include <QMimeData>
+#include <QDrag>
 #include <QEDragDrop.h>
 #include <QGraphicsOpacityEffect>
 #include <QLinearGradient>

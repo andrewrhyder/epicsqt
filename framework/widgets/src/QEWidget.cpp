@@ -35,6 +35,9 @@
  */
 
 #include <QDebug>
+#include <QCoreApplication>
+#include <QFileInfo>
+#include <QDir>
 #include <QEWidget.h>
 #include <QEFrameworkVersion.h>
 #include <QEForm.h>

@@ -23,6 +23,8 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
+#include <QPainter>
+
 #include <QDebug>
 #include <QECommon.h>
 

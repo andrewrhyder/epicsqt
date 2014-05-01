@@ -27,6 +27,7 @@
 
 #include <QTableWidgetItem>
 #include <QPushButton>
+#include <QComboBox>
 #include <QEWidget.h>
 
 

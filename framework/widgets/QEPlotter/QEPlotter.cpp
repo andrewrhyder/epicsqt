@@ -28,6 +28,7 @@
 #include <QDebug>
 #include <QCheckBox>
 #include <QApplication>
+#include <QMimeData>
 
 #include <qwt_plot.h>
 #include <qwt_plot_canvas.h>

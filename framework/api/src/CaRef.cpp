@@ -39,7 +39,7 @@ static epicsMutexId createMutex() {
     result = epicsMutexCreate ();
     if (!result) {
         fprintf (stderr, "%s:%s - failed to create mutux object.\n", __FILE__, __FUNCTION__);
-        _exit (1);
+        exit (1);
     }
     return result;
 }

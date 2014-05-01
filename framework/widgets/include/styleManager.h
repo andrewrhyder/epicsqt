@@ -25,7 +25,6 @@
 #ifndef STYLEMANAGER_H
 #define STYLEMANAGER_H
 
-#include <QtGui>
 #include <ContainerProfile.h>
 
 #define STYLE_MANAGER_PROPERTIES \

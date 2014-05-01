@@ -31,6 +31,7 @@
 #include <QColorDialog>
 #include <QFileDialog>
 #include <QVariantList>
+#include <QClipboard>
 
 #include <QCaObject.h>
 #include <QEArchiveInterface.h>

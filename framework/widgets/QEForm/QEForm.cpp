@@ -40,11 +40,11 @@
 */
 
 #include <QUiLoader>
-#include <QtGui>
 #include <QString>
 #include <QDir>
 #include <QFileInfo>
 #include <QVBoxLayout>
+#include <QPainter>
 #include <QtDebug>
 #include <QEScaling.h>
 #include <QEForm.h>

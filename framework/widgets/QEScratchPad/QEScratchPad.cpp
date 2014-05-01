@@ -26,6 +26,8 @@
 #include <QDebug>
 #include <QColor>
 #include <QApplication>
+#include <QClipboard>
+#include <QMimeData>
 
 #include <QECommon.h>
 #include <QEPvPropertiesUtilities.h>

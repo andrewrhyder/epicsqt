@@ -35,7 +35,8 @@
 #include <QFrame>
 #include <QCheckBox>
 #include <QLineEdit>
-#include <QtDesigner>
+#include <QDesignerFormWindowInterface>
+#include <QDesignerFormWindowCursorInterface>
 
 
 // Create the dialog
