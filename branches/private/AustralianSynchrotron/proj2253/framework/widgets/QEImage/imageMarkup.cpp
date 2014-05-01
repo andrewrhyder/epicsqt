@@ -42,6 +42,8 @@
 // Constructor
 imageMarkup::imageMarkup()
 {
+    zoomScale = 1.0;
+
     mode = MARKUP_ID_NONE;
     activeItem = MARKUP_ID_NONE;
 
@@ -174,9 +176,14 @@ bool imageMarkup::markupMousePressEvent(QMouseEvent *event, bool panning)
     if( !(event->buttons()&Qt::LeftButton ))
         return false;
 
+    // scale the event pos to a point in the original image
+    QPoint pos;
+    pos.setX( event->pos().x() / zoomScale );
+    pos.setY( event->pos().y() / zoomScale );
+
     // Determine if the user clicked over an interactive, visible item,
     // and if so, make the first item found the active item
-    setActiveItem( event->pos() );
+    setActiveItem( pos );
 
     // If in panning mode, then we will not take over the event unless we are over an active item
     // Note, buttonDown is cleared so there is no context of any sort of markup action in progress
@@ -227,7 +234,7 @@ bool imageMarkup::markupMousePressEvent(QMouseEvent *event, bool panning)
             // For a point-and-click item, just redraw it where the user clicks
             if( pointAndClick )
             {
-                redrawActiveItemHere( event->pos() );
+                redrawActiveItemHere( pos );
             }
             // For a point-press-drag-release, erase it if visible,
             // and start the process of draging from the current position
@@ -240,11 +247,11 @@ bool imageMarkup::markupMousePressEvent(QMouseEvent *event, bool panning)
                     changedAreas.append( items[activeItem]->area );
                     markupChange( changedAreas );
                 }
-                items[activeItem]->startDrawing( event->pos() );
+                items[activeItem]->startDrawing( pos );
 
                 // Set the cursor according to the bit we are over after creation
                 QCursor cursor;
-                if( items[activeItem]->isOver( event->pos(), &cursor ) )
+                if( items[activeItem]->isOver( pos, &cursor ) )
                 {
                     markupSetCursor( cursor );
                 }
@@ -259,6 +266,11 @@ bool imageMarkup::markupMousePressEvent(QMouseEvent *event, bool panning)
 // Manage the markups as the mouse moves
 bool imageMarkup::markupMouseMoveEvent( QMouseEvent* event, bool /*panning*/ )
 {
+    // scale the event pos to a point in the original image
+    QPoint pos;
+    pos.setX( event->pos().x() / zoomScale );
+    pos.setY( event->pos().y() / zoomScale );
+
     // If no button is down, ensure the cursor reflects what it is over
     // (once the button is pressed, this doesn't need to be assesed again)
     if( !buttonDown )
@@ -269,7 +281,7 @@ bool imageMarkup::markupMouseMoveEvent( QMouseEvent* event, bool /*panning*/ )
         for( i = 0; i < n; i++ )
         {
             QCursor specificCursor;
-            if( items[i]->interactive && items[i]->visible && items[i]->isOver( event->pos(), &specificCursor ) )
+            if( items[i]->interactive && items[i]->visible && items[i]->isOver( pos, &specificCursor ) )
             {
                 markupSetCursor( specificCursor );
                 break;
@@ -288,7 +300,7 @@ bool imageMarkup::markupMouseMoveEvent( QMouseEvent* event, bool /*panning*/ )
     // If the user has the button down, redraw the item in its new position or shape.
     if( buttonDown && activeItem != MARKUP_ID_NONE )
     {
-        redrawActiveItemHere( event->pos() );
+        redrawActiveItemHere( pos );
 
         // If there is an active item and action is required on move, then report the move
         if( activeItem != MARKUP_ID_NONE && items[activeItem]->reportOnMove )
@@ -507,18 +519,16 @@ void imageMarkup::redrawActiveItemHere( QPoint pos )
     markupChange( changedAreas );
 }
 
-// The viewport size has changed.
-// Note, the zoom scale factor parameter is the scale factor for the current
-// user zoom level.The scaling calculated below determines the scaling needed
-// to convert markups from their current size to the new size.
-// For example, the scaling calculated below will be 2.0 when changing from
-// 100% zoom to 200% or changing from 200% to 400%
-void imageMarkup::markupResize( const QSize& newSize, const QSize& oldSize, const double zoomScale )
+void imageMarkup::setImageSize( const QSize& imageSizeIn )
+{
+    imageSize = imageSizeIn;
+}
+
+// The image size has changes, or the viewport has been zoomed
+void imageMarkup::markupResize( const double zoomScaleIn )
 {
     // Determine scaling that will be applied to the markups.
-    // Note, X and Y factors will be close, but may not be exactly the same
-    double xScale = (double)(newSize.width())  / (double)(oldSize.width());
-    double yScale = (double)(newSize.height()) / (double)(oldSize.height());
+    zoomScale = (zoomScaleIn!=0)?zoomScaleIn:1.0;
 
     // Area to update
     QVector<QRect> changedAreas;
@@ -536,12 +546,6 @@ void imageMarkup::markupResize( const QSize& newSize, const QSize& oldSize, cons
         {
             changedAreas.append( item->area );
         }
-
-        // Rescale the item
-        item->scale( xScale, yScale, zoomScale );
-
-        // Let the items know the new size of the image
-        item->setImageSize( newSize );
 
         // If the markup is being displayed, redraw it, and act on its 'new' position
         if( item->visible )
@@ -694,9 +698,12 @@ QCursor imageMarkup::getRegionCursor()
 // Refer to  QEImage::showImageContextMenu() to see how imageContextMenu can be populated with checkable, and non checkable items, and sub menus
 bool imageMarkup::showMarkupMenu( const QPoint& pos, const QPoint& globalPos )
 {
+    // Scale position to position in original item
+    QPoint scaledPos = QPoint( pos.x()/zoomScale, pos.y()/zoomScale );
+
     // Determine if the user clicked over an interactive, visible item,
     // and if so, make the first item found the active item
-    setActiveItem( pos );
+    setActiveItem( scaledPos );
 
     // If not over an item, do nothing.
     if( activeItem == MARKUP_ID_NONE )

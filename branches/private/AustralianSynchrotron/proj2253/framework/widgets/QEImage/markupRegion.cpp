@@ -35,8 +35,16 @@ markupRegion::markupRegion( imageMarkup* ownerIn, const bool interactiveIn, cons
 
 void markupRegion::drawMarkup( QPainter& p )
 {
+    // Scale markup
+    QRect scaledRect = rect;
+    double scale = getZoomScale();
+    scaledRect.moveTo( rect.x() * scale, rect.y() * scale );
+
+    scaledRect.setWidth( rect.width() * scale );
+    scaledRect.setHeight( rect.height() * scale );
+
     // Draw markup
-    p.drawRect( rect );
+    p.drawRect( scaledRect );
 
     if(( abs(rect.size().width())  > (HANDLE_SIZE + 2) ) ||
        ( abs(rect.size().height()) > (HANDLE_SIZE + 2) ))
@@ -44,33 +52,33 @@ void markupRegion::drawMarkup( QPainter& p )
         QRect handle( 0, 0, HANDLE_SIZE, HANDLE_SIZE );
         QPoint halfHandle( HANDLE_SIZE/2, HANDLE_SIZE/2 );
 
-        handle.moveTo( rect.topLeft() - halfHandle );
+        handle.moveTo( scaledRect.topLeft() - halfHandle );
         p.drawRect( handle );
 
-        handle.moveTo( rect.topRight() - halfHandle );
+        handle.moveTo( scaledRect.topRight() - halfHandle );
         p.drawRect( handle );
 
-        handle.moveTo( rect.bottomLeft() - halfHandle );
+        handle.moveTo( scaledRect.bottomLeft() - halfHandle );
         p.drawRect( handle );
 
-        handle.moveTo( rect.bottomRight() - halfHandle );
+        handle.moveTo( scaledRect.bottomRight() - halfHandle );
         p.drawRect( handle );
 
-        handle.moveTo( QPoint( rect.left(), rect.top()+rect.height()/2 ) - halfHandle );
+        handle.moveTo( QPoint( scaledRect.left(), scaledRect.top()+scaledRect.height()/2 ) - halfHandle );
         p.drawRect( handle );
 
-        handle.moveTo( QPoint( rect.right(), rect.top()+rect.height()/2 ) - halfHandle );
+        handle.moveTo( QPoint( scaledRect.right(), scaledRect.top()+scaledRect.height()/2 ) - halfHandle );
         p.drawRect( handle );
 
-        handle.moveTo( QPoint( rect.left()+rect.width()/2, rect.top() ) - halfHandle );
+        handle.moveTo( QPoint( scaledRect.left()+scaledRect.width()/2, scaledRect.top() ) - halfHandle );
         p.drawRect( handle );
 
-        handle.moveTo( QPoint( rect.left()+rect.width()/2, rect.bottom() ) - halfHandle );
+        handle.moveTo( QPoint( scaledRect.left()+scaledRect.width()/2, scaledRect.bottom() ) - halfHandle );
         p.drawRect( handle );
     }
 
     // Draw markup legend
-    drawLegend( p, rect.topLeft(), ABOVE_RIGHT );
+    drawLegend( p, scaledRect.topLeft(), ABOVE_RIGHT );
 }
 
 void markupRegion::setArea()
@@ -169,10 +177,10 @@ void markupRegion::moveTo( const QPoint posIn )
         rect.setWidth( w );
     }
 
-    if( rect.right() > imageSize.width()-1 )
+    if( rect.right() > getImageSize().width()-1 )
     {
         int w = rect.width();
-        rect.setLeft( imageSize.width()-1 - w );
+        rect.setLeft( getImageSize().width()-1 - w );
         rect.setWidth( w );
     }
 
@@ -183,10 +191,10 @@ void markupRegion::moveTo( const QPoint posIn )
         rect.setHeight( h );
     }
 
-    if( rect.bottom() > imageSize.height()-1 )
+    if( rect.bottom() > getImageSize().height()-1 )
     {
         int h = rect.height();
-        rect.setTop( imageSize.height() -1 - h );
+        rect.setTop( getImageSize().height() -1 - h );
         rect.setHeight( h );
     }
 
@@ -345,14 +353,6 @@ QPoint markupRegion::getPoint2()
 QCursor markupRegion::defaultCursor()
 {
     return owner->getRegionCursor();
-}
-
-void markupRegion::scaleSpecific( const double xScale, const double yScale, const double )
-{
-    rect.moveTo( rect.x() * xScale, rect.y() * yScale );
-
-    rect.setWidth( rect.width() * xScale );
-    rect.setHeight( rect.height() * yScale );
 }
 
 void markupRegion::nonInteractiveUpdate( QPoint p1, QPoint p2 )

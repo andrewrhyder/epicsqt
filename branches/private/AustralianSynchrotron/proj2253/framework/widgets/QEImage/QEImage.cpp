@@ -1218,11 +1218,8 @@ void QEImage::useROIData( const unsigned int& variableIndex )
 #define USE_ROI_DATA( GET_ENABLED, AREA, N )                                                      \
     if( sMenu->GET_ENABLED() && mdMenu->isDisplayed( imageContextMenu::AREA ) && roiInfo[N].getStatus() )         \
     {                                                                                             \
-        QRect scaledArea = roiInfo[N].getArea();                                                  \
-        scaledArea = rotateFlipToImageRectangle( scaledArea );                                    \
-        scaledArea.setTopLeft( videoWidget->scaleImagePoint( scaledArea.topLeft() ) );            \
-        scaledArea.setBottomRight( videoWidget->scaleImagePoint( scaledArea.bottomRight() ) );    \
-        videoWidget->markupRegionValueChange( N, scaledArea, displayMarkups );                    \
+        QRect rotateFlipArea = rotateFlipToImageRectangle( roiInfo[N].getArea() );                \
+        videoWidget->markupRegionValueChange( N, rotateFlipArea, displayMarkups );                \
     }                                                                                             \
     break;
 
@@ -1284,17 +1281,15 @@ void QEImage::setProfile( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTim
         // Save the tageting data
         switch( variableIndex )
         {
-            // !!! these next two lines are broken - when called on the initial updates of the scalar values the scaling is not available as there is no image.
-            //     change hSliceY and vSliceX (and infact all other similar variables for regions, targeting, etc) to be ordinates in raw image
-            case PROFILE_H_VARIABLE:              hSliceY = videoWidget->scaleImageOrdinate( value ); break;
-            case PROFILE_V_VARIABLE:              vSliceX = videoWidget->scaleImageOrdinate( value ); break;
-            case PROFILE_H_THICKNESS_VARIABLE:    hSliceThickness = value;                            break;
-            case PROFILE_V_THICKNESS_VARIABLE:    vSliceThickness = value;                            break;
-            case LINE_PROFILE_X1_VARIABLE:        lineProfileInfo.setX1( value );                     break;
-            case LINE_PROFILE_Y1_VARIABLE:        lineProfileInfo.setY1( value );                     break;
-            case LINE_PROFILE_X2_VARIABLE:        lineProfileInfo.setX2( value );                     break;
-            case LINE_PROFILE_Y2_VARIABLE:        lineProfileInfo.setY2( value );                     break;
-            case LINE_PROFILE_THICKNESS_VARIABLE: profileThickness = 1;                               break;
+            case PROFILE_H_VARIABLE:              hSliceY = value;                 break;
+            case PROFILE_V_VARIABLE:              vSliceX = value;                 break;
+            case PROFILE_H_THICKNESS_VARIABLE:    hSliceThickness = value;         break;
+            case PROFILE_V_THICKNESS_VARIABLE:    vSliceThickness = value;         break;
+            case LINE_PROFILE_X1_VARIABLE:        lineProfileInfo.setX1( value );  break;
+            case LINE_PROFILE_Y1_VARIABLE:        lineProfileInfo.setY1( value );  break;
+            case LINE_PROFILE_X2_VARIABLE:        lineProfileInfo.setX2( value );  break;
+            case LINE_PROFILE_Y2_VARIABLE:        lineProfileInfo.setY2( value );  break;
+            case LINE_PROFILE_THICKNESS_VARIABLE: profileThickness = 1;            break;
         }
 
         // If there is an image, present the profile data
@@ -1316,14 +1311,14 @@ void QEImage::useProfileData( const unsigned int& variableIndex )
         case PROFILE_H_VARIABLE:
             if( sMenu->getHSliceEnabled() )
             {
-                videoWidget->markupHProfileChange(  videoWidget->scaleOrdinate( hSliceY ), displayMarkups );
+                videoWidget->markupHProfileChange( hSliceY, displayMarkups );
             }
             break;
 
         case PROFILE_V_VARIABLE:
             if( sMenu->getVSliceEnabled() )
             {
-                videoWidget->markupVProfileChange(  videoWidget->scaleOrdinate( vSliceX ), displayMarkups );
+                videoWidget->markupVProfileChange(  vSliceX, displayMarkups );
             }
             break;
 
@@ -1333,10 +1328,9 @@ void QEImage::useProfileData( const unsigned int& variableIndex )
         case LINE_PROFILE_Y2_VARIABLE:
             if( sMenu->getProfileEnabled() && lineProfileInfo.getStatus() )
             {
-                QPoint start = videoWidget->scaleImagePoint( rotateFlipToImagePoint( lineProfileInfo.getPoint1() ));
-                QPoint end = videoWidget->scaleImagePoint( rotateFlipToImagePoint( lineProfileInfo.getPoint2() ));
-
-                videoWidget->markupLineProfileChange( start, end, displayMarkups );
+                videoWidget->markupLineProfileChange( rotateFlipToImagePoint( lineProfileInfo.getPoint1() ),
+                                                      rotateFlipToImagePoint( lineProfileInfo.getPoint2() ),
+                                                      displayMarkups );
             }
             break;
     }
@@ -1406,8 +1400,8 @@ void QEImage::useEllipseData()
         }
 
         // Scale, flip, and rotate the area then display the markup
-        QRect scaledArea = videoWidget->scaleImageRectangle( rotateFlipToImageRectangle( area ));
-        videoWidget->markupEllipseValueChange( scaledArea.topLeft(), scaledArea.bottomRight(), displayMarkups );
+        QRect rotateFlipArea = rotateFlipToImageRectangle( area );
+        videoWidget->markupEllipseValueChange( rotateFlipArea.topLeft(), rotateFlipArea.bottomRight(), displayMarkups );
     }
 }
 
@@ -1458,11 +1452,8 @@ void QEImage::useTargetingData()
 {
     if( sMenu->getTargetEnabled() && targetInfo.getStatus() && beamInfo.getStatus() )
     {
-        QPoint scaledPoint = videoWidget->scaleImagePoint( rotateFlipToImagePoint( targetInfo.getPoint() ));
-        videoWidget->markupTargetValueChange( scaledPoint, displayMarkups );
-
-        scaledPoint = videoWidget->scaleImagePoint( rotateFlipToImagePoint( beamInfo.getPoint() ));
-        videoWidget->markupBeamValueChange( scaledPoint, displayMarkups );
+        videoWidget->markupTargetValueChange( rotateFlipToImagePoint( targetInfo.getPoint() ), displayMarkups );
+        videoWidget->markupBeamValueChange( rotateFlipToImagePoint( beamInfo.getPoint() ), displayMarkups );
     }
 }
 
@@ -2598,15 +2589,15 @@ void QEImage::updateMarkupData()
 {
     if( haveVSliceX )
     {
-        generateVSliceUnscaled( vSliceX, vSliceThickness );
+        generateVSlice( vSliceX, vSliceThickness );
     }
     if( haveHSliceY )
     {
-        generateHSliceUnscaled( hSliceY, hSliceThickness );
+        generateHSlice( hSliceY, hSliceThickness );
     }
     if( haveProfileLine )
     {
-        generateProfileUnscaled( profileLineStart, profileLineEnd, profileThickness );
+        generateProfile( profileLineStart, profileLineEnd, profileThickness );
     }
     if( haveSelectedArea1 )
     {
@@ -2636,8 +2627,19 @@ void QEImage::zoomToArea()
     // aspect ratio that does not match the current viewport)
     // Note, these zoom factors are the multiple the current zoom
     // must be changed by, not the actual zoom required
-    int sizeX = selectedArea1Point2.x()-selectedArea1Point1.x();
-    int sizeY = selectedArea1Point2.y()-selectedArea1Point1.y();
+    // (Ensure at least one pixel size to avoide divide by zero)
+    int sizeX = videoWidget->scaleImageOrdinate( selectedArea1Point2.x() ) - videoWidget->scaleImageOrdinate( selectedArea1Point1.x() );
+    int sizeY = videoWidget->scaleImageOrdinate( selectedArea1Point2.y() ) - videoWidget->scaleImageOrdinate( selectedArea1Point1.y() );
+
+    if( sizeX <= 0 )
+    {
+        sizeX = 1;
+    }
+    if( sizeY <= 0 )
+    {
+        sizeY = 1;
+    }
+
     double zoomFactorX = (double)(scrollArea->viewport()->width()) / (double)sizeX;
     double zoomFactorY = (double)(scrollArea->viewport()->height()) / (double)sizeY;
 
@@ -2660,7 +2662,7 @@ void QEImage::zoomToArea()
 
     // Note the pixel position of the top left of the selected area in the original image
     // This will be the position that should be at the top left in the scroll area.
-    QPoint newOrigin = videoWidget->scalePoint( selectedArea1Point1 );
+    QPoint newOrigin = selectedArea1Point1;
 
     // Resize the display widget
     int newSizeX = int( (double)(imageBuffWidth) * newZoom );
@@ -2684,8 +2686,8 @@ void QEImage::roi1Changed()
 {
     // Write the ROI variables.
     QEInteger *qca;
-    QPoint p1 = rotateFlipToDataPoint( videoWidget->scalePoint( selectedArea1Point1 ) );
-    QPoint p2 = rotateFlipToDataPoint( videoWidget->scalePoint( selectedArea1Point2 ) );
+    QPoint p1 = rotateFlipToDataPoint( selectedArea1Point1 );
+    QPoint p2 = rotateFlipToDataPoint( selectedArea1Point2 );
     QRect r( p1, p2 );
     r = r.normalized();
 
@@ -2709,8 +2711,8 @@ void QEImage::roi2Changed()
 {
     // Write the ROI variables.
     QEInteger *qca;
-    QPoint p1 = rotateFlipToDataPoint( videoWidget->scalePoint( selectedArea2Point1 ) );
-    QPoint p2 = rotateFlipToDataPoint( videoWidget->scalePoint( selectedArea2Point2 ) );
+    QPoint p1 = rotateFlipToDataPoint( selectedArea2Point1 );
+    QPoint p2 = rotateFlipToDataPoint( selectedArea2Point2 );
     QRect r( p1, p2 );
     r = r.normalized();
 
@@ -2734,8 +2736,8 @@ void QEImage::roi3Changed()
 {
     // Write the ROI variables.
     QEInteger *qca;
-    QPoint p1 = rotateFlipToDataPoint( videoWidget->scalePoint( selectedArea3Point1 ) );
-    QPoint p2 = rotateFlipToDataPoint( videoWidget->scalePoint( selectedArea3Point2 ) );
+    QPoint p1 = rotateFlipToDataPoint( selectedArea3Point1 );
+    QPoint p2 = rotateFlipToDataPoint( selectedArea3Point2 );
     QRect r( p1, p2 );
     r = r.normalized();
 
@@ -2759,8 +2761,8 @@ void QEImage::roi4Changed()
 {
     // Write the ROI variables.
     QEInteger *qca;
-    QPoint p1 = rotateFlipToDataPoint( videoWidget->scalePoint( selectedArea4Point1 ) );
-    QPoint p2 = rotateFlipToDataPoint( videoWidget->scalePoint( selectedArea4Point2 ) );
+    QPoint p1 = rotateFlipToDataPoint( selectedArea4Point1 );
+    QPoint p2 = rotateFlipToDataPoint( selectedArea4Point2 );
     QRect r( p1, p2 );
     r = r.normalized();
 
@@ -2784,8 +2786,8 @@ void QEImage::lineProfileChanged()
 {
     // Write the arbitrary line profile variables.
     QEInteger *qca;
-    QPoint p1 = rotateFlipToDataPoint( videoWidget->scalePoint( profileLineStart ) );
-    QPoint p2 = rotateFlipToDataPoint( videoWidget->scalePoint( profileLineEnd ) );
+    QPoint p1 = rotateFlipToDataPoint( profileLineStart );
+    QPoint p2 = rotateFlipToDataPoint( profileLineEnd );
 
     qca = (QEInteger*)getQcaItem( LINE_PROFILE_X1_VARIABLE );
     if( qca ) qca->writeInteger( p1.x() );
@@ -2811,7 +2813,7 @@ void QEImage::hozProfileChanged()
     // Write the horizontal line profile variable.
     QEInteger *qca;
     qca = (QEInteger*)getQcaItem( PROFILE_H_VARIABLE );
-    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( hSliceY ));
+    if( qca ) qca->writeInteger( hSliceY );
 
     qca = (QEInteger*)getQcaItem( PROFILE_H_THICKNESS_VARIABLE );
     if( qca ) qca->writeInteger( hSliceThickness );
@@ -2825,7 +2827,7 @@ void QEImage::vertProfileChanged()
     // Write the horizontal line profile variable.
     QEInteger *qca;
     qca = (QEInteger*)getQcaItem( PROFILE_V_VARIABLE );
-    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( vSliceX ));
+    if( qca ) qca->writeInteger( vSliceX );
 
     qca = (QEInteger*)getQcaItem( PROFILE_V_THICKNESS_VARIABLE );
     if( qca ) qca->writeInteger( vSliceThickness );
@@ -4080,7 +4082,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 if( enableVertSlicePresentation )
                 {
                     QTimer::singleShot( 0, this, SLOT(setVSliceControlsVisible() ) );
-                    generateVSliceUnscaled(  vSliceX, vSliceThickness );
+                    generateVSlice(  vSliceX, vSliceThickness );
                 }
                 vertProfileChanged();
                 break;
@@ -4092,7 +4094,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 if( enableHozSlicePresentation )
                 {
                     QTimer::singleShot( 0, this, SLOT(setHSliceControlsVisible() ) );
-                    generateHSliceUnscaled( hSliceY, hSliceThickness );
+                    generateHSlice( hSliceY, hSliceThickness );
                 }
                 hozProfileChanged();
                 break;
@@ -4175,7 +4177,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 if( enableProfilePresentation )
                 {
                     QTimer::singleShot( 0, this, SLOT(setLineProfileControlsVisible() ) );
-                    generateProfileUnscaled( profileLineStart, profileLineEnd, profileThickness );
+                    generateProfile( profileLineStart, profileLineEnd, profileThickness );
                 }
 
                 lineProfileChanged();
@@ -4183,7 +4185,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
 
             case imageMarkup::MARKUP_ID_TARGET:
                 {
-                    targetInfo.setPoint( rotateFlipToDataPoint( videoWidget->scalePoint( point1 ) ) );
+                    targetInfo.setPoint( rotateFlipToDataPoint( point1 ) );
 
                     // Write the target variables.
                     QEInteger *qca;
@@ -4200,7 +4202,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
 
             case imageMarkup::MARKUP_ID_BEAM:
                 {
-                    beamInfo.setPoint( rotateFlipToDataPoint( videoWidget->scalePoint( point1 ) ) );
+                    beamInfo.setPoint( rotateFlipToDataPoint( point1 ) );
 
                     // Write the beam variables.
                     QEInteger *qca;
@@ -4443,23 +4445,17 @@ const unsigned char* QEImage::getImageDataPtr( QPoint& pos )
 }
 
 // Display textual info about a selected area
+//!!! No longer needed. change calls to displaySelectedAreaInfo() to calls to infoUpdateRegion() directly
 void QEImage::displaySelectedAreaInfo( int region, QPoint point1, QPoint point2 )
 {
-    infoUpdateRegion( region, videoWidget->scaleOrdinate( point1.x() ),
-                              videoWidget->scaleOrdinate( point1.y() ),
-                              videoWidget->scaleOrdinate( point2.x() ),
-                              videoWidget->scaleOrdinate( point2.y() ));
+    infoUpdateRegion( region, point1.x(), point1.y(), point2.x(), point2.y() );
 }
 
 // Update the brightness and contrast, if in auto, to match the recently selected region
 void QEImage::setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 )
 {
-    // Get the area corners scaled to match the original image data
-    QPoint corner1( videoWidget->scaleOrdinate( point1.x() ), videoWidget->scaleOrdinate( point1.y() ) );
-    QPoint corner2( videoWidget->scaleOrdinate( point2.x() ), videoWidget->scaleOrdinate( point2.y() ) );
-
     // Translate the corners to match the current flip and roate options
-    QRect area = rotateFlipToDataRectangle( corner1, corner2 );
+    QRect area = rotateFlipToDataRectangle( point1, point2 );
 
     // Determine the range of pixel values in the selected area
     unsigned int min, max;
@@ -4534,32 +4530,10 @@ void QEImage::imageDisplayPropertiesChanged()
 // A request has been made to set the brightness and contrast to suit the current image
 void QEImage::brightnessContrastAutoImageRequest()
 {
-    setRegionAutoBrightnessContrast( QPoint( 0, 0), QPoint( videoWidget->width(), videoWidget->height()) );
+    setRegionAutoBrightnessContrast( QPoint( 0, 0), QPoint( imageBuffWidth, imageBuffHeight ) );
 }
 
 //=====================================================================
-
-// Generate a profile along a line down an image at a given X position
-// Input ordinates are at the resolution of the displayed image (not scaled to the source image data)
-// The profile contains values for each pixel intersected by the line.
-// See generateVSlice() below for further details
-void QEImage::generateVSliceUnscaled( int xUnscaled, unsigned int thicknessUnscaled )
-{
-    if( !vSliceDisplay )
-    {
-        return;
-    }
-
-    // Scale the ordinate to the original image data
-    int x = videoWidget->scaleOrdinate( xUnscaled );
-
-    // Scale the thickness to the original image data. (thickness of 1 pixel is not scaled, 1 is the minimum)
-    // Note, thickness is not an ordinate, but scaleOrdinate
-    unsigned int thickness = (thicknessUnscaled>1)?std::max(1,videoWidget->scaleOrdinate( thicknessUnscaled )):1;
-
-    // Generate the profile
-    generateVSlice( x, thickness );
-}
 
 // Generate a profile along a line down an image at a given X position
 // Input ordinates are scaled to the source image data.
@@ -4661,28 +4635,6 @@ void QEImage::generateVSlice( int x, unsigned int thickness )
 }
 
 // Generate a profile along a line across an image at a given Y position
-// Input ordinates are at the resolution of the displayed image (not scaled to the source image data)
-// The profile contains values for each pixel intersected by the line.
-// See generateHSlice() below for further details
-void QEImage::generateHSliceUnscaled( int yUnscaled, unsigned int thicknessUnscaled )
-{
-    if( !hSliceDisplay )
-    {
-        return;
-    }
-
-    // Scale the ordinate to the original image data
-    int y = videoWidget->scaleOrdinate( yUnscaled );
-
-    // Scale the thickness to the original image data. (thickness of 1 pixel is not scaled, 1 is the minimum)
-    // Note, thickness is not an ordinate, but scaleOrdinate
-    unsigned int thickness = (thicknessUnscaled>1)?std::max(1,videoWidget->scaleOrdinate( thicknessUnscaled )):1;
-
-    // Generate the profile
-    generateHSlice( y, thickness );
-}
-
-// Generate a profile along a line across an image at a given Y position
 // Input ordinates are at the resolution of the source image data
 // The profile contains values for each pixel intersected by the line.
 void QEImage::generateHSlice( int y, unsigned int thickness )
@@ -4779,28 +4731,6 @@ void QEImage::generateHSlice( int y, unsigned int thickness )
     QDateTime dt = QDateTime::currentDateTime();
     QString title = QString( "Horizontal profile - " ).append( getSubstitutedVariableName( IMAGE_VARIABLE ) ).append( dt.toString(" - dd.MM.yyyy HH:mm:ss.zzz") );
     hSliceDisplay->setProfile( &hSliceData, 0.0, (double)(hSliceData.size()), 0.0,  maxPixelValue(), title, QPoint( y, 0 ), QPoint( y, rotatedImageBuffWidth()-1 ), thickness );
-}
-
-// Generate a profile along an arbitrary line through an image.
-// Input ordinates are at the resolution of the displayed image (not scaled to the source image data)
-// See generateProfile() below for further details
-void QEImage::generateProfileUnscaled( QPoint point1Unscaled, QPoint point2Unscaled, unsigned int thicknessUnscaled )
-{
-    if( !profileDisplay )
-    {
-        return;
-    }
-
-    // Scale the coordinates to the original image data
-    QPoint point1 = videoWidget->scalePoint( point1Unscaled );
-    QPoint point2 = videoWidget->scalePoint( point2Unscaled );
-
-    // Scale the thickness to the original image data. (thickness of 1 pixel is not scaled, 1 is the minimum)
-    // Note, thickness is not an ordinate, but scaleOrdinate
-    unsigned int thickness = (thicknessUnscaled>1)?std::max(1,videoWidget->scaleOrdinate( thicknessUnscaled )):1;
-
-    // Generate the profile
-    generateProfile( point1, point2, thickness );
 }
 
 // Generate a profile along an arbitrary line through an image.

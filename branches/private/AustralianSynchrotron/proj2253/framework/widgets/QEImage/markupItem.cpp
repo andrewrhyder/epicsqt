@@ -62,7 +62,10 @@ markupItem::~markupItem()
 
 bool markupItem::pointIsNear( QPoint p1, QPoint p2 )
 {
-    return QPoint( p1 - p2 ).manhattanLength() < OVER_TOLERANCE;
+    double scale = getZoomScale();
+    QPoint p1Scaled = QPoint( p1.x()*scale, p1.y()*scale );
+    QPoint p2Scaled = QPoint( p2.x()*scale, p2.y()*scale );
+    return QPoint( p1Scaled - p2Scaled ).manhattanLength() < OVER_TOLERANCE;
 }
 
 // Draw the item
@@ -83,17 +86,6 @@ QColor markupItem::getColor()
 {
     return color;
 }
-
-// Scale the geometry related to the viewport
-void markupItem::scale( const double xScale, const double yScale, const double zoomScale )
-{
-    // Do type specific scaling
-    scaleSpecific( xScale, yScale, zoomScale );
-
-    // Update the generic item area
-    setArea();
-}
-
 
 // Set the string used to notate the markup (and the calculate its size)
 void markupItem::setLegend( const QString legendIn )
@@ -181,7 +173,7 @@ QPoint markupItem::limitPointToImage( const QPoint pos )
     }
     else
     {
-        int w = imageSize.width();
+        int w = getImageSize().width();
         if( retPos.x() > w ) retPos.setX( w-1 );
     }
 
@@ -192,7 +184,7 @@ QPoint markupItem::limitPointToImage( const QPoint pos )
     }
     else
     {
-        int h = imageSize.height();
+        int h = getImageSize().height();
         if( retPos.y() > h ) retPos.setY( h-1 );
     }
 
@@ -215,7 +207,12 @@ unsigned int  markupItem::getThickness()
     return thickness;
 }
 
-void markupItem::setImageSize( const QSize& newSize )
+QSize markupItem::getImageSize()
 {
-    imageSize = newSize;
+    return owner->getImageSize();
+}
+
+double markupItem::getZoomScale()
+{
+    return owner->getZoomScale();
 }

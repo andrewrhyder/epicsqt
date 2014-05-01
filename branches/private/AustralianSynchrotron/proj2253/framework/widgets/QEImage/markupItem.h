@@ -61,8 +61,8 @@ public:
                          MARKUP_HANDLE_T, MARKUP_HANDLE_B, MARKUP_HANDLE_L, MARKUP_HANDLE_R };   // Area sides
     void drawMarkupItem( QPainter& p );
     void setColor( QColor colorIn );
-    void scale( const double xScale, const double yScale, const double zoomScale );
-    void setImageSize( const QSize& newSize );
+    void scale( const double xScale, const double yScale, const double zoomScale );//UNUSED!!!!!!!!!!!!!!!!!!!!!
+    QSize getImageSize();
 
 
     virtual QPoint origin()=0;                                                      // Origin of the markup, for example, the center of a target
@@ -98,7 +98,7 @@ protected:
     QColor        getColor();                              // Return the colour used for this markup
 
 
-    imageMarkup*  owner;                          // Class contining this markup instance
+    imageMarkup*  owner;                          // Class containing this markup instance
 
     const QSize getLegendSize();                  // Return the size of the string used to notate the markup
     void addLegendArea();                         // Add the legend area to the markup area
@@ -109,21 +109,16 @@ protected:
     void   drawLegend( QPainter& p, QPoint pos, legendJustification just ); // Draw the legend beside the markup
     QPoint limitPointToImage( const QPoint pos );                           // Return the input point limited to the image area
 
-    QSize imageSize;
-
     unsigned int thickness;     // Selected line thickness
     unsigned int maxThickness;  // Maximum line thickness. Changes according to current zoom
 
+    double getZoomScale();
+
 private:
-    virtual void scaleSpecific( const double xScale, const double yScale, const double zoomScale )=0;   // Scale the markup for presentation at different zoom levels
     QString      legend;                                // Text displayed beside markup
     QSize        legendSize;                            // Size of legend (according to legend font)
     bool         hasLegend();                           // Returns true if legend text is present
     QPoint       legendPos;                             // Last drawn legend position
-/*
-    QAction* enabledAction;                     // Action used to set the markup enabled or disabled
-    QAction* displayedAction;                   // Action used to set the markup displayed or not
-*/
 };
 
 #endif // MARKUPITEM_H
