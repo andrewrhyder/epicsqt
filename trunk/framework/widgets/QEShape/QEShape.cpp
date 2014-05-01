@@ -28,11 +28,11 @@
   It is tighly integrated with the base class QEWidget. Refer to QEWidget.cpp for details
  */
 
+#include <QPainter>
+
 #include <QEScaling.h>
 #include <QEShape.h>
 #include <QCaDateTime.h>
-#include <QtGui>
-#include <QDebug>
 
 /*
     Create without a known variable. Just manage parental hirarchy.

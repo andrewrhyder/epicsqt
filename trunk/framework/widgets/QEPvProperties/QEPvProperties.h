@@ -40,6 +40,7 @@
 #include <QTableWidget>
 #include <QVBoxLayout>
 #include <QWidget>
+#include <QComboBox>
 
 #include <persistanceManager.h>
 #include <QCaAlarmInfo.h>

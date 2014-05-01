@@ -23,9 +23,6 @@
  */
 
 
-#include <QtDesigner>
-#include <QtGui>
-
 #include "QEPeriodic.h"
 #include "PeriodicSetupDialog.h"
 #include "QEPeriodicTaskMenu.h"

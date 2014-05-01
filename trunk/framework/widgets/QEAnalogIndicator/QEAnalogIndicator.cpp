@@ -32,7 +32,6 @@
 
 #include <QDebug>
 #include <QFontMetrics>
-#include <QtGui>
 #include <QBrush>
 #include <QPen>
 #include <QPoint>

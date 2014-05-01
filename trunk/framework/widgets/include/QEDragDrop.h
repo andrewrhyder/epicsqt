@@ -25,7 +25,6 @@
 #ifndef QEDragDrop_H
 #define QEDragDrop_H
 
-#include <QtGui>
 #include <QDragEnterEvent>
 #include <QDropEvent>
 

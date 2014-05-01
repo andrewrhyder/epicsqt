@@ -24,6 +24,8 @@
 
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QFileInfo>
+#include <QDir>
 
 #include <QERecipe.h>
 
@@ -321,7 +323,7 @@ void QERecipe::setRecipeFile(QString pValue)
     if (recipeFile.isEmpty())
     {
         QFileInfo fileInfo;
-        fileInfo.setFile( defaultFileLocation(), "QERecipe.xml" );
+        fileInfo.setFile( defaultFileLocation(), QString( "QERecipe.xml" ) );
         filename = fileInfo.filePath();
     }
     else

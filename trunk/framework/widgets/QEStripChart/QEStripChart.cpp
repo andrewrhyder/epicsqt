@@ -42,6 +42,7 @@
 #include <QStringList>
 #include <QToolButton>
 #include <QApplication>
+#include <QClipboard>
 
 #include <qwt_plot.h>
 #include <qwt_plot_canvas.h>

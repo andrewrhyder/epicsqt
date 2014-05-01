@@ -31,6 +31,7 @@
 #include <QLineEdit>
 #include <QLabel>
 #include <QPushButton>
+#include <QStack>
 
 #include <QEWidget.h>
 

@@ -25,7 +25,8 @@
 #ifndef QCADESIGNERPLUGIN_H
 #define QCADESIGNERPLUGIN_H
 
-#include <QtDesigner/QtDesigner>
+#include <QtPlugin>
+#include <QDesignerCustomWidgetCollectionInterface>
 
 class QEWidgets: public QObject, public QDesignerCustomWidgetCollectionInterface {
     Q_OBJECT

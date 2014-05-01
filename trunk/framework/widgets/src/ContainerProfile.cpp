@@ -75,8 +75,11 @@
  */
 
 #include <ContainerProfile.h>
-#include <QEWidget.h>
 #include <QCoreApplication>
+#include <QSharedMemory>
+#include <QProcessEnvironment>
+#include <QDir>
+#include <QEWidget.h>
 #include <QtDebug>
 
 // Constructor.

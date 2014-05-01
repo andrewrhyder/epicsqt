@@ -32,9 +32,6 @@
   widgets of the same name.
  */
 
-#include <QDebug>
-#include <QtGui>
-
 #include <QBitStatus.h>
 #include <QECommon.h>
 

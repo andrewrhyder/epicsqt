@@ -66,8 +66,6 @@
 #include <QEScalarHistogramManager.h>
 #include <QEWaveformHistogramManager.h>
 
-#include <QtCore/qplugin.h>
-
 #include <QEDesignerPlugin.h>
 
 /*

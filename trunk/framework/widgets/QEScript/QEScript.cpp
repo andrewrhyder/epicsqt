@@ -28,13 +28,16 @@
 #include <QLayout>
 #include <QHeaderView>
 #include <QFileDialog>
-#include <QEScript.h>
 #include <QComboBox>
 #include <QMessageBox>
 #include <QCheckBox>
 #include <QSpinBox>
-#include <UserMessage.h>
 #include <QInputDialog>
+#include <QProcess>
+#include <QCoreApplication>
+
+#include <QEScript.h>
+#include <UserMessage.h>
 
 
 
@@ -879,13 +882,13 @@ void QEScript::buttonDeleteClicked()
     QDomElement scriptElement;
     QDomNode rootNode;
     QString currentName;
-    int count;
+//    int count;
 
 
     currentName = qComboBoxScriptList->currentText();
     if (QMessageBox::question(this, "Info", "Do you want to delete script '" + currentName + "'?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
     {
-        count = 0;
+//        count = 0;
         rootElement = document.documentElement();
         if (rootElement.tagName() == "epicsqt")
         {
