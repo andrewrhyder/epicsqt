@@ -96,17 +96,18 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEStringFormatting {
     void setLocalEnumeration( QString/*localEnumerationList*/ localEnumerationIn );
 
     // Functions to read the formatting configuration
-    int          getPrecision();
-    bool         getUseDbPrecision();
-    bool         getLeadingZero();
-    bool         getTrailingZeros();
-    formats      getFormat();
-    unsigned int getRadix();
-    notations    getNotation();
-    arrayActions getArrayAction();
-    unsigned int getArrayIndex();
-    bool         getAddUnits();
-    QString      getLocalEnumeration();
+    int          getPrecision() const;
+    bool         getUseDbPrecision() const;
+    bool         getLeadingZero() const;
+    bool         getTrailingZeros() const;
+    formats      getFormat() const;
+    unsigned int getRadix() const;
+    notations    getNotation() const;
+    arrayActions getArrayAction() const;
+    unsigned int getArrayIndex() const;
+    bool         getAddUnits() const;
+    QString      getLocalEnumeration() const;
+    QELocalEnumeration getLocalEnumerationObject() const;
 
   private:
     // Type specific conversion functions
