@@ -1,4 +1,5 @@
-/*
+/*  QEStringFormattingMethods.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -38,47 +39,50 @@ class QEStringFormattingMethods {
 
     // precision
     void setPrecision( int precision );
-    int getPrecision();
+    int getPrecision() const;
 
     // useDbPrecision
     void setUseDbPrecision( bool useDbPrecision );
-    bool getUseDbPrecision();
+    bool getUseDbPrecision() const;
 
     // leadingZero
     void setLeadingZero( bool leadingZero );
-    bool getLeadingZero();
+    bool getLeadingZero() const;
 
     // trailingZeros
     void setTrailingZeros( bool trailingZeros );
-    bool getTrailingZeros();
+    bool getTrailingZeros() const;
 
     // addUnits
     void setAddUnits( bool addUnits );
-    bool getAddUnits();
+    bool getAddUnits() const;
 
     // localEnumeration
     void setLocalEnumeration( QString localEnumeration );
-    QString getLocalEnumeration();
+    QString getLocalEnumeration() const;
 
     // format
     void setFormat( QEStringFormatting::formats format );
-    QEStringFormatting::formats getFormat();
+    QEStringFormatting::formats getFormat() const;
 
     // radix
     void setRadix( unsigned int radix );
-    unsigned int getRadix();
+    unsigned int getRadix() const;
 
     // notation
     void setNotation( QEStringFormatting::notations notation );
-    QEStringFormatting::notations getNotation();
+    QEStringFormatting::notations getNotation() const;
 
     // arrayAction
     void setArrayAction( QEStringFormatting::arrayActions arrayAction );
-    QEStringFormatting::arrayActions getArrayAction();
+    QEStringFormatting::arrayActions getArrayAction() const;
 
     // arrayIndex
     void setArrayIndex( unsigned int arrayIndex );
-    unsigned int getArrayIndex();
+    unsigned int getArrayIndex() const;
+
+    // Access underlying local enumerations object (as opposed to property string)
+    QELocalEnumeration getLocalEnumerationObject() const;
 
   protected:
     QEStringFormatting stringFormatting;

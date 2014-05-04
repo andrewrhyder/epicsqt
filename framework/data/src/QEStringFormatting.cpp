@@ -905,7 +905,7 @@ void QEStringFormatting::setLocalEnumeration( QString/*localEnumerationList*/ lo
 /*
     Get the precision. See setPrecision() for the use of 'precision'.
 */
-int QEStringFormatting::getPrecision() {
+int QEStringFormatting::getPrecision() const {
     return precision;
 }
 
@@ -913,7 +913,7 @@ int QEStringFormatting::getPrecision() {
     Get the 'use DB precision' flag. See setUseDbPrecision() for the use of the
     'use DB precision' flag.
 */
-bool QEStringFormatting::getUseDbPrecision() {
+bool QEStringFormatting::getUseDbPrecision() const {
     return useDbPrecision;
 }
 
@@ -921,7 +921,7 @@ bool QEStringFormatting::getUseDbPrecision() {
     Get the 'leading zero' flag. See setLeadingZero() for the use of the
     'leading zero' flag.
 */
-bool QEStringFormatting::getLeadingZero() {
+bool QEStringFormatting::getLeadingZero() const {
     return leadingZero;
 }
 
@@ -929,7 +929,7 @@ bool QEStringFormatting::getLeadingZero() {
     Get the 'trailing zeros' flag. See setTrailingZeros() for the use of the
     'trailing zeros' flag.
 */
-bool QEStringFormatting::getTrailingZeros() {
+bool QEStringFormatting::getTrailingZeros() const {
     return trailingZeros;
 }
 
@@ -937,49 +937,49 @@ bool QEStringFormatting::getTrailingZeros() {
     Get the type of information being formatted. See setFormat() for the use of
     the format type.
 */
-QEStringFormatting::formats QEStringFormatting::getFormat() {
+QEStringFormatting::formats QEStringFormatting::getFormat() const {
     return format;
 }
 
 /*
     Get the numerical base. See setRadix() for the use of 'radix'.
 */
-unsigned int QEStringFormatting::getRadix() {
+unsigned int QEStringFormatting::getRadix() const {
     return stream.integerBase();
 }
 
 /*
     Return the floating point notation
 */
-QEStringFormatting::notations QEStringFormatting::getNotation() {
+QEStringFormatting::notations QEStringFormatting::getNotation() const {
     return (QEStringFormatting::notations)stream.realNumberNotation();
 }
 
 /*
     Return the action to take when formatting an array (treat as ascii characters, a series of numbers, etc)
 */
-QEStringFormatting::arrayActions QEStringFormatting::getArrayAction() {
+QEStringFormatting::arrayActions QEStringFormatting::getArrayAction() const {
     return arrayAction;
 }
 
 /*
     Return the index to select a value from array of values (not relevent when the array is treated as ascii)
 */
-unsigned int QEStringFormatting::getArrayIndex() {
+unsigned int QEStringFormatting::getArrayIndex() const {
     return arrayIndex;
 }
 
 /*
     Get the 'include engineering units' flag.
 */
-bool QEStringFormatting::getAddUnits() {
+bool QEStringFormatting::getAddUnits() const {
     return addUnits;
 }
 
 /*
     Get the local enumeration strings. See setLocalEnumeration() for the use of 'localEnumeration'.
 */
-QString/*localEnumerationList*/ QEStringFormatting::getLocalEnumeration() {
+QString/*localEnumerationList*/ QEStringFormatting::getLocalEnumeration() const {
 
     return localEnumerations.getLocalEnumeration();
 
@@ -1004,6 +1004,11 @@ QString/*localEnumerationList*/ QEStringFormatting::getLocalEnumeration() {
     }
     return s;
 */
+}
+
+QELocalEnumeration QEStringFormatting::getLocalEnumerationObject() const
+{
+    return localEnumerations;
 }
 
 // end

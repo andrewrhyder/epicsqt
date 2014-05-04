@@ -1,4 +1,5 @@
-/*
+/*  QEStringFormattingMethods.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -38,7 +39,7 @@ void QEStringFormattingMethods::setPrecision( int precision )
     stringFormatting.setPrecision( precision );
     stringFormattingChange();
 }
-int QEStringFormattingMethods::getPrecision()
+int QEStringFormattingMethods::getPrecision() const
 {
     return stringFormatting.getPrecision();
 }
@@ -49,7 +50,7 @@ void QEStringFormattingMethods::setUseDbPrecision( bool useDbPrecision )
     stringFormatting.setUseDbPrecision( useDbPrecision);
     stringFormattingChange();
 }
-bool QEStringFormattingMethods::getUseDbPrecision()
+bool QEStringFormattingMethods::getUseDbPrecision() const
 {
     return stringFormatting.getUseDbPrecision();
 }
@@ -60,7 +61,7 @@ void QEStringFormattingMethods::setLeadingZero( bool leadingZero )
     stringFormatting.setLeadingZero( leadingZero );
     stringFormattingChange();
 }
-bool QEStringFormattingMethods::getLeadingZero()
+bool QEStringFormattingMethods::getLeadingZero() const
 {
     return stringFormatting.getLeadingZero();
 }
@@ -71,7 +72,7 @@ void QEStringFormattingMethods::setTrailingZeros( bool trailingZeros )
     stringFormatting.setTrailingZeros( trailingZeros );
     stringFormattingChange();
 }
-bool QEStringFormattingMethods::getTrailingZeros()
+bool QEStringFormattingMethods::getTrailingZeros() const
 {
     return stringFormatting.getTrailingZeros();
 }
@@ -82,7 +83,7 @@ void QEStringFormattingMethods::setAddUnits( bool addUnits )
     stringFormatting.setAddUnits( addUnits );
     stringFormattingChange();
 }
-bool QEStringFormattingMethods::getAddUnits()
+bool QEStringFormattingMethods::getAddUnits() const
 {
     return stringFormatting.getAddUnits();
 }
@@ -93,7 +94,7 @@ void QEStringFormattingMethods::setLocalEnumeration( QString localEnumeration )
     stringFormatting.setLocalEnumeration( localEnumeration );
     stringFormattingChange();
 }
-QString QEStringFormattingMethods::getLocalEnumeration()
+QString QEStringFormattingMethods::getLocalEnumeration() const
 {
     return stringFormatting.getLocalEnumeration();
 }
@@ -104,7 +105,7 @@ void QEStringFormattingMethods::setFormat( QEStringFormatting::formats format )
     stringFormatting.setFormat( format );
     stringFormattingChange();
 }
-QEStringFormatting::formats QEStringFormattingMethods::getFormat()
+QEStringFormatting::formats QEStringFormattingMethods::getFormat() const
 {
     return stringFormatting.getFormat();
 }
@@ -115,7 +116,7 @@ void QEStringFormattingMethods::setRadix( unsigned int radix )
     stringFormatting.setRadix( radix);
     stringFormattingChange();
 }
-unsigned int QEStringFormattingMethods::getRadix()
+unsigned int QEStringFormattingMethods::getRadix() const
 {
     return stringFormatting.getRadix();
 }
@@ -126,7 +127,7 @@ void QEStringFormattingMethods::setNotation( QEStringFormatting::notations notat
     stringFormatting.setNotation( notation );
     stringFormattingChange();
 }
-QEStringFormatting::notations QEStringFormattingMethods::getNotation()
+QEStringFormatting::notations QEStringFormattingMethods::getNotation() const
 {
     return stringFormatting.getNotation();
 }
@@ -137,7 +138,7 @@ void QEStringFormattingMethods::setArrayAction( QEStringFormatting::arrayActions
     stringFormatting.setArrayAction( arrayAction );
     stringFormattingChange();
 }
-QEStringFormatting::arrayActions QEStringFormattingMethods::getArrayAction()
+QEStringFormatting::arrayActions QEStringFormattingMethods::getArrayAction() const
 {
     return stringFormatting.getArrayAction();
 }
@@ -148,8 +149,16 @@ void QEStringFormattingMethods::setArrayIndex( unsigned int arrayIndex )
     stringFormatting.setArrayIndex( arrayIndex );
     stringFormattingChange();
 }
-unsigned int QEStringFormattingMethods::getArrayIndex()
+unsigned int QEStringFormattingMethods::getArrayIndex() const
 {
     return stringFormatting.getArrayIndex();
 }
+
+// local enuerations
+QELocalEnumeration QEStringFormattingMethods::getLocalEnumerationObject() const
+{
+    return stringFormatting.getLocalEnumerationObject();
+}
+
+// end
 
