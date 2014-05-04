@@ -38,8 +38,8 @@ class managePixmaps {
 
     // Pixmaps
     void setDataPixmap( const QPixmap& Pixmap, const unsigned int index );
-    QPixmap getDataPixmap( const unsigned int index );
-    QPixmap getDataPixmap( const QString value );
+    QPixmap getDataPixmap( const unsigned int index ) const;
+    QPixmap getDataPixmap( const QString value ) const;
 
   protected:
 

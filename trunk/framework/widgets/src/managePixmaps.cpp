@@ -1,4 +1,5 @@
-/*
+/*  managePixmaps.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -22,7 +23,6 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-
 #include <managePixmaps.h>
 
 managePixmaps::managePixmaps()
@@ -45,7 +45,7 @@ void managePixmaps::setDataPixmap( const QPixmap& pixmap, const unsigned int ind
     pixmaps[index] = pixmap;
 }
 
-QPixmap managePixmaps::getDataPixmap( const unsigned int index )
+QPixmap managePixmaps::getDataPixmap( const unsigned int index ) const
 {
     // Sanity check
     if( index >= (unsigned int)pixmaps.count() )
@@ -58,7 +58,7 @@ QPixmap managePixmaps::getDataPixmap( const unsigned int index )
     return pixmaps[index];
 }
 
-QPixmap managePixmaps::getDataPixmap( const QString text )
+QPixmap managePixmaps::getDataPixmap( const QString text ) const
 {
     QStringList list = text.simplified().split(QRegExp("\\s+"));
 
@@ -85,3 +85,5 @@ QPixmap managePixmaps::getDataPixmap( const QString text )
         return blank;
     }
 }
+
+// end
