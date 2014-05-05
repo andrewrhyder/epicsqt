@@ -1,0 +1,102 @@
+<<<This document is now redundant - all the activity listed in here is covered by the script release.py>>>
+
+Package generation:
+
+Update release notes:
+  Generate a list of svn changes using with a revision range from revision after last releast to current revision
+    svn log . -r 520:596
+  Add summary and svn change logs to ~/epicsqt/trunk/releasenotes.txt in the form:
+          ==================================================================================================
+          Changes between 2.5 and 2.4
+
+          SUMMARY:
+          <Overall summary of changes>
+
+          DETAIL:
+          <svn log>
+
+
+Rebuild documentation:
+(note, preparation of pdf help from latex source requires
+pdflatex available in lexlive "yum install texlive-latex")
+  update PROJECT_NUMBER in ~/epicsqt/documentation/source/Doxyfile
+  cd ~/epicsqt/trunk/documentation/source
+  doxygen Doxyfile
+  cd ~/epicsqt/trunk/documentation/latex
+  make pdf
+  cp refman.pdf ~/epicsqt/documentation/QE_ReferenceManual.pdf
+
+Commit documentation changes
+  cd ~/epicsqt
+  svn commit -m "Documentation changes prior to release"
+
+Save current version just in case:
+For example, if a new file was not added to svn
+  cd ~
+  mv epicsqt epicsqtSaveNN
+
+Package project (version example below is 2.5.0 - change as required)
+  cd ~
+  rm -rf epicsqtClean
+  svn export svn+ssh://rhyder@svn.code.sf.net/p/epicsqt/code epicsqtClean
+  svn co svn+ssh://rhyder@svn.code.sf.net/p/epicsqt/code epicsqt
+  cp -rf epicsqtClean/trunk epicsqt/tags/2.5.0
+  cd epicsqt/tags
+  svn add 2.5.0
+  svn commit -m "Release version 2.5.0"
+  cd ~/epicsqtClean
+  mv trunk/ epicsqt-2.5.0
+  tar cvzf ~/epicsqt-2.5.0-src.tar.gz epicsqt-2.5.0
+
+Verify package:
+  cd ~
+  rm -rf epicsqt-2.5.0
+  tar -xf epicsqt-2.5.0-src.tar.gz
+  cd epicsqt-2.5.0
+  qtcreator
+  open ~/epicsqt-2.5.0/epicsqt.pro
+  turn off shaddow build and build it
+  run QEGui
+
+  check ~/epicsqt-2.5.0/documentation/QE_ReferenceManual.pdf
+
+Upload package:
+  go to https://sourceforge.net/projects/epicsqt/
+  select 'files' (https://sourceforge.net/projects/epicsqt/files/)
+  Press 'Add' button - (only available when logged in)
+  browse, select ~/epicsqt-2.5.0-src.tar.gz and upload
+  revisit summary (https://sourceforge.net/projects/epicsqt/) and check.
+
+Update any changed files in sourceforge documentation
+  go to https://sourceforge.net/projects/epicsqt/files/documentation/
+  add updated files, typically releasenotes.txt and QE_*.pdf
+
+Verify package:
+  cd ~
+  rm -rf epicsqt-2.5.0
+  goto https://sourceforge.net/projects/epicsqt/ and press 'Download'
+  tar -xf ~/Downloads/epicsqt-2.5.0-src.tar.gz
+  cd epicsqt-2.5.0
+  qtcreator
+  open ~/epicsqt-2.5.0/epicsqt.pro
+  turn off shaddow build and build it
+  run QEGui
+
+  check ~/epicsqt-2.5.0/documentation/QE_ReferenceManual.pdf
+
+Verify new tag:
+  cd ~
+  rm -rf epicsqt
+  svn checkout --username=rhyder svn+ssh://rhyder@svn.code.sf.net/p/epicsqt/code/tags/2.5.0 epicsqt/tags/2.5.0
+  cd epicsqt/tags/2.5.0
+  qtcreator
+  open ~/epicsqt/tags/2.5.0/epicsqt.pro
+  turn off shaddow build and build it
+  run QEGui
+
+  check ~/epicsqt-2.5.0/documentation/QE_ReferenceManual.pdf
+
+Prior to ongoing development:
+Restore svn copy
+  cd ~
+  svn checkout --username=rhyder svn+ssh://rhyder@svn.code.sf.net/p/epicsqt/code/trunk epicsqt/trunk
