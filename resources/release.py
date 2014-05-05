@@ -30,7 +30,7 @@ __SOURCEFORGE_DIRECTORY__ = "/home/frs/project/epicsqt"
 __TEMP_FILE__ = "%s/release.tmp" % tempfile.gettempdir()
 __TEMP_DIRECTORY__ = "%s/epicsqt" % tempfile.gettempdir()
 __USER_NAME__ = None
-__DEBUG__ = True
+__DEBUG__ = False
 
 
 
