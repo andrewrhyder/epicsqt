@@ -30,7 +30,7 @@ __SOURCEFORGE_DIRECTORY__ = "/home/frs/project/epicsqt"
 __TEMP_FILE__ = "%s/release.tmp" % tempfile.gettempdir()
 __TEMP_DIRECTORY__ = "%s/epicsqt" % tempfile.gettempdir()
 __USER_NAME__ = None
-__DEBUG__ = False
+__DEBUG__ = True
 
 
 
@@ -144,9 +144,9 @@ try:
 		print "Retrieving last release version from SVN 'tags' directory..."
 		print
 		if tag_name is None:
-			command = "svn list %s/tags | sort -b -r | head -1 > %s" % (__SVN_REPOSITORY__, __TEMP_FILE__)
+			command = "svn list %s/tags | sort -b -g -r | head -1 > %s" % (__SVN_REPOSITORY__, __TEMP_FILE__)
 		else:
-			command = "svn list %s/tags | sort -b -r | head -2 | tail -1 > %s" % (__SVN_REPOSITORY__, __TEMP_FILE__)
+			command = "svn list %s/tags | sort -b -g -r | head -2 | tail -1 > %s" % (__SVN_REPOSITORY__, __TEMP_FILE__)
 		if __DEBUG__:
 			print command
 		subprocess.call(command, shell = True)
@@ -167,7 +167,7 @@ try:
 	try:
 		print "Retrieving SVN revision number of last release..."
 		print
-		command = "svn list --verbose %s/tags | sort -b -r | head -1 | sed -r 's/ *([0-9]+).+/\\1/' > %s" % (__SVN_REPOSITORY__, __TEMP_FILE__)
+		command = "svn list --verbose %s/tags | sort -b -g -r | head -1 | sed -r 's/ *([0-9]+).+/\\1/' > %s" % (__SVN_REPOSITORY__, __TEMP_FILE__)
 		if __DEBUG__:
 			print command
 		subprocess.call(command, shell = True)
@@ -464,10 +464,10 @@ try:
 	# ===========================================================
 	try:
 		if tag_name is None:
-                                                   tar_file = "epicsqt-%s-%s-src.tar.gz" % new_release_version
+			tar_file = "epicsqt-%s-src.tar.gz" % new_release_version
 			command = "rm -f %s/%s ; tar -cvzf %s/%s -C %s/tags %s 1>/dev/null" % (__TEMP_DIRECTORY__, tar_file, __TEMP_DIRECTORY__, tar_file, __TEMP_DIRECTORY__, new_release_version)
 		else:
-                                                   tar_file = "epicsqt-%s-src.tar.gz" % tag_name
+			tar_file = "epicsqt-%s-src.tar.gz" % tag_name
 			command = "rm -f %s/%s ; tar -cvzf %s/%s -C %s/tags %s 1>/dev/null" % (__TEMP_DIRECTORY__, tar_file, __TEMP_DIRECTORY__, tar_file, __TEMP_DIRECTORY__, tag_name)
 		print "Creating TAR file '%s/%s'..." % (__TEMP_DIRECTORY__, tar_file)
 		print
