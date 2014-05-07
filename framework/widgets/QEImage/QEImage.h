@@ -456,7 +456,6 @@ public:
     QImage copyImage();         // Return a QImage based on the current image
 
     void redisplayAllMarkups();
-    void resizeFullScreen();        // Resize full screen once it has been managed
 
 private slots:
     // QCa data update slots
@@ -522,6 +521,7 @@ private slots:
 
     void useAllMarkupData();
     void raiseFullScreen();         // Ensure the full screen main window is in front of the application.
+    void resizeFullScreen();        // Resize full screen once it has been managed
 
     void playingBack( bool playing );
 

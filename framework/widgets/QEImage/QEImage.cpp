@@ -48,6 +48,7 @@
 #include <QEString.h>
 #include <imageContextMenu.h>
 #include <windowCustomisation.h>
+#include <screenSelectDialog.h>
 
 /*
     Constructor with no initialisation
@@ -3915,6 +3916,17 @@ bool QEImage::getFullScreen()
 
 void QEImage::setFullScreen( bool fullScreenIn )
 {
+
+    // Determine the screen or screens to go fullscreen on if required
+    QRect geom;
+    if( fullScreenIn )
+    {
+        if( !screenSelectDialog::getFullscreenGeometry( this, geom ) )
+        {
+            return;
+        }
+    }
+
     // Save the current full screen state
     fullScreen = fullScreenIn;
 
@@ -3929,11 +3941,15 @@ void QEImage::setFullScreen( bool fullScreenIn )
             fullScreenMainWindow = new fullScreenWindow( this );
             fullScreenMainWindow->setContextMenuPolicy( Qt::CustomContextMenu );
             connect( fullScreenMainWindow, SIGNAL( customContextMenuRequested( const QPoint& )), this, SLOT( showImageContextMenuFullScreen( const QPoint& )));
-            connect( fullScreenMainWindow, SIGNAL( fullScreenResize()), this, SLOT( fullScreenResize()));
 
-            // Move the video widget into the full screen window and present it in full screen
+            // Move the video widget into the full screen window
             QWidget* w = scrollArea->takeWidget();
             fullScreenMainWindow->setCentralWidget( w );
+
+            // Select the correct screen or screens
+            fullScreenMainWindow->setGeometry( geom );
+
+            // Present the video widget in full screen
             fullScreenMainWindow->showFullScreen();
 
             // Raise in front of whatever application the QEImage widget is in, and resize it
@@ -3977,6 +3993,13 @@ void QEImage::raiseFullScreen()
         fullScreenMainWindow->activateWindow();
         fullScreenMainWindow->raise();
         fullScreenMainWindow->setFocus();
+
+        // Resize to fit (or current image view will be stretched over the screen size, which may affect aspect ratio
+        // Note, done as a timer event of 100mS, not to wait any particular time,
+        // but to ensure all events related to window activation, raising, and receiving focus generated
+        // within this timer event have occured first.
+        // There should be a more deterministic way to ensure this!!!
+        QTimer::singleShot( 100, this, SLOT(resizeFullScreen() ) );
     }
 }
 

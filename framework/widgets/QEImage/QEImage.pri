@@ -51,7 +51,8 @@ HEADERS += \
     widgets/QEImage/fullScreenWindow.h \
     widgets/QEImage/imageDataFormats.h \
     widgets/QEImage/markupDisplayMenu.h \
-    widgets/QEImage/recording.h
+    widgets/QEImage/recording.h \
+    widgets/QEImage/screenSelectDialog.h
 
 isEmpty( _QE_FFMPEG ) {
 
@@ -84,7 +85,8 @@ SOURCES += \
     widgets/QEImage/QEImageMarkupThickness.cpp \
     widgets/QEImage/fullScreenWindow.cpp \
     widgets/QEImage/markupDisplayMenu.cpp \
-    widgets/QEImage/recording.cpp
+    widgets/QEImage/recording.cpp \
+    widgets/QEImage/screenSelectDialog.cpp
 
 isEmpty( _QE_FFMPEG ) {
 } else {
@@ -99,4 +101,5 @@ INCLUDEPATH += \
 FORMS += \
     widgets/QEImage/QEImageOptionsDialog.ui \
     widgets/QEImage/QEImageMarkupThickness.ui \
-    widgets/QEImage/recording.ui
+    widgets/QEImage/recording.ui \
+    widgets/QEImage/screenSelectDialog.ui
