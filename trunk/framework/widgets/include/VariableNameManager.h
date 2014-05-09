@@ -36,21 +36,21 @@ public:
     VariableNameManager();
     virtual ~VariableNameManager(){}
 
-    void variableNameManagerInitialise( unsigned int numVariables ) ;                     // Used to set up the number of variables required (defaults to 1 if this is not called)
+    void variableNameManagerInitialise( unsigned int numVariables ) ;       // Used to set up the number of variables required (defaults to 1 if this is not called)
 
-    QString getOriginalVariableName( unsigned int variableIndex );          // Return variable name prior to any macro substitutions. (eg, SR$SECTOR$V )
-    QString getVariableNameSubstitutions();                                 // Return macro substitutions used for variable names (eg, SECTOR=01,V=PRESURE)
-    QString getSubstitutedVariableName(unsigned int variableIndex );        // Return variable name after macro substitutions
+    QString getOriginalVariableName( unsigned int variableIndex ) const;    // Return variable name prior to any macro substitutions. (eg, SR$SECTOR$V )
+    QString getVariableNameSubstitutions() const;                           // Return macro substitutions used for variable names (eg, SECTOR=01,V=PRESURE)
+    QString getSubstitutedVariableName(unsigned int variableIndex ) const;  // Return variable name after macro substitutions
 
     void setVariableNameSubstitutionsOverride( const QString& substitutions );
 
     void setVariableName( const QString& variableName, unsigned int variableIndex );    // Accept a new variable name which may include substitution keys preceeded by $
     void setVariableNameSubstitutions( const QString& substitutions );                  // Accept a new set of macro substitutions in the form KEY1=VALUE1,KEY2=VALUE2
 
-    QString substituteThis( const QString string );                         // Perform the macro substitutions on a string. used internaly for variable names, but can be used for any string
+    QString substituteThis( const QString string ) const;                   // Perform the macro substitutions on a string. used internaly for variable names, but can be used for any string
 
   private:
-    QString doSubstitution( unsigned int variableIndex );
+    QString doSubstitution( unsigned int variableIndex ) const;
     void substituteKey( QString& string, QString key, const QString value );
 
 
