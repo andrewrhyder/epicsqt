@@ -71,7 +71,7 @@ void VariableNameManager::variableNameManagerInitialise( unsigned int numVariabl
     Supply a variable index if this class is managing more than one variable
     name.
 */
-QString VariableNameManager::getOriginalVariableName( unsigned int variableIndex ) {
+QString VariableNameManager::getOriginalVariableName( unsigned int variableIndex ) const {
 
     // Sanity check
     if( variableIndex >= (unsigned int )variableNames.size() )
@@ -86,7 +86,7 @@ QString VariableNameManager::getOriginalVariableName( unsigned int variableIndex
     Note the substitutions for the first variable are always returned as
     the same substitutions are used for every entry in the variableNames list.
 */
-QString VariableNameManager::getVariableNameSubstitutions() {
+QString VariableNameManager::getVariableNameSubstitutions() const {
 
     return macroSubstitutions;
 }
@@ -94,7 +94,7 @@ QString VariableNameManager::getVariableNameSubstitutions() {
 /*
     Get the current variable name with substitutions applied.
 */
-QString VariableNameManager::getSubstitutedVariableName( unsigned int variableIndex ) {
+QString VariableNameManager::getSubstitutedVariableName( unsigned int variableIndex ) const {
 
     // Sanity check
     if( variableIndex >= (unsigned int )variableNames.size() )
@@ -144,7 +144,7 @@ void VariableNameManager::setVariableNameSubstitutions( const QString& macroSubs
     Perform a set of substitutions throughout a variable name.
     Replace $MACRO1 with VALUE1, $MACRO2 with VALUE2, etc wherever they appear in the string.
 */
-QString VariableNameManager::doSubstitution( unsigned int variableIndex ) {
+QString VariableNameManager::doSubstitution( unsigned int variableIndex ) const {
 
     // Sanity check
     if( variableIndex >= (unsigned int )variableNames.size() )
@@ -161,7 +161,7 @@ QString VariableNameManager::doSubstitution( unsigned int variableIndex ) {
     Perform a set of substitutions throughout a string.
     Replace $MACRO1 with VALUE1, $MACRO2 with VALUE2, etc wherever they appear in the string.
 */
-QString VariableNameManager::substituteThis( const QString string ) {
+QString VariableNameManager::substituteThis( const QString string ) const {
 
     // Generate a list where each item in the list is a single substitution in the form MACRO1=VALUE1
     QString subs;
