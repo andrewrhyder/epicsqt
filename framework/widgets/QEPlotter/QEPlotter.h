@@ -34,6 +34,7 @@
 #include <QLabel>
 #include <QObject>
 #include <QPushButton>
+#include <QScrollArea>
 #include <QTimer>
 #include <QVector>
 #include <QWidget>
@@ -160,28 +161,28 @@ public:
    // Single function for all 'Data Set' properties.
    //
    void    setXYDataPV (const int, const QString&);
-   QString getXYDataPV (const int);
+   QString getXYDataPV (const int) const;
 
    void    setXYSizePV (const int, const QString&);
-   QString getXYSizePV (const int);
+   QString getXYSizePV (const int) const;
 
    void    setXYAlias (const int, const QString&);
-   QString getXYAlias (const int);
+   QString getXYAlias (const int) const;
 
    void   setXYColour (const int, const QColor&);
-   QColor getXYColour (const int);
+   QColor getXYColour (const int) const;
 
    void setEnableConextMenu (bool enable);
-   bool getEnableConextMenu ();
+   bool getEnableConextMenu () const;
 
    void setToolBarVisible (bool visible);
-   bool getToolBarVisible ();
+   bool getToolBarVisible () const;
 
    void setPvItemsVisible (bool visible);
-   bool getPvItemsVisible();
+   bool getPvItemsVisible() const;
 
    void setStatusVisible (bool visible);
-   bool getStatusVisible();
+   bool getStatusVisible() const;
 
 signals:
     void requestAction (const QEActionRequests&);             // Signal 'launch a GUI'
@@ -201,8 +202,8 @@ protected:
    void restoreConfiguration (PersistanceManager* pm, restorePhases restorePhase);
 
    int findSlot (QObject *obj);
-   QString getXYExpandedDataPV (const int slot);
-   QString getXYExpandedSizePV (const int slot);
+   QString getXYExpandedDataPV (const int slot) const;
+   QString getXYExpandedSizePV (const int slot) const;
 
 private:
    // Internal widgets.
@@ -213,7 +214,7 @@ private:
    QHBoxLayout* statusLayout;
    QVBoxLayout* itemLayout;
 
-   QEResizeableFrame* toolBarResize;
+   QEResizeableFrame* toolBarResize; 
    QEPlotterToolBar* toolBar;
    QFrame* theMainFrame;
    QFrame* statusFrame;
@@ -222,6 +223,7 @@ private:
    QEGraphic* plotArea;
 
    QEResizeableFrame* itemResize;
+   QScrollArea* itemScrollArea;
    QFrame* itemFrame;
 
    // Status items
@@ -285,13 +287,14 @@ private:
    public:
       explicit DataSets ();
       ~DataSets ();
+
       void setContext (QEPlotter* owner, int slot);
-      int getSlot ();
-      bool isInUse ();
-      int actualSize ();
-      int effectiveSize ();
-      QString getDataData ();
-      QString getSizeData ();
+      int getSlot () const;
+      bool isInUse () const;
+      int actualSize () const;
+      int effectiveSize () const;
+      QString getDataData () const;
+      QString getSizeData () const;
 
       QCaVariableNamePropertyManager dataVariableNameManager;
       QCaVariableNamePropertyManager sizeVariableNameManager;
@@ -352,7 +355,7 @@ private:
    void plotSelectedArea ();
    void plotOriginToPoint ();
    void plot ();
-   int maxActualYSizes ();
+   int maxActualYSizes () const;
    void doAnyCalculations ();
    void processSelectedItem (const QEFloatingArray& xdata,
                              const QEFloatingArray& ydata,
@@ -380,7 +383,7 @@ private:
    void prevState ();
    void nextState ();
 
-   bool connectMenuOrToolBar (QWidget* item);
+   bool connectMenuOrToolBar (QWidget* item) const;
 
    void sendRequestAction (const QString& action, const QString& pvName);
 
@@ -391,7 +394,7 @@ private:
    // Property READ WRITE functions.
    //
    void    setVariableSubstitutions (QString variableNameSubstitutions);
-   QString getVariableSubstitutions ();
+   QString getVariableSubstitutions () const;
 
    // Property access READ and WRITE functions.
    // We can define the access functions using a macro.
@@ -399,17 +402,17 @@ private:
    // in a macro.
    //
    #define PROPERTY_ACCESS(letter, slot)                                                 \
-      void    setDataPV##letter (QString name) { this->setXYDataPV (slot, name); }       \
-      QString getDataPV##letter ()      { return this->getXYDataPV (slot); }             \
+      void    setDataPV##letter (QString name)  { this->setXYDataPV (slot, name); }      \
+      QString getDataPV##letter () const { return this->getXYDataPV (slot); }            \
                                                                                          \
-      void    setSizePV##letter (QString name) { this->setXYSizePV (slot, name); }       \
-      QString getSizePV##letter ()      { return this->getXYSizePV (slot); }             \
+      void    setSizePV##letter (QString name)  { this->setXYSizePV (slot, name); }      \
+      QString getSizePV##letter () const { return this->getXYSizePV (slot); }            \
                                                                                          \
-      void    setAlias##letter  (QString name) { this->setXYAlias (slot, name); }        \
-      QString getAlias##letter  ()      { return this->getXYAlias (slot); }              \
+      void    setAlias##letter  (QString name)  { this->setXYAlias (slot, name); }       \
+      QString getAlias##letter  () const { return this->getXYAlias (slot); }             \
                                                                                          \
-      void    setColour##letter (QColor colour) { this->setXYColour (slot, colour); }    \
-      QColor  getColour##letter ()       { return this->getXYColour (slot); }
+      void    setColour##letter (QColor colour)  { this->setXYColour (slot, colour); }   \
+      QColor  getColour##letter () const { return this->getXYColour (slot); }
 
 
    PROPERTY_ACCESS  (X, 0)

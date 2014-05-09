@@ -241,20 +241,32 @@ void QEPlotter::createInternalWidgets ()
    QObject::connect (this->plotArea, SIGNAL (rightSelected (const QPointF&, const QPointF&)),
                      this,           SLOT   (lineSelected  (const QPointF&, const QPointF&)));
 
+
+   // Create the resizeable frame.
+   //
    this->itemResize = new QEResizeableFrame (QEResizeableFrame::LeftEdge, 60, 400, this->theMainFrame);
    this->itemResize->setFrameShape (QFrame::StyledPanel);
    this->itemResize->setFrameShadow (QFrame::Raised);
    this->itemResize->setFixedWidth (256);
    this->hLayout->addWidget (this->itemResize);
 
+   // Create the scroll area - set as resizeable frame widget.
+   //
+   this->itemScrollArea = new QScrollArea (NULL); // re-parented.
+   this->itemScrollArea->setVerticalScrollBarPolicy (Qt::ScrollBarAlwaysOn);
+   this->itemScrollArea->setWidgetResizable (true);    // MOST IMPORTANT
+   this->itemResize->setWidget (this->itemScrollArea);
+
+   // Create item frame - set as scroll area widget.
+   //
    this->itemFrame = new QFrame (NULL); // re-parented.
    this->itemFrame->setFrameShape (QFrame::NoFrame);
    this->itemFrame->setFrameShadow (QFrame::Plain);
-   this->itemResize->setWidget (this->itemFrame);
+   this->itemScrollArea->setWidget (this->itemFrame);
 
    this->itemLayout = new QVBoxLayout (this->itemFrame);
    this->itemLayout->setMargin (2);
-   this->itemLayout->setSpacing (6);
+   this->itemLayout->setSpacing (4);
 
    for (slot = 0; slot < ARRAY_LENGTH (this->xy); slot++) {
       this->createSlotWidgets (slot);
@@ -372,14 +384,14 @@ void QEPlotter::DataSets::setContext (QEPlotter* ownerIn, int slotIn)
 
 //------------------------------------------------------------------------------
 //
-bool QEPlotter::DataSets::isInUse ()
+bool QEPlotter::DataSets::isInUse () const
 {
    return (this->dataKind != NotInUse);
 }
 
 //------------------------------------------------------------------------------
 //
-int QEPlotter::DataSets::actualSize ()
+int QEPlotter::DataSets::actualSize () const
 {
    // use array (waveform) PV size or zero.
    //
@@ -388,7 +400,7 @@ int QEPlotter::DataSets::actualSize ()
 
 //------------------------------------------------------------------------------
 //
-int QEPlotter::DataSets::effectiveSize ()
+int QEPlotter::DataSets::effectiveSize () const
 {
    int result = 0;
 
@@ -459,7 +471,7 @@ int QEPlotter::DataSets::effectiveSize ()
 
 //------------------------------------------------------------------------------
 //
-QString QEPlotter::DataSets::getDataData ()
+QString QEPlotter::DataSets::getDataData () const
 {
    const int fw = 12;   // field width
    const int n = this->data.count ();
@@ -486,7 +498,7 @@ QString QEPlotter::DataSets::getDataData ()
 
 //------------------------------------------------------------------------------
 //
-QString QEPlotter::DataSets::getSizeData ()
+QString QEPlotter::DataSets::getSizeData () const
 {
    const int n = this->data.count ();
    QString result;
@@ -816,14 +828,14 @@ int QEPlotter::findSlot (QObject *obj)
 
 //------------------------------------------------------------------------------
 //
-QString QEPlotter::getXYExpandedDataPV (const int slot)
+QString QEPlotter::getXYExpandedDataPV (const int slot) const
 {
    return this->getSubstitutedVariableName (2*slot);
 }
 
 //------------------------------------------------------------------------------
 //
-QString QEPlotter::getXYExpandedSizePV (const int slot)
+QString QEPlotter::getXYExpandedSizePV (const int slot) const
 {
    return this->getSubstitutedVariableName (2*slot + 1);
 }
@@ -986,7 +998,7 @@ void QEPlotter::itemContextMenuRequested (const QPoint& pos)
 // Both the QEPlotterMenu and QEPlotterToolBar widgets use the same
 // signal signature.
 //
-bool QEPlotter::connectMenuOrToolBar (QWidget* item)
+bool QEPlotter::connectMenuOrToolBar (QWidget* item) const
 {
    return QObject::connect (item, SIGNAL (selected     (const QEPlotterNames::MenuActions, const int)),
                             this, SLOT   (menuSelected (const QEPlotterNames::MenuActions, const int)));
@@ -2177,7 +2189,7 @@ void QEPlotter::plot ()
 
 //------------------------------------------------------------------------------
 //
-int QEPlotter::maxActualYSizes ()
+int QEPlotter::maxActualYSizes () const
 {
    int result = 0;
 
@@ -2383,7 +2395,7 @@ void QEPlotter::setVariableSubstitutions (QString defaultSubstitutions)
 
 //------------------------------------------------------------------------------
 //
-QString QEPlotter::getVariableSubstitutions ()
+QString QEPlotter::getVariableSubstitutions () const
 {
    // Any one of these name managers can provide the subsitutions.
    //
@@ -2400,7 +2412,7 @@ void QEPlotter::setXYDataPV (const int slot, const QString& pvName)
 
 //------------------------------------------------------------------------------
 //
-QString QEPlotter::getXYDataPV (const int slot)
+QString QEPlotter::getXYDataPV (const int slot) const
 {
    SLOT_CHECK (slot, "");
    return this->xy [slot].dataVariableNameManager.getVariableNameProperty ();
@@ -2416,7 +2428,7 @@ void QEPlotter::setXYSizePV (const int slot, const QString& pvName)
 
 //------------------------------------------------------------------------------
 //
-QString QEPlotter::getXYSizePV (const int slot)
+QString QEPlotter::getXYSizePV (const int slot) const
 {
    SLOT_CHECK (slot, "");
    return this->xy [slot].sizeVariableNameManager.getVariableNameProperty ();
@@ -2433,7 +2445,7 @@ void QEPlotter::setXYAlias (const int slot, const QString& aliasName)
 
 //------------------------------------------------------------------------------
 //
-QString QEPlotter::getXYAlias (const int slot)
+QString QEPlotter::getXYAlias (const int slot) const
 {
    SLOT_CHECK (slot, "");
    return this->xy[slot].aliasName;
@@ -2457,7 +2469,7 @@ void QEPlotter::setXYColour (const int slot, const QColor& colour)
 
 //------------------------------------------------------------------------------
 //
-QColor QEPlotter::getXYColour (const int slot)
+QColor QEPlotter::getXYColour (const int slot) const
 {
    SLOT_CHECK (slot, QColor (0,0,0,0));
    return this->xy[slot].colour;
@@ -2470,7 +2482,7 @@ void QEPlotter::setEnableConextMenu (bool enable)
    this->enableConextMenu = enable;
 }
 
-bool QEPlotter::getEnableConextMenu ()
+bool QEPlotter::getEnableConextMenu () const
 {
    return this->enableConextMenu;
 }
@@ -2482,7 +2494,7 @@ void QEPlotter::setToolBarVisible (bool visible)
    this->toolBarResize->setVisible (visible);
 }
 
-bool QEPlotter::getToolBarVisible ()
+bool QEPlotter::getToolBarVisible () const
 {
    return this->toolBarResize->isVisible ();
 }
@@ -2494,7 +2506,7 @@ void QEPlotter::setPvItemsVisible (bool visible)
    this->itemResize->setVisible (visible);
 }
 
-bool QEPlotter::getPvItemsVisible ()
+bool QEPlotter::getPvItemsVisible () const
 {
    return this->itemResize->isVisible ();
 }
@@ -2506,7 +2518,7 @@ void QEPlotter::setStatusVisible (bool visible)
    this->statusFrame->setVisible (visible);
 }
 
-bool QEPlotter::getStatusVisible ()
+bool QEPlotter::getStatusVisible () const
 {
    return this->statusFrame->isVisible ();
 }
