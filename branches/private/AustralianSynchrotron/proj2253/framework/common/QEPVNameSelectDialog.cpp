@@ -159,7 +159,8 @@ bool QEPVNameSelectDialog::getListFromFile(QString fileName){
     QFile file(fileName);
     if(file.exists()){
         if(!file.open(QIODevice::ReadOnly)) {
-            QMessageBox::information(0, "Error", file.errorString());
+//            QMessageBox::information(0, "Error", file.errorString());
+            qDebug() << "Error: " + file.errorString();
             return true;
         }
         QTextStream in(&file);
@@ -169,7 +170,8 @@ bool QEPVNameSelectDialog::getListFromFile(QString fileName){
         }
     }
     else{
-        QMessageBox::information(0, "Error", "File " + fileName + " dosen't exist");
+//        QMessageBox::information(0, "Error", "File " + fileName + " dosen't exist");
+        qDebug() << "Error: File " + fileName + " dosen't exist";
         return false;
     }
     file.close();
@@ -177,34 +179,40 @@ bool QEPVNameSelectDialog::getListFromFile(QString fileName){
 }
 
 void QEPVNameSelectDialog::getListFromDatabase(QString fileName){
-    // Read file
-    if(!getListFromFile(fileName)){
-        // read database and create the file
-       QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL3");
-       db.setConnectOptions();
-       db.setHostName("localhost");
-       db.setDatabaseName("test");
-       db.setUserName("root");
-       db.setPassword("Beam123Line");
-       if(db.open()) {
-           qDebug() << "Opened!";
-           QSqlQuery qry;
-           if(qry.exec("select * from fruits;")) {
-               while(qry.next()) {
-                    qDebug() << qry.value(0).toString();
-               }
-           }
-           else {
-                qDebug() << db.lastError().text();
-           }
-           qDebug() << "Closing…";
-           db.close();
-       }
-       else {
-            qDebug() << "Something went Wrong:" << db.lastError().text();
-       }        // .....
-       // then read file
-       getListFromFile(fileName);
+    Q_UNUSED (fileName);
+    // table of motor names for testing
+    QString dbQuery = "SELECT name FROM motors_zw;";
+    // Access database to get a list of device names
+    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL3");
+    db.setConnectOptions();
+    db.setHostName("localhost");
+    // database for testing
+    db.setDatabaseName("irmis3-components");
+    db.setUserName("root");
+    db.setPassword("Beam123Line");
+    if(db.open()) {
+        qDebug() << "Opened!";
+        QSqlQuery qry;
+        // SELECT name FROM motors_zw;
+        list.clear();
+        if(qry.exec(dbQuery)) {
+            while(qry.next()) {
+                 qDebug() << qry.value(0).toString();
+                 // add name to the list
+                 list.append(qry.value(0).toString());
+            }
+            // write the list to the file ??
+        }
+        else {
+//            QMessageBox::information(0, "Error", "Query database failed");
+            qDebug() << db.lastError().text();
+        }
+        qDebug() << "Closing…";
+        db.close();
+    }
+    else {
+//        QMessageBox::information(0, "Error", "Open database failed");
+        qDebug() << "Something went Wrong:" << db.lastError().text();
     }
 }
 

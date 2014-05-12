@@ -37,7 +37,7 @@ markupDisplayMenu::markupDisplayMenu( QWidget *parent) : QMenu(parent)
     ACTION = new QAction( TITLE, this );                    \
     ACTION->setData( imageContextMenu::ID );                \
     ACTION->setCheckable( true );                           \
-    ACTION->setChecked( true );                             \
+    ACTION->setChecked( false );                             \
     addAction( ACTION );
 
     // Create the buttons

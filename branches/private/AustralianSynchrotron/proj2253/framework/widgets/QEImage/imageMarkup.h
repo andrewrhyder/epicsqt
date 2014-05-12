@@ -70,7 +70,7 @@
 #include <QMouseEvent>
 #include <QCursor>
 
-//#include <markupDisplayMenu.h>
+#include <markupDisplayMenu.h>
 
 #include <QDebug>
 
@@ -91,7 +91,7 @@ class imageMarkup {//: public QObject {
 //    Q_OBJECT
 
 public:
-    imageMarkup();
+    imageMarkup(markupDisplayMenu* menu = NULL);
     virtual ~imageMarkup();
 
     // IDs to indicate what mode the markup system is in (for example, marking out an area), and to identify each of the markup items.
@@ -152,6 +152,8 @@ public:
     void displayMarkup( markupIds markupId, bool state );       // Hide or reveal a markup
     bool isMarkupVisible( markupIds mode );                     // Is a specified markup visible
 
+    void setMenu(markupDisplayMenu* menu) { mdMenu = menu; }
+
     double getZoomScale(){ return zoomScale; }
     QSize getImageSize(){ return imageSize; }
     void setImageSize( const QSize& imageSizeIn );
@@ -197,7 +199,8 @@ private:
     QCursor lineCursor;                         // Used as default cursor when in line profile mode
     QCursor regionCursor;                       // Used as default cursor when in area selection mode
 
-//    markupDisplayMenu* mdMenu;
+    markupDisplayMenu* mdMenu;
+    imageContextMenu::imageContextMenuOptions getImageContextMenuIndex(markupIds id);
 
 //private slots:
 //    void markupDisplayMenuTriggered( QAction* selectedItem );

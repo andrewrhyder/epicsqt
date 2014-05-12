@@ -210,6 +210,8 @@ void QEImage::setup() {
     // Create and setup the markup display menu
     mdMenu = new markupDisplayMenu();
     QObject::connect( mdMenu, SIGNAL( triggered ( QAction* ) ), this,  SLOT  ( markupDisplayMenuTriggered( QAction* )) );
+    // attach ist menu
+    videoWidget->setMenu(mdMenu);
 
     // Add the video destination to the widget
     scrollArea = new QScrollArea;
@@ -3674,6 +3676,7 @@ bool QEImage::getEnableVertSlicePresentation()
 void QEImage::setDisplayVertSliceSelection( bool displayVSliceSelection )
 {
     videoWidget->displayMarkup( imageMarkup::MARKUP_ID_V_SLICE, displayVSliceSelection );
+    mdMenu->setDisplayed(imageContextMenu::ICM_DISPLAY_VSLICE, displayVSliceSelection);
 }
 
 bool QEImage::getDisplayVertSliceSelection()
@@ -3685,6 +3688,7 @@ bool QEImage::getDisplayVertSliceSelection()
 void QEImage::setDisplayHozSliceSelection( bool displayHSliceSelection )
 {
     videoWidget->displayMarkup( imageMarkup::MARKUP_ID_H_SLICE, displayHSliceSelection );
+    mdMenu->setDisplayed(imageContextMenu::ICM_DISPLAY_HSLICE, displayHSliceSelection);
 }
 
 bool QEImage::getDisplayHozSliceSelection()
@@ -3696,6 +3700,7 @@ bool QEImage::getDisplayHozSliceSelection()
 void QEImage::setDisplayArea1Selection( bool displayAreaSelection )
 {
     videoWidget->displayMarkup( imageMarkup::MARKUP_ID_REGION1, displayAreaSelection );
+    mdMenu->setDisplayed(imageContextMenu::ICM_DISPLAY_AREA1, displayAreaSelection);
 }
 
 bool QEImage::getDisplayArea1Selection()
@@ -3707,6 +3712,7 @@ bool QEImage::getDisplayArea1Selection()
 void QEImage::setDisplayArea2Selection( bool displayAreaSelection )
 {
     videoWidget->displayMarkup( imageMarkup::MARKUP_ID_REGION2, displayAreaSelection );
+    mdMenu->setDisplayed(imageContextMenu::ICM_DISPLAY_AREA2, displayAreaSelection);
 }
 
 bool QEImage::getDisplayArea2Selection()
@@ -3718,6 +3724,7 @@ bool QEImage::getDisplayArea2Selection()
 void QEImage::setDisplayArea3Selection( bool displayAreaSelection )
 {
     videoWidget->displayMarkup( imageMarkup::MARKUP_ID_REGION3, displayAreaSelection );
+    mdMenu->setDisplayed(imageContextMenu::ICM_DISPLAY_AREA3, displayAreaSelection);
 }
 
 bool QEImage::getDisplayArea3Selection()
@@ -3729,6 +3736,7 @@ bool QEImage::getDisplayArea3Selection()
 void QEImage::setDisplayArea4Selection( bool displayAreaSelection )
 {
     videoWidget->displayMarkup( imageMarkup::MARKUP_ID_REGION4, displayAreaSelection );
+    mdMenu->setDisplayed(imageContextMenu::ICM_DISPLAY_AREA4, displayAreaSelection);
 }
 
 bool QEImage::getDisplayArea4Selection()
@@ -3740,6 +3748,7 @@ bool QEImage::getDisplayArea4Selection()
 void QEImage::setDisplayProfileSelection( bool displayProfileSelection )
 {
     videoWidget->displayMarkup( imageMarkup::MARKUP_ID_LINE, displayProfileSelection );
+    mdMenu->setDisplayed(imageContextMenu::ICM_DISPLAY_PROFILE, displayProfileSelection);
 }
 
 bool QEImage::getDisplayProfileSelection()
@@ -3773,6 +3782,7 @@ bool QEImage::getDisplayBeamSelection()
 void QEImage::setDisplayEllipse( bool displayEllipse )
 {
     videoWidget->displayMarkup( imageMarkup::MARKUP_ID_ELLIPSE, displayEllipse );
+    mdMenu->setDisplayed(imageContextMenu::ICM_DISPLAY_ELLIPSE, displayEllipse);
 }
 
 bool QEImage::getDisplayEllipse()

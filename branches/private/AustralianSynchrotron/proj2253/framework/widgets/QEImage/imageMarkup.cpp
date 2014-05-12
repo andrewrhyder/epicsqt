@@ -40,7 +40,7 @@
 #include <imageContextMenu.h>
 
 // Constructor
-imageMarkup::imageMarkup()
+imageMarkup::imageMarkup(markupDisplayMenu* menu): mdMenu(menu)
 {
     zoomScale = 1.0;
 
@@ -137,6 +137,7 @@ void imageMarkup::setShowTime( bool showTimeIn )
     markupItem* item = items[MARKUP_ID_TIMESTAMP];
 
     item->visible = showTimeIn;
+    if (mdMenu) mdMenu->setDisplayed(getImageContextMenuIndex(MARKUP_ID_TIMESTAMP), item->visible);
 
     // Notify a markup has changed
     QVector<QRect> changedAreas;
@@ -431,7 +432,8 @@ void imageMarkup::markupValueChange( int markup, bool displayMarkups, QPoint p1,
     // If markup should now be visible, set it visible
     if( displayMarkups )
     {
-        items[markup]->visible = true;
+//        items[markup]->visible = true;
+        if (mdMenu) mdMenu->setDisplayed(getImageContextMenuIndex((markupIds)markup), items[markup]->visible);
     }
 
     // Initial area to update
@@ -513,6 +515,7 @@ void imageMarkup::redrawActiveItemHere( QPoint pos )
 
     items[activeItem]->moveTo( pos );
     items[activeItem]->visible = true;
+    if (mdMenu) mdMenu->setDisplayed(getImageContextMenuIndex(activeItem), items[activeItem]->visible);
 
     // Extend the changed areas to include the item's new area and notify markups require redrawing
     changedAreas.append( items[activeItem]->area );
@@ -790,6 +793,7 @@ void imageMarkup::displayMarkup( markupIds markupId, bool state )
 void imageMarkup::clearMarkup( markupIds markupId )
 {
     items[markupId]->visible = false;
+    if (mdMenu) mdMenu->setDisplayed(getImageContextMenuIndex(markupId), items[markupId]->visible);
     QVector<QRect> changedAreas;
     changedAreas.append( items[markupId]->area );
     // Redraw the now hidden item
@@ -817,6 +821,7 @@ void imageMarkup::showMarkup( markupIds markupId )
         QVector<QRect> changedAreas;
         changedAreas.append( area );
         item->visible = true;
+        if (mdMenu) mdMenu->setDisplayed(getImageContextMenuIndex(markupId), item->visible);
 
         // Redraw the now visible item
         markupChange( changedAreas );
@@ -878,5 +883,36 @@ void imageMarkup::setThickness( markupIds markupId, unsigned int newThickness )
             // Use the changed markup
             markupAction( markupId, false, false, item->getPoint1(), item->getPoint2(), item->getThickness() );
         }
+    }
+}
+
+imageContextMenu::imageContextMenuOptions imageMarkup::getImageContextMenuIndex(markupIds id){
+    switch (id){
+    case MARKUP_ID_REGION1:
+        return imageContextMenu::ICM_DISPLAY_AREA1;
+    case MARKUP_ID_REGION2:
+        return imageContextMenu::ICM_DISPLAY_AREA2;
+    case MARKUP_ID_REGION3:
+        return imageContextMenu::ICM_DISPLAY_AREA3;
+    case MARKUP_ID_REGION4:
+        return imageContextMenu::ICM_DISPLAY_AREA4;
+    case MARKUP_ID_H_SLICE:
+        return imageContextMenu::ICM_DISPLAY_HSLICE;
+    case MARKUP_ID_V_SLICE:
+        return imageContextMenu::ICM_DISPLAY_VSLICE;
+    case MARKUP_ID_LINE:
+        return imageContextMenu::ICM_DISPLAY_PROFILE;
+    case MARKUP_ID_TARGET:
+        return imageContextMenu::ICM_DISPLAY_TARGET;
+    case MARKUP_ID_BEAM:
+        return imageContextMenu::ICM_DISPLAY_BEAM;
+    case MARKUP_ID_TIMESTAMP:
+        return imageContextMenu::ICM_DISPLAY_TIMESTAMP;
+    case MARKUP_ID_ELLIPSE:
+        return imageContextMenu::ICM_DISPLAY_ELLIPSE;
+    case MARKUP_ID_COUNT:
+    case MARKUP_ID_NONE:
+    default:
+        return imageContextMenu::ICM_OPTIONS;
     }
 }
