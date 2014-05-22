@@ -10,10 +10,10 @@ Key documentation:
 
 Key Qt project files:
   QE Framework:                    ./framework/framework.pro
-  ASgui (control GUI application)  ./applications/QEGuiApp/QEGui.pro
+  QEGui (control GUI application)  ./applications/QEGuiApp/QEGuiApp.pro
 
 
-Dowload from:
+Download from:
   http://sourceforge.net/projects/epicsqt/
 
 
