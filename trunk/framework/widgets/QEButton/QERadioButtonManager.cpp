@@ -68,7 +68,7 @@ QString QERadioButtonManager::name() const {
     Name of group Qt Designer will add widget to.
 */
 QString QERadioButtonManager::group() const {
-    return "EPICS Widgets";
+    return "EPICSQt Controls";
 }
 
 /*

@@ -70,7 +70,7 @@ QString QENumericEditManager::name () const
 //
 QString QENumericEditManager::group () const
 {
-   return "EPICS Widgets";
+   return "EPICSQt Controls";
 }
 
 //------------------------------------------------------------------------------

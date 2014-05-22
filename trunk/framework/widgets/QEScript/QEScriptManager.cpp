@@ -77,7 +77,7 @@ QString QEScriptManager::name() const
 QString QEScriptManager::group() const
 {
 
-    return "EPICS Widgets";
+    return "EPICSQt Application Support Widgets";
 
 }
 

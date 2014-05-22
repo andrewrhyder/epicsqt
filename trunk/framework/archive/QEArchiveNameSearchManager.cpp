@@ -70,7 +70,7 @@ QString QEArchiveNameSearchManager::name () const
 //
 QString QEArchiveNameSearchManager::group () const
 {
-   return "EPICS Widgets";
+   return "EPICSQt Infrastructure Widgets";
 }
 
 //------------------------------------------------------------------------------

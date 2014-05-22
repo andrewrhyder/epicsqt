@@ -72,7 +72,7 @@ QString QEFormGridManager::name () const
 
 QString QEFormGridManager::group () const
 {
-   return "EPICS Widgets";
+   return "EPICSQt Application Support Widgets";
 }
 
 //---------------------------------------------------------------------------------

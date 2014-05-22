@@ -30,6 +30,6 @@
 #include <QtPlugin>
 #include <QEDesignerPluginCommon.h>
 
-QE_IMPLEMENT_PLUGIN_MANAGER (QEBitStatus, "EPICS Widgets", ":/qe/bitstatus/QEBitStatus.png", false)
+QE_IMPLEMENT_PLUGIN_MANAGER (QEBitStatus, "EPICSQt Monitors", ":/qe/bitstatus/QEBitStatus.png", false)
 
 // end

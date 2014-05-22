@@ -69,7 +69,7 @@ QString QEShapeManager::name() const {
     Name of group Qt Designer will add widget to.
 */
 QString QEShapeManager::group() const {
-    return "EPICS Widgets";
+    return "EPICSQt Monitors";
 }
 
 /*

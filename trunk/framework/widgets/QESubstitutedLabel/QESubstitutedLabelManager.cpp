@@ -68,7 +68,7 @@ QString QESubstitutedLabelManager::name() const {
     Name of group Qt Designer will add widget to.
 */
 QString QESubstitutedLabelManager::group() const {
-    return "EPICS Widgets";
+    return "EPICSQt Application Support Widgets";
 }
 
 /*

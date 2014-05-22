@@ -77,7 +77,7 @@ QString QERecipeManager::name() const
 QString QERecipeManager::group() const
 {
 
-    return "EPICS Widgets";
+    return "EPICSQt Application Support Widgets";
 
 }
 

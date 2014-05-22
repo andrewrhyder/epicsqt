@@ -74,7 +74,7 @@ QString QEPvLoadSaveManager::name () const
 */
 QString QEPvLoadSaveManager::group () const
 {
-   return "EPICS Widgets";
+   return "EPICSQt Application Support Widgets";
 }
 
 /*

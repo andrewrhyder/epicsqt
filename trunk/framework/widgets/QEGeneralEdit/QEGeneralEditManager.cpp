@@ -72,7 +72,7 @@ QString QEGeneralEditManager::name () const
 //
 QString QEGeneralEditManager::group () const
 {
-   return "EPICS Widgets";
+   return "EPICSQt Controls";
 }
 
 //------------------------------------------------------------------------------

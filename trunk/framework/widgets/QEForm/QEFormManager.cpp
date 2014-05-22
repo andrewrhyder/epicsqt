@@ -68,7 +68,7 @@ QString QEFormManager::name() const {
     Name of group Qt Designer will add widget to.
 */
 QString QEFormManager::group() const {
-    return "EPICS Widgets";
+    return "EPICSQt Application Support Widgets";
 }
 
 /*

@@ -75,7 +75,7 @@ QString QEStripChartManager::name () const
 //
 QString QEStripChartManager::group () const
 {
-   return "EPICS Widgets";
+   return "EPICSQt Graphics";
 }
 
 //------------------------------------------------------------------------------

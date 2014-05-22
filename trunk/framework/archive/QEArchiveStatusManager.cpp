@@ -70,7 +70,7 @@ QString QEArchiveStatusManager::name () const
 //
 QString QEArchiveStatusManager::group () const
 {
-   return "EPICS Widgets";
+   return "EPICSQt Infrastructure Widgets";
 }
 
 //------------------------------------------------------------------------------

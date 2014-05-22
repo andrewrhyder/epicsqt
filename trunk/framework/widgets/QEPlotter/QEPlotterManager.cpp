@@ -68,7 +68,7 @@ QString QEPlotterManager::name() const {
 // Name of group Qt Designer will add widget to.
 //
 QString QEPlotterManager::group() const {
-   return "EPICS Widgets";
+   return "EPICSQt Graphics";
 }
 
 //---------------------------------------------------------------------------------

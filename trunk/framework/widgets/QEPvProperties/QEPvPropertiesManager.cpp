@@ -76,7 +76,7 @@ QString QEPvPropertiesManager::name () const
 */
 QString QEPvPropertiesManager::group () const
 {
-   return "EPICS Widgets";
+   return "EPICSQt Tools";
 }
 
 /*

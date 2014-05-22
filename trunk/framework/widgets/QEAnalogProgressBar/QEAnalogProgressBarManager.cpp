@@ -28,6 +28,6 @@
 #include <QtPlugin>
 #include <QEDesignerPluginCommon.h>
 
-QE_IMPLEMENT_PLUGIN_MANAGER (QEAnalogProgressBar, "EPICS Widgets", ":/qe/analogprogressbar/icon.png", false)
+QE_IMPLEMENT_PLUGIN_MANAGER (QEAnalogProgressBar, "EPICSQt Monitors", ":/qe/analogprogressbar/icon.png", false)
 
 // end
