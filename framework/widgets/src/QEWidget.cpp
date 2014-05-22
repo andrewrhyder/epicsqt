@@ -711,3 +711,74 @@ void QEWidget::doAction( QWidget* searchPoint, QString widgetName, QString actio
         }
     }
 }
+
+// Return information about the data sources
+// Used by PSI OPI viewer
+// Example of use:
+/*
+        QEWidget* aWidgetBasedOnQEWidget = ...;
+        QList<QCaInfo> info = containedWidget->getQCaInfo();
+        qDebug() << "info" << info.count();
+        for( int i = 0; i < info.count(); i++ )
+        {
+            qDebug() << "===================";
+            qDebug() << info[i].variable;
+            qDebug() << info[i].type;
+            qDebug() << info[i].value;
+            qDebug() << info[i].severity;
+            qDebug() << info[i].status;
+            qDebug() << info[i].host;
+            qDebug() << info[i].precision;
+            qDebug() << info[i].precisionUser;
+            qDebug() << info[i].alarmUserMin;
+            qDebug() << info[i].alarmUserMax;
+            qDebug() << info[i].controlLimitLower;
+            qDebug() << info[i].controlLimitUpper;
+            qDebug() << info[i].alarmLimitLower;
+            qDebug() << info[i].alarmLimitUpper;
+            qDebug() << info[i].warningLimitLower;
+            qDebug() << info[i].warningLimitUpper;
+            qDebug() << info[i].driveLimitLow;
+            qDebug() << info[i].driveLimitHigh;
+            qDebug() << info[i].alarmSensitive;
+            qDebug() << info[i].accessMode;
+        }
+*/
+
+const QList<QCaInfo> QEWidget::getQCaInfo()
+{
+    QList<QCaInfo> list;
+
+    qcaobject::QCaObject* qca;
+    for( unsigned int i = 0; i < numVariables; i++ )
+    {
+        qca = getQcaItem( i );
+        if( qca ) // If variable exists...
+        {
+            QCaInfo info(
+                            qca->getRecordName(),               // variable
+                            qca->getFieldType(),                // type
+                            copyData().toString(),              // value
+                            qca->getAlarmInfo().severityName(), // severity
+                            qca->getAlarmInfo().statusName(),   // status
+                            qca->getHostName(),                 // host
+                            qca->getPrecision(),                // precision
+                            getUserPrecision(),                 // user precision
+                            getUserAlarmMin(),                  // user alarm minimum
+                            getUserAlarmMax(),                  // user alarm maximum
+                            qca->getControlLimitLower(),        // lower control limit
+                            qca->getControlLimitUpper(),        // upper conmtrol limit
+                            qca->getAlarmLimitLower(),          // lower alarm limit
+                            qca->getAlarmLimitUpper(),          // upper alarm limit
+                            qca->getWarningLimitLower(),        // lower warning limit
+                            qca->getWarningLimitUpper(),        // upper warning limit
+                            qca->getControlLimitLower(),        // lower control limit
+                            qca->getControlLimitUpper(),        // upper control limit
+                            getAlarmSensitive(),                // alarm sensitivity
+                            QCaInfo::UNKNOWN );                 // Access mode
+
+            list.append( info );
+        }
+    }
+    return list;
+}

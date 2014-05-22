@@ -27,6 +27,7 @@
 #define QEWIDGET_H
 
 #include <QObject>
+#include <QString>
 #include <QCaObject.h>
 #include <VariableNameManager.h>
 #include <UserMessage.h>
@@ -37,6 +38,79 @@
 #include <styleManager.h>
 #include <contextMenu.h>
 #include <standardProperties.h>
+
+
+// Class to pass summary information about a QCaObject
+
+class QCaInfo
+{
+public:
+    enum ACCESS_MODES {NO_ACCESS, READ_ONLY, READ_WRITE, UNKNOWN };
+    QCaInfo(
+            QString variableIn,
+            QString typeIn,
+            QString valueIn,
+            QString severityIn,
+            QString statusIn,
+            QString hostIn,
+            int precisionIn,
+            int precisionUserIn,
+            double alarmUserMinIn,
+            double alarmUserMaxIn,
+            double controlLimitLowerIn,
+            double controlLimitUpperIn,
+            double alarmLimitLowerIn,
+            double alarmLimitUpperIn,
+            double warningLimitLowerIn,
+            double warningLimitUpperIn,
+            double driveLimitLowIn,
+            double driveLimitHighIn,
+            bool   alarmSensitiveIn,
+            ACCESS_MODES accessModeIn )
+    {
+         variable          = variableIn;
+         type              = typeIn;
+         value             = valueIn;
+         severity          = severityIn;
+         status            = statusIn;
+         host              = hostIn;
+         precision         = precisionIn;
+         precisionUser     = precisionUserIn;
+         alarmUserMin      = alarmUserMinIn;
+         alarmUserMax      = alarmUserMaxIn;
+         controlLimitLower = controlLimitLowerIn;
+         controlLimitUpper = controlLimitUpperIn;
+         alarmLimitLower   = alarmLimitLowerIn;
+         alarmLimitUpper   = alarmLimitUpperIn;
+         warningLimitLower = warningLimitLowerIn;
+         warningLimitUpper = warningLimitUpperIn;
+         driveLimitLow     = driveLimitLowIn;
+         driveLimitHigh    = driveLimitHighIn;
+         alarmSensitive    = alarmSensitiveIn;
+         accessMode        = accessModeIn;
+    }
+
+    QString variable;
+    QString type;
+    QString value;
+    QString severity;
+    QString status;
+    QString host;
+    int precision;
+    int precisionUser;
+    double alarmUserMin;
+    double alarmUserMax;
+    double controlLimitLower;   // CA lopr
+    double controlLimitUpper;   // CA hopr
+    double alarmLimitLower;     // CA lolo
+    double alarmLimitUpper;     // CA hihi
+    double warningLimitLower;   // CA low
+    double warningLimitUpper;   // CA high
+    double driveLimitLow;       // CA drvl
+    double driveLimitHigh;      // CA drvh
+    bool   alarmSensitive;
+    ACCESS_MODES accessMode;
+};
 
 class QEWidget;
 
@@ -247,6 +321,10 @@ public:
     /// The method returns true if the named widget was found. (The action was not nessesarily performed, or even recognised by the widget)
     static void doAction( QWidget* searchPoint, QString widgetName, QString action, QStringList arguments, bool initialise, QAction* originator );
 
+    /// Return information about the data sources
+    ///
+    const QList<QCaInfo> getQCaInfo();
+
 protected:
     void setNumVariables( unsigned int numVariablesIn );    // Set the number of variables that will stream data updates to the widget. Default of 1 if not called.
 
@@ -286,6 +364,10 @@ private:
 public:
     static bool inDesigner();                               // Flag indicating this widget is running inside Qt's 'designer'
     virtual QMenu* getDefaultContextMenu(){ return NULL; }  // Return the Qt default context menu to add to the QE context menu
+    virtual int getUserPrecision(){ return 0; }             // Return the widgets precision property if any (otherwise zero)
+    virtual int getUserAlarmMin(){ return 0; }              // Return the widget alarm minimum if any (otherwise zero)
+    virtual int getUserAlarmMax(){ return 0; }              // Return the widget alarm maximum if any (otherwise zero)
+    virtual bool getAlarmSensitive(){ return false; }       // Return the widget's alarm sensitivity (default to not sensitive)
 };
 
 
