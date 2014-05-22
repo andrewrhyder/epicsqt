@@ -29,6 +29,6 @@
 #include <QEScalarHistogram.h>
 
 QE_IMPLEMENT_PLUGIN_MANAGER
-   (QEScalarHistogram, "EPICS Widgets", ":/qe/histogram/QEScalarHistogram", false)
+   (QEScalarHistogram, "EPICSQt Graphics", ":/qe/histogram/QEScalarHistogram", false)
 
 // end

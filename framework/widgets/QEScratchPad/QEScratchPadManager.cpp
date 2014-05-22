@@ -30,6 +30,6 @@
 #include <QtPlugin>
 #include <QEDesignerPluginCommon.h>
 
-QE_IMPLEMENT_PLUGIN_MANAGER (QEScratchPad, "EPICS Widgets", ":/qe/scratchpad/QEScratchPad.png", false)
+QE_IMPLEMENT_PLUGIN_MANAGER (QEScratchPad, "EPICSQt Tools", ":/qe/scratchpad/QEScratchPad.png", false)
 
 // end

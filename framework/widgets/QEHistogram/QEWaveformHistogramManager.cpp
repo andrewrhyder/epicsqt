@@ -29,6 +29,6 @@
 #include <QEWaveformHistogram.h>
 
 QE_IMPLEMENT_PLUGIN_MANAGER
-   (QEWaveformHistogram, "EPICS Widgets", ":/qe/histogram/QEWaveformHistogram.png", false)
+   (QEWaveformHistogram, "EPICSQt Graphics", ":/qe/histogram/QEWaveformHistogram.png", false)
 
 // end

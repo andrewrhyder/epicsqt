@@ -63,7 +63,7 @@ QString QEFrameManager::name () const
 //------------------------------------------------------------------------------
 QString QEFrameManager::group () const
 {
-   return "EPICS Widgets";
+   return "EPICSQt Application Support Widgets";
 }
 
 //------------------------------------------------------------------------------

@@ -28,6 +28,6 @@
 #include <QEHistogram.h>
 
 QE_IMPLEMENT_PLUGIN_MANAGER
-   (QEHistogram, "EPICS Widgets", ":/qe/histogram/QEHistogram.png", false)
+   (QEHistogram, "EPICSQt Graphics", ":/qe/histogram/QEHistogram.png", false)
 
 // end

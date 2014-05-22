@@ -77,7 +77,7 @@ QString QEFileBrowserManager::name() const
 QString QEFileBrowserManager::group() const
 {
 
-    return "EPICS Widgets";
+    return "EPICSQt Controls";
 
 }
 

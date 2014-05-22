@@ -29,6 +29,6 @@
 #include <QtPlugin>
 #include <QEDesignerPluginCommon.h>
 
-QE_IMPLEMENT_PLUGIN_MANAGER (QEAnalogIndicator, "EPICS Widgets", ":/qe/analogindicator/QEAnalogIndicator.png", false)
+QE_IMPLEMENT_PLUGIN_MANAGER (QEAnalogIndicator, "EPICSQt Monitors", ":/qe/analogindicator/QEAnalogIndicator.png", false)
 
 // end

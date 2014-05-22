@@ -79,7 +79,7 @@ QString QEPeriodicManager::name() const {
     Name of group Qt Designer will add widget to.
 */
 QString QEPeriodicManager::group() const {
-    return "EPICS Widgets";
+    return "EPICSQt Controls";
 }
 
 /*

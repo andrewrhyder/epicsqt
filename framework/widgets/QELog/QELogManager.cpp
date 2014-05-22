@@ -78,7 +78,7 @@ QString QELogManager::name() const
 QString QELogManager::group() const
 {
 
-    return "EPICS Widgets";
+    return "EPICSQt Application Support Widgets";
 
 }
 

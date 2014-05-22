@@ -68,7 +68,7 @@ QString QELabelManager::name() const {
     Name of group Qt Designer will add widget to.
 */
 QString QELabelManager::group() const {
-    return "EPICS Widgets";
+    return "EPICSQt Monitors";
 }
 
 /*

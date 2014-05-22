@@ -74,7 +74,7 @@ QString QESimpleShapeManager::name () const
 */
 QString QESimpleShapeManager::group () const
 {
-   return "EPICS Widgets";
+   return "EPICSQt Monitors";
 }
 
 /*

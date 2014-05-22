@@ -68,7 +68,7 @@ QString QECheckBoxManager::name() const {
     Name of group Qt Designer will add widget to.
 */
 QString QECheckBoxManager::group() const {
-    return "EPICS Widgets";
+    return "EPICSQt Controls";
 }
 
 /*

@@ -77,7 +77,7 @@ QString QELoginManager::name() const
 QString QELoginManager::group() const
 {
 
-    return "EPICS Widgets";
+    return "EPICSQt Application Support Widgets";
 
 }
 

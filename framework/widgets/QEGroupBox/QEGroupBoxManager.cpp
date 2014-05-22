@@ -63,7 +63,7 @@ QString QEGroupBoxManager::name () const
 //------------------------------------------------------------------------------
 QString QEGroupBoxManager::group () const
 {
-   return "EPICS Widgets";
+   return "EPICSQt Application Support Widgets";
 }
 
 //------------------------------------------------------------------------------

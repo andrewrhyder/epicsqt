@@ -78,7 +78,7 @@ QString QEConfiguredLayoutManager::name() const
 QString QEConfiguredLayoutManager::group() const
 {
 
-    return "EPICS Widgets";
+    return "EPICSQt Application Support Widgets";
 
 }
 
