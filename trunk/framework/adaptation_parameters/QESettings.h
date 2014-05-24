@@ -98,7 +98,7 @@ public:
 
    // Assumes key points to a file name.
    // Returns nil if file does not exist.
-   // If not nill, then user must delete the returnd object.
+   // If not nill, then user must delete the returned object.
    // This is a essentially conveniance function for:
    //     s = getFilename (key);
    //     return new QESettings (s).
@@ -113,7 +113,7 @@ public:
    //     return new QESettings (s).
    //
    // Returns nil if file does not exist.
-   // If not nill, then user must delete the returnd object.
+   // If not nill, then user must delete the returned object.
    //
    static QESettings* getConfigurationParameters (const QString& section);
 
