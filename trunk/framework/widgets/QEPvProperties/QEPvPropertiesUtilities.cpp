@@ -176,6 +176,8 @@ bool QERecordSpecList::processRecordSpecFile (const QString& filename)
          }
       }
    }
+
+   record_field_file.close ();
    return true;
 }
 
