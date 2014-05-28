@@ -92,11 +92,15 @@ void QEForm::commonInit( const bool alertIfUINoFoundIn )
     // The standard variable name and macros mechanism is used by QEForm for UI file name and marcos
     setNumVariables(1);
 
+
     setAcceptDrops(true);
 
     ui = NULL;
 
     placeholderLabel = NULL;
+
+    disconnectedCountRef = NULL;
+    connectedCountRef = NULL;
 
     // If in designer mark up the form noting there is no file name set yet.
     // If not in designer, this will be done then establishConnection() is called.
@@ -391,6 +395,8 @@ bool QEForm::readUiFile()
                     if( containedFrameworkVersion.isEmpty() )
                     {
                         containedFrameworkVersion = containedWidget->getFrameworkVersion();
+                        disconnectedCountRef = containedWidget->getDisconnectedCountRef();
+                        connectedCountRef = containedWidget->getConnectedCountRef();
                     }
                     containedWidget->activate();
                 }
@@ -652,6 +658,32 @@ void QEForm::resizeEvent ( QResizeEvent * event )
 QString QEForm::getContainedFrameworkVersion()
 {
     return containedFrameworkVersion;
+}
+
+// Return the disconnected count of all widgets loaded by UILoader.
+// Note, this originates from the a static counter in the QEPlugin shared library loaded by UILoader.
+// If this QEForm widget has been loaded by UILoader, it could access these counters directly.
+// In typical use, however, this QEForm widget can be created by an application (such as QEGui) and
+// all widgets within this widgets (those with connections to be counted) will have been created by
+// the same QEPlugin library but (on Windows at least) mapped to a different location. This is a problem on windows,
+// not Linux where the library is not mapped twice.
+int QEForm::getDisconnectedCount()
+{
+    // Return the disconnected count if it is available.
+    return disconnectedCountRef?*disconnectedCountRef:0;
+}
+
+// Return the disconnected count of all widgets loaded by UILoader.
+// Note, this originates from the a static counter in the QEPlugin shared library loaded by UILoader.
+// If this QEForm widget has been loaded by UILoader, it could access these counters directly.
+// In typical use, however, this QEForm widget can be created by an application (such as QEGui) and
+// all widgets within this widgets (those with connections to be counted) will have been created by
+// the same QEPlugin library but (on Windows at least) mapped to a different location. This is a problem on windows,
+// not Linux where the library is not mapped twice.
+int QEForm::getConnectedCount()
+{
+    // Return the connected count if it is available.
+    return connectedCountRef?*connectedCountRef:0;
 }
 
 // Get the full form file name as used to open the file (inclusing all substitutions)

@@ -54,6 +54,9 @@ aboutDialog::aboutDialog( QString QEGuiVersion,                // Version info a
                           QString defaultWindowCustomisationName, // Default Window customisation name
                           QString currentCustomisation,           // Current customisation set name
 
+                          int disconnectedCount,                // Number of disconnected channels
+                          int connectedCount,                   // Number of connected channels
+
                           QWidget *parent) :
     QDialog(parent),
     ui(new Ui::aboutDialog)
@@ -123,6 +126,9 @@ aboutDialog::aboutDialog( QString QEGuiVersion,                // Version info a
     ui->defaultWindowCustomisationNameLabel->setText( defaultWindowCustomisationName );
     ui->currentCustomisationLabel->setText( currentCustomisation );
 
+    // Connections
+    ui->disconnectedChannelsLabel->setText( QString( "%1" ).arg( disconnectedCount ));
+    ui->connectedChannelsLabel->setText( QString( "%1" ).arg( connectedCount ));
 }
 
 aboutDialog::~aboutDialog()

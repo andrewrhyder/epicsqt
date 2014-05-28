@@ -782,3 +782,29 @@ const QList<QCaInfo> QEWidget::getQCaInfo()
     }
     return list;
 }
+
+using namespace qcastatemachine;
+
+// Return references to the current count of disconnections.
+// The plugin library (and therefore the static connection and disconnection counts)
+// can be mapped twice (on Windows at least). So it is no use just referencing these
+// static variables from an application if the widgets of interest have been created
+// by the UI Loader. This function can be called on any widget loaded by the UI loader
+// and the reference returned can be used to get counts for all widgets loaded by the
+// UI loader.
+int* QEWidget::getDisconnectedCountRef()
+{
+    return &ConnectionQCaStateMachine::disconnectedCount;
+}
+
+// Return references to the current count of connections.
+// The plugin library (and therefore the static connection and disconnection counts)
+// can be mapped twice (on Windows at least). So it is no use just referencing these
+// static variables from an application if the widgets of interest have been created
+// by the UI Loader. This function can be called on any widget loaded by the UI loader
+// and the reference returned can be used to get counts for all widgets loaded by the
+// UI loader.
+int* QEWidget::getConnectedCountRef()
+{
+    return &ConnectionQCaStateMachine::connectedCount;
+}
