@@ -58,13 +58,6 @@ public:
 
     void markupChange();                                    // The markup overlay has changed, redraw them all
 
-    enum beamAndTargetOptions { CROSSHAIR1,                // Markup type for beam and target markups
-                                  CROSSHAIR2 };              // Markup type for beam and target markups
-    beamAndTargetOptions getTargetOption();                // Access function for targetOption property - refer to targetOption property for details
-    void setTargetOption( beamAndTargetOptions option );   // Access function for targetOption property - refer to targetOption property for details
-    beamAndTargetOptions getBeamOption();                  // Access function for beamOption property - refer to beamOption property for details
-    void setBeamOption( beamAndTargetOptions option );     // Access function for beamOption property - refer to beamOption property for details
-
 protected:
     void paintEvent(QPaintEvent*);
 
@@ -102,10 +95,6 @@ private:
     QPoint panStart;
 
     QPoint pixelInfoPos;    // Current pixel under pointer
-
-    beamAndTargetOptions targetMarkupOption;       // Determines which markup is used for the 'target' markup
-    beamAndTargetOptions beamMarkupOption;         // Determines which markup is used for the 'target' markup
-
 };
 
 #endif // VIDEOWIDGET_H

@@ -64,9 +64,12 @@ imageMarkup::imageMarkup()
     items[MARKUP_ID_TIMESTAMP] = new markupText(   this, false, false, "" );
     items[MARKUP_ID_ELLIPSE]   = new markupEllipse(this, false, false, "Centroid" );
 
+    targetMarkupOption = CROSSHAIR1;
+    beamMarkupOption   = CROSSHAIR2;
+
     markupAreasStale = true;
 
-    // Create circle cursoe used for target and beam
+    // Create circle cursor used for target and beam
     QPixmap circlePixmap = QPixmap( ":/qe/image/circleCursor.png" );
     circleCursor = QCursor( circlePixmap );
 
@@ -879,4 +882,59 @@ void imageMarkup::setThickness( markupIds markupId, unsigned int newThickness )
             markupAction( markupId, false, false, item->getPoint1(), item->getPoint2(), item->getThickness() );
         }
     }
+}
+
+// Target markup options
+imageMarkup::beamAndTargetOptions imageMarkup::getTargetOption()
+{
+    return targetMarkupOption;
+}
+
+void imageMarkup::setTargetOption( beamAndTargetOptions option )
+{
+    targetMarkupOption = option;
+    setBeamOrTargetOption( MARKUP_ID_TARGET, targetMarkupOption );
+}
+
+// Beam markup options
+imageMarkup::beamAndTargetOptions imageMarkup::getBeamOption()
+{
+    return beamMarkupOption;
+}
+
+void imageMarkup::setBeamOption( beamAndTargetOptions option )
+{
+    beamMarkupOption = option;
+    setBeamOrTargetOption( MARKUP_ID_BEAM, beamMarkupOption );
+}
+
+// Set the beam or traget markup option (which style of crosshaor to display)
+// Note, if the markup is displayed, this will not re-display it in the new form
+// This is OK if the property is only edited in designer. If the property is set
+// while the widget is in use, then perhaps the visibility of the markup should
+// be checked before deleting, other attributes noted, and then the new markup
+// displayed correctly
+void imageMarkup::setBeamOrTargetOption( markupIds item, beamAndTargetOptions option )
+{
+    // Note attributes of the current markup
+    QString legend = items[item]->getLegend();
+    QColor color = items[item]->getColor();
+
+    // Delete the current markup
+    delete items[item];
+
+    // Create the new markup
+    switch( option )
+    {
+        case CROSSHAIR1:
+            items[item] = new markupCrosshair1( this, true,  true, legend );
+            break;
+
+        case CROSSHAIR2:
+            items[item] = new markupCrosshair2( this, true,  true, legend );
+            break;
+    }
+
+    // Restore the attributes
+    items[item]->setColor( color );
 }

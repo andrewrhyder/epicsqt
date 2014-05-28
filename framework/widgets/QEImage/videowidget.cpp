@@ -37,9 +37,6 @@ VideoWidget::VideoWidget(QWidget *parent) : QWidget(parent)
 {
     panning = false;
 
-    targetMarkupOption = CROSSHAIR1;
-    beamMarkupOption   = CROSSHAIR2;
-
     setAutoFillBackground(false);
 
     QPalette palette = this->palette();
@@ -406,26 +403,4 @@ void VideoWidget::setPanning( bool panningIn )
     {
         setCursor( PANNING_CURSOR );
     }
-}
-
-// Target markup options
-VideoWidget::beamAndTargetOptions VideoWidget::getTargetOption()
-{
-    return targetMarkupOption;
-}
-
-void VideoWidget::setTargetOption( beamAndTargetOptions option )
-{
-    targetMarkupOption = option;
-}
-
-// Beam markup options
-VideoWidget::beamAndTargetOptions VideoWidget::getBeamOption()
-{
-    return beamMarkupOption;
-}
-
-void VideoWidget::setBeamOption( beamAndTargetOptions option )
-{
-    beamMarkupOption = option;
 }
