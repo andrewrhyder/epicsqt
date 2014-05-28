@@ -4,7 +4,7 @@
 # and as part of the overall framework plugins.pro project file.
 #
 OTHER_FILES += \
-    widgets/QEPlotter.png
+    widgets/QEPlotter/QEPlotter.png
 
 RESOURCES += \
     widgets/QEPlotter/QEPlotter.qrc

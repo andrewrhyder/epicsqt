@@ -39,6 +39,7 @@
 #include <QVector>
 #include <QWidget>
 
+#include <QEPluginLibrary_global.h>
 #include <QEActionRequests.h>
 #include <QEFloatingArray.h>
 #include <QEFloatingFormatting.h>
