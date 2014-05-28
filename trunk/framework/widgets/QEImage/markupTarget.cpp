@@ -22,18 +22,18 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-// This class manages an image markup consisting of a target.
+// This class manages an image markup consisting of a dotted crosshair across the entire image.
 // Refer to markupItem.h for base functionality and to imageMarkup.h for
 // general descrition of image markups.
 
 #include <markupTarget.h>
 #include <imageMarkup.h>
 
-markupTarget::markupTarget( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
+markupCrosshair1::markupCrosshair1( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
 }
 
-void markupTarget::drawMarkup( QPainter& p )
+void markupCrosshair1::drawMarkup( QPainter& p )
 {
     // Scale markup
     double scale = getZoomScale();
@@ -52,7 +52,7 @@ void markupTarget::drawMarkup( QPainter& p )
     drawLegend( p, scaledPos, ABOVE_RIGHT );
 }
 
-void markupTarget::setArea()
+void markupCrosshair1::setArea()
 {
     area = QRect( QPoint(0,0), getImageSize() );
 
@@ -61,13 +61,13 @@ void markupTarget::setArea()
     owner->markupAreasStale = true;
 }
 
-void markupTarget::startDrawing( const QPoint posIn )
+void markupCrosshair1::startDrawing( const QPoint posIn )
 {
     pos = posIn;
     activeHandle = MARKUP_HANDLE_NONE;
 }
 
-void markupTarget::moveTo( const QPoint posIn )
+void markupCrosshair1::moveTo( const QPoint posIn )
 {
     // Limit position to within the image
     QPoint limPos = limitPointToImage( posIn );
@@ -76,20 +76,20 @@ void markupTarget::moveTo( const QPoint posIn )
     setArea();
 }
 
-bool markupTarget::isOver( const QPoint point, QCursor* cursor )
+bool markupCrosshair1::isOver( const QPoint point, QCursor* cursor )
 {
     *cursor = owner->getCircleCursor();
     activeHandle = MARKUP_HANDLE_NONE;
     return ( abs( point.x() - pos.x() ) <= OVER_TOLERANCE ) || ( abs( point.y() - pos.y() ) <= OVER_TOLERANCE );
 }
 
-QPoint markupTarget::origin()
+QPoint markupCrosshair1::origin()
 {
     return pos;
 }
 
 // Return the cursor for each handle
-QCursor markupTarget::cursorForHandle( const markupItem::markupHandles )
+QCursor markupCrosshair1::cursorForHandle( const markupItem::markupHandles )
 {
 // No special cursors for different handles
 //    switch( handle )
@@ -103,22 +103,22 @@ QCursor markupTarget::cursorForHandle( const markupItem::markupHandles )
     return defaultCursor();
 }
 
-QPoint markupTarget::getPoint1()
+QPoint markupCrosshair1::getPoint1()
 {
     return origin();
 }
 
-QPoint markupTarget::getPoint2()
+QPoint markupCrosshair1::getPoint2()
 {
     return QPoint();
 }
 
-QCursor markupTarget::defaultCursor()
+QCursor markupCrosshair1::defaultCursor()
 {
     return owner->getTargetCursor();
 }
 
-void markupTarget::nonInteractiveUpdate( QPoint p1, QPoint )
+void markupCrosshair1::nonInteractiveUpdate( QPoint p1, QPoint )
 {
     pos = p1;
     setArea();

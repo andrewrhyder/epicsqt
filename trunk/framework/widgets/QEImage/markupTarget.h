@@ -38,10 +38,10 @@
 class imageMarkup;
 
 // Target markup used to identify a target point on a sample
-class markupTarget : public markupItem
+class markupCrosshair1 : public markupItem
 {
 public:
-    markupTarget( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn );
+    markupCrosshair1( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn );
 
     //==================================================================
     // Implement base class functions - see markupItem class defition for a description of each of these methods

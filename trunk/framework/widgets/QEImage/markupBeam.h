@@ -38,11 +38,11 @@
 class imageMarkup;
 
 // Beam markup used to identify beam center in an image
-class markupBeam : public markupItem
+class markupCrosshair2 : public markupItem
 {
 public:
 
-    markupBeam( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn );
+    markupCrosshair2( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn );
 
     //==================================================================
     // Implement base class functions - see markupItem class defition for a description of each of these methods
