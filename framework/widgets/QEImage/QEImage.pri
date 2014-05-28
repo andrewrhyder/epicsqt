@@ -52,7 +52,8 @@ HEADERS += \
     widgets/QEImage/imageDataFormats.h \
     widgets/QEImage/markupDisplayMenu.h \
     widgets/QEImage/recording.h \
-    widgets/QEImage/screenSelectDialog.h
+    widgets/QEImage/screenSelectDialog.h \
+    widgets/QEImage/colourConversion.h
 
 isEmpty( _QE_FFMPEG ) {
 

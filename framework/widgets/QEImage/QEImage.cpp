@@ -49,6 +49,8 @@
 #include <imageContextMenu.h>
 #include <windowCustomisation.h>
 #include <screenSelectDialog.h>
+#include <colourConversion.h>
+
 
 /*
     Constructor with no initialisation
@@ -2433,15 +2435,48 @@ void QEImage::displayImage()
             break;
         }
 
-        case imageDataFormats::YUV444: //!!! not done yet
-        case imageDataFormats::YUV422: //!!! not done yet. do the same as for YUV444
-        case imageDataFormats::YUV421: //!!! not done yet. do the same as for YUV444
+        case imageDataFormats::YUV421: //!!! not done yet. do the same as for YUV422
+        case imageDataFormats::YUV422:
+        case imageDataFormats::YUV444: //!!! not done yet. do the same as for YUV422
         {
             LOOP_START
                     // Extract pixel
-                    unsigned int r = 0;
-                    unsigned int g = 0;
-                    unsigned int b = 0;
+                    // 4 values are used to generate 2 pixels as follows
+
+                    // u  = yuv[0];
+                    // y1 = yuv[1];
+                    // v  = yuv[2];
+                    // y2 = yuv[3];
+
+                    // rgb1 = YUVtoRGB(y1, u, v);
+                    // rgb2 = YUVtoRGB(y2, u, v);
+
+                    unsigned int pairIndex = dataIndex&1;               // Generating first or second pixel? extract lowest bit
+                    unsigned long dataPairIndex = dataIndex-pairIndex;  // Create data index to base of both pixels - clear lowest bit
+
+                    // Get base of both pixels.
+                    // This loop is running through the output pixels, so depending on flip and rotate the last (or next)
+                    // pixel processed may not be from the same pixel pair represented by this YUV quad.
+                    // That's OK. As each pixel is processed, the correct parts from the appropriate quad is used.
+                    unsigned char* yuv422Base = (unsigned char*)(&dataIn[dataPairIndex*bytesPerPixel]);
+
+                    // Get the correct YUV values for this pixel
+                    unsigned char* y;
+                    if( pairIndex == 0 )
+                    {
+                        y  = yuv422Base+bytesPerPixel;                  // yuv[1]
+                    }
+                    else
+                    {
+                        y  = yuv422Base+(3*bytesPerPixel);              // yuv[3]
+                    }
+                    unsigned char* u   = yuv422Base;                    // yuv[0]
+                    unsigned char* v   = yuv422Base+(2*bytesPerPixel);  // yuv[2]
+
+                    // Extract pixel
+                    unsigned int r = YUV2R(*y, *u, *v);
+                    unsigned int g = YUV2G(*y, *u, *v);
+                    unsigned int b = YUV2B(*y, *u, *v);
 
                     // Accumulate pixel statistics
                     valP = g; // use all three colors!!!
@@ -2458,6 +2493,7 @@ void QEImage::displayImage()
                     dataOut[buffIndex].p[1] = pixelLookup[g].p[0];
                     dataOut[buffIndex].p[2] = pixelLookup[r].p[0];
                     dataOut[buffIndex].p[3] = 0xff;
+
             LOOP_END
             break;
         }
