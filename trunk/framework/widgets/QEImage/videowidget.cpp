@@ -286,6 +286,9 @@ void VideoWidget::mousePressEvent( QMouseEvent* event)
     if( !(event->buttons()&Qt::LeftButton) )
         return;
 
+    // Grab the keyboard to get any 'tweak' (up/down/left/right) keys
+    grabKeyboard();
+
     // Pass the event to the markup system. It will use it if appropriate.
     // If it doesn't use it, then start a pan if panning
     // Note, the markup system will take into account if panning.
@@ -300,6 +303,9 @@ void VideoWidget::mousePressEvent( QMouseEvent* event)
 // The mouse has been released over the image
 void VideoWidget::mouseReleaseEvent ( QMouseEvent* event )
 {
+    // Release the keyboard (grabbed when mouse pressed to catch 'tweak' keys)
+    releaseKeyboard();
+
     // Pass the event to the markup system. It will use it if appropriate.
     // If it doesn't use it, then complete panning.
     // Note, the markup system will take into account if panning.
@@ -309,13 +315,6 @@ void VideoWidget::mouseReleaseEvent ( QMouseEvent* event )
         setCursor( PANNING_CURSOR );
         emit pan( pos() );
     }
-}
-
-// The wheel has been moved over the image
-void VideoWidget::wheelEvent( QWheelEvent* event )
-{
-    int zoomAmount = event->delta() / 12;
-    emit zoomInOut( zoomAmount );
 }
 
 //Manage a mouse move event
@@ -353,6 +352,39 @@ void VideoWidget::mouseMoveEvent( QMouseEvent* event )
             move( newPos );
         }
     }
+}
+
+// The wheel has been moved over the image
+void VideoWidget::wheelEvent( QWheelEvent* event )
+{
+    int zoomAmount = event->delta() / 12;
+    emit zoomInOut( zoomAmount );
+}
+
+// A key has been pressed
+void VideoWidget::keyPressEvent( QKeyEvent* event )
+{
+    // Determine what to do
+    bool ignore = false;
+    QPoint warp;
+    switch( event->key() )
+    {
+        case Qt::Key_Left:  warp = QPoint( -1,  0 ); break;
+        case Qt::Key_Right: warp = QPoint(  1,  0 ); break;
+        case Qt::Key_Up:    warp = QPoint(  0, -1 ); break;
+        case Qt::Key_Down:  warp = QPoint(  0,  1 ); break;
+
+        default: ignore = true; break;
+    }
+
+    // If doing nothing, then do it!
+    if( ignore )
+    {
+        return;
+    }
+
+    // If tweaking the position, then tweak away
+    QCursor::setPos( QCursor::pos() + warp );
 }
 
 // The video widget handles panning.

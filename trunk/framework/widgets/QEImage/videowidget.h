@@ -67,6 +67,8 @@ protected:
     void mouseMoveEvent( QMouseEvent* event );
     void wheelEvent( QWheelEvent* event );
 
+    void keyPressEvent( QKeyEvent* event );
+
     void markupChange( QVector<QRect>& changedAreas );    // The markup overlay has changed, redraw part of it
 
     void resizeEvent( QResizeEvent *event );
