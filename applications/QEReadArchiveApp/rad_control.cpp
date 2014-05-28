@@ -508,7 +508,7 @@ void Rad_Control::postProcess (struct PVData* pvData)
          //
          nullPoint.alarm = QCaAlarmInfo (0, (int) QEArchiveInterface::archSevInvalid);
          nullPoint.datetime = this->startTime;
-         nullPoint.value = 0;
+         nullPoint.value = 0.0;
 
          working.clear ();
          working.append (nullPoint);
