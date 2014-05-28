@@ -146,6 +146,29 @@ QString QCaDateTime::text()
 }
 
 /*
+  Returns time represented by object plus specified number of seconds.
+ */
+QCaDateTime QCaDateTime::addSeconds( const double seconds ) const
+{
+   QCaDateTime result;
+
+   // Note addMSecs is a QDateTime operation which ignore the nano secs.
+   result = this->addMSecs (qint64 (1000.0 * seconds));
+   result.nSec = this->nSec;
+   return result;
+}
+
+/*
+  Returns a double which represents time in seconds (to mS resolution) to specified target time.
+ */
+double QCaDateTime::secondsTo( const QDateTime & target ) const
+{
+   qint64 msec = msecsTo_48 (*this, target);
+   return (double) msec / (double) 1000.0;
+}
+
+
+/*
   Returns a double which represents the date and time in seconds (to mS resolution) from the base time
  */
 double QCaDateTime::floating( const QDateTime & base ) const

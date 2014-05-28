@@ -43,8 +43,15 @@ public:
 
     QString text();
 
+    /// Equivilent of addSecs and secsTo in base class, save that we specify the
+    /// seconds as a floating point number.
+    ///
+    QCaDateTime addSeconds( const double seconds ) const;
+    double secondsTo( const QDateTime & target ) const;
+
     /// Duration in seconds from base time to this time.
     /// Note: this is the opposite sense to the parent QDateTime daysTo, secsTo and msecsTo functions.
+    /// Phase out
     ///
     double floating( const QDateTime & base ) const;
 
