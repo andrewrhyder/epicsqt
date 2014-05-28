@@ -60,6 +60,9 @@ public:
                           QString defaultWindowCustomisationName, // Default Window customisation name
                           QString currentCustomisation,           // Current customisation set name
 
+                          int disconnectedCount,                // Number of disconnected channels
+                          int connectedCount,                   // Number of connected channels
+
                           QWidget *parent = 0);
     ~aboutDialog();
 

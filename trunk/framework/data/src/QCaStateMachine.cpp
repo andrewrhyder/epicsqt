@@ -40,11 +40,39 @@ QCaStateMachine::QCaStateMachine( void *parent ) {
 }
 
 /*
+    Static variables for Connection state machine
+*/
+int ConnectionQCaStateMachine::disconnectedCount = 0;
+int ConnectionQCaStateMachine::connectedCount = 0;
+
+/*
     Startup for the Connection statemachine.
 */
 ConnectionQCaStateMachine::ConnectionQCaStateMachine( void *parent ) : QCaStateMachine( parent ) {
     currentState = DISCONNECTED;
     requestState = DISCONNECTED;
+    disconnectedCount++;
+}
+
+/*
+    Shutdown for the Connection statemachine.
+*/
+ConnectionQCaStateMachine::~ConnectionQCaStateMachine()
+{
+    // Update the connection counts
+    switch( currentState )
+    {
+        case CONNECTED:
+            connectedCount--;
+            break;
+
+        case DISCONNECTED:
+            disconnectedCount--;
+            break;
+
+        default:
+            break;
+    }
 }
 
 /*
@@ -70,6 +98,8 @@ bool ConnectionQCaStateMachine::process( int requestedState) {
                     if( active == true ) {
                         pending = false;
                         worker->stopConnectionTimer();
+                        disconnectedCount--;
+                        connectedCount++;
                         currentState = CONNECTED;
                     }
                     break;
@@ -97,6 +127,8 @@ bool ConnectionQCaStateMachine::process( int requestedState) {
                         active = false;
                         expired = false;
                         worker->deleteChannel();
+                        connectedCount--;
+                        disconnectedCount++;
                         currentState = DISCONNECTED;
                     }
                     break;

@@ -69,6 +69,9 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
         QString getUniqueIdentifier(){ return uniqueIdentifier; }
         void setUniqueIdentifier( QString name ){ uniqueIdentifier = name; }
 
+        int getDisconnectedCount();
+        int getConnectedCount();
+
     public slots:
         bool readUiFile();
 
@@ -102,6 +105,9 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
         unsigned int childMessageFormId;
 
         QString containedFrameworkVersion;
+        int* disconnectedCountRef;              // Pointer into plugin library (loaded by UI loader) to disconnection count
+        int* connectedCountRef;                 // Pointer into plugin library (loaded by UI loader) to connection count
+
 
         void saveConfiguration( PersistanceManager* pm );
         void restoreConfiguration( PersistanceManager* pm, restorePhases restorePhase );

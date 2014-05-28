@@ -701,6 +701,16 @@ void MainWindow::on_actionAbout_triggered()
         i++;
     }
 
+    // Get the connection counts if there are any forms presented
+    int disconnectedCount = 0;
+    int connectedCount = 0;
+    mw = app->getMainWindow( 0 );
+    if( mw && mw->guiList.count() )
+    {
+        disconnectedCount = mw->guiList[0].getForm()->getDisconnectedCount();
+        connectedCount = mw->guiList[0].getForm()->getConnectedCount();
+    }
+
     // Present the dialog
     aboutDialog ad( QString( QE_VERSION_STRING " " QE_VERSION_DATE_TIME ), // Version info and the build date/time at compile time of QEGui
                     QEFrameworkVersionQEGui,                               // Version info and the build date/time at compile time of the copy of QEPlugin library loaded by QEGui
@@ -719,7 +729,11 @@ void MainWindow::on_actionAbout_triggered()
 
                     app->getParams()->customisationFile,                   // Default Window customisation file
                     app->getParams()->customisationName,                   // Default window customisation name
-                    QString( "not done yet" )                              // Default window customisation name
+                    QString( "not done yet" ),                             // Default window customisation name
+
+                    disconnectedCount,                                     // Disconnection count
+                    connectedCount                                         // Connection count
+
                     );
     ad.exec();
 }

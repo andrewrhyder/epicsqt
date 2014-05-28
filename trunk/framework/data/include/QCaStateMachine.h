@@ -58,8 +58,11 @@ namespace qcastatemachine {
   class ConnectionQCaStateMachine : public QCaStateMachine {
     public:
       ConnectionQCaStateMachine( void *parent );
-      ~ConnectionQCaStateMachine(){}
+      ~ConnectionQCaStateMachine();
       bool process( int requestedState );
+
+      static int disconnectedCount;
+      static int connectedCount;
   };
 
   class SubscriptionQCaStateMachine : public QCaStateMachine {
