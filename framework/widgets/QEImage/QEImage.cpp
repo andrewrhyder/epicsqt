@@ -3827,7 +3827,6 @@ QEImage::ellipseVariableDefinitions QEImage::getEllipseVariableDefinition()
     return ellipseVariableUsage;
 }
 
-
 //videoWidget->displayMarkup( imageMarkup::MARKUP_ID_TIMESTAMP, selectedItem->isChecked() );
 
 //==================

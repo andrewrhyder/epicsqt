@@ -22,20 +22,20 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-// This class manages an image markup consisting of an 'beam' indicator.
+// This class manages an image markup consisting of a small solid crosshair.
 // Refer to markupItem.h for base functionality and to imageMarkup.h for
 // general descrition of image markups.
 
 #include <markupBeam.h>
 #include <imageMarkup.h>
 
-markupBeam::markupBeam( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
+markupCrosshair2::markupCrosshair2( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
     // Size of cross hair
     armSize = 20;
 }
 
-void markupBeam::drawMarkup( QPainter& p )
+void markupCrosshair2::drawMarkup( QPainter& p )
 {
     // Scale markup
     double scale = getZoomScale();
@@ -58,7 +58,7 @@ void markupBeam::drawMarkup( QPainter& p )
     drawLegend( p, scaledPos, BELOW_LEFT );
 }
 
-void markupBeam::setArea()
+void markupCrosshair2::setArea()
 {
     area.setLeft  ( pos.x()-armSize );
     area.setRight ( pos.x()+armSize );
@@ -70,13 +70,13 @@ void markupBeam::setArea()
     owner->markupAreasStale = true;
 }
 
-void markupBeam::startDrawing( const QPoint posIn )
+void markupCrosshair2::startDrawing( const QPoint posIn )
 {
     pos = posIn;
     activeHandle = MARKUP_HANDLE_NONE;
 }
 
-void markupBeam::moveTo( const QPoint posIn )
+void markupCrosshair2::moveTo( const QPoint posIn )
 {
     // Limit position to within the image
     QPoint limPos = limitPointToImage( posIn );
@@ -85,7 +85,7 @@ void markupBeam::moveTo( const QPoint posIn )
     setArea();
 }
 
-bool markupBeam::isOver( const QPoint point, QCursor* cursor )
+bool markupCrosshair2::isOver( const QPoint point, QCursor* cursor )
 {
     *cursor = owner->getCircleCursor();
     activeHandle = MARKUP_HANDLE_NONE;
@@ -95,13 +95,13 @@ bool markupBeam::isOver( const QPoint point, QCursor* cursor )
              ( abs( point.x() - pos.x() ) <= (armSize+OVER_TOLERANCE) )));
 }
 
-QPoint markupBeam::origin()
+QPoint markupCrosshair2::origin()
 {
     return pos;
 }
 
 // Return the cursor for each handle
-QCursor markupBeam::cursorForHandle( const markupItem::markupHandles )
+QCursor markupCrosshair2::cursorForHandle( const markupItem::markupHandles )
 {
 // No special cursors for different handles
 //    switch( handle )
@@ -115,22 +115,22 @@ QCursor markupBeam::cursorForHandle( const markupItem::markupHandles )
     return defaultCursor();
 }
 
-QPoint markupBeam::getPoint1()
+QPoint markupCrosshair2::getPoint1()
 {
     return origin();
 }
 
-QPoint markupBeam::getPoint2()
+QPoint markupCrosshair2::getPoint2()
 {
     return QPoint();
 }
 
-QCursor markupBeam::defaultCursor()
+QCursor markupCrosshair2::defaultCursor()
 {
     return owner->getTargetCursor();
 }
 
-void markupBeam::nonInteractiveUpdate( QPoint p1, QPoint )
+void markupCrosshair2::nonInteractiveUpdate( QPoint p1, QPoint )
 {
     pos = p1;
     setArea();

@@ -59,8 +59,8 @@ imageMarkup::imageMarkup()
     items[MARKUP_ID_REGION2]   = new markupRegion( this, true,  true, "region 2" );
     items[MARKUP_ID_REGION3]   = new markupRegion( this, true,  true, "region 3" );
     items[MARKUP_ID_REGION4]   = new markupRegion( this, true,  true, "region 4" );
-    items[MARKUP_ID_TARGET]    = new markupTarget( this, true,  true, "target" );
-    items[MARKUP_ID_BEAM]      = new markupBeam(   this, true,  true, "beam" );
+    items[MARKUP_ID_TARGET]    = new markupCrosshair1( this, true,  true, "target" );
+    items[MARKUP_ID_BEAM]      = new markupCrosshair2(   this, true,  true, "beam" );
     items[MARKUP_ID_TIMESTAMP] = new markupText(   this, false, false, "" );
     items[MARKUP_ID_ELLIPSE]   = new markupEllipse(this, false, false, "Centroid" );
 

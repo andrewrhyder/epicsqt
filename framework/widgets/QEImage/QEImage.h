@@ -366,7 +366,6 @@ public:
     ellipseVariableDefinitions getEllipseVariableDefinition();                  ///< Access function for #ellipseVariableDefinition property - refer to #ellipseVariableDefinition property for details
     void setEllipseVariableDefinition( ellipseVariableDefinitions def );        ///< Access function for #ellipseVariableDefinition property - refer to #ellipseVariableDefinition property for details
 
-
     void setDisplayMarkups( bool displayMarkupsIn );                    ///< Access function for #displayMarkups property - refer to #displayMarkups property for details
     bool getDisplayMarkups();                                           ///< Access function for #displayMarkups property - refer to #displayMarkups property for details
 
@@ -1357,11 +1356,28 @@ public:
 
     /// Definition of how ellipse variables are to be used.
     Q_PROPERTY(EllipseVariableDefinitions ellipseVariableDefinition READ getEllipseVariableDefinitionProperty WRITE setEllipseVariableDefinitionProperty)
-            EllipseVariableDefinitions getEllipseVariableDefinitionProperty() { return (EllipseVariableDefinitions)getEllipseVariableDefinition(); }            ///< Access function for #EllipseVariableDefinitions property - refer to #EllipseVariableDefinitions property for details
+            EllipseVariableDefinitions getEllipseVariableDefinitionProperty() { return (EllipseVariableDefinitions)getEllipseVariableDefinition(); }            ///< Access function for #EllipseVariableDefinition property - refer to #EllipseVariableDefinition property for details
             void setEllipseVariableDefinitionProperty( EllipseVariableDefinitions variableUsage ) { setEllipseVariableDefinition( (ellipseVariableDefinitions)variableUsage ); }///< Access function for #EllipseVariableDefinitions property - refer to #EllipseVariableDefinitions property for details
 
 
-    //=========
+    Q_ENUMS(TargetOptions)
+    /// \enum TargetOptions
+    /// User friendly enumerations for #targetOptions property - refer to #targetOptions property for details.
+            enum TargetOptions { DottedFullCrosshair = VideoWidget::CROSSHAIR1,       ///< Refer to CROSSHAIR1 for details
+                                 SolidSmallCrosshair = VideoWidget::CROSSHAIR2        ///< Refer to CROSSHAIR2 for details
+                                    };
+
+    /// Definition of target markup options.
+    Q_PROPERTY(TargetOptions targetOption READ getTargetOptionProperty WRITE setTargetOptionProperty)
+            TargetOptions getTargetOptionProperty() { return (TargetOptions)videoWidget->getTargetOption(); }            ///< Access function for #targetOption property - refer to #targetOption property for details
+            void setTargetOptionProperty( TargetOptions option ) { videoWidget->setTargetOption( (VideoWidget::beamAndTargetOptions)option ); }///< Access function for #targetOption property - refer to #targetOption property for details
+
+    /// Definition of beam markup options.
+    Q_PROPERTY(TargetOptions beamOption READ getBeamOptionProperty WRITE setBeamOptionProperty)
+            TargetOptions getBeamOptionProperty() { return (TargetOptions)videoWidget->getBeamOption(); }            ///< Access function for #beamOption property - refer to #beamOption property for details
+            void setBeamOptionProperty( TargetOptions option ) { videoWidget->setBeamOption( (VideoWidget::beamAndTargetOptions)option ); }///< Access function for #beamOption property - refer to #beamOption property for details
+
+            //=========
 
     /// If true, an area will be presented under the image with textual information about the pixel under
     /// the cursor, and for other selections such as selected areas.
