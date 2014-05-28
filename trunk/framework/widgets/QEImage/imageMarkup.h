@@ -156,6 +156,14 @@ public:
     QSize getImageSize(){ return imageSize; }
     void setImageSize( const QSize& imageSizeIn );
 
+    enum beamAndTargetOptions { CROSSHAIR1,                // Markup type for beam and target markups
+                                  CROSSHAIR2 };              // Markup type for beam and target markups
+    beamAndTargetOptions getTargetOption();                // Access function for targetOption property - refer to targetOption property for details
+    void setTargetOption( beamAndTargetOptions option );   // Access function for targetOption property - refer to targetOption property for details
+    beamAndTargetOptions getBeamOption();                  // Access function for beamOption property - refer to beamOption property for details
+    void setBeamOption( beamAndTargetOptions option );     // Access function for beamOption property - refer to beamOption property for details
+    void setBeamOrTargetOption( markupIds item, beamAndTargetOptions option ); // Set the beam or traget markup option (which style of crosshaor to display)
+
 protected:
     void drawMarkups( QPainter& p, const QRect& rect );         // The image has changed, redraw the markups if any
     bool anyVisibleMarkups();                                   // Are there any markups visible
@@ -196,6 +204,9 @@ private:
     QCursor hLineCursor;                        // Used as default cursor when in horizontal slicemode
     QCursor lineCursor;                         // Used as default cursor when in line profile mode
     QCursor regionCursor;                       // Used as default cursor when in area selection mode
+
+    beamAndTargetOptions targetMarkupOption;       // Determines which markup is used for the 'target' markup
+    beamAndTargetOptions beamMarkupOption;         // Determines which markup is used for the 'target' markup
 
 //    markupDisplayMenu* mdMenu;
 

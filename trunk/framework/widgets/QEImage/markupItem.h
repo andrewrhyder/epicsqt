@@ -52,7 +52,8 @@ class markupItem
 protected:
     enum isOverOptions{ OVER_LINE, OVER_BORDER, OVER_AREA }; // test required to determine if pointer is over the object
     markupItem( imageMarkup* ownerIn, const isOverOptions over, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn );
-    virtual ~markupItem();
+public:
+    ~markupItem();
 
 public:
     enum markupHandles { MARKUP_HANDLE_NONE, // Over a markup, but not over any specific handle of the markup
@@ -60,7 +61,6 @@ public:
                          MARKUP_HANDLE_TL, MARKUP_HANDLE_TR, MARKUP_HANDLE_BL, MARKUP_HANDLE_BR, // Area corners
                          MARKUP_HANDLE_T, MARKUP_HANDLE_B, MARKUP_HANDLE_L, MARKUP_HANDLE_R };   // Area sides
     void drawMarkupItem( QPainter& p );
-    void setColor( QColor colorIn );
     void scale( const double xScale, const double yScale, const double zoomScale );//UNUSED!!!!!!!!!!!!!!!!!!!!!
     QSize getImageSize();
 
@@ -84,6 +84,9 @@ public:
     void          setLegend( const QString legendIn );                              // Set the string used to notate the markup (and the calculate its size)
     const QString getLegend();                                                      // Return the string used to notate the markup
 
+    void setColor( QColor colorIn );
+    QColor        getColor();                              // Return the colour used for this markup
+
     QRect         area;         // Area object occupies, used for repainting, and actual object coordinates where appropriate
     bool          visible;      // Object is visible to the user
     bool          interactive;  // Object can be moved by the user
@@ -95,7 +98,6 @@ protected:
     virtual void  setArea()=0;                       // Update the total rectangular area occupied by the markup
     virtual void  drawMarkup( QPainter& p )=0;       // Draw the markup
     bool          pointIsNear( QPoint p1, QPoint p );        // Returns true of point p1 is close to point p
-    QColor        getColor();                              // Return the colour used for this markup
 
 
     imageMarkup*  owner;                          // Class containing this markup instance
