@@ -2441,7 +2441,7 @@ void QEImage::displayImage()
         {
             LOOP_START
                     // Extract pixel
-                    // 4 values are used to generate 2 pixels as follows
+                    // 4 values are used to generate 2 pixels as follows:
 
                     // u  = yuv[0];
                     // y1 = yuv[1];

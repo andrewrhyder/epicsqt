@@ -717,7 +717,7 @@ void QEWidget::doAction( QWidget* searchPoint, QString widgetName, QString actio
 // Example of use:
 /*
         QEWidget* aWidgetBasedOnQEWidget = ...;
-        QList<QCaInfo> info = containedWidget->getQCaInfo();
+        QList<QCaInfo> info = aWidgetBasedOnQEWidget->getQCaInfo();
         qDebug() << "info" << info.count();
         for( int i = 0; i < info.count(); i++ )
         {
