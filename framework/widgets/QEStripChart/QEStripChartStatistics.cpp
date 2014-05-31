@@ -91,7 +91,7 @@ void QEStripChartStatistics::processDataList (const QCaDataPointList& dataList)
    endTime = dataList.value (n - 1).datetime;
    this->ui->endTimeLabel->setText (endTime.toString (format) + "  " + QEUtilities::getTimeZoneTLA (endTime));
 
-   double duration = endTime.floating (startTime);
+   double duration = startTime.secondsTo (endTime);
 
    this->ui->durationLabel->setText (QEUtilities::intervalToString (duration, 0));
 
@@ -137,7 +137,7 @@ void QEStripChartStatistics::processDataList (const QCaDataPointList& dataList)
             // point to the next point as the weight.
             //
             QCaDateTime nextTime = dataList.value (j + 1).datetime;
-            weight = nextTime.floating (point.datetime);
+            weight = point.datetime.secondsTo (nextTime);
 
          } else {
             // There is no next point - use an arbitary weight.
@@ -152,7 +152,7 @@ void QEStripChartStatistics::processDataList (const QCaDataPointList& dataList)
          // Least squares.
          // For x, use time from first point.
          //
-         double x = point.datetime.floating (startTime);
+         double x = startTime.secondsTo (point.datetime);
 
          sumX += x;
          sumY += point.value;

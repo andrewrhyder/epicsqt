@@ -434,7 +434,7 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
 #define PLOT_T(t) (t)
 #define PLOT_Y(y) (this->scaling.value (y))
 
-   const QDateTime end_time = this->chart->getEndDateTime ();
+   const QCaDateTime end_time = this->chart->getEndDateTime ();
    const double duration = this->chart->getDuration ();
    QEGraphic* graphic = this->chart->plotArea;
 
@@ -466,7 +466,7 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
 
       // Calculate the time of this point (in seconds) relative to the end of the chart.
       //
-      t = point.datetime.floating (end_time);
+      t = end_time.secondsTo (point.datetime);
 
       if (t < -duration) {
          // Point time is before current time range of the chart.
@@ -571,7 +571,7 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
 //
 QCaDataPointList QEStripChartItem::determinePlotPoints ()
 {
-   const QDateTime end_time = this->chart->getEndDateTime ();
+   const QCaDateTime end_time = this->chart->getEndDateTime ();
    const double duration = this->chart->getDuration ();
 
    QCaDataPointList result;
@@ -596,7 +596,7 @@ QCaDataPointList QEStripChartItem::determinePlotPoints ()
 
          // Calculate the time of this point (in seconds) relative to the end of the chart.
          //
-         t = point.datetime.floating (end_time);
+         t = end_time.secondsTo (point.datetime);
 
          if ((t >= -duration) && (t <= 0.0)) {
             // Point time is within current time range of the chart.
