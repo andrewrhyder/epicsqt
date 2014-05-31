@@ -124,7 +124,7 @@ QString QCaDataPoint::toString (const QCaDateTime& originDateTime) const
 
    // Calculate the relative time from start.
    //
-   relative = this->datetime.floating (originDateTime);
+   relative = originDateTime.secondsTo (this->datetime);
 
    result = QString ("%1  %2  %3  %4  %5  %6  %7")
                .arg (this->datetime.toString (stdFormat), 20)
