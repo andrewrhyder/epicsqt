@@ -3,11 +3,12 @@
 # This file is part of the EPICS QT Framework, and included into
 # and as part of the overall framework plugins.pro project file.
 #
+
 OTHER_FILES += \
+    widgets/QEStripChart/QEStripChart.png \
     widgets/QEStripChart/archive.png \
     widgets/QEStripChart/go_back.png \
     widgets/QEStripChart/go_fwd.png \
-    widgets/QEStripChart/icon.png \
     widgets/QEStripChart/linear_scale.png \
     widgets/QEStripChart/log_scale.png \
     widgets/QEStripChart/normal_video.png \

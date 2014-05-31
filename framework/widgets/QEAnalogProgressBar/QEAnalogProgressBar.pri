@@ -4,7 +4,7 @@
 # and as part of the overall framework plugins.pro project file.
 #
 OTHER_FILES += \
-    widgets/QEAnalogProgressBar/icon.png
+    widgets/QEAnalogProgressBar/QEAnalogProgressBar.png
 
 RESOURCES += \
     widgets/QEAnalogProgressBar/QEAnalogProgressBar.qrc

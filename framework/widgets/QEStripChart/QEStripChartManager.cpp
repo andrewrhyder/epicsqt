@@ -83,7 +83,7 @@ QString QEStripChartManager::group () const
 //
 QIcon QEStripChartManager::icon () const
 {
-   return QIcon (":/qe/stripchart/icon.png");
+   return QIcon (":/qe/stripchart/QEStripChart.png");
 }
 
 //------------------------------------------------------------------------------

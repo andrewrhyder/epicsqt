@@ -4,7 +4,7 @@
 # and as part of the overall framework plugins.pro project file.
 #
 OTHER_FILES += \
-    widgets/QEPvProperties/icon.png \
+    widgets/QEPvProperties/QEPvProperties.png \
     widgets/QEPvProperties/record_field_list.txt
 
 RESOURCES += \

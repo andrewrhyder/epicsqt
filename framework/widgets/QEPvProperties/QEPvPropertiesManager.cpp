@@ -84,7 +84,7 @@ QString QEPvPropertiesManager::group () const
 */
 QIcon QEPvPropertiesManager::icon () const
 {
-   return QIcon (":/qe/pvproperties/icon.png");
+   return QIcon (":/qe/pvproperties/QEPvProperties.png");
 }
 
 /*
