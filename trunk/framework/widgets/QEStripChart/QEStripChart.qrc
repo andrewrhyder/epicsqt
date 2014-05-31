@@ -1,9 +1,9 @@
 <RCC>
     <qresource prefix="/qe/stripchart">
+        <file>QEStripChart.png</file>
         <file>archive.png</file>
         <file>go_back.png</file>
         <file>go_fwd.png</file>
-        <file>icon.png</file>
         <file>linear_scale.png</file>
         <file>log_scale.png</file>
         <file>normal_video.png</file>
