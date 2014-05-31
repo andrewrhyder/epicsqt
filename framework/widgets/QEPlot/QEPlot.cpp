@@ -320,10 +320,10 @@ void QEPlot::regenerateTickXData( const unsigned int variableIndex )
 {
     trace* tr = &traces[variableIndex];
 
-    QDateTime now = QDateTime::currentDateTime();
+    QCaDateTime now = QDateTime::currentDateTime();
     for( int i = 0; i < tr->xdata.count(); i++)
     {
-        tr->xdata[i] = tr->timeStamps[i].floating( now );
+        tr->xdata[i] = now.secondsTo (tr->timeStamps[i]);
     }
 }
 
@@ -758,3 +758,4 @@ unsigned int QEPlot::getTickRate()
     return tickRate;
 }
 
+// end
