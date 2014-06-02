@@ -26,9 +26,11 @@
 #include <QELabelManager.h>
 #include <QESubstitutedLabelManager.h>
 #include <QELineEditManager.h>
+#include <QNumericEditManager.h>
 #include <QENumericEditManager.h>
 #include <QEPushButtonManager.h>
 #include <QERadioButtonManager.h>
+#include <QRadioGroupManager.h>
 #include <QERadioGroupManager.h>
 #include <QECheckBoxManager.h>
 #include <QEShapeManager.h>
@@ -63,6 +65,7 @@
 #include <QESimpleShapeManager.h>
 #include <QEArchiveNameSearchManager.h>
 #include <QEArchiveStatusManager.h>
+#include <QEHistogramManager.h>
 #include <QEScalarHistogramManager.h>
 #include <QEWaveformHistogramManager.h>
 
@@ -117,7 +120,10 @@ QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QBitStatusManager(this));
     widgets.append(new QEFrameManager(this));
     widgets.append(new QEGroupBoxManager(this));
+    widgets.append(new QEHistogramManager(this));
     widgets.append(new QELinkManager(this));
+    widgets.append(new QNumericEditManager(this));
+    widgets.append(new QRadioGroupManager(this));
 }
 /*
     Multiplugin interface.
