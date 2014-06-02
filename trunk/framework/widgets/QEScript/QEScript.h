@@ -125,6 +125,10 @@ class _CopyPaste
 // ============================================================
 //  QESCRIPT METHODS
 // ============================================================
+/*!
+  This class is a EPICS aware widget.
+  The QEScript widget allows the user to define a certain sequence of external programs to be executed. This sequence may be saved, modified or loaded for future usage.
+*/
 class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
 {
 
@@ -155,6 +159,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
         QDomDocument document;
         QString filename;
         QList<_CopyPaste *> copyPasteList;
+        bool editableTable;
         bool isExecuting;
 
 
@@ -162,7 +167,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
 
         QEScript(QWidget *pParent = 0);
         virtual ~QEScript(){}
-
 
         void setShowScriptList(bool pValue);
         bool getShowScriptList();
@@ -181,6 +185,9 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
 
         void setShowAbort(bool pValue);
         bool getShowAbort();
+
+        void setEditableTable(bool pValue);
+        bool getEditableTable();
 
         void setShowTable(bool pValue);
         bool getShowTable();
@@ -238,39 +245,58 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
 
         void refreshWidgets();
 
-
+        /// Show/hide combobox that contains the list of existing scripts created by the user
         Q_PROPERTY(bool showScriptList READ getShowScriptList WRITE setShowScriptList)
 
+        /// Show/hide button to reset (initialize) the table that contains the sequence of programs to be executed
         Q_PROPERTY(bool showNew READ getShowNew WRITE setShowNew)
 
+        /// Show/hide button to save/overwrite a new/existing script
         Q_PROPERTY(bool showSave READ getShowSave WRITE setShowSave)
 
+        /// Show/hide button to delete an existing script
         Q_PROPERTY(bool showDelete READ getShowDelete WRITE setShowDelete)
 
+        /// Show/hide button to execute a sequence of programs
         Q_PROPERTY(bool showExecute READ getShowExecute WRITE setShowExecute)
 
+        /// Show/hide button to abort the execution of a sequence of programs
         Q_PROPERTY(bool showAbort READ getShowAbort WRITE setShowAbort)
 
+        /// Show/hide table that contains a sequence of programs to be executed
         Q_PROPERTY(bool showTable READ getShowTable WRITE setShowTable)
 
+        /// Enable/disable table edition
+        Q_PROPERTY(bool editableTable READ getEditableTable WRITE setEditableTable)
+
+        /// Show/hide the controls of the table that contains a sequence of programs to be executed
         Q_PROPERTY(bool showTableControl READ getShowTableControl WRITE setShowTableControl)
 
+        /// Show/hide the column '#' that displays the sequential number of programs
         Q_PROPERTY(bool showColumnNumber READ getShowColumnNumber WRITE setShowColumnNumber)
 
+        /// Show/hide the column 'Enable' that enables the execution of programs
         Q_PROPERTY(bool showColumnEnable READ getShowColumnEnable WRITE setShowColumnEnable)
 
+        /// Show/hide the column 'Program' that contains the external programs to be executed
         Q_PROPERTY(bool showColumnProgram READ getShowColumnProgram WRITE setShowColumnProgram)
 
+        /// Show/hide the column 'Parameters' that contains the parameters that are passed to external programs to be executed
         Q_PROPERTY(bool showColumnParameters READ getShowColumnParameters WRITE setShowColumnParameters)
 
+        /// Show/hide the column 'Directory' that defines the working directory to be used when external programs are executed
         Q_PROPERTY(bool showColumnWorkingDirectory READ getShowColumnWorkingDirectory WRITE setShowColumnWorkingDirectory)
 
+        /// Show/hide the column 'Timeout' that defines a time out period in seconds (if equal to 0 then the program runs until it finishes; otherwise if greater than 0 then the program will only run during this amount of seconds and will be aborted beyond this time)
         Q_PROPERTY(bool showColumnTimeout READ getShowColumnTimeout WRITE setShowColumnTimeout)
 
+        /// Show/hide the column 'Stop' that enables stopping the execution of subsequent programs when the current one exited with an error code different from 0
         Q_PROPERTY(bool showColumnStop READ getShowColumnStop WRITE setShowColumnStop)
 
+        /// Show/hide the column 'Log' that enables the generation of log messages (these messages may be displayed using the QELog widget)
         Q_PROPERTY(bool showColumnLog READ getShowColumnLog WRITE setShowColumnLog)
 
+        /// Select if the scripts are to be loaded/saved from an XML file or from an XML text
         Q_ENUMS(scriptTypesProperty)
         Q_PROPERTY(scriptTypesProperty scriptType READ getScriptTypeProperty WRITE setScriptTypeProperty)
         enum scriptTypesProperty
@@ -288,15 +314,19 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
             return (scriptTypesProperty) getScriptType();
         }
 
+        /// Define the file where to save the scripts (if not defined then the scripts will be saved in a file named "QEScript.xml")
         Q_PROPERTY(QString scriptFile READ getScriptFile WRITE setScriptFile)
 
+        /// Define the XML text that contains the scripts
         Q_PROPERTY(QString scriptText READ getScriptText WRITE setScriptText)
 
+        /// Define the script (previously saved by the user) that will be load as the default script when the widget starts
         Q_PROPERTY(QString scriptDefault READ getScriptDefault WRITE setScriptDefault)
 
+        /// Define the caption of the button responsible for starting the execution of external programs (if not defined then the caption will be "Execute")
         Q_PROPERTY(QString executeText READ getExecuteText WRITE setExecuteText)
 
-
+        /// Change the order of the widgets. Valid orders are: TOP, BOTTOM, LEFT and RIG
         Q_ENUMS(optionsLayoutProperty)
         Q_PROPERTY(optionsLayoutProperty optionsLayout READ getOptionsLayoutProperty WRITE setOptionsLayoutProperty)
         enum optionsLayoutProperty

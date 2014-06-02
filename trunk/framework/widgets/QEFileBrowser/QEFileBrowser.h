@@ -75,10 +75,9 @@ class _QTableWidgetFileBrowser:public QTableWidget
 //  QEFILEBROWSER METHODS
 // ============================================================
 /*!
-  This class is a EPICS aware label widget based on the Qt label widget.
-  When a variable is defined, the label text (or optionally the background pixmap) will be updated. The label will be disabled if the variable is invalid.
-  It is tighly integrated with the base class QEWidget which provides generic support such as macro substitutions, drag/drop, and standard properties.
- */
+  This class is a EPICS aware widget.
+  The QEFileBrowser widget allows the user to browse existing files from a certain directory.
+*/
 class QEPLUGINLIBRARYSHARED_EXPORT QEFileBrowser:public QWidget, public QEWidget
 {
 
@@ -189,7 +188,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEFileBrowser:public QWidget, public QEWidget
         /// Enable/disable the browsing of directories-only when opening the dialog window
         Q_PROPERTY(bool fileDialogDirectoriesOnly READ getFileDialogDirectoriesOnly WRITE setFileDialogDirectoriesOnly)
 
-        /// Specify which files to browse. To specify more than one filter, please separate them with a “;”. Example: *py;*.ui (this will only display files with an extension .py and .ui).
+        /// Specify which files to browse. To specify more than one filter, please separate them with a “;”. Example: *.py;*.ui (this will only display files with an extension .py or .ui).
         Q_PROPERTY(QString fileFilter READ getFileFilter WRITE setFileFilter)
 
         /// Change the order of the widgets. Valid orders are: TOP, BOTTOM, LEFT and RIG
