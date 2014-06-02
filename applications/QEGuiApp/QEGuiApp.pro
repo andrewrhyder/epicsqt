@@ -36,8 +36,29 @@ equals( QT_MAJOR_VERSION, 5 ) {
     QT += core gui network uitools designer
 }
 
+## Added by Anton Mezger (check why and include if required)
+#unix {
+#    QMAKE_CXXFLAGS += "-g"
+#    QMAKE_CFLAGS_RELEASE += "-g"
+#}
+
+
 TARGET = qegui
 TEMPLATE = app
+
+#===========================================================
+# Integration of PSI's caQtDM in QEGui.
+# If integration is required, define environment variable QE_CAQTDM
+
+_QE_CAQTDM = $$(QE_CAQTDM)
+isEmpty( _QE_CAQTDM ) {
+    warning( "Integration with PSI's caQtDM will NOT be included in QEGui. If you want caQtDM integrated, download and build it and define the environment variable QE_CAQTDM." )
+} else {
+    warning( "Integration with PSI's caQtDM will be included in QEGui. caQtDM libraries and include files will be expected and be located using caQtDM environment variables. Undefine environment variable QE_CAQTDM if you do not want caQtDM integration." )
+    DEFINES += QE_USE_CAQTDM
+}
+#===========================================================
+
 
 SOURCES += ./src/main.cpp \
     ./src/MainWindow.cpp \
@@ -105,5 +126,18 @@ OTHER_FILES += \
 
 
 RESOURCES += ./src/QEGui.qrc
+
+#===========================================================
+# PSI's caQtDM integration
+isEmpty( _QE_CAQTDM ) {
+} else {
+    INCLUDEPATH += /afs/psi.ch/user/m/mezger/workarea/ACS/mezger/caQtDM_Project/caQtDM_Lib/src \
+                   /afs/psi.ch/user/m/mezger/workarea/ACS/mezger/caQtDM_Project/caQtDM_QtControls/src \
+                   $(QWTINCLUDE)
+    LIBS += -L/afs/psi.ch/user/m/mezger/workarea/ACS/mezger/caQtDM_Project/caQtDM_Lib -lcaQtDM_Lib
+}
+#===========================================================
+
+
 
 # end
