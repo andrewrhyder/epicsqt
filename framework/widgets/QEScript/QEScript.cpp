@@ -35,7 +35,6 @@
 #include <QInputDialog>
 #include <QProcess>
 #include <QCoreApplication>
-
 #include <QEScript.h>
 #include <UserMessage.h>
 
@@ -249,6 +248,25 @@ bool QEScript::getShowAbort()
     return qPushButtonAbort->isVisible();
 
 }
+
+
+
+void QEScript::setEditableTable(bool pValue)
+{
+
+    editableTable = pValue;
+
+}
+
+
+
+bool QEScript::getEditableTable()
+{
+
+    return editableTable;
+
+}
+
 
 
 void QEScript::setShowTable(bool pValue)
@@ -882,13 +900,11 @@ void QEScript::buttonDeleteClicked()
     QDomElement scriptElement;
     QDomNode rootNode;
     QString currentName;
-//    int count;
 
 
     currentName = qComboBoxScriptList->currentText();
     if (QMessageBox::question(this, "Info", "Do you want to delete script '" + currentName + "'?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
     {
-//        count = 0;
         rootElement = document.documentElement();
         if (rootElement.tagName() == "epicsqt")
         {
@@ -930,7 +946,6 @@ void QEScript::buttonDeleteClicked()
 
 void QEScript::buttonExecuteClicked()
 {
-
     QProcess *qProcess;
     QStringList qStringList;
     QString program;
@@ -982,7 +997,7 @@ void QEScript::buttonExecuteClicked()
                     {
                         sendMessage("Executing program #" + QString::number(i + 1) + " for " + QString::number(timeOut) + " seconds");
                     }
-                    j = timeOut * 20;
+                    j = timeOut * 50;
                 }
                 workingDirectory = qTableWidgetScript->item(i, 4)->text().trimmed();
                 if (workingDirectory.isEmpty() == false)
@@ -1002,7 +1017,7 @@ void QEScript::buttonExecuteClicked()
                 while(true)
                 {
                     QCoreApplication::processEvents();
-                    qProcess->waitForFinished(50);
+                    qProcess->waitForFinished(20);
                     if (isExecuting == true)
                     {
                         if (qProcess->state() == QProcess::NotRunning)
@@ -1338,28 +1353,56 @@ void QEScript::insertRow(bool pEnable, QString pProgram, QString pParameters, QS
 
     qCheckBox = new QCheckBox();
     qCheckBox->setChecked(pEnable);
+    qCheckBox->setEnabled(editableTable);
     qTableWidgetScript->setCellWidget(row, 1, qCheckBox);
 
     qTableWidgetItem = new QTableWidgetItem(pProgram);
+    if (editableTable == true)
+    {
+        qTableWidgetItem->setFlags(qTableWidgetItem->flags() | Qt::ItemIsEditable);
+    }
+    else
+    {
+        qTableWidgetItem->setFlags(qTableWidgetItem->flags() ^ Qt::ItemIsEditable);
+    }
     qTableWidgetScript->setItem(row, 2, qTableWidgetItem);
 
     qTableWidgetItem = new QTableWidgetItem(pParameters);
+    if (editableTable == true)
+    {
+        qTableWidgetItem->setFlags(qTableWidgetItem->flags() | Qt::ItemIsEditable);
+    }
+    else
+    {
+        qTableWidgetItem->setFlags(qTableWidgetItem->flags() ^ Qt::ItemIsEditable);
+    }
     qTableWidgetScript->setItem(row, 3, qTableWidgetItem);
 
     qTableWidgetItem = new QTableWidgetItem(pWorkingDirectory);
+    if (editableTable == true)
+    {
+        qTableWidgetItem->setFlags(qTableWidgetItem->flags() | Qt::ItemIsEditable);
+    }
+    else
+    {
+        qTableWidgetItem->setFlags(qTableWidgetItem->flags() ^ Qt::ItemIsEditable);
+    }
     qTableWidgetScript->setItem(row, 4, qTableWidgetItem);
 
     qSpinBox = new QSpinBox();
     qSpinBox->setValue(pTimeOut);
     qSpinBox->setSuffix(" s");
+    qSpinBox->setEnabled(editableTable);
     qTableWidgetScript->setCellWidget(row, 5, qSpinBox);
 
     qCheckBox = new QCheckBox();
     qCheckBox->setChecked(pStop);
+    qCheckBox->setEnabled(editableTable);
     qTableWidgetScript->setCellWidget(row, 6, qCheckBox);
 
     qCheckBox = new QCheckBox();
     qCheckBox->setChecked(pLog);
+    qCheckBox->setEnabled(editableTable);
     qTableWidgetScript->setCellWidget(row, 7, qCheckBox);
 
     for(i = row; i < qTableWidgetScript->rowCount(); i++)
