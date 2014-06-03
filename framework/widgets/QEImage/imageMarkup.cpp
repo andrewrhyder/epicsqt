@@ -158,12 +158,18 @@ bool imageMarkup::getShowTime()
 // The image has changed, redraw the markups if any
 void imageMarkup::drawMarkups( QPainter& p, const QRect& rect )
 {
+    // Scale the region to draw to a region in the original image
+    QRect originalRect( rect.left()   / zoomScale,
+                        rect.top()    / zoomScale,
+                        rect.width()  / zoomScale,
+                        rect.height() / zoomScale );
+
     int n = items.count();
     for( int i = 0; i < n; i ++ )
     {
         markupItem* item = items[i];
         // If the markup is being displayed and in the area of interest, draw it.
-        if( item->visible && rect.intersects( item->area ))
+        if( item->visible && originalRect.intersects( item->area ))
         {
             item->drawMarkupItem( p );
         }
