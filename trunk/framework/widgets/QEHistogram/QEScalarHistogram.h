@@ -205,16 +205,16 @@ public:
 
    // Expose access to the internal widget's set/get functions.
    //
-   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, double, setMinimum, getMinimum)
-   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, double, setMaximum, getMaximum)
-   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, double, setBaseLine, getBaseLine)
-   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, int,    setGap, getGap)
-   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, int,    setBarWidth, getBarWidth)
-   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, bool,   setAutoBarGapWidths, getAutoBarGapWidths)
-   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, bool,   setLogScale, getLogScale)
-   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, bool,   setDrawBorder, getDrawBorder)
-   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, QColor, setBarColour, getBarColour)
-   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, Qt::Orientation, setOrientation, getOrientation)
+   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, double, getMinimum,     setMinimum)
+   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, double, getMaximum,     setMaximum)
+   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, double, getBaseLine,    setBaseLine)
+   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, int,    getGap,         setGap)
+   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, int,    getBarWidth,    setBarWidth)
+   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, bool,   getAutoBarGapWidths, setAutoBarGapWidths)
+   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, bool,   getLogScale,    setLogScale)
+   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, bool,   getDrawBorder,  setDrawBorder)
+   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, QColor, getBarColour,   setBarColour)
+   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, Qt::Orientation, getOrientation, setOrientation)
 
 protected:
    qcaobject::QCaObject* createQcaItem (unsigned int variableIndex);

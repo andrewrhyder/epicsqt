@@ -62,7 +62,7 @@
 // Expose access to the internal object's set/get functions.
 // Uses same function names.
 //
-#define QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS(object, type, setfunc, getfunc)   \
+#define QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS(object, type, getfunc, setfunc)   \
    void setfunc (const type& v) { this->object->setfunc (v); }                \
    type getfunc () const { return this->object->getfunc (); }
 
