@@ -127,8 +127,8 @@ public:
    void setSeparator (const QEFixedPointRadix::Separators value);
    QEFixedPointRadix::Separators getSeparator () const;
 
-   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (lineEdit, bool,          setFrame,     hasFrame)
-   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (lineEdit, Qt::Alignment, setAlignment, alignment)
+   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (lineEdit, bool,          hasFrame,   setFrame)
+   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (lineEdit, Qt::Alignment, alignment,  setAlignment)
 
 signals:
    void valueChanged (const double value);
