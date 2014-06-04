@@ -67,10 +67,10 @@ public:
 
    /// (Re)set allowed limits.
    void setAllowedMinimum (const int minimum);
-   int getAllowedMinimum ();
+   int getAllowedMinimum () const;
 
    void setAllowedMaximum (const int maximum);
-   int getAllowedMaximum ();
+   int getAllowedMaximum () const;
 
 protected:
    bool eventFilter (QObject *obj, QEvent *event);
