@@ -2559,6 +2559,35 @@ void MainWindow::setGeom()
     waitForX11WindowManagerCount = 0;
 
     // Set the geometry as noted during the restore
+
+    QDesktopWidget* desktop = QApplication::desktop();
+    const QRect desktopGeometry = desktop->geometry();
+    const int leftLimit   = desktopGeometry.left()  + 100;
+    const int rightLimit  = desktopGeometry.right() - 100;
+    const int limitTop    = desktopGeometry.top()    + 50;
+    const int limitBottom = desktopGeometry.bottom() - 50;
+
+    // Ensure restored window geometry is at least partially on screen.
+    //
+    if ( setGeomRect.right () <= leftLimit )
+    {
+        setGeomRect.moveRight( leftLimit );
+    }
+    else if( setGeomRect.left () >= rightLimit )
+    {
+        setGeomRect.moveLeft( rightLimit );
+    }
+
+    if ( setGeomRect.top () <= limitTop )
+    {
+        // Need top of window on screen.
+        setGeomRect.moveTop( limitTop );
+    }
+    else if( setGeomRect.top () >= limitBottom )
+    {
+        setGeomRect.moveTop( limitBottom );
+    }
+
     setGeometry( setGeomRect );
 
     // Initiate scrolling of guis within the main window
@@ -2788,3 +2817,5 @@ QDockWidget* MainWindow::getGuiDock( QWidget* gui )
     }
     return NULL;
 }
+
+// end
