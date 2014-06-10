@@ -47,12 +47,13 @@ void markupEllipse::drawMarkup( QPainter& p )
     p.drawEllipse( scaledRect );
 
     // Draw markup legend
-    drawLegend( p, scaledRect.topLeft(), ABOVE_RIGHT );
+    drawLegend( p, scaledRect.topLeft() );
 }
 
 void markupEllipse::setArea()
 {
     area = rect;
+    scalableArea = area;
 
     // Sanity check - rect should never be non-normallized.
     // Note, drawing a non normalized QRect and a normalized QRect will not draw the same pixels!
@@ -61,6 +62,7 @@ void markupEllipse::setArea()
         qDebug() << "Error, markupEllipse::setArea() rect has negative dimensions" << rect;
     }
 
+    setLegendOffset( QPoint( 0, 0 ), ABOVE_RIGHT );
     addLegendArea();
 
     owner->markupAreasStale = true;

@@ -73,6 +73,9 @@ void markupText::setArea()
 
     area = rect;
 
+    scalableArea = QRect( QPoint( 0, 0 ), QPoint( 0, 0 ) );
+
+    //    setLegendPos( rect.topLeft(), ABOVE_RIGHT );  // never draw a legend for text markup
     addLegendArea();
 
     owner->markupAreasStale = true;
@@ -92,6 +95,7 @@ void markupText::moveTo( const QPoint posIn )
     QPoint limPos = limitPointToImage( posIn );
 
     rect.translate( limPos - owner->grabOffset );
+
     setArea();
 }
 

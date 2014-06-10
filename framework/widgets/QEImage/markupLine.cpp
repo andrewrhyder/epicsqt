@@ -94,10 +94,7 @@ void markupLine::drawMarkup( QPainter& p )
     }
 
     // Draw markup legend
-    legendJustification just;
-    (( startScaled.x() < endScaled.x() && startScaled.y() < endScaled.y() ) ||
-     ( startScaled.x() > endScaled.x() && startScaled.y() > endScaled.y() ) ) ? just = ABOVE_RIGHT : just = BELOW_RIGHT;
-    drawLegend( p, (endScaled-startScaled)/2+startScaled, just );
+    drawLegend( p, startScaled );
 }
 
 void markupLine::setArea()
@@ -124,16 +121,36 @@ void markupLine::setArea()
         }
     }
 
-    // Set the area
-    area.setTopLeft( topLeft );
-    area.setBottomRight( bottomRight );
+    // Determine the core line area (minus handles and legend)
+    QRect baseArea;
+    baseArea.setTopLeft( topLeft );
+    baseArea.setBottomRight( bottomRight );
 
-    area.adjust( -HANDLE_SIZE, -HANDLE_SIZE, HANDLE_SIZE+1, HANDLE_SIZE+1 );
+    // Set the scalable area of the markup (the core line minus handles and legend)
+    scalableArea = baseArea;
 
+    // Set the overall area of the markup initially to the core line minus handles and legend
+    area = baseArea;
+
+    //  - add the legend to the core area
+    legendJustification just;
+    (( start.x() < end.x() && start.y() < end.y() ) ||
+     ( start.x() > end.x() && start.y() > end.y() ) ) ? just = ABOVE_RIGHT : just = BELOW_RIGHT;
+
+    double scale = getZoomScale();
+    QPoint scaledOffset = end-start;
+    scaledOffset = QPoint( scaledOffset.x() * scale / 2.0, scaledOffset.y() * scale / 2.0 );
+    setLegendOffset( scaledOffset, just );
     addLegendArea();
 
-    owner->markupAreasStale = true;
+    //  - add the handles to the the core area
+    baseArea.adjust( -HANDLE_SIZE, -HANDLE_SIZE, HANDLE_SIZE+1, HANDLE_SIZE+1 );
 
+    //  - combine the core area with legend and the core area with handles
+    area = area.united( baseArea );
+
+
+    owner->markupAreasStale = true;
 }
 
 void markupLine::startDrawing( const QPoint pos )
@@ -203,6 +220,8 @@ void markupLine::moveTo( const QPoint posIn )
         default:
             break;
     }
+
+    // Update the area the line now occupies
     setArea();
 }
 

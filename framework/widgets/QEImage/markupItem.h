@@ -85,34 +85,36 @@ public:
     const QString getLegend();                                                      // Return the string used to notate the markup
 
     void setColor( QColor colorIn );
-    QColor        getColor();                              // Return the colour used for this markup
+    QColor        getColor();   // Return the colour used for this markup
 
-    QRect         area;         // Area object occupies, used for repainting, and actual object coordinates where appropriate
+    QRect         area;         // Area (in original image) object occupies, used for repainting, and actual object coordinates where appropriate
+    QRect         scalableArea; // Area in original image that is scaled when drawn in display image. This should be a part of 'area'. For example, when a region is drawn, the actual region is scaled, but the handles on the sides and corners are not scaled.
     bool          visible;      // Object is visible to the user
     bool          interactive;  // Object can be moved by the user
     bool          reportOnMove; // Movements reported (not just on move completion)
     QColor        color;        // Color markup is drawn in
 
 protected:
-    markupHandles activeHandle;                     // The current handle the user is over
-    virtual void  setArea()=0;                       // Update the total rectangular area occupied by the markup
-    virtual void  drawMarkup( QPainter& p )=0;       // Draw the markup
-    bool          pointIsNear( QPoint p1, QPoint p );        // Returns true of point p1 is close to point p
+    markupHandles activeHandle;                         // The current handle the user is over
+    virtual void  setArea()=0;                          // Update the total rectangular area occupied by the markup
+    virtual void  drawMarkup( QPainter& p )=0;          // Draw the markup
+    bool          pointIsNear( QPoint p1, QPoint p );   // Returns true of point p1 is close to point p
 
 
-    imageMarkup*  owner;                          // Class containing this markup instance
+    imageMarkup*  owner;                                // Class containing this markup instance
 
-    const QSize getLegendSize();                  // Return the size of the string used to notate the markup
-    void addLegendArea();                         // Add the legend area to the markup area
+    const QSize getLegendSize();                        // Return the size of the string used to notate the markup
+    void addLegendArea();                               // Add the legend area to the markup area
 
-    enum  legendJustification{ ABOVE_RIGHT, BELOW_LEFT, BELOW_RIGHT };      // Options for positioning the legend
-    const  QPoint setLegendPos( QPoint pos, legendJustification just );     // Sets (and returns) the position of the legend (top left of text) given the justificaiton
-    const  QPoint getLegendPos();                                           // Returns the last drawn legend position
-    void   drawLegend( QPainter& p, QPoint pos, legendJustification just ); // Draw the legend beside the markup
-    QPoint limitPointToImage( const QPoint pos );                           // Return the input point limited to the image area
+    enum  legendJustification{ ABOVE_RIGHT, BELOW_LEFT, BELOW_RIGHT };  // Options for positioning the legend
+    const  QPoint getLegendTextOrigin( QPoint posScaled );              // Returns the text drawing origin of the legend
+    void setLegendOffset( QPoint offset, legendJustification just );    // Sets the top left position of the rectangle enclosing the legend, relative to the markup's origin
+    const  QPoint getLegendOffset();                                    // Returns the legend position, relative to the markup's origin
+    void   drawLegend( QPainter& p, QPoint posScaled );                 // Draw the legend beside the markup
+    QPoint limitPointToImage( const QPoint pos );                       // Return the input point limited to the image area
 
-    unsigned int thickness;     // Selected line thickness
-    unsigned int maxThickness;  // Maximum line thickness. Changes according to current zoom
+    unsigned int thickness;                             // Selected line thickness
+    unsigned int maxThickness;                          // Maximum line thickness. Changes according to current zoom
 
     double getZoomScale();
 
@@ -120,7 +122,7 @@ private:
     QString      legend;                                // Text displayed beside markup
     QSize        legendSize;                            // Size of legend (according to legend font)
     bool         hasLegend();                           // Returns true if legend text is present
-    QPoint       legendPos;                             // Last drawn legend position
+    QPoint       legendOffset;                          // Last drawn legend position
 };
 
 #endif // MARKUPITEM_H

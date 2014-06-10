@@ -207,6 +207,7 @@ private:
 
     beamAndTargetOptions targetMarkupOption;       // Determines which markup is used for the 'target' markup
     beamAndTargetOptions beamMarkupOption;         // Determines which markup is used for the 'target' markup
+    QRect scaleArea( QRect area, QRect scaledArea ); // Return the area of a markup zoomed to the display image
 
 //    markupDisplayMenu* mdMenu;
 

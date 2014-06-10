@@ -38,7 +38,8 @@ void markupHLine::drawMarkup( QPainter& p )
     // Scale markup
     double scale = getZoomScale();
     int yScaled = y*scale;
-    int widthScaled = getImageSize().width()*scale;
+    int width = getImageSize().width();
+    int widthScaled = width*scale;
 
     // Draw markup
     p.drawLine( 0, yScaled, widthScaled, yScaled );
@@ -66,7 +67,7 @@ void markupHLine::drawMarkup( QPainter& p )
     }
 
     // Draw markup legend
-    drawLegend( p, QPoint( widthScaled/2, yScaled ), ABOVE_RIGHT );
+    drawLegend( p, QPoint( widthScaled/2, yScaled ) );
 }
 
 void markupHLine::setArea()
@@ -77,6 +78,13 @@ void markupHLine::setArea()
     area.setLeft( 0 );
     area.setRight( getImageSize().width() );
 
+    scalableArea.setTop(    y - (thickness/2) );
+    scalableArea.setBottom( y + (thickness/2) );
+
+    scalableArea.setLeft( 0 );
+    scalableArea.setRight( getImageSize().width() );
+
+    setLegendOffset( QPoint( 0, 0 ), ABOVE_RIGHT );
     addLegendArea();
 
     owner->markupAreasStale = true;

@@ -143,7 +143,7 @@ void imageMarkup::setShowTime( bool showTimeIn )
 
     // Notify a markup has changed
     QVector<QRect> changedAreas;
-    changedAreas.append( item->area );
+    changedAreas.append( scaleArea( item->area, item->scalableArea ) );
     markupChange( changedAreas );
 }
 
@@ -253,7 +253,7 @@ bool imageMarkup::markupMousePressEvent(QMouseEvent *event, bool panning)
                 if( items[activeItem]->visible )
                 {
                     QVector<QRect> changedAreas;
-                    changedAreas.append( items[activeItem]->area );
+                    changedAreas.append( scaleArea( items[activeItem]->area, items[activeItem]->scalableArea ) );
                     markupChange( changedAreas );
                 }
                 items[activeItem]->startDrawing( pos );
@@ -448,14 +448,14 @@ void imageMarkup::markupValueChange( int markup, bool displayMarkups, QPoint p1,
     bool isVisible =  items[markup]->visible;
     if( isVisible )
     {
-        changedAreas.append( items[markup]->area );
+        changedAreas.append( scaleArea( items[markup]->area, items[markup]->scalableArea ) );
     }
 
     // Update the markup
     items[markup]->nonInteractiveUpdate( p1, p2 );
 
     // Extend the area to update and update it
-    changedAreas.append( items[markup]->area );
+    changedAreas.append( scaleArea( items[markup]->area, items[markup]->scalableArea ) );
     markupChange( changedAreas );
 }
 
@@ -517,14 +517,14 @@ void imageMarkup::redrawActiveItemHere( QPoint pos )
     // Ensure item will be erased, move, then ensure it will be redrawn
     if( items[activeItem]->visible )
     {
-        changedAreas.append( items[activeItem]->area );
+        changedAreas.append( scaleArea( items[activeItem]->area, items[activeItem]->scalableArea ) );
     }
 
     items[activeItem]->moveTo( pos );
     items[activeItem]->visible = true;
 
     // Extend the changed areas to include the item's new area and notify markups require redrawing
-    changedAreas.append( items[activeItem]->area );
+    changedAreas.append( scaleArea( items[activeItem]->area, items[activeItem]->scalableArea ) );
     markupChange( changedAreas );
 }
 
@@ -553,13 +553,13 @@ void imageMarkup::markupResize( const double zoomScaleIn )
         // Ensure the area the markup occupied will be cleared
         if( item->visible )
         {
-            changedAreas.append( item->area );
+            changedAreas.append( scaleArea( item->area, item->scalableArea ) );
         }
 
         // If the markup is being displayed, redraw it, and act on its 'new' position
         if( item->visible )
         {
-            changedAreas.append( item->area );
+            changedAreas.append( scaleArea( item->area, item->scalableArea ) );
 
 //            markupAction( (markupIds)i, false, false, item->getPoint1(), item->getPoint2(), item->getThickness() );
         }
@@ -610,7 +610,7 @@ void imageMarkup::setMarkupLegend( markupIds mode, QString legendIn )
     QVector<QRect> changedAreas;
     if( items[mode]->visible )
     {
-        changedAreas.append( items[mode]->area );
+        changedAreas.append( scaleArea( items[mode]->area, items[mode]->scalableArea ) );
         markupChange( changedAreas );
     }
 }
@@ -645,7 +645,7 @@ void imageMarkup::setMarkupColor( markupIds mode, QColor markupColorIn )
     QVector<QRect> changedAreas;
     if( items[mode]->visible )
     {
-        changedAreas.append( items[mode]->area );
+        changedAreas.append( scaleArea( items[mode]->area, items[mode]->scalableArea ) );
         markupChange( changedAreas );
     }
 
@@ -800,7 +800,7 @@ void imageMarkup::clearMarkup( markupIds markupId )
 {
     items[markupId]->visible = false;
     QVector<QRect> changedAreas;
-    changedAreas.append( items[markupId]->area );
+    changedAreas.append( scaleArea( items[markupId]->area, items[markupId]->scalableArea ) );
     // Redraw the now hidden item
     markupChange( changedAreas );
 
@@ -824,7 +824,7 @@ void imageMarkup::showMarkup( markupIds markupId )
         ( item->getPoint1().y() != item->getPoint2().y() ) )
     {
         QVector<QRect> changedAreas;
-        changedAreas.append( area );
+        changedAreas.append( scaleArea( area, item->scalableArea ) );
         item->visible = true;
 
         // Redraw the now visible item
@@ -852,7 +852,7 @@ void imageMarkup::setSinglePixelThickness( markupIds markupId )
     if( item->visible )
     {
         // Include the area of the item after its thickness has changed
-        changedAreas.append( item->area );
+        changedAreas.append( scaleArea( item->area, item->scalableArea ) );
 
         // Repaint
         markupChange( changedAreas );
@@ -879,7 +879,7 @@ void imageMarkup::setThickness( markupIds markupId, unsigned int newThickness )
         if( item->visible )
         {
             // Include the area of the item after its thickness has changed
-            changedAreas.append( item->area );
+            changedAreas.append( scaleArea( item->area, item->scalableArea ) );
 
             // Repaint
             markupChange( changedAreas );
@@ -943,4 +943,16 @@ void imageMarkup::setBeamOrTargetOption( markupIds item, beamAndTargetOptions op
 
     // Restore the attributes
     items[item]->setColor( color );
+}
+
+// Return the area of a markup zoomed to the display image.
+// Note, there is generally a part of a markup that is scaled (for example the main area of a region markup)
+// and a part of the markup that is not scaled (for example, the handles on the corners and sides of a region markup, or a legend)
+// 'scaledArea' represent the area to be scaled within the overall 'area' of the markup (using coordinates in the original image).
+QRect imageMarkup::scaleArea( QRect area, QRect scaledArea )
+{
+    return QRect( scaledArea.left()   * zoomScale - (scaledArea.left() - area.left()),
+                  scaledArea.top()    * zoomScale - (scaledArea.top() - area.top()),
+                  scaledArea.width()  * zoomScale + (area.width() - scaledArea.width()),
+                  scaledArea.height() * zoomScale + (area.height() - scaledArea.height()) );
 }

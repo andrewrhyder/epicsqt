@@ -118,48 +118,53 @@ void markupItem::addLegendArea()
     {
         QRect legendArea;
         legendArea.setSize( getLegendSize() );
-        legendArea.moveTo( getLegendPos() );
+        QPoint x = area.topLeft()+legendOffset;
+        legendArea.moveTo( x );//area.topLeft()+legendOffset );
         area = area.united( legendArea );
     }
 }
 
-// Sets the top left position of the rectangle enclosing the legend and returns the text drawing origin within that area
-const QPoint markupItem::setLegendPos( QPoint pos, legendJustification just )
+// Returns the text drawing origin of the legend
+const QPoint markupItem::getLegendTextOrigin( QPoint posScaled )
 {
-    legendPos = pos;
+    QPoint textOrigin = posScaled + legendOffset;
+    textOrigin.setY( textOrigin.y() + owner->legendFontMetrics->ascent() );
+    return textOrigin;
+}
+
+// Sets the top left position of the rectangle enclosing the legend
+void markupItem::setLegendOffset( QPoint offset, legendJustification just )
+{
+    legendOffset = offset;
 
     // Position the legend around the position requested according to the justification
     switch( just )
     {
         case ABOVE_RIGHT:
         default:
-            legendPos.setY( legendPos.y() - owner->legendFontMetrics->height() );
+            legendOffset.setY( legendOffset.y() - owner->legendFontMetrics->height() );
             break;
 
         case BELOW_LEFT:
-            legendPos.setX( legendPos.x() - legendSize.width() );
+            legendOffset.setX( legendOffset.x() - legendSize.width() );
 
         case BELOW_RIGHT:
             // legendPos is correct as is
             break;
     }
 
-    QPoint textOrigin = legendPos;
-    textOrigin.setY( textOrigin.y() + owner->legendFontMetrics->ascent() );
-
-    return textOrigin;
 }
 
 // Returns the last drawn legend position
-const QPoint markupItem::getLegendPos()
+const QPoint markupItem::getLegendOffset()
 {
-    return legendPos;
+    return legendOffset;
 }
 
-void markupItem::drawLegend( QPainter& p, QPoint pos, legendJustification just )
+void markupItem::drawLegend( QPainter& p, QPoint posScaled )
 {
     p.setFont( owner->legendFont );
-    p.drawText( setLegendPos( pos, just ), getLegend() );
+    p.drawText( getLegendTextOrigin( posScaled ), getLegend() );
 }
 
 // Limit a given point to the image
