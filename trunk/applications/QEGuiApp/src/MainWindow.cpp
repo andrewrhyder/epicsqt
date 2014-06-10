@@ -153,6 +153,7 @@
 #include <QVariant>
 #include <QScrollBar>
 #include <QFileDialog>
+#include <QDeskTopWidget>
 #include <saveDialog.h>
 #include <restoreDialog.h>
 #include <PasswordDialog.h>
