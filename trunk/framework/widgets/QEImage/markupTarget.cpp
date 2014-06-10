@@ -49,13 +49,16 @@ void markupCrosshair1::drawMarkup( QPainter& p )
     p.setPen( pen );
 
     // Draw markup legend
-    drawLegend( p, scaledPos, ABOVE_RIGHT );
+    drawLegend( p, scaledPos );
 }
 
 void markupCrosshair1::setArea()
 {
     area = QRect( QPoint(0,0), getImageSize() );
 
+    scalableArea = area;
+
+    setLegendOffset( QPoint( 0, 0 ), ABOVE_RIGHT );
     addLegendArea();
 
     owner->markupAreasStale = true;
@@ -72,7 +75,9 @@ void markupCrosshair1::moveTo( const QPoint posIn )
     // Limit position to within the image
     QPoint limPos = limitPointToImage( posIn );
 
-    pos = limitPointToImage( limPos );
+    pos = limPos;
+
+    // Update the crosshair now occupies
     setArea();
 }
 

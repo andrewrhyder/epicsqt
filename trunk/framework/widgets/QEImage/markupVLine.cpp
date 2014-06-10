@@ -38,7 +38,8 @@ void markupVLine::drawMarkup( QPainter& p )
     // Scale markup
     double scale = getZoomScale();
     int xScaled = x*scale;
-    int heightScaled = getImageSize().height()*scale;
+    int height = getImageSize().height();
+    int heightScaled = height*scale;
 
     // Draw markup
     p.drawLine( xScaled, 0, xScaled, heightScaled );
@@ -66,7 +67,7 @@ void markupVLine::drawMarkup( QPainter& p )
     }
 
     // Draw markup legend
-    drawLegend( p, QPoint(xScaled, heightScaled/2), ABOVE_RIGHT );
+    drawLegend( p, QPoint(xScaled, heightScaled/2) );
 }
 
 void markupVLine::setArea()
@@ -77,6 +78,13 @@ void markupVLine::setArea()
     area.setTop( 0 );
     area.setBottom( getImageSize().height() );
 
+    scalableArea.setLeft(  x - (thickness/2) );
+    scalableArea.setRight( x + (thickness/2) );
+
+    scalableArea.setTop( 0 );
+    scalableArea.setBottom( getImageSize().height() );
+
+    setLegendOffset( QPoint( 0, 0 ), ABOVE_RIGHT );
     addLegendArea();
 
     owner->markupAreasStale = true;

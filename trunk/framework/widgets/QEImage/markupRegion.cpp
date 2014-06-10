@@ -78,13 +78,11 @@ void markupRegion::drawMarkup( QPainter& p )
     }
 
     // Draw markup legend
-    drawLegend( p, scaledRect.topLeft(), ABOVE_RIGHT );
+    drawLegend( p, scaledRect.topLeft() );
 }
 
 void markupRegion::setArea()
 {
-    area = rect;
-
     // Sanity check - rect should never be non-normallized.
     // Note, drawing a non normalized QRect and a normalized QRect will not draw the same pixels!
     if( rect.width() < 0 || rect.height() < 0 )
@@ -92,9 +90,21 @@ void markupRegion::setArea()
         qDebug() << "Error, markupRegion::setArea() rect has negative dimensions" << rect;
     }
 
-    area.adjust( -HANDLE_SIZE, -HANDLE_SIZE, HANDLE_SIZE+1, HANDLE_SIZE+1 );
+    // Set the scalable area of the markup (the core rectangle minus handles and legend)
+    scalableArea = rect;
 
+    // Set the overall area of the markup
+    //  - add the legend to the core area
+    area = rect;
+    setLegendOffset( QPoint( 0, 0 ), ABOVE_RIGHT );
     addLegendArea();
+
+    //  - add the handles to the the core area
+    QRect baseArea = rect;
+    baseArea.adjust( -HANDLE_SIZE, -HANDLE_SIZE, HANDLE_SIZE+1, HANDLE_SIZE+1 );
+
+    //  - combine the core area with legend and the core area with handles
+    area = area.united( baseArea );
 
     owner->markupAreasStale = true;
 }
