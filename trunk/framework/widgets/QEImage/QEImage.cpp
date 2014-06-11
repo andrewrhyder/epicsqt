@@ -2001,18 +2001,19 @@ void QEImage::displayImage()
             enum regions {REG_TL, REG_T, REG_TR, REG_L, REG_C, REG_R, REG_BL, REG_B, REG_BR};
 
             // Values for all cells that may be involved in generating a pixel
-            quint32 r1; // Red above-left of blue
-            quint32 r2; // Red above-right of blue
-            quint32 r3; // Red below-left of blue
-            quint32 r4; // Red below-right of blue
             quint32 g1; // Green above blue or red
             quint32 g2; // Green below of blue or red
             quint32 g3; // Green left of blue or red
             quint32 g4; // Green right of blue or red
-            quint32 b1; // Blue above-left of red
-            quint32 b2; // Blue above-right of red
-            quint32 b3; // Blue below-left of red
-            quint32 b4; // Blue below-right of red
+
+            quint32 d1; // Red or blue diagonally above-left of blue or red
+            quint32 d2; // Red or blue diagonally above-right of blue or red
+            quint32 d3; // Red or blue diagonally below-left of blue or red
+            quint32 d4; // Red or blue diagonally below-right of blue or red
+
+            quint32 d;  // Sum of reds or blues diagonally sourounding current blue or red
+
+            quint32 rb; // Red or blue from current cell (depending on pattern)
 
             quint32 h1; // Left of green (may be red or blue depending on pattern)
             quint32 h2; // Right of green (may be red or blue depending on pattern)
@@ -2021,6 +2022,7 @@ void QEImage::displayImage()
 
             quint32 h;  // Sum of left and right or green (horizontal) (may be red or blue depending on pattern)
             quint32 v;  // Sum of above and below green (vertical) (may be red or blue depending on pattern)
+
             quint32 g12;// Green (either Green1 or Green 2)
 
             quint32* g1r; // Pointer to red sum for Green1 (may be h (left and right) or v (above and below) depending on pattern)
@@ -2156,10 +2158,12 @@ void QEImage::displayImage()
                 switch( cellColour )
                 {
                     case CC_R: // red
-                        // Extract the red value
-                        r1 = (*((quint32*)inPixel))&mask;
+                    case CC_B: // blue
 
-                        // Based on the region, use available neighbouring cells to supply green and blue values
+                        // Extract the value
+                        rb = (*((quint32*)inPixel))&mask;
+
+                        // Based on the region, use available neighbouring cells to supply green and red or blue (diagonal) values
                         switch( region )
                         {
                             case REG_C:
@@ -2167,10 +2171,10 @@ void QEImage::displayImage()
                                 g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
                                 g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
                                 g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                b1 = (*((quint32*)(&inPixel[TLOffset])))&mask;
-                                b2 = (*((quint32*)(&inPixel[TROffset])))&mask;
-                                b3 = (*((quint32*)(&inPixel[BLOffset])))&mask;
-                                b4 = (*((quint32*)(&inPixel[BROffset])))&mask;
+                                d1 = (*((quint32*)(&inPixel[TLOffset])))&mask;
+                                d2 = (*((quint32*)(&inPixel[TROffset])))&mask;
+                                d3 = (*((quint32*)(&inPixel[BLOffset])))&mask;
+                                d4 = (*((quint32*)(&inPixel[BROffset])))&mask;
                                 break;
 
                             case REG_TL:
@@ -2178,10 +2182,10 @@ void QEImage::displayImage()
                                 g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
                                 g1 = g2;
                                 g3 = g4;
-                                b4 = (*((quint32*)(&inPixel[BROffset])))&mask;
-                                b1 = b4;
-                                b2 = b4;
-                                b3 = b4;
+                                d4 = (*((quint32*)(&inPixel[BROffset])))&mask;
+                                d1 = d4;
+                                d2 = d4;
+                                d3 = d4;
                                 break;
 
                             case REG_T:
@@ -2189,10 +2193,10 @@ void QEImage::displayImage()
                                 g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
                                 g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
                                 g1 = (g2+g3+g4)/3;
-                                b3 = (*((quint32*)(&inPixel[BLOffset])))&mask;
-                                b4 = (*((quint32*)(&inPixel[BROffset])))&mask;
-                                b1 = b3;
-                                b2 = b4;
+                                d3 = (*((quint32*)(&inPixel[BLOffset])))&mask;
+                                d4 = (*((quint32*)(&inPixel[BROffset])))&mask;
+                                d1 = d3;
+                                d2 = d4;
                                 break;
 
                             case REG_TR:
@@ -2200,10 +2204,10 @@ void QEImage::displayImage()
                                 g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
                                 g1 = g2;
                                 g4 = g3;
-                                b3 = (*((quint32*)(&inPixel[BLOffset])))&mask;
-                                b1 = b3;
-                                b2 = b3;
-                                b4 = b3;
+                                d3 = (*((quint32*)(&inPixel[BLOffset])))&mask;
+                                d1 = d3;
+                                d2 = d3;
+                                d4 = d3;
                                 break;
 
                             case REG_L:
@@ -2211,10 +2215,10 @@ void QEImage::displayImage()
                                 g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
                                 g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
                                 g3 = g4;
-                                b2 = (*((quint32*)(&inPixel[TROffset])))&mask;
-                                b4 = (*((quint32*)(&inPixel[BROffset])))&mask;
-                                b1 = b2;
-                                b3 = b4;
+                                d2 = (*((quint32*)(&inPixel[TROffset])))&mask;
+                                d4 = (*((quint32*)(&inPixel[BROffset])))&mask;
+                                d1 = d2;
+                                d3 = d4;
                                 break;
 
                             case REG_R:
@@ -2222,10 +2226,10 @@ void QEImage::displayImage()
                                 g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
                                 g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
                                 g4 = (g1+g2+g3)/3;
-                                b1 = (*((quint32*)(&inPixel[TLOffset])))&mask;
-                                b3 = (*((quint32*)(&inPixel[BLOffset])))&mask;
-                                b2 = b1;
-                                b4 = b3;
+                                d1 = (*((quint32*)(&inPixel[TLOffset])))&mask;
+                                d3 = (*((quint32*)(&inPixel[BLOffset])))&mask;
+                                d2 = d1;
+                                d4 = d3;
                                 break;
 
                             case REG_BL:
@@ -2233,10 +2237,10 @@ void QEImage::displayImage()
                                 g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
                                 g2 = g1;
                                 g3 = g4;
-                                b2 = (*((quint32*)(&inPixel[TROffset])))&mask;
-                                b1 = b2;
-                                b3 = b2;
-                                b4 = b2;
+                                d2 = (*((quint32*)(&inPixel[TROffset])))&mask;
+                                d1 = d2;
+                                d3 = d2;
+                                d4 = d2;
                                 break;
 
                             case REG_B:
@@ -2244,10 +2248,10 @@ void QEImage::displayImage()
                                 g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
                                 g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
                                 g2 = (g1+g3+g4)/3;
-                                b1 = (*((quint32*)(&inPixel[TLOffset])))&mask;
-                                b2 = (*((quint32*)(&inPixel[TROffset])))&mask;
-                                b3 = b1;
-                                b4 = b2;
+                                d1 = (*((quint32*)(&inPixel[TLOffset])))&mask;
+                                d2 = (*((quint32*)(&inPixel[TROffset])))&mask;
+                                d3 = d1;
+                                d4 = d2;
                                 break;
 
                             case REG_BR:
@@ -2255,18 +2259,33 @@ void QEImage::displayImage()
                                 g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
                                 g2 = g1;
                                 g4 = g3;
-                                b1 = (*((quint32*)(&inPixel[TLOffset])))&mask;
-                                b2 = b1;
-                                b3 = b1;
-                                b4 = b1;
+                                d1 = (*((quint32*)(&inPixel[TLOffset])))&mask;
+                                d2 = d1;
+                                d3 = d1;
+                                d4 = d1;
                                 break;
 
                         }
 
-                        // Calculate RGB from available cells
-                        r = r1>>shift;
+                        // Calculate the diagonal sum (red or blue depending on the pattern)
+                        d = (d1+d2+d3+d4)>>(shift+2);
+
+                        // Calculate the Green value from the green cells
                         g = (g1+g2+g3+g4)>>(shift+2);
-                        b = (b1+b2+b3+b4)>>(shift+2);
+
+                        // Take the red and blue from the current cell and the diagonals, or the other way round depending on the pattern
+                        switch( cellColour )
+                        {
+                            default:    // Should never hit the default case. Include to avoid compilation errors
+                            case CC_R: // red
+                                r = rb>>shift;
+                                b = d;
+                                break;
+                            case CC_B: // blue
+                                r = d;
+                                b = rb>>shift;
+                                break;
+                        }
 
                         break;
 
@@ -2366,121 +2385,6 @@ void QEImage::displayImage()
                                 b = *g2b;
                                 break;
                         }
-
-                        break;
-
-                    case CC_B: // blue
-                        // Extract the blue value
-                        b1 = (*((quint32*)inPixel))&mask;
-
-                        // Based on the region, use available neighbouring cells to supply green and red values
-                        switch( region )
-                        {
-                            case REG_C:
-                                r1 = (*((quint32*)(&inPixel[TLOffset])))&mask;
-                                r2 = (*((quint32*)(&inPixel[TROffset])))&mask;
-                                r3 = (*((quint32*)(&inPixel[BLOffset])))&mask;
-                                r4 = (*((quint32*)(&inPixel[BROffset])))&mask;
-                                g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
-                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                break;
-
-                            case REG_T:
-                                r3 = (*((quint32*)(&inPixel[BLOffset])))&mask;
-                                r4 = (*((quint32*)(&inPixel[BROffset])))&mask;
-                                r1 = r3;
-                                r2 = r4;
-                                g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
-                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                g1 = (g2+g3+g4)/3;
-                                break;
-
-                            case REG_TL:
-                                r4 = (*((quint32*)(&inPixel[BROffset])))&mask;
-                                r1 = r4;
-                                r2 = r4;
-                                r3 = r4;
-                                g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
-                                g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                g1 = g2;
-                                g3 = g4;
-                                break;
-
-                            case REG_TR:
-                                r3 = (*((quint32*)(&inPixel[BLOffset])))&mask;
-                                r1 = r3;
-                                r2 = r3;
-                                r4 = r3;
-                                g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
-                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                g1 = g2;
-                                g4 = g3;
-                                break;
-
-                            case REG_L:
-                                r2 = (*((quint32*)(&inPixel[TROffset])))&mask;
-                                r4 = (*((quint32*)(&inPixel[BROffset])))&mask;
-                                r1 = r2;
-                                r3 = r4;
-                                g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
-                                g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                g3 = (r1+g2+g4)/3;
-                                break;
-
-                            case REG_BL:
-                                r2 = (*((quint32*)(&inPixel[TROffset])))&mask;
-                                r1 = r2;
-                                r3 = r2;
-                                r4 = r2;
-                                g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                g2 = g1;
-                                g4 = g3;
-                                break;
-
-                            case REG_R:
-                                r1 = (*((quint32*)(&inPixel[TLOffset])))&mask;
-                                r3 = (*((quint32*)(&inPixel[BLOffset])))&mask;
-                                r2 = r1;
-                                r4 = r3;
-                                g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
-                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                g4 = (g1+g2+g3)/3;
-                                break;
-
-                            case REG_B:
-                                r1 = (*((quint32*)(&inPixel[TLOffset])))&mask;
-                                r2 = (*((quint32*)(&inPixel[TROffset])))&mask;
-                                r3 = r1;
-                                r4 = r2;
-                                g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                g2 = (r1+r3+r4)/3;
-                                break;
-
-                            case REG_BR:
-                                r1 = (*((quint32*)(&inPixel[TLOffset])))&mask;
-                                r2 = r1;
-                                r3 = r1;
-                                r4 = r1;
-                                g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                g2 = g1;
-                                g4 = g3;
-                                break;
-
-                        }
-
-                        // Calculate RGB from available cells
-                        r = (r1+r2+r3+r4)>>(shift+2);
-                        g = (g1+g2+g3+g4)>>(shift+2);
-                        b = b1>>shift;
 
                         break;
 
