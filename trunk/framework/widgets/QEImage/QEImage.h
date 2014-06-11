@@ -1192,7 +1192,11 @@ public:
     /// \enum FormatOptions
     /// User friendly enumerations for #formatOption property - refer to #formatOption property and #formatOptions enumeration for details.
     enum FormatOptions { Mono     = imageDataFormats::MONO,      ///< Grey scale
-                         Bayer    = imageDataFormats::BAYER,     ///< Colour (Bayer)
+                         Bayer    = imageDataFormats::BAYERRG,     ///< Colour (Bayer Red Green)
+                         BayerGB  = imageDataFormats::BAYERGB,     ///< Colour (Bayer Green Blue)
+                         BayerBG  = imageDataFormats::BAYERBG,     ///< Colour (Bayer Blue Green)
+                         BayerGR  = imageDataFormats::BAYERGR,     ///< Colour (Bayer Green Red)
+                         BayerRG  = imageDataFormats::BAYERRG,     ///< Colour (Bayer Red Green)
                          rgb1     = imageDataFormats::RGB1,      ///< Colour (24 bit RGB)
                          rgb2     = imageDataFormats::RGB2,      ///< Colour (??? bit RGB)
                          rgb3     = imageDataFormats::RGB3,      ///< Colour (??? bit RGB)

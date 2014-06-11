@@ -31,7 +31,10 @@
 namespace imageDataFormats
 {
     enum formatOptions{ MONO,           ///< Grey scale
-                        BAYER,          ///< Colour (Bayer)
+                        BAYERGB,        ///< Colour (Bayer Green Blue)
+                        BAYERBG,        ///< Colour (Bayer Blue Green)
+                        BAYERGR,        ///< Colour (Bayer Green Red)
+                        BAYERRG,        ///< Colour (Bayer Red Green)
                         RGB1,           ///< Colour (RGB ???)
                         RGB2,           ///< Colour (RGB ???)
                         RGB3,           ///< Colour (RGB ???)

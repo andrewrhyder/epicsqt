@@ -912,7 +912,11 @@ void QEImage::setFormat( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTi
     // Update image format
     // Area detector formats
     if     ( !text.compare( "Mono" ) )         mFormatOption = imageDataFormats::MONO;
-    else if( !text.compare( "Bayer" ) )        mFormatOption = imageDataFormats::BAYER;
+    else if( !text.compare( "Bayer" ) )        mFormatOption = imageDataFormats::BAYERRG;
+    else if( !text.compare( "BayerGB" ) )      mFormatOption = imageDataFormats::BAYERGB;
+    else if( !text.compare( "BayerBG" ) )      mFormatOption = imageDataFormats::BAYERBG;
+    else if( !text.compare( "BayerGR" ) )      mFormatOption = imageDataFormats::BAYERGR;
+    else if( !text.compare( "BayerRG" ) )      mFormatOption = imageDataFormats::BAYERRG;
     else if( !text.compare( "RGB1" ) )         mFormatOption = imageDataFormats::RGB1;
     else if( !text.compare( "RGB2" ) )         mFormatOption = imageDataFormats::RGB2;
     else if( !text.compare( "RGB3" ) )         mFormatOption = imageDataFormats::RGB3;
@@ -1975,8 +1979,12 @@ void QEImage::displayImage()
             break;
         }
 
-        case imageDataFormats::BAYER:
+        case imageDataFormats::BAYERGB:
+        case imageDataFormats::BAYERBG:
+        case imageDataFormats::BAYERGR:
+        case imageDataFormats::BAYERRG:
         {
+            // Pre-calculate offsets in the data to neighbouring pixels
             int TLOffset = (-(int)(imageBuffWidth)-1)*(int)(bytesPerPixel);
             int  TOffset = -(int)(imageBuffWidth)*(int)(bytesPerPixel);
             int TROffset = (-(int)(imageBuffWidth)+1)*(int)(bytesPerPixel);
@@ -1986,46 +1994,134 @@ void QEImage::displayImage()
             int  BOffset = imageBuffWidth*(int)(bytesPerPixel);
             int BROffset = ((int)(imageBuffWidth)+1)*(int)(bytesPerPixel);
 
+            // Define regions in the image where different calculations occur.
+            // Over most of the image four neighbouring cells are available.
+            // On the sides five neighbours are present.
+            // On the corners three neighbours are present.
             enum regions {REG_TL, REG_T, REG_TR, REG_L, REG_C, REG_R, REG_BL, REG_B, REG_BR};
 
-            quint32 r1;
-            quint32 r2;
-            quint32 r3;
-            quint32 r4;
-            quint32 g1;
-            quint32 g2;
-            quint32 g3;
-            quint32 g4;
-            quint32 b1;
-            quint32 b2;
-            quint32 b3;
-            quint32 b4;
+            // Values for all cells that may be involved in generating a pixel
+            quint32 r1; // Red above-left of blue
+            quint32 r2; // Red above-right of blue
+            quint32 r3; // Red below-left of blue
+            quint32 r4; // Red below-right of blue
+            quint32 g1; // Green above blue or red
+            quint32 g2; // Green below of blue or red
+            quint32 g3; // Green left of blue or red
+            quint32 g4; // Green right of blue or red
+            quint32 b1; // Blue above-left of red
+            quint32 b2; // Blue above-right of red
+            quint32 b3; // Blue below-left of red
+            quint32 b4; // Blue below-right of red
 
+            quint32 h1; // Left of green (may be red or blue depending on pattern)
+            quint32 h2; // Right of green (may be red or blue depending on pattern)
+            quint32 v1; // Above green (may be red or blue depending on pattern)
+            quint32 v2; // Below green (may be red or blue depending on pattern)
+
+            quint32 h;  // Sum of left and right or green (horizontal) (may be red or blue depending on pattern)
+            quint32 v;  // Sum of above and below green (vertical) (may be red or blue depending on pattern)
+            quint32 g12;// Green (either Green1 or Green 2)
+
+            quint32* g1r; // Pointer to red sum for Green1 (may be h (left and right) or v (above and below) depending on pattern)
+            quint32* g2r; // Pointer to red sum for Green2 (may be h (left and right) or v (above and below) depending on pattern)
+            quint32* g1b; // Pointer to blue sum for Green1 (may be h (left and right) or v (above and below) depending on pattern)
+            quint32* g2b; // Pointer to blue sum for Green2 (may be h (left and right) or v (above and below) depending on pattern)
+
+            // Pixel RGB values
             quint32 r;
             quint32 g;
             quint32 b;
 
+            // Each Bayer cluster of four image cells contain one red, one blue, and two green values.
+            // There are four combinations for each cluster and no standard :(
+            // Preconfigure a table to translate from cluster cell index to color.
+            enum CELL_COLOURS {CC_G1, CC_G2,CC_R,CC_B};
+            CELL_COLOURS cellColours[4];
+            switch( mFormatOption )
+            {
+                default:    // Should never hit the default case. Include to avoid compilation errors
+                case imageDataFormats::BAYERGB: cellColours[0] = CC_G1; cellColours[1] = CC_B;  cellColours[2] = CC_R;  cellColours[3] = CC_G2; break;
+                case imageDataFormats::BAYERBG: cellColours[0] = CC_B;  cellColours[1] = CC_G1; cellColours[2] = CC_G2; cellColours[3] = CC_R;  break;
+                case imageDataFormats::BAYERGR: cellColours[0] = CC_G1; cellColours[1] = CC_R;  cellColours[2] = CC_B;  cellColours[3] = CC_G2; break;
+                case imageDataFormats::BAYERRG: cellColours[0] = CC_R;  cellColours[1] = CC_G1; cellColours[2] = CC_G2; cellColours[3] = CC_B;  break;
+            }
 
+            // Preconfigure red and blue positions relative to green. Depending on the Bayer pattern
+            // red can be left and right, and blue above and below, or the other way round
+            switch( mFormatOption )
+            {
+                default:    // Should never hit the default case. Include to avoid compilation errors
+                case imageDataFormats::BAYERGB:
+                case imageDataFormats::BAYERBG:
+                    g1r = &v; g1b = &h; g2r = &h; g2b = &v; break;
+
+                case imageDataFormats::BAYERGR:
+                case imageDataFormats::BAYERRG:
+                    g1r = &h; g1b = &v; g2r = &v; g2b = &h; break;
+            }
+
+            // Pre-calculate last cell for inner and outer loops
             int outLast = outCount-1;
             int inLast = inCount-1;
 
-
+            // Pre-calculate pixel index values for corners
             unsigned int TLPixel = 0;
             unsigned int TRPixel = imageBuffWidth-1;
             unsigned int BLPixel = (imageBuffHeight-1)*imageBuffWidth;
             unsigned int BRPixel = (imageBuffHeight*imageBuffWidth)-1;
 
-
+            // Processing region (corners, edges, or central)
             regions region;
 
+            // Pre-calculate data shift and mask nessesary to obtain most significant 8 bits
             int shift = (bitDepth<=8)?0:bitDepth-8;
             quint32 mask = (1<<bitDepth)-1;
 
+            // Loop through the input data
+            // The loop order is based on current flip and rotation and so will not nessesarily
+            // move linearly through input data. No matter what the order of processing neighbouring
+            // cells are referenced the same way.
             LOOP_START
+
+                // Get a reference to the current 'pixel'
                 unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
+
+                // Calculate the current Bayer cell. (one of four as follows)
+                //   01010101010101010101...
+                //   23232323232323232323...
+                //   01010101010101010101...
+                //   23232323232323232323...
+                //   01010101010101010101...
+                //   23232323232323232323...
+                //   .......................
+                //   .......................
+                //   .......................
+                //
                 unsigned int color = (dataIndex&1)|(((dataIndex/imageBuffWidth)&1)<<1);
 
-                // Assume Central region
+                // Translate the bayer cell to a color
+                // Depending on the specific bayer pattern the color number is interpreted as follows
+                //
+                // BayerBG = 01 = BG
+                //           23   GR
+                //
+                // BayerGB = 01 = GB
+                //           23   RG
+                //
+                // BayerRG = 01 = RG
+                //           23   GB
+                //
+                // BayerGR = 01 = GR
+                //           23   BG
+                //
+                // So, for example, color = 1 and Bayer pattern is BayerRG, then the current color is G1 (the first green)
+                CELL_COLOURS cellColour = cellColours[color];
+
+                // Calculate the processing region.
+                // This is used to determine what neighbouring cells are available.
+
+                // Assume Central region.
                 region = REG_C;
 
                 // If on an edge...
@@ -2056,11 +2152,14 @@ void QEImage::displayImage()
                 }
 
 
-
-                switch( color )
+                // Process the cell
+                switch( cellColour )
                 {
-                    case 0: // red
+                    case CC_R: // red
+                        // Extract the red value
                         r1 = (*((quint32*)inPixel))&mask;
+
+                        // Based on the region, use available neighbouring cells to supply green and blue values
                         switch( region )
                         {
                             case REG_C:
@@ -2111,11 +2210,11 @@ void QEImage::displayImage()
                                 g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
                                 g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
                                 g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                g3 =
-                                b1 =
+                                g3 = g4;
                                 b2 = (*((quint32*)(&inPixel[TROffset])))&mask;
-                                b3 =
                                 b4 = (*((quint32*)(&inPixel[BROffset])))&mask;
+                                b1 = b2;
+                                b3 = b4;
                                 break;
 
                             case REG_R:
@@ -2164,141 +2263,117 @@ void QEImage::displayImage()
 
                         }
 
+                        // Calculate RGB from available cells
                         r = r1>>shift;
                         g = (g1+g2+g3+g4)>>(shift+2);
                         b = (b1+b2+b3+b4)>>(shift+2);
 
                         break;
 
-                    case 1: // green 1
-                        g1 = (*((quint32*)inPixel))&mask;
+                    case CC_G1: // green 1
+                    case CC_G2: // green 2
+
+                        // Extract the green value
+                        g12 = (*((quint32*)inPixel))&mask;
+
+                        // Based on the region, use available neighbouring cells to supply red and blue values
+                        // Depending on the pattern top and bottom might be red and left and right blue,
+                        // or the other way round, so for the time being, just refer to them by their
+                        // orientation (v or h), rather than colour
                         switch( region )
                         {
                             case REG_C:
-                                r1 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                r2 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                b1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                b2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                h1 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                h2 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                                v1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                v2 = (*((quint32*)(&inPixel[BOffset])))&mask;
                                 break;
 
                             case REG_T:
-                                r1 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                r2 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                b2 = (*((quint32*)(&inPixel[BOffset])))&mask;
-                                b1 = b2;
+                                h1 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                h2 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                                v2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                v1 = v2;
                                 break;
 
                             case REG_TR:
-                                r1 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                r2 = r1;
-                                b2 = (*((quint32*)(&inPixel[BOffset])))&mask;
-                                b1 = b2;
+                                h1 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                h2 = h1;
+                                v2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                v1 = v2;
                                 break;
 
                             case REG_R:
-                                r1 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                r2 = r1;
-                                b1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                b2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                h1 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                h2 = h1;
+                                v1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                v2 = (*((quint32*)(&inPixel[BOffset])))&mask;
                                 break;
 
                             case REG_B:
-                                r1 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                r2 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                b1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                b2 = b1;
+                                h1 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                h2 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                                v1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                v2 = v1;
                                 break;
 
                             case REG_BR:
-                                r1 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                r2 = r1;
-                                b1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                b2 = b1;
+                                h1 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                h2 = h1;
+                                v1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                v2 = v1;
                                 break;
 
-                            // Top left, Left, Bottom-Left is never green 1
                             case REG_TL:
-                            case REG_L:
-                            case REG_BL:
-                                r1 = 0;
-                                r2 = 0;
-                                b1 = 0;
-                                b2 = 0;
+                                h2 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                                h1 = h2;
+                                v2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                v1 = v2;
                                 break;
 
+                            case REG_L:
+                                h2 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                                h1 = h2;
+                                v1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                v2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                break;
+
+                            case REG_BL:
+                                h2 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                                h1 = h2;
+                                v1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                v2 = v1;
+                                break;
                         }
 
-                        r = pixelLookup[(r1+r2)>>(shift+1)].p[0];
-                        g = pixelLookup[g1>>shift].p[0];
-                        b = pixelLookup[(b1+b2)>>(shift+1)].p[0];
+                        // Calculate the vertical and horizontal sums (one is red, the other is blue depending on the pattern)
+                        h = (h1+h2)>>(shift+1);
+                        v = (v1+v2)>>(shift+1);
 
-                        break;
+                        // Calculate the Green value from the green cell
+                        g = g12>>shift;
 
-                    case 2: // green 2
-                        g2 = (*((quint32*)inPixel))&mask;
-                        switch( region )
+                        // Take the red and blue from the vertical or horizontal sums depending on the pattern
+                        switch( cellColour )
                         {
-                            case REG_C:
-                                r1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                r2 = (*((quint32*)(&inPixel[BOffset])))&mask;
-                                b1 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                b2 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                            default:    // Should never hit the default case. Include to avoid compilation errors
+                            case CC_G1: // green 1
+                                r = *g1r;
+                                b = *g1b;
                                 break;
-
-                            case REG_L:
-                                r1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                r2 = (*((quint32*)(&inPixel[BOffset])))&mask;
-                                b2 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                b1 = b2;
-                                break;
-
-                            case REG_R:
-                                r1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                r2 = (*((quint32*)(&inPixel[BOffset])))&mask;
-                                b1 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                b2 = b1;
-                                break;
-
-                            case REG_BL:
-                                r1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                r2 = r1;
-                                b2 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                b1 = b2;
-                                break;
-
-                            case REG_B:
-                                r1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                r2 = r1;
-                                b1 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                b2 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                break;
-
-                            case REG_BR:
-                                r1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                r2 = r1;
-                                b1 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                b2 = b1;
-                                break;
-
-                            // Top left, Top, Top-Right is never green 2
-                            case REG_TL:
-                            case REG_T:
-                            case REG_TR:
-                                r1 = 0;
-                                r2 = 0;
-                                b1 = 0;
-                                b2 = 0;
+                            case CC_G2: // green 2
+                                r = *g2r;
+                                b = *g2b;
                                 break;
                         }
 
-                        r = (r1+r2)>>(shift+1);
-                        g = g2>>shift;
-                        b = (b1+b2)>>(shift+1);
-
                         break;
 
-                    case 3: // blue
+                    case CC_B: // blue
+                        // Extract the blue value
                         b1 = (*((quint32*)inPixel))&mask;
+
+                        // Based on the region, use available neighbouring cells to supply green and red values
                         switch( region )
                         {
                             case REG_C:
@@ -2312,20 +2387,59 @@ void QEImage::displayImage()
                                 g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
                                 break;
 
-                            // Top-left, Top, Top-right, Left, Bottom-Left is never blue
                             case REG_T:
+                                r3 = (*((quint32*)(&inPixel[BLOffset])))&mask;
+                                r4 = (*((quint32*)(&inPixel[BROffset])))&mask;
+                                r1 = r3;
+                                r2 = r4;
+                                g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                                g1 = (g2+g3+g4)/3;
+                                break;
+
                             case REG_TL:
+                                r4 = (*((quint32*)(&inPixel[BROffset])))&mask;
+                                r1 = r4;
+                                r2 = r4;
+                                r3 = r4;
+                                g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                                g1 = g2;
+                                g3 = g4;
+                                break;
+
                             case REG_TR:
+                                r3 = (*((quint32*)(&inPixel[BLOffset])))&mask;
+                                r1 = r3;
+                                r2 = r3;
+                                r4 = r3;
+                                g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                g1 = g2;
+                                g4 = g3;
+                                break;
+
                             case REG_L:
+                                r2 = (*((quint32*)(&inPixel[TROffset])))&mask;
+                                r4 = (*((quint32*)(&inPixel[BROffset])))&mask;
+                                r1 = r2;
+                                r3 = r4;
+                                g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                                g3 = (r1+g2+g4)/3;
+                                break;
+
                             case REG_BL:
-                                r1 = 0;
-                                r2 = 0;
-                                r3 = 0;
-                                r4 = 0;
-                                g1 = 0;
-                                g2 = 0;
-                                g3 = 0;
-                                g4 = 0;
+                                r2 = (*((quint32*)(&inPixel[TROffset])))&mask;
+                                r1 = r2;
+                                r3 = r2;
+                                r4 = r2;
+                                g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                g2 = g1;
+                                g4 = g3;
                                 break;
 
                             case REG_R:
@@ -2363,6 +2477,7 @@ void QEImage::displayImage()
 
                         }
 
+                        // Calculate RGB from available cells
                         r = (r1+r2+r3+r4)>>(shift+2);
                         g = (g1+g2+g3+g4)>>(shift+2);
                         b = b1>>shift;
@@ -4449,7 +4564,10 @@ unsigned int QEImage::maxPixelValue()
 
     switch( mFormatOption )
     {
-        case imageDataFormats::BAYER:
+        case imageDataFormats::BAYERGB:
+        case imageDataFormats::BAYERBG:
+        case imageDataFormats::BAYERGR:
+        case imageDataFormats::BAYERRG:
         case imageDataFormats::MONO:
             result = (1<<bitDepth)-1;
             break;
@@ -5060,7 +5178,10 @@ int QEImage::getPixelValueFromData( const unsigned char* ptr )
     // Case the data to the correct size, then return the data as a floating point number.
     switch( mFormatOption )
     {
-        case imageDataFormats::BAYER:
+        case imageDataFormats::BAYERGB:
+        case imageDataFormats::BAYERBG:
+        case imageDataFormats::BAYERGR:
+        case imageDataFormats::BAYERRG:
         case imageDataFormats::MONO:
             {
                 unsigned int usableDepth = bitDepth;
@@ -5703,14 +5824,17 @@ void QEImage::showImageAboutDialog()
     QString name;
     switch( mFormatOption )
     {
-        case imageDataFormats::MONO:        name = "Monochrome";    break;
-        case imageDataFormats::BAYER:       name = "Bayer";         break;
-        case imageDataFormats::RGB1:        name = "8 bit RGB";     break;
-        case imageDataFormats::RGB2:        name = "RGB2???";       break;
-        case imageDataFormats::RGB3:        name = "RGB3???";       break;
-        case imageDataFormats::YUV444:      name = "???bit YUV444"; break;
-        case imageDataFormats::YUV422:      name = "???bit YUV422"; break;
-        case imageDataFormats::YUV421:      name = "???bit YUV421"; break;
+        case imageDataFormats::MONO:        name = "Monochrome";         break;
+        case imageDataFormats::BAYERGB:     name = "Bayer (Green/Blue)"; break;
+        case imageDataFormats::BAYERBG:     name = "Bayer (Blue/Green)"; break;
+        case imageDataFormats::BAYERGR:     name = "Bayer (Green/Red)";  break;
+        case imageDataFormats::BAYERRG:     name = "Bayer (red/Green)";  break;
+        case imageDataFormats::RGB1:        name = "8 bit RGB";          break;
+        case imageDataFormats::RGB2:        name = "RGB2???";            break;
+        case imageDataFormats::RGB3:        name = "RGB3???";            break;
+        case imageDataFormats::YUV444:      name = "???bit YUV444";      break;
+        case imageDataFormats::YUV422:      name = "???bit YUV422";      break;
+        case imageDataFormats::YUV421:      name = "???bit YUV421";      break;
     }
 
     about.append( QString( "\nExpected format: " ).append( name ));
