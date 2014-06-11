@@ -2056,11 +2056,19 @@ void QEImage::displayImage()
                 default:    // Should never hit the default case. Include to avoid compilation errors
                 case imageDataFormats::BAYERGB:
                 case imageDataFormats::BAYERBG:
-                    g1r = &v; g1b = &h; g2r = &h; g2b = &v; break;
+                    g1r = &v; // Use vertical (v) for reds associated with Green1
+                    g1b = &h; // Use horizontal (h) for blues associated with Green1
+                    g2r = &h; // Use horizontal (h) for reds associated with Green2
+                    g2b = &v; // Use vertical (v) for blues associated with Green2
+                    break;
 
                 case imageDataFormats::BAYERGR:
                 case imageDataFormats::BAYERRG:
-                    g1r = &h; g1b = &v; g2r = &v; g2b = &h; break;
+                    g1r = &h; // Use horizontal (h) for reds associated with Green1
+                    g1b = &v; // Use vertical (v) for blues associated with Green1
+                    g2r = &v; // Use vertical (v) for reds associated with Green2
+                    g2b = &h; // Use horizontal (h) for blues associated with Green2
+                    break;
             }
 
             // Pre-calculate last cell for inner and outer loops
