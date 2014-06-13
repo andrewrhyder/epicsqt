@@ -603,10 +603,7 @@ void QERecipe::buttonNewClicked()
                 fieldInfo = qEConfiguredLayoutRecipeFields->currentFieldList.at(i);
                 processVariableElement = document.createElement("processvariable");
                 processVariableElement.setAttribute("name", fieldInfo->getProcessVariable());
-                if (fieldInfo->getType() == BITSTATUS)
-                {
-                }
-                else if (fieldInfo->getType() == BUTTON)
+                if (fieldInfo->getType() == BUTTON)
                 {
                 }
                 else if (fieldInfo->getType() == LABEL)
@@ -701,10 +698,7 @@ void QERecipe::buttonSaveClicked()
             fieldInfo = qEConfiguredLayoutRecipeFields->currentFieldList.at(i);
             processVariableElement = document.createElement("processvariable");
             processVariableElement.setAttribute("name", fieldInfo->getProcessVariable());
-            if (fieldInfo->getType() == BITSTATUS)
-            {
-            }
-            else if (fieldInfo->getType() == BUTTON)
+            if (fieldInfo->getType() == BUTTON)
             {
             }
             else if (fieldInfo->getType() == LABEL)
@@ -1013,10 +1007,7 @@ void QERecipe::refreshButton()
                                     if (fieldInfo->getProcessVariable() == processVariableElement.attribute("name"))
                                     {
 
-                                        if (fieldInfo->getType() == BITSTATUS)
-                                        {
-                                        }
-                                        else if (fieldInfo->getType() == BUTTON)
+                                        if (fieldInfo->getType() == BUTTON)
                                         {
                                         }
                                         else if (fieldInfo->getType() == LABEL)
@@ -1024,7 +1015,7 @@ void QERecipe::refreshButton()
                                         }
                                         else if (fieldInfo->getType() == SPINBOX)
                                         {
-//                                            ((QESpinBox *) fieldInfo->qCaWidget)->setValue((float) processVariableElement.attribute("value"));
+                                            //((QESpinBox *) fieldInfo->qeWidget)->setValue((float) processVariableElement.attribute("value"));
                                         }
                                         else if (fieldInfo->getType() == COMBOBOX)
                                         {
