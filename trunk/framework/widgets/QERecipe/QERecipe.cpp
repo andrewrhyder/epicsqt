@@ -614,15 +614,15 @@ void QERecipe::buttonNewClicked()
                 }
                 else if (fieldInfo->getType() == SPINBOX)
                 {
-                    processVariableElement.setAttribute("value", ((QESpinBox *) fieldInfo->qCaWidget)->text());
+                    processVariableElement.setAttribute("value", ((QESpinBox *) fieldInfo->qeWidget)->text());
                 }
                 else if (fieldInfo->getType() == COMBOBOX)
                 {
-                    processVariableElement.setAttribute("value", ((QEComboBox *) fieldInfo->qCaWidget)->currentText());
+                    processVariableElement.setAttribute("value", ((QEComboBox *) fieldInfo->qeWidget)->currentText());
                 }
                 else
                 {
-                    processVariableElement.setAttribute("value", ((QELineEdit *) fieldInfo->qCaWidget)->text());
+                    processVariableElement.setAttribute("value", ((QELineEdit *) fieldInfo->qeWidget)->text());
                 }
                 recipeElement.appendChild(processVariableElement);
             }
@@ -712,15 +712,15 @@ void QERecipe::buttonSaveClicked()
             }
             else if (fieldInfo->getType() == SPINBOX)
             {
-                processVariableElement.setAttribute("value", ((QESpinBox *) fieldInfo->qCaWidget)->text());
+                processVariableElement.setAttribute("value", ((QESpinBox *) fieldInfo->qeWidget)->text());
             }
             else if (fieldInfo->getType() == COMBOBOX)
             {
-                processVariableElement.setAttribute("value", ((QEComboBox *) fieldInfo->qCaWidget)->currentText());
+                processVariableElement.setAttribute("value", ((QEComboBox *) fieldInfo->qeWidget)->currentText());
             }
             else
             {
-                processVariableElement.setAttribute("value", ((QELineEdit *) fieldInfo->qCaWidget)->text());
+                processVariableElement.setAttribute("value", ((QELineEdit *) fieldInfo->qeWidget)->text());
             }
             recipeElement.appendChild(processVariableElement);
         }
@@ -814,7 +814,7 @@ void QERecipe::buttonApplyClicked()
             fieldInfo = qEConfiguredLayoutRecipeFields->currentFieldList.at(i);
             if (fieldInfo->getVisibility())
             {
-                fieldInfo->qCaWidget->writeNow();
+                fieldInfo->qeWidget->writeNow();
             }
         }
         QMessageBox::information(this, "Info", "The recipe '" + qComboBoxRecipeList->currentText() + "' was successfully applied to process variables!");
@@ -839,7 +839,7 @@ void QERecipe::buttonReadClicked()
             fieldInfo = qEConfiguredLayoutRecipeFields->currentFieldList.at(i);
             if (fieldInfo->getVisibility())
             {
-                fieldInfo->qCaWidget->readNow();
+                fieldInfo->qeWidget->readNow();
             }
         }
         QMessageBox::information(this, "Info", "The values were successfully read from the process variables!");
@@ -1028,11 +1028,11 @@ void QERecipe::refreshButton()
                                         }
                                         else if (fieldInfo->getType() == COMBOBOX)
                                         {
-                                            ((QEComboBox *) fieldInfo->qCaWidget)->setEditText(processVariableElement.attribute("value"));
+                                            ((QEComboBox *) fieldInfo->qeWidget)->setEditText(processVariableElement.attribute("value"));
                                         }
                                         else
                                         {
-                                            ((QELineEdit *) fieldInfo->qCaWidget)->setText(processVariableElement.attribute("value"));
+                                            ((QELineEdit *) fieldInfo->qeWidget)->setText(processVariableElement.attribute("value"));
                                         }
                                         break;
                                     }
