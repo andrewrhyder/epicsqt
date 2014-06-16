@@ -52,9 +52,9 @@ TEMPLATE = app
 
 _QE_CAQTDM = $$(QE_CAQTDM)
 isEmpty( _QE_CAQTDM ) {
-    warning( "Integration with PSI's caQtDM will NOT be included in QEGui. If you want caQtDM integrated, download and build it and define the environment variable QE_CAQTDM." )
+    warning( "Integration with PSI's caQtDM will NOT be included in QEGui. If you want caQtDM integrated, download and build it and define the environment variable QE_CAQTDM to point to the caQtDM_Project directory." )
 } else {
-    warning( "Integration with PSI's caQtDM will be included in QEGui. caQtDM libraries and include files will be expected and be located using caQtDM environment variables. Undefine environment variable QE_CAQTDM if you do not want caQtDM integration." )
+    warning( "Integration with PSI's caQtDM will be included in QEGui. caQtDM libraries and include files will be expected and be located using the QE_CAQTDM environment variable (which will should point to the to point to the caQtDM_Project directory). Undefine environment variable QE_CAQTDM if you do not want caQtDM integration." )
     DEFINES += QE_USE_CAQTDM
 }
 #===========================================================
@@ -131,10 +131,10 @@ RESOURCES += ./src/QEGui.qrc
 # PSI's caQtDM integration
 isEmpty( _QE_CAQTDM ) {
 } else {
-    INCLUDEPATH += /afs/psi.ch/user/m/mezger/workarea/ACS/mezger/caQtDM_Project/caQtDM_Lib/src \
-                   /afs/psi.ch/user/m/mezger/workarea/ACS/mezger/caQtDM_Project/caQtDM_QtControls/src \
+    INCLUDEPATH += $(_QE_CAQTDM)/caQtDM_Project/caQtDM_Lib/src \
+                   $(_QE_CAQTDM)/caQtDM_Project/caQtDM_QtControls/src \
                    $(QWTINCLUDE)
-    LIBS += -L/afs/psi.ch/user/m/mezger/workarea/ACS/mezger/caQtDM_Project/caQtDM_Lib -lcaQtDM_Lib
+    LIBS += -L$(_QE_CAQTDM)/caQtDM_Project/caQtDM_Lib -lcaQtDM_Lib
 }
 #===========================================================
 
