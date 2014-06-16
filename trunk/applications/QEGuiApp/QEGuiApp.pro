@@ -131,10 +131,10 @@ RESOURCES += ./src/QEGui.qrc
 # PSI's caQtDM integration
 isEmpty( _QE_CAQTDM ) {
 } else {
-    INCLUDEPATH += $(_QE_CAQTDM)/caQtDM_Project/caQtDM_Lib/src \
-                   $(_QE_CAQTDM)/caQtDM_Project/caQtDM_QtControls/src \
+    INCLUDEPATH += $$(QE_CAQTDM)/caQtDM_Lib/src \
+                   $$(QE_CAQTDM)/caQtDM_QtControls/src \
                    $(QWTINCLUDE)
-    LIBS += -L$(_QE_CAQTDM)/caQtDM_Project/caQtDM_Lib -lcaQtDM_Lib
+    LIBS += -L$$(QE_CAQTDM)/caQtDM_Lib -lcaQtDM_Lib
 }
 #===========================================================
 

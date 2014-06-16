@@ -46,8 +46,8 @@
 // QE_CAQTDM to be processed by QEGuiApp.pro
 #ifdef QE_USE_CAQTDM
 
-    #include "mutexKnobData.h"
-    #include "mutexKnobDataWrapper.h"
+    #include <mutexKnobData.h>
+    #include <mutexKnobDataWrapper.h>
     #include <caqtdm_lib.h>
 
 #endif // QE_USE_CAQTDM
