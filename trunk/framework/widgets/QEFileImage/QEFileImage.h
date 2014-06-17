@@ -26,6 +26,7 @@
 #define QEFILEIMAGE_H
 
 #include <QLabel>
+#include <QFileSystemWatcher>
 #include <QEWidget.h>
 #include <QEString.h>
 #include <QEStringFormatting.h>
@@ -56,6 +57,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEFileImage : public QLabel, public QEWidget,
   private:
     void establishConnection( unsigned int variableIndex );
 
+public slots:
+    void setImageFileName( const QString& text );
 private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
     void setLabelImage( const QString& text, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
@@ -80,12 +83,11 @@ private slots:
 
     bool isConnected;
 
-    QString lastTextStyle;
-    QString currentText;
+    QString fileName;
 
     void stringFormattingChange(){ requestResend(); }
 
-
+    QFileSystemWatcher fileMon;
 
     // Drag and Drop
 private:

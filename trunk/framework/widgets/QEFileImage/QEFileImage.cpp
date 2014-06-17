@@ -26,7 +26,7 @@
   This class is a CA aware label widget based on the Qt label widget.
   It is tighly integrated with the base class QEWidget. Refer to QEWidget.cpp for details
  */
-
+#include <QFile>
 #include <QEFileImage.h>
 
 /*
@@ -52,6 +52,9 @@ void QEFileImage::setup() {
     // Set up data
     // This control used a single data source
     setNumVariables(1);
+
+    // Set minimum size
+    setMinimumSize( 100, 100 );
 
     // Set up default properties
     setAllowDrop( false );
@@ -120,7 +123,7 @@ void QEFileImage::connectionChanged( QCaConnectionInfo& connectionInfo )
 }
 
 /*
-    Update the label pixmap
+    Update the label pixmap from variable data.
     This is the slot used to recieve data updates from a QCaObject based class.
  */
 void QEFileImage::setLabelImage( const QString& textIn, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
@@ -128,12 +131,53 @@ void QEFileImage::setLabelImage( const QString& textIn, QCaAlarmInfo& alarmInfo,
     // Signal a database value change to any Link widgets
     emit dbValueChanged( textIn );
 
-    // Update the label pixmap
-    QPixmap pixmap( textIn );
-    setPixmap( pixmap.scaled( size(), Qt::KeepAspectRatio ));
+    // Update the image
+    setImageFileName( textIn );
 
     // Invoke common alarm handling processing.
     processAlarmInfo( alarmInfo );
+}
+
+/*
+    Slot to update the label pixmap from any source
+ */
+void QEFileImage::setImageFileName( const QString& text )
+{
+    // Find the file
+    QFile* imageFile =  QEWidget::findQEFile( text );
+
+    // If filename not found
+    if( !imageFile )
+    {
+        setPixmap( 0 );
+        fileName = text;
+        setText( QString( "File not found: " ).append( text ) );
+        return;
+    }
+
+    // Get the filename and discard the image file object
+    fileName = imageFile->fileName();
+    delete imageFile;
+
+    // Clear any text
+    clear();
+
+    // Update the label pixmap
+    QPixmap pixmap( fileName );
+    setPixmap( pixmap.scaled( size(), Qt::KeepAspectRatio ));
+
+    // Ensure no other files are being monitored
+    QStringList monitoredPaths = fileMon.files();
+    if( monitoredPaths.count())
+    {
+        fileMon.removePaths( monitoredPaths );
+    }
+
+    // Monitor this file
+    fileMon.addPath( fileName );
+
+    // Prepare to recieve notification of changes to this file
+    QObject::connect( &fileMon, SIGNAL( fileChanged( const QString & ) ), this, SLOT( setImageFileName( const QString & ) ) );
 }
 
 //==============================================================================
@@ -161,7 +205,7 @@ QString QEFileImage::copyVariable()
 
 QVariant QEFileImage::copyData()
 {
-    return QVariant( currentText );
+    return QVariant( fileName );
 }
 
 void QEFileImage::paste( QVariant v )
