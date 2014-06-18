@@ -61,6 +61,12 @@ DEFINES += QEPLUGIN_LIBRARY
 DESTDIR = designer
 TARGET = QEPlugin
 
+# Place all intermediate generated files in architecture specific directories
+#
+MOC_DIR        = O.Build/moc/$$(EPICS_HOST_ARCH)
+OBJECTS_DIR    = O.Build/obj/$$(EPICS_HOST_ARCH)
+UI_HEADERS_DIR = O.Build/ui_headers/$$(EPICS_HOST_ARCH)
+
 DEFINES += QWT_DLL=TRUE
 
 #===========================================================

@@ -46,6 +46,13 @@ equals( QT_MAJOR_VERSION, 5 ) {
 TARGET = qegui
 TEMPLATE = app
 
+# Place all intermediate generated files in architecture specific directories
+#
+MOC_DIR        = O.Build/moc/$$(EPICS_HOST_ARCH)
+OBJECTS_DIR    = O.Build/obj/$$(EPICS_HOST_ARCH)
+UI_HEADERS_DIR = O.Build/ui_headers/$$(EPICS_HOST_ARCH)
+
+
 #===========================================================
 # Integration of PSI's caQtDM in QEGui.
 # If integration is required, define environment variable QE_CAQTDM
