@@ -192,11 +192,11 @@ win32:LIBS += -LC:/qwt-6.1.0/lib
 # Depending on build, the qwt library below may need to be -lqwt or -lqwt6
 win32 {
     debug {
-#        warning( "debug build. using lib qwtd (not qwt) ============================" )
+        warning( "Using qwtd (not qwt) for this debug build" )
         LIBS += -lqwtd
     }
     release {
-#        warning( "release build. using lib qwt (not qwtd) ============================" )
+        warning( "Using qwt (not qwtd) for this release build" )
         LIBS += -lqwt
     }
 }
