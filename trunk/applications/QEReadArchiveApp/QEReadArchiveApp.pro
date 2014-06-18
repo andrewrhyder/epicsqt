@@ -9,8 +9,13 @@ TARGET = qerad
 CONFIG += console
 CONFIG -= app_bundle
 TEMPLATE = app
-OBJECTS_DIR = ./obj
-MOC_DIR = ./moc
+
+# Place all intermediate generated files in architecture specific directories
+#
+MOC_DIR        = O.Build/moc/$$(EPICS_HOST_ARCH)
+OBJECTS_DIR    = O.Build/obj/$$(EPICS_HOST_ARCH)
+UI_HEADERS_DIR = O.Build/ui_headers/$$(EPICS_HOST_ARCH)
+
 
 #===========================================================
 # Project files
