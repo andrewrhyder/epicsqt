@@ -63,9 +63,9 @@ TARGET = QEPlugin
 
 # Place all intermediate generated files in architecture specific directories
 #
-MOC_DIR        = O.Build/moc/$$(EPICS_HOST_ARCH)
-OBJECTS_DIR    = O.Build/obj/$$(EPICS_HOST_ARCH)
-UI_HEADERS_DIR = O.Build/ui_headers/$$(EPICS_HOST_ARCH)
+MOC_DIR        = O.$$(EPICS_HOST_ARCH)/moc
+OBJECTS_DIR    = O.$$(EPICS_HOST_ARCH)/obj
+UI_HEADERS_DIR = O.$$(EPICS_HOST_ARCH)/ui_headers
 
 DEFINES += QWT_DLL=TRUE
 
