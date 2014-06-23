@@ -60,11 +60,11 @@ instanceManager::instanceManager( QEGui* appIn ) : QObject( appIn )
     // in the server unable to start.
     char* userEnv;
 #ifdef WIN32 //for windows
-    userEnv = getenv("USERNAME");
+    userEnv = getenv( "USERNAME" );
 #else //for Mac or Linux
-    userEnv = getenv("USER");
+    userEnv = getenv( "USER" );
 #endif
-    QString serverName = QString( userEnv ).append( "_" ).append( QEGUISERVERNAME);
+    QString serverName = QString( QEGUISERVERNAME ).append( "_" ).append( userEnv );
 
     // Create a socket
     socket = new QLocalSocket(this);
