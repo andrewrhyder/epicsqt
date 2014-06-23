@@ -36,6 +36,7 @@
     the parameters and this instance of QEGui should start a new window regardless of the -s parameter.
 */
 
+#include <stdlib.h>
 #include <InstanceManager.h>
 #include <MainWindow.h>
 #include <ContainerProfile.h>
@@ -50,9 +51,24 @@ instanceManager::instanceManager( QEGui* appIn ) : QObject( appIn )
 {
     app = appIn;
 
+    // Build the server name to be <user>_<QEGUISERVERNAME>
+    // The username is included since (on Linux at least) a temporary file is
+    // created (in /tmp on Linux) using the name of the server.
+    // For multiple users this avoids conflict. Also, if a temporary
+    // file has been left following a crash by a different user, the
+    // temporary file can't be deleted if permissions don't allow. This results
+    // in the server unable to start.
+    char* userEnv;
+#ifdef WIN32 //for windows
+    userEnv = getenv("USERNAME");
+#else //for Mac or Linux
+    userEnv = getenv("USER");
+#endif
+    QString serverName = QString( userEnv ).append( "_" ).append( QEGUISERVERNAME);
+
     // Create a socket
     socket = new QLocalSocket(this);
-    socket->connectToServer( QEGUISERVERNAME, QIODevice::WriteOnly );
+    socket->connectToServer( serverName, QIODevice::WriteOnly );
 
     // Assume no server
     server = NULL;
@@ -66,14 +82,14 @@ instanceManager::instanceManager( QEGui* appIn ) : QObject( appIn )
 
         // Kill any other server.
         // This is required if an eariler instance has crashed
-        QLocalServer::removeServer( QEGUISERVERNAME );
+        QLocalServer::removeServer( serverName );
 
         // Start a server to listen for other instances of QEGui starting
         server = new QLocalServer( this );
         connect( server, SIGNAL(newConnection()), this, SLOT(connected()));
-        if( !server->listen( QEGUISERVERNAME ))
+        if( !server->listen( serverName ))
         {
-            qDebug() << "Couldn't start server";
+            qDebug() << QString( "Couldn't start server. On Linux, check if there is a temporary file /tmp/" ).append( serverName ).append( " and delete it" );
             delete server;
             server = NULL;
         }
