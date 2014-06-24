@@ -55,6 +55,8 @@
 
 imageDisplayProperties::imageDisplayProperties()
 {
+    statisticsSet = false;
+
     nonInteractive = false;
 
     inBrightnessSliderCallback = false;
@@ -418,7 +420,7 @@ void imageDisplayProperties::minSliderValueChanged( int value )
     }
 
     inZeroValueSliderCallback = true;
-    updateZeroValue( fromExponentialHeadSlider( value ) );
+    updateZeroValue( fromExponentialHeadSlider( value ) * range / 256.0 );
     inZeroValueSliderCallback = false;
 
     emit imageDisplayPropertiesChange();
@@ -447,7 +449,7 @@ void imageDisplayProperties::maxSliderValueChanged( int value )
     }
 
     inFullValueSliderCallback = true;
-    updateFullValue( fromExponentialTailSlider( value ) );
+    updateFullValue( fromExponentialTailSlider( value ) * range / 256.0 );
     inFullValueSliderCallback = false;
 
     emit imageDisplayPropertiesChange();
@@ -738,6 +740,9 @@ void imageDisplayProperties::setStatistics( unsigned int minPIn,
     histXLabel->setText( QString( "%1" ).arg( range ) );
 
     hist->update();
+
+    // Flag statistics can now be used (before this things like depth were just default values)
+    statisticsSet = true;
 }
 
 // The histogram zoom slider has been moved

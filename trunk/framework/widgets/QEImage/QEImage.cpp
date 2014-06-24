@@ -1623,7 +1623,7 @@ void QEImage::getPixelTranslation()
     bool logBrightness;
 
     // If there is an image options control, get the relevent options
-    if( imageDisplayProps )
+    if( imageDisplayProps && imageDisplayProps->statisticsValid() )
     {
         pixelLow = imageDisplayProps->getLowPixel();
         pixelHigh = imageDisplayProps->getHighPixel();
