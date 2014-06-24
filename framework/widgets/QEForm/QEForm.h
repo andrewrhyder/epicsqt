@@ -43,7 +43,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
 
         QEForm( QWidget* parent = 0 );
         QEForm( const QString& uifileNameIn, QWidget* parent = 0 );
-        void commonInit( const bool alertIfUINoFoundIn );
+        void commonInit( const bool alertIfUINoFoundIn, const bool loadManuallyIn );
 
         virtual ~QEForm();
 
