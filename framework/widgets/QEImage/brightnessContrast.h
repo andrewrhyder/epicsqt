@@ -175,6 +175,7 @@ private:
     int toExponentialTailSlider( double value );   // Translate to a composite linear-exponential slider value.
 
 public:
+
     // Current brightness/contrast settings
     int zeroValue;     // Pixel value displayed black
     int fullValue;     // Pixel value displayed white
@@ -183,17 +184,20 @@ public:
     unsigned int range;  // Pixel range derived from bit depth
 
     // Current image stats
-    void initialiseImageStats();
     unsigned int maxP;  // Highest pixel value in image
     unsigned int minP;  // Lowest pixel value in image
     unsigned int depth; // Bit depth
     unsigned int* bins; // Histogram bins [HISTOGRAM_BINS]
+    bool statisticsSet; // Statistic have been set ( setStatistics() has been called) and things like range are now available
+
     rgbPixel* pixelLookup; // Pixel lookup table used to present colour scale in histogram
 
     QLabel* histXLabel;
 
     void setHistZoom( int value );
     int getHistZoom();
+
+    bool statisticsValid() { return statisticsSet; }    // Return if statistics have been set
 };
 
 
