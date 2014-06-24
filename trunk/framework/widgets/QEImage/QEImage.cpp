@@ -229,14 +229,11 @@ void QEImage::setup() {
     QObject::connect(imageDisplayProps, SIGNAL(destroyed(QObject*)), this, SLOT(imageDisplayPropsDestroyed(QObject*)));
 
     // Create image recorder
-//    recorder = NULL;//!!TEMP
-///* TEMP
     recorder = new recording( this );
     QObject::connect(recorder, SIGNAL(destroyed(QObject*)), this, SLOT(recorderDestroyed(QObject*)));
     QObject::connect(recorder, SIGNAL(playingBack(bool)), this, SLOT(playingBack(bool)));
     QObject::connect( recorder,  SIGNAL( byteArrayChanged( const QByteArray&, unsigned long, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
                       this, SLOT( setImage( const QByteArray&, unsigned long, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
-//*/
 
     // Create vertical, horizontal, and general profile plots
     vSliceLabel = new QLabel( "Vertical Profile" );

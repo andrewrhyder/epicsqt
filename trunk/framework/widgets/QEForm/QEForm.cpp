@@ -61,11 +61,10 @@
 // QEForm widgets 'activation' means read the UI file.
 QEForm::QEForm( QWidget* parent ) : QWidget( parent ), QEWidget( this )
 {
-    // Common construction
-    commonInit( false );
-
-    // Note that this QEForm widget will load itself when QE widgets are 'activated' (when updates are initiated)
-    loadManually = false;
+    // Common construction.
+    // Don't alert if UI is not found (it wont be as there isn't one specified) and
+    // note that form won't be loaded manually. It will load automatically when QE widgets are 'activated' (when updates are initiated)
+    commonInit( false, false );
 }
 
 // Constructor.
@@ -74,24 +73,25 @@ QEForm::QEForm( QWidget* parent ) : QWidget( parent ), QEWidget( this )
 QEForm::QEForm( const QString& uiFileNameIn, QWidget* parent ) : QWidget( parent ), QEWidget( this )
 {
     // Common construction
-    commonInit( true );
-
-    // Note that this QEForm widget will be manually loaded by calling QEForm::readUiFile()
-    // It will not load automatically when QE widgets are 'activated' (when updates are initiated)
-    loadManually = true;
+    // Alert if UI is not found and note that form will be loaded manually - it will not load automatically when QE widgets are 'activated' (when updates are initiated)
+    commonInit( true, true );
 
     // Set up the filename during construction
     uiFileName = uiFileNameIn;
 }
 
 // Common construction
-void QEForm::commonInit( const bool alertIfUINoFoundIn )
+void QEForm::commonInit( const bool alertIfUINoFoundIn, const bool loadManuallyIn )
 {
     // Set up the number of variables managed by the variable name manager.
     // NOTE: there is no data associated with this widget, but it uses the same mechanism as other data widgets to manage the UI filename and macro substitutions.
     // The standard variable name and macros mechanism is used by QEForm for UI file name and marcos
     setNumVariables(1);
 
+    // Note if this QEForm widget will be manually loaded by calling QEForm::readUiFile()
+    // If loadManually is set true, it will not load automatically when QE widgets are 'activated' (when updates are initiated)
+    // If loadManually is set false, this QEForm widget will load itself when QE widgets are 'activated' (when updates are initiated)
+    loadManually = loadManuallyIn;
 
     setAcceptDrops(true);
 
