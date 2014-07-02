@@ -149,7 +149,8 @@ void QEFileImage::setImageFileName( const QString& text )
     // If filename not found
     if( !imageFile )
     {
-        setPixmap( 0 );
+        QPixmap emptyPixmap;
+        setPixmap( emptyPixmap );
         fileName = text;
         setText( QString( "File not found: " ).append( text ) );
         return;
