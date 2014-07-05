@@ -34,7 +34,10 @@
 
 // The QEAbstractWidget class provides a minimalist extension to the QWidget class
 // in that it provides user level enabled and user level visibility control to
-// the widget together with al the other standard properties.
+// the widget together with all the other standard properties.
+//
+// Any widget that inherits from QEFrame, but always turns the frame off should
+// consider inheriting from QEAbstractWidget.
 //
 class QEPLUGINLIBRARYSHARED_EXPORT QEAbstractWidget :
       public QWidget, public QEWidget {
