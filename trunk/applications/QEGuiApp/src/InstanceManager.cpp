@@ -179,7 +179,7 @@ void instanceManager::newWindow( const startupParams& params )
         // If no files specified, open a single window without a file name
         if( !params.filenameList.count() )
         {
-            MainWindow* mw = new MainWindow( app, "", "", true );
+            MainWindow* mw = new MainWindow( app, "", params.customisationName, true );
             mw->show();
         }
 
