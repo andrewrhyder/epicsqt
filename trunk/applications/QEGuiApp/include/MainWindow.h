@@ -76,7 +76,7 @@ public:
     QString     getCustomisationName(){ return customisationName; }     // Get the window customisations name
     bool        getIsDock(){ return isDock; }                           // Get the 'is a dock' flag
     void        deleteAction(){ if( action ){ delete action; } action = NULL; }  // Delete the action
-    int         countWindows()  {
+    int         countWindows()  {                                       // Count windows in hierarchy
                                     // Count this one if not a dock
                                     int count = getIsDock()?0:1;
                                     for( int i = 0; i < guiList.count(); i++ )
@@ -86,7 +86,7 @@ public:
                                     return count;
                                 }
 
-    QList<guiListItem> guiList;         // List of child windows
+    QList<guiListItem> guiList;         // List of child windows in hierarchy
 
 private:
     QEForm*     form;                  // QEForm implementing the GUI
@@ -223,17 +223,18 @@ private:
 
     QDockWidget* getGuiDock( QWidget* gui );    // Determine the dock widget containing a docked GUI
 
-    QList<guiListItem> guiList;
-    int countWindows();
+    QList<guiListItem> guiList;     // List of GUI's (tabbed, or docked) in this main window
+    int countWindows();             // Return count of all GUIs (excluding docks)
 
 
     Qt::DockWidgetArea creationOptionToDockLocation( QEActionRequests::Options createOption ); // Translate a creation option to a dock location.
     QEActionRequests::Options dockLocationToCreationOption( Qt::DockWidgetArea dockLocation, bool tabbed ); // Translate a dock location to a creation option.
 
-    typedef QMap<QString, QString> NameMap;
+    typedef QMap<QString, QString> NameMap; // Type fo map a string to another string
 
-    NameMap inbuiltFormMap;
-    NameMap classNameMap;
+    NameMap inbuiltFormMap;         // A list mapping inbuilt function names to forms
+    NameMap classNameMap;           // A map of the target widget to receive a PV in each of the inbuilt forms.
+                                    // For example, in the plotter form, look for a QEPlotter
 
     windowCustomisationList::dockMap dockedComponents;          // List of docks created to host components from QE widgets. Used when applying customisations. (customisation system can link menu items to pre-existing docks)
 

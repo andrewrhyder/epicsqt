@@ -449,6 +449,7 @@ void MainWindow::on_actionUser_Level_triggered()
     app->login( this );
 }
 
+// Count the GUIs in this main window excluding docks
 int MainWindow::countWindows()
 {
     int count = 0;
@@ -1431,8 +1432,11 @@ MainWindow* MainWindow::launchGui( QString guiName, QString customisationName, Q
     }
 }
 
+// Build a map of inbuilt function names to forms
+// and a map of the target widget to receive a PV in each of the inbuilt forms
 void MainWindow::createActionMaps()
 {
+    // Build a map of inbuilt function names to forms
     inbuiltFormMap.clear();
     inbuiltFormMap.insert( QEActionRequests::actionGeneralPvEdit(),  ":/qe/gui/forms/General_PV_Edit.ui" );
     inbuiltFormMap.insert( QEActionRequests::actionPvProperties(),   ":/qe/gui/forms/PVProperties.ui" );
@@ -1444,6 +1448,7 @@ void MainWindow::createActionMaps()
     inbuiltFormMap.insert( "Archive Status...",                      ":/qe/gui/forms/ArchiveStatus.ui" );
     inbuiltFormMap.insert( "Archive Name Search...",                 ":/qe/gui/forms/ArchiveNameSearch.ui" );
 
+    // Build a map of the target widget to receive a PV in each of the inbuilt forms
     classNameMap.clear();
     classNameMap.insert( QEActionRequests::actionGeneralPvEdit(),    "QEGeneralEdit" );
     classNameMap.insert( QEActionRequests::actionPvProperties(),     "QEPvProperties" );
