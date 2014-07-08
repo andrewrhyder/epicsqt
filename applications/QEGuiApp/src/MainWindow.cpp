@@ -238,9 +238,10 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, QString customisationNa
     // Enable the status bar as required
     statusBar()->setVisible( !app->getParams()->disableStatus );
 
-    // If no filename was supplied, and an 'Open...' dialog is required, open the file selection dialog
+    // If no filename or customisation name was supplied (in other words, no indication as to how to start),
+    // and an 'Open...' dialog is required, open the file selection dialog
     // Do it after the creation of the main window is complete
-    if( fileName.isEmpty() && openDialog )
+    if( fileName.isEmpty() && customisationName.isEmpty() && openDialog )
     {
         setDefaultCustomisation();
 
@@ -1215,7 +1216,14 @@ void MainWindow::loadGuiIntoNewDock( QEForm* gui,
     }
 
     // Ensure the gui can be resized
-    QWidget* rGui = resizeableGui( gui );
+    QSize preferedSize;
+    QWidget* rGui = resizeableGui( gui, &preferedSize );
+
+    // If no size was specified in the geometry, use the prefered size from the GUI
+    if( !geom.width() && !geom.height() )
+    {
+        geom.setSize( preferedSize );
+    }
 
 
     QDockWidget *dock = new QDockWidget( this );
@@ -1226,14 +1234,15 @@ void MainWindow::loadGuiIntoNewDock( QEForm* gui,
     Qt::DockWidgetArea dockLocation = creationOptionToDockLocation( createOption );
 
 
-    // If the dock is floating and geometry has been supplied (non zero width and height), set the geometry
-    if( createOption == QEActionRequests::OptionFloatingDockWindow && geom.width() && geom.height() )
-    {
-        dock->setGeometry( geom );
-    }
+    // Set the dock geometry
+    // The geometry is provided by the caller and is particularly relevent when the dock is floating.
+    // If the geometry has not been provided by the caller, then the size of the geometry has been
+    // set to the size of the GUI in the dock.
+    dock->setGeometry( geom );
 
     // Add the dock to the appropriate main window
-    addDockWidget(dockLocation, dock);
+    addDockWidget( dockLocation, dock );
+
 
     // If tabbed, tabify the dock
     if( QEActionRequests::isTabbedDockCreationOption( createOption ) )
@@ -1708,7 +1717,29 @@ QEForm* MainWindow::createGui( QString fileName, QString customisationName, bool
 
 QEForm* MainWindow::createGui( QString fileName, QString customisationName, QString restoreId, bool isDock, bool clearExistingCustomisations )
 {
-    // Don't do anything if no filename was supplied
+    // Perform tasks required by a main window, but not a dock
+    if( !isDock )
+    {
+        // Use the default customisations if no customisation is specified
+        if( customisationName.isEmpty() )
+        {
+            setDefaultCustomisation();
+        }
+
+        // Load any required window customisation
+        app->getMainWindowCustomisations()->applyCustomisation( this, customisationName, &customisationInfo, clearExistingCustomisations, dockedComponents );
+
+        // Use whatever placeholder menus are available (for example, populate a 'Recent' menu if present)
+        setupPlaceholderMenus();
+
+        // Setup to allow user to change focus to a window from the 'Windows' menu
+        if( windowMenu )
+        {
+            QObject::connect( windowMenu, SIGNAL( triggered( QAction* ) ), this, SLOT( onWindowMenuSelection( QAction* ) ) );
+        }
+    }
+
+    // Don't do anything else if no filename was supplied
     if (fileName.isEmpty())
         return NULL;
 
@@ -1756,28 +1787,6 @@ QEForm* MainWindow::createGui( QString fileName, QString customisationName, QStr
     // Apply any adjustments to the scaling of the loaded widget.
     //
     QEScaling::applyToWidget( gui );
-
-    // Perform tasks required by a main window, but not a dock
-    if( !isDock )
-    {
-        // Use the default customisations if no customisation is specified
-        if( customisationName.isEmpty() )
-        {
-            setDefaultCustomisation();
-        }
-
-        // Load any required window customisation
-        app->getMainWindowCustomisations()->applyCustomisation( this, customisationName, &customisationInfo, clearExistingCustomisations, dockedComponents );
-
-        // Use whatever placeholder menus are available (for example, populate a 'Recent' menu if present)
-        setupPlaceholderMenus();
-
-        // Setup to allow user to change focus to a window from the 'Windows' menu
-        if( windowMenu )
-        {
-            QObject::connect( windowMenu, SIGNAL( triggered( QAction* ) ), this, SLOT( onWindowMenuSelection( QAction* ) ) );
-        }
-    }
 
     // Save the version of the QE framework used by the ui loader. (can be different to the one this application is linked against)
     UILoaderFrameworkVersion = gui->getContainedFrameworkVersion();
