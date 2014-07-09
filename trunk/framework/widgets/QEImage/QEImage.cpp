@@ -3102,11 +3102,12 @@ void QEImage::doEnableHozSliceSelection( bool enableHSliceSelection )
 // Enable area selection (used for ROI and zoom)
 void QEImage::doEnableAreaSelection( /*imageContextMenu::imageContextMenuOptions area,*/ bool enableAreaSelection )
 {
-///!!!
+    // Ensure the area selection menus are set up correctly
     sMenu->setArea1Enabled( enableAreaSelection );
     sMenu->setArea2Enabled( enableAreaSelection );
     sMenu->setArea3Enabled( enableAreaSelection );
     sMenu->setArea4Enabled( enableAreaSelection );
+
     mdMenu->enable( imageContextMenu::ICM_DISPLAY_AREA1, enableAreaSelection );
     mdMenu->enable( imageContextMenu::ICM_DISPLAY_AREA2, enableAreaSelection );
     mdMenu->enable( imageContextMenu::ICM_DISPLAY_AREA3, enableAreaSelection );
