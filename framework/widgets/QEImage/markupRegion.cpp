@@ -367,9 +367,14 @@ QCursor markupRegion::defaultCursor()
 
 void markupRegion::nonInteractiveUpdate( QPoint p1, QPoint p2 )
 {
+    // Set the region area from p1 and p2
     rect.setTopLeft( p1 );
     rect.setBottomRight( p2 );
 
+    // The point p2 was calculated from the region variables by adding
+    // the width to the X position and the height to the Y position.
+    // This gives an area (rect) with a width and height 1 pixel too large
+    // so reduce the width and height by 1 (while ensuring they don't become negative)
     int width = rect.width();
     int height = rect.height();
 
@@ -386,5 +391,6 @@ void markupRegion::nonInteractiveUpdate( QPoint p1, QPoint p2 )
     rect.setWidth( width-1 );
     rect.setHeight( height-1 );
 
+    // Set the overall region area
     setArea();
 }
