@@ -369,5 +369,22 @@ void markupRegion::nonInteractiveUpdate( QPoint p1, QPoint p2 )
 {
     rect.setTopLeft( p1 );
     rect.setBottomRight( p2 );
+
+    int width = rect.width();
+    int height = rect.height();
+
+    if( width < 1 )
+    {
+        width = 1;
+    }
+
+    if( height < 1 )
+    {
+        height = 1;
+    }
+
+    rect.setWidth( width-1 );
+    rect.setHeight( height-1 );
+
     setArea();
 }
