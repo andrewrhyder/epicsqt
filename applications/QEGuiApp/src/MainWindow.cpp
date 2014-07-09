@@ -1722,6 +1722,66 @@ QEForm* MainWindow::createGui( QString fileName, QString customisationName, bool
 
 QEForm* MainWindow::createGui( QString fileName, QString customisationName, QString restoreId, bool isDock, bool clearExistingCustomisations )
 {
+    QEForm* gui = NULL; // New GUI created (if any).
+
+    // Only attempt to create a GUI if a filename was supplied
+    if( !fileName.isEmpty() )
+    {
+        // Publish the main window's form Id so the new QEForm will pick it up
+        setChildFormId( getNextMessageFormId() );
+        profile.setPublishedMessageFormId( getChildFormId() );
+
+        // Inform user
+        newMessage( QString( "Opening %1" ).arg( fileName ), message_types ( MESSAGE_TYPE_INFO ) );
+
+        // Build the gui
+        gui = new QEForm( fileName );
+        if( !restoreId.isNull() )
+        {
+            gui->setUniqueIdentifier( restoreId );
+        }
+        gui->setResizeContents( false );
+
+        // Read the ui file.
+        // This method may be called with or without a profile defined.
+        // For example, when this method is the result of a QEButton launching a new GUI,
+        // the button will have published its own profile. This is fine for some
+        // things - such as picking up the required macro substitutions - but not
+        // appropriate for other things, such as which widgets should be signaled
+        // for error messages - The newly created window should be receiving those,
+        // not the window the button lives in.
+        bool profileDefinedHere = false;
+        if( !profile.isProfileDefined() )
+        {
+            // Flag we are defining a profile here (we need to release it ourselves later)
+            profileDefinedHere = true;
+
+            // Publish our profile
+            profile.publishOwnProfile();
+
+        }
+
+        // Regardless of who set up the profile, this window should be receiving
+        // requests to do things such as display errors.
+        profile.updateConsumers( this );
+
+        // Load the .ui file into the GUI
+        gui->readUiFile();
+
+        // Apply any adjustments to the scaling of the loaded widget.
+        //
+        QEScaling::applyToWidget( gui );
+
+        // Save the version of the QE framework used by the ui loader. (can be different to the one this application is linked against)
+        UILoaderFrameworkVersion = gui->getContainedFrameworkVersion();
+
+        // If a profile was defined in this method, release it now.
+        if( profileDefinedHere )
+        {
+            profile.releaseProfile();
+        }
+    }
+
     // Perform tasks required by a main window, but not a dock
     if( !isDock )
     {
@@ -1744,85 +1804,29 @@ QEForm* MainWindow::createGui( QString fileName, QString customisationName, QStr
         }
     }
 
-    // Don't do anything else if no filename was supplied
-    if (fileName.isEmpty())
-        return NULL;
-
-    // Publish the main window's form Id so the new QEForm will pick it up
-    setChildFormId( getNextMessageFormId() );
-    profile.setPublishedMessageFormId( getChildFormId() );
-
-    // Inform user
-    newMessage( QString( "Opening %1" ).arg( fileName ), message_types ( MESSAGE_TYPE_INFO ) );
-
-    // Build the gui
-    QEForm* gui = new QEForm( fileName );
-    if( !restoreId.isNull() )
+    // If a gui was created, add it to the list of windows
+    if( gui )
     {
-        gui->setUniqueIdentifier( restoreId );
+        // Create an action for the 'Window' menus
+        QAction* windowMenuAction = new QAction( gui->getQEGuiTitle(), this );
+        windowMenuAction->setData( qVariantFromValue( gui ) );
+
+        // Add this gui to the application wide list of guis
+        guiList.append( guiListItem( gui, this, windowMenuAction, customisationName, isDock ) );
+
+        // For each main window, add a new action to the window menu
+        int i = 0;
+        MainWindow* mw;
+        while( (mw = app->getMainWindow( i )) )
+        {
+            mw->addWindowMenuAction( windowMenuAction );
+
+            // Next main window
+            i++;
+        }
+
+        app->addGui( gui, customisationName );
     }
-    gui->setResizeContents( false );
-
-    // Read the ui file.
-    // This method may be called with or without a profile defined.
-    // For example, when this method is the result of a QEButton launching a new GUI,
-    // the button will have published its own profile. This is fine for some
-    // things - such as picking up the required macro substitutions - but not
-    // appropriate for other things, such as which widgets should be signaled
-    // for error messages - The newly created window should be receiving those,
-    // not the window the button lives in.
-    bool profileDefinedHere = false;
-    if( !profile.isProfileDefined() )
-    {
-        // Flag we are defining a profile here (we need to release it ourselves later)
-        profileDefinedHere = true;
-
-        // Publish our profile
-        profile.publishOwnProfile();
-
-    }
-
-    // Regardless of who set up the profile, this window should be receiving
-    // requests to do things such as display errors.
-    profile.updateConsumers( this );
-
-    // Load the .ui file into the GUI
-    gui->readUiFile();
-
-    // Apply any adjustments to the scaling of the loaded widget.
-    //
-    QEScaling::applyToWidget( gui );
-
-    // Save the version of the QE framework used by the ui loader. (can be different to the one this application is linked against)
-    UILoaderFrameworkVersion = gui->getContainedFrameworkVersion();
-
-    // If a profile was defined in this method, release it now.
-    if( profileDefinedHere )
-    {
-        profile.releaseProfile();
-    }
-
-    // Add the new gui to the list of windows
-
-    // Create an action for the 'Window' menus
-    QAction* windowMenuAction = new QAction( gui->getQEGuiTitle(), this );
-    windowMenuAction->setData( qVariantFromValue( gui ) );
-
-    // Add this gui to the application wide list of guis
-    guiList.append( guiListItem( gui, this, windowMenuAction, customisationName, isDock ) );
-
-    // For each main window, add a new action to the window menu
-    int i = 0;
-    MainWindow* mw;
-    while( (mw = app->getMainWindow( i )) )
-    {
-        mw->addWindowMenuAction( windowMenuAction );
-
-        // Next main window
-        i++;
-    }
-
-    app->addGui( gui, customisationName );
 
     // Return the created gui if any
     return gui;
