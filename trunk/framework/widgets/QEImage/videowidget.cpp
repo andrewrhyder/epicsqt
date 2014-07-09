@@ -218,9 +218,19 @@ void VideoWidget::resizeEvent( QResizeEvent *event )
 }
 
 // Act on a markup change
-void VideoWidget::markupAction( markupIds mode, bool complete, bool clearing, QPoint point1, QPoint point2, unsigned int thickness )
+void VideoWidget::markupAction( markupIds mode,             // Markup being manipulated
+                                bool complete,              // True if the user has completed an operation (for example, finished moving a markup to a new position and a write to a variable is now required)
+                                bool clearing,              // True if a markup is being cleared
+                                QPoint point1,              // Generic first point of the markup. for example, to left of an area, or target position
+                                QPoint point2,              // Optional generic second point of the markup
+                                unsigned int thickness )    // Optional thickness of the markup
 {
-    emit userSelection( mode, complete, clearing, point1, point2, thickness );
+    emit userSelection( mode,           // Markup being manipulated
+                        complete,       // True if the user has completed an operation (for example, finished moving a markup to a new position and a write to a variable is now required)
+                        clearing,       // True if a markup is being cleared
+                        point1,         // Generic first point of the markup. for example, to left of an area, or target position
+                        point2,         // Optional generic second point of the markup
+                        thickness );    // Optional thickness of the markup
 }
 
 // Return a point from the displayed image as a point in the original image

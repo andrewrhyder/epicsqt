@@ -461,13 +461,13 @@ void QEImage::presentControls()
         if( imageDisplayProps )
         {
             mainLayout->removeWidget( imageDisplayProps );
-            components.append( componentHostListItem( imageDisplayProps, QEActionRequests::OptionTopDockWindow, true, "Image Display Properties" ) );
+            components.append( componentHostListItem( imageDisplayProps, QEActionRequests::OptionFloatingDockWindow, true, "Image Display Properties" ) );
         }
 
         if( recorder )
         {
             mainLayout->removeWidget( recorder );
-            components.append( componentHostListItem( recorder, QEActionRequests::OptionTopDockWindow, true, "Recorder" ) );
+            components.append( componentHostListItem( recorder, QEActionRequests::OptionFloatingDockWindow, true, "Recorder" ) );
         }
 
         vSliceLabel->setVisible( false );
@@ -4149,7 +4149,12 @@ void QEImage::zoomInOut( int zoomAmount )
 
 // The user has made (or is making) a selection in the displayed image.
 // Act on the selelection
-void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool clearing, QPoint point1, QPoint point2, unsigned int thickness )
+void QEImage::userSelection( imageMarkup::markupIds mode,   // Markup being manipulated
+                             bool complete,                 // True if the user has completed an operation (for example, finished moving a markup to a new position and a write to a variable is now required)
+                             bool clearing,                 // True if a markup is being cleared
+                             QPoint point1,                 // Generic first point of the markup. for example, to left of an area, or target position
+                             QPoint point2,                 // Optional generic second point of the markup
+                             unsigned int thickness )       // Optional thickness of the markup
 {
     // If creating or moving a markup...
     if( !clearing )
@@ -4164,6 +4169,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 {
                     QTimer::singleShot( 0, this, SLOT(setVSliceControlsVisible() ) );
                     generateVSlice(  vSliceX, vSliceThickness );
+                    mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_VSLICE, true );
                 }
                 vertProfileChanged();
                 break;
@@ -4176,6 +4182,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 {
                     QTimer::singleShot( 0, this, SLOT(setHSliceControlsVisible() ) );
                     generateHSlice( hSliceY, hSliceThickness );
+                    mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_HSLICE, true );
                 }
                 hozProfileChanged();
                 break;
@@ -4188,6 +4195,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 zMenu->enableAreaSelected( haveSelectedArea1 );
 
                 displaySelectedAreaInfo( 1, point1, point2 );
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_AREA1, true );
                 if( imageDisplayProps && imageDisplayProps->getAutoBrightnessContrast() )
                 {
                     setRegionAutoBrightnessContrast( point1, point2 );
@@ -4205,6 +4213,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveSelectedArea2 = true;
 
                 displaySelectedAreaInfo( 2, point1, point2 );
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_AREA2, true );
                 if( imageDisplayProps && imageDisplayProps->getAutoBrightnessContrast() )
                 {
                     setRegionAutoBrightnessContrast( point1, point2 );
@@ -4222,6 +4231,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveSelectedArea3 = true;
 
                 displaySelectedAreaInfo( 3, point1, point2 );
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_AREA3, true );
                 if( imageDisplayProps && imageDisplayProps->getAutoBrightnessContrast() )
                 {
                     setRegionAutoBrightnessContrast( point1, point2 );
@@ -4239,6 +4249,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveSelectedArea4 = true;
 
                 displaySelectedAreaInfo( 4, point1, point2 );
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_AREA4, true );
                 if( imageDisplayProps && imageDisplayProps->getAutoBrightnessContrast() )
                 {
                     setRegionAutoBrightnessContrast( point1, point2 );
@@ -4259,6 +4270,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 {
                     QTimer::singleShot( 0, this, SLOT(setLineProfileControlsVisible() ) );
                     generateProfile( profileLineStart, profileLineEnd, profileThickness );
+                    mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_PROFILE, true );
                 }
 
                 lineProfileChanged();
@@ -4278,6 +4290,9 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
 
                     // Display textual info
                     infoUpdateTarget( targetInfo.getPoint().x(), targetInfo.getPoint().y() );
+
+                    // Update markup display menu
+                    mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_TARGET, true );
                 }
                 break;
 
@@ -4295,6 +4310,9 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
 
                     // Display textual info
                     infoUpdateBeam( beamInfo.getPoint().x(), beamInfo.getPoint().y() );
+
+                    // Update markup display menu
+                    mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_BEAM, true );
                 }
                 break;
 
@@ -4314,6 +4332,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveVSliceX = false;
                 QTimer::singleShot( 0, this, SLOT(setVSliceControlsNotVisible() ) );
                 infoUpdateVertProfile();
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_VSLICE, false );
                 break;
 
             case imageMarkup::MARKUP_ID_H_SLICE:
@@ -4321,6 +4340,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveHSliceY = false;
                 QTimer::singleShot( 0, this, SLOT(setHSliceControlsNotVisible() ) );
                 infoUpdateHozProfile();
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_HSLICE, false );
                 break;
 
             case imageMarkup::MARKUP_ID_REGION1:
@@ -4328,6 +4348,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 selectedArea1Point2 = QPoint();
                 haveSelectedArea1 = false;
                 infoUpdateRegion( 1 );
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_AREA1, false );
 
                 zMenu->enableAreaSelected( haveSelectedArea1 );
                 break;
@@ -4337,6 +4358,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 selectedArea2Point2 = QPoint();
                 haveSelectedArea2 = false;
                 infoUpdateRegion( 2 );
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_AREA2, false );
                 break;
 
             case imageMarkup::MARKUP_ID_REGION3:
@@ -4344,6 +4366,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 selectedArea3Point2 = QPoint();
                 haveSelectedArea3 = false;
                 infoUpdateRegion( 3 );
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_AREA3, false );
                 break;
 
             case imageMarkup::MARKUP_ID_REGION4:
@@ -4351,12 +4374,14 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 selectedArea4Point2 = QPoint();
                 haveSelectedArea4 = false;
                 infoUpdateRegion( 4 );
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_AREA4, false );
                 break;
 
             case imageMarkup::MARKUP_ID_LINE:
                 profileLineStart = QPoint();
                 profileLineEnd = QPoint();
                 haveProfileLine = false;
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_PROFILE, false );
 
                 QTimer::singleShot( 0, this, SLOT(setLineProfileControlsNotVisible() ) );
                 infoUpdateProfile();
@@ -4364,10 +4389,12 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
 
             case imageMarkup::MARKUP_ID_TARGET:
                 infoUpdateTarget();
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_TARGET, false );
                 break;
 
             case imageMarkup::MARKUP_ID_BEAM:
                 infoUpdateBeam();
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_BEAM, false );
                 break;
 
             default:
