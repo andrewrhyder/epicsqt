@@ -146,20 +146,21 @@ bool windowCustomisationItem::createsDocks()
 // A user has triggered the menu item or button
 void windowCustomisationItem::itemAction()
 {
+    // If the item action contains any window items, then open those windows
     if( windows.count() )
     {
         profile.publishOwnProfile();
         emit newGui( QEActionRequests( windows ));
         profile.releaseProfile();
     }
+
+    // If the item action references a built-in action, then request it
     else if ( !builtInAction.isEmpty() )
     {
         // If no widget name, then assume the action is for the application
         if( widgetName.isEmpty() )
         {
-            profile.publishOwnProfile();
             emit newGui( QEActionRequests( builtInAction, "" )  );
-            profile.releaseProfile();
         }
         // A widget name is present, assume the action is for a QE widget created by the application
         else
@@ -996,7 +997,11 @@ void windowCustomisationList::initialise( windowCustomisationInfo* customisation
 
 // Add the named customisation to a main window.
 // Return true if named customisation found and loaded.
-void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString customisationName, windowCustomisationInfo* customisationInfo, bool clearExisting, dockMap dockedComponents )
+void windowCustomisationList::applyCustomisation( QMainWindow* mw,                              // Main window to apply customisations to
+                                                  QString customisationName,                    // Customisation name used to identify set of customisations
+                                                  windowCustomisationInfo* customisationInfo,   // Customisations loaded from customisation file
+                                                  bool clearExisting,                           // If true, clear existing customisations
+                                                  dockMap dockedComponents )                    // Map of existing docks
 {
     // Clear the existing customisation if requested (but only if we have a customisation name to replace it with)
     if( !customisationName.isEmpty() && clearExisting )
@@ -1084,13 +1089,21 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString custo
                         }
                         else
                         {
+                            // Required dock not found. Note the title that could not be found and list those that are available
                             QMapIterator<QString, QDockWidget*> i(dockedComponents);
-                            qDebug() << "When applying window customisations, could not find a dock titled: " << menuItem->getDockTitle() << ". Dock titles found were:";
-                            while (i.hasNext())
+                            qDebug() << "When applying window customisations, could not find a dock titled:" << menuItem->getDockTitle() << ". Dock titles found were:";
+                            if( i.hasNext() )
                             {
-                                i.next();
-                                qDebug() << "   " << i.key();
-                             }
+                                while (i.hasNext())
+                                {
+                                    i.next();
+                                    qDebug() << "   " << i.key();
+                                }
+                            }
+                            else
+                            {
+                                qDebug() << "   <none>";
+                            }
                         }
                     }
 
