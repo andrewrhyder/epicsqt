@@ -1085,7 +1085,7 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw,              
                         // Use the dock toggle action from the existing dock matching the title as the menu action
                         if( component )
                         {
-                            action =  component->toggleViewAction();
+                            action =  component->toggleViewAction();  // <-- crashed here re-opening .ui with image and customisation that included all image options
                         }
                         else
                         {

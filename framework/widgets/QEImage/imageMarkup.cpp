@@ -830,8 +830,9 @@ void imageMarkup::showMarkup( markupIds markupId )
         // Redraw the now visible item
         markupChange( changedAreas );
 
-        // Don't call markupAction() as nothing has actually happened. The markup has not been changed
-        // markupAction( markupId, true, false, items[markupId]->getPoint1(), items[markupId]->getPoint2(), items[markupId]->thickness );
+        // Take the appropriate user action for a markup being shown
+        markupAction( markupId, false, false, item->getPoint1(), item->getPoint2(), item->getThickness() );
+
     }
 }
 
