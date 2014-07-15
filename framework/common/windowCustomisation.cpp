@@ -658,52 +658,50 @@ bool windowCustomisationList::parseMenuAndButtonItem( QDomElement itemElement,
     QDomElement windowElement = itemElement.firstChildElement( "Window" );
     while( !windowElement.isNull() )
     {
+        windowCreationListItem windowItem;
+
         // Read UiFile name
         QDomElement uiFileElement = windowElement.firstChildElement( "UiFile" );
         if( !uiFileElement.isNull() )
         {
-            QString uiFile = uiFileElement.text();
-            if( !uiFile.isEmpty() )
-            {
-                windowCreationListItem windowItem;
-                windowItem.uiFile = uiFile;
-
-                // Read optional macro substitutions
-                QDomElement macroSubstitutionsElement = windowElement.firstChildElement( "MacroSubstitutions" );
-                if( !macroSubstitutionsElement.isNull() )
-                {
-                    windowItem.macroSubstitutions = macroSubstitutionsElement.text();
-                }
-
-                // Read optional customisation name
-                QDomElement customisationNameElement = windowElement.firstChildElement( "CustomisationName" );
-                if( !customisationNameElement.isNull() )
-                {
-                    windowItem.customisationName = customisationNameElement.text();
-                }
-
-                // Read optional creation option
-                QDomElement creationOptionElement = windowElement.firstChildElement( "CreationOption" );
-                windowItem.creationOption = QEActionRequests::OptionNewWindow;
-                if( !creationOptionElement.isNull() )
-                {
-                    windowItem.creationOption = windowCustomisation::translateCreationOption( creationOptionElement.text() );
-                }
-
-                // Read optional title (This title will override any title in the title property of the top widget in the .ui file)
-                QDomElement titleElement = windowElement.firstChildElement( "Title" );
-                if( !titleElement.isNull() )
-                {
-                    windowItem.title = titleElement.text();
-                }
-
-                // Add a window to the list of windows to create
-                windows.append( windowItem );
-
-                // Read any docks to be added to this window
-                parseDockItems( windowElement, windows, dockTitle );
-            }
+            windowItem.uiFile = uiFileElement.text();
         }
+
+        // Read optional macro substitutions
+        QDomElement macroSubstitutionsElement = windowElement.firstChildElement( "MacroSubstitutions" );
+        if( !macroSubstitutionsElement.isNull() )
+        {
+            windowItem.macroSubstitutions = macroSubstitutionsElement.text();
+        }
+
+        // Read optional customisation name
+        QDomElement customisationNameElement = windowElement.firstChildElement( "CustomisationName" );
+        if( !customisationNameElement.isNull() )
+        {
+            windowItem.customisationName = customisationNameElement.text();
+        }
+
+        // Read optional creation option
+        QDomElement creationOptionElement = windowElement.firstChildElement( "CreationOption" );
+        windowItem.creationOption = QEActionRequests::OptionNewWindow;
+        if( !creationOptionElement.isNull() )
+        {
+            windowItem.creationOption = windowCustomisation::translateCreationOption( creationOptionElement.text() );
+        }
+
+        // Read optional title (This title will override any title in the title property of the top widget in the .ui file)
+        QDomElement titleElement = windowElement.firstChildElement( "Title" );
+        if( !titleElement.isNull() )
+        {
+            windowItem.title = titleElement.text();
+        }
+
+        // Add a window to the list of windows to create
+        windows.append( windowItem );
+
+        // Read any docks to be added to this window
+        parseDockItems( windowElement, windows, dockTitle );
+
         windowElement = windowElement.nextSiblingElement( "Window" );
     }
 
@@ -909,6 +907,10 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
              customisation->addItem(buttons.at(i));
          }
      }
+     else
+     {
+         qDebug() << "Could not include customisation named" << includeCustomisationName << "(Perhaps it has not be read in at this stage?)";
+     }
 }
 
 // Ensure a menu path exists in the menu bar.
@@ -1000,11 +1002,10 @@ void windowCustomisationList::initialise( windowCustomisationInfo* customisation
 void windowCustomisationList::applyCustomisation( QMainWindow* mw,                              // Main window to apply customisations to
                                                   QString customisationName,                    // Customisation name used to identify set of customisations
                                                   windowCustomisationInfo* customisationInfo,   // Customisations loaded from customisation file
-                                                  bool clearExisting,                           // If true, clear existing customisations
                                                   dockMap dockedComponents )                    // Map of existing docks
 {
-    // Clear the existing customisation if requested (but only if we have a customisation name to replace it with)
-    if( !customisationName.isEmpty() && clearExisting )
+    // Clear the existing customisation (but only if we have a customisation name to replace it with)
+    if( !customisationName.isEmpty() )
     {
         // Remove all current menus
         mw->menuBar()->clear();

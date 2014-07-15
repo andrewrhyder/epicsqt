@@ -348,7 +348,7 @@ public:
     windowCustomisationList();
 
     bool loadCustomisation( QString xmlFile );                      // Load a set of customisations
-    void applyCustomisation( QMainWindow* mw, QString customisationName, windowCustomisationInfo* customisationInfo, bool clearExisting, dockMap dockedComponents = dockMap() ); // Add the named customisation set to a main window. Return true if named customisation found and loaded.
+    void applyCustomisation( QMainWindow* mw, QString customisationName, windowCustomisationInfo* customisationInfo, dockMap dockedComponents = dockMap() ); // Add the named customisation set to a main window. Return true if named customisation found and loaded.
 
     windowCustomisation* getCustomisation(QString name);
     void initialise( windowCustomisationInfo* customisationInfo );
