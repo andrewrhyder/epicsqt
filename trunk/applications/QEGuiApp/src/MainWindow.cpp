@@ -315,7 +315,7 @@ void MainWindow::setDefaultCustomisation()
     }
 
     // Apply any required window customisations
-    app->getMainWindowCustomisations()->applyCustomisation( this, defaultCustomisation, &customisationInfo, true );
+    app->getMainWindowCustomisations()->applyCustomisation( this, defaultCustomisation, &customisationInfo );
     setupPlaceholderMenus();
 
     // Lastly (re)apply disableMenu (-b) option.
@@ -404,7 +404,7 @@ void MainWindow::on_actionOpen_triggered()
 {
     // Create the GUI
     profile.publishOwnProfile();
-    QEForm* gui = createGui( GuiFileNameDialog( "Open" ), app->getParams()->customisationName, false, true );
+    QEForm* gui = createGui( GuiFileNameDialog( "Open" ), app->getParams()->customisationName, false );
     profile.releaseProfile();
     loadGuiIntoCurrentWindow( gui, true );
 }
@@ -1379,7 +1379,7 @@ MainWindow* MainWindow::launchGui( QString guiName, QString customisationName, Q
         // Open the specified gui in the current window
         case QEActionRequests::OptionOpen:
             {
-                QEForm* gui = createGui( guiName, customisationName, false, true );  // Note, profile should have been published by signal code
+                QEForm* gui = createGui( guiName, customisationName, false );  // Note, profile should have been published by signal code
                 loadGuiIntoCurrentWindow( gui, true );
                 return this;
             }
@@ -1715,12 +1715,12 @@ QString MainWindow::GuiFileNameDialog( QString caption )
 // replacing a gui in a tab, replacing a single gui in the main window,
 // or creating a gui in a new main window.
 // A profile should have been published before calling this method.
-QEForm* MainWindow::createGui( QString fileName, QString customisationName, bool isDock, bool clearExistingCustomisations )
+QEForm* MainWindow::createGui( QString fileName, QString customisationName, bool isDock )
 {
-    return createGui( fileName, customisationName, QString(), isDock, clearExistingCustomisations );
+    return createGui( fileName, customisationName, QString(), isDock );
 }
 
-QEForm* MainWindow::createGui( QString fileName, QString customisationName, QString restoreId, bool isDock, bool clearExistingCustomisations )
+QEForm* MainWindow::createGui( QString fileName, QString customisationName, QString restoreId, bool isDock )
 {
     QEForm* gui = NULL; // New GUI created (if any).
 
@@ -1792,7 +1792,7 @@ QEForm* MainWindow::createGui( QString fileName, QString customisationName, QStr
         }
 
         // Load any required window customisation
-        app->getMainWindowCustomisations()->applyCustomisation( this, customisationName, &customisationInfo, clearExistingCustomisations, dockedComponents );
+        app->getMainWindowCustomisations()->applyCustomisation( this, customisationName, &customisationInfo, dockedComponents );
 
         // Use whatever placeholder menus are available (for example, populate a 'Recent' menu if present)
         setupPlaceholderMenus();

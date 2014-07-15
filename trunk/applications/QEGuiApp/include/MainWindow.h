@@ -132,8 +132,8 @@ private:
 
     void setSingleMode();                                   // Set up to use only a single gui
     void setTabMode();                                      // Set up to use multiple guis in tabs
-    QEForm* createGui( QString filename, QString customisationName, bool isDock = false, bool clearExistingCustomisations = false );                  // Create a gui
-    QEForm* createGui( QString fileName, QString customisationName, QString restoreId, bool isDock = false, bool clearExistingCustomisations = false ); // Create a gui with an ID (required for a restore)
+    QEForm* createGui( QString filename, QString customisationName, bool isDock = false );                  // Create a gui
+    QEForm* createGui( QString fileName, QString customisationName, QString restoreId, bool isDock = false ); // Create a gui with an ID (required for a restore)
     void loadGuiIntoCurrentWindow( QEForm* newGui, bool resize );     // Load a new gui into the current window (either single window, or tab)
     void loadGuiIntoNewTab( QEForm* gui );                  // Load a new gui into a new tab
     void loadGuiIntoNewDock( QEForm* gui,
