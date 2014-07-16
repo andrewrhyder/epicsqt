@@ -182,6 +182,7 @@ imageDisplayProperties::imageDisplayProperties()
     fullValueSpinBox->setMinimum( 1 );
     fullValueSpinBox->setMaximum( 10000 );
     fullValueSpinBox->setValue( fromExponentialTailSlider( fullValueSlider->value() ) );
+
     QObject::connect( fullValueSpinBox, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( maxSpinBoxChanged( int )) );
 
     contrastReversalCheckBox = new QCheckBox( "Contrast Reversal", this );
@@ -599,6 +600,7 @@ void imageDisplayProperties::updateZeroValueFullValue( unsigned int min, unsigne
     }
 
     fullValue = max;
+    defaultFullValue = false;
 
     if( zeroValue >= fullValue )
     {

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1050</width>
-    <height>582</height>
+    <width>1080</width>
+    <height>914</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -61,7 +61,7 @@
           <item row="1" column="1">
            <widget class="QELabel" name="qelabel_6">
             <property name="text">
-             <string>-16.6 um</string>
+             <string>-9.5 um</string>
             </property>
             <property name="variable" stdset="0">
              <string>SR10BM02IMG01:Y_OFFSET_MONITOR</string>
@@ -81,7 +81,7 @@
           <item row="2" column="1">
            <widget class="QELabel" name="qelabel_7">
             <property name="text">
-             <string>257.0 um</string>
+             <string>240.9 um</string>
             </property>
             <property name="variable" stdset="0">
              <string>SR10BM02IMG01:Y_SIZE_MONITOR</string>
@@ -138,7 +138,7 @@
              </font>
             </property>
             <property name="text">
-             <string>200.357 mA</string>
+             <string>200.438 mA</string>
             </property>
             <property name="variable" stdset="0">
              <string>SR11BCM01:CURRENT_MONITOR</string>
@@ -159,7 +159,7 @@
           <item row="0" column="2">
            <widget class="QELabel" name="qelabel_3">
             <property name="text">
-             <string>-49.5 um</string>
+             <string>-55.6 um</string>
             </property>
             <property name="variable" stdset="0">
              <string>SR10BM02IMG01:X_OFFSET_MONITOR</string>
@@ -469,6 +469,9 @@
           <property name="zoom">
            <number>400</number>
           </property>
+          <property name="enableImageDisplayProperties">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
        </layout>
@@ -479,6 +482,11 @@
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>QwtPlot</class>
+   <extends>QFrame</extends>
+   <header>qwt_plot.h</header>
+  </customwidget>
   <customwidget>
    <class>QEImage</class>
    <extends>QFrame</extends>
@@ -491,7 +499,7 @@
   </customwidget>
   <customwidget>
    <class>QEPlot</class>
-   <extends>QFrame</extends>
+   <extends>QwtPlot</extends>
    <header>QEPlot.h</header>
   </customwidget>
   <customwidget>
