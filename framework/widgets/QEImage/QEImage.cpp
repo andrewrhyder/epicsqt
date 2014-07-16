@@ -1616,27 +1616,31 @@ void QEImage::getPixelTranslation()
     // Maximum pixel value for 8 bit
     #define MAX_VALUE 255
 
+    // If there is an image options control, get the relevent options
     bool contrastReversal;
     bool logBrightness;
 
-    // If there is an image options control, get the relevent options
-    if( imageDisplayProps && imageDisplayProps->statisticsValid() )
+    if( imageDisplayProps )
     {
-        pixelLow = imageDisplayProps->getLowPixel();
-        pixelHigh = imageDisplayProps->getHighPixel();
-
         contrastReversal = imageDisplayProps->getContrastReversal();
         logBrightness = imageDisplayProps->getLog();
     }
+    else
+    {
+        contrastReversal = false;
+        logBrightness = false;
+    }
 
-    // If there is no image options control, assume no pixel manipulation
+    // If there is an image options control, and we have retrieved high and low pixels from an image, get the relevent options
+    if( imageDisplayProps&& imageDisplayProps->statisticsValid() )
+    {
+        pixelLow = imageDisplayProps->getLowPixel();
+        pixelHigh = imageDisplayProps->getHighPixel();
+    }
     else
     {
         pixelLow = 0;
         pixelHigh = maxPixelValue();
-
-        contrastReversal = false;
-        logBrightness = false;
     }
 
     // Loop populating table with pixel translations for every pixel value
@@ -1904,7 +1908,6 @@ void QEImage::displayImage()
 
     // Get the pixel lookup table to convert raw pixel values to display pixel values taking into
     // account input pixel size, clipping, contrast reversal, and local brightness and contrast.
-
     if( !pixelLookupValid )
     {
         getPixelTranslation();
@@ -6009,6 +6012,8 @@ void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool ini
 
 }
 
+// Constructor for class used to hold a record of a single image
+// Used when building a list of recorded images
 historicImage::historicImage( QByteArray imageIn, unsigned long dataSizeIn, QCaAlarmInfo& alarmInfoIn, QCaDateTime& timeIn )
 {
     image = imageIn;
@@ -6017,6 +6022,106 @@ historicImage::historicImage( QByteArray imageIn, unsigned long dataSizeIn, QCaA
     dataSize = dataSizeIn;
     alarmInfo = alarmInfoIn;
     time = timeIn;
+}
+
+
+void QEImage::saveConfiguration( PersistanceManager* pm )
+{
+    if( !imageDisplayProps )
+    {
+        return;
+    }
+
+    const QString imageName = persistantName( "QEImage" );
+    PMElement imageElement = pm->addNamedConfiguration( imageName );
+
+    PMElement pvElement = imageElement.addElement( "DisplayProperties" );
+    pvElement.addValue( "highPixel",              (int)(imageDisplayProps->getHighPixel()) );
+    pvElement.addValue( "lowPixel",               (int)(imageDisplayProps->getLowPixel()) );
+    pvElement.addValue( "autoBrightnessContrast", (bool)(imageDisplayProps->getAutoBrightnessContrast()) );
+    pvElement.addValue( "contrastReversal",       (bool)(imageDisplayProps->getContrastReversal()) );
+    pvElement.addValue( "falseColour",            (bool)(imageDisplayProps->getFalseColour()) );
+    pvElement.addValue( "histZoom",               (int)(imageDisplayProps->getHistZoom()) );
+    pvElement.addValue( "log",                    (bool)(imageDisplayProps->getLog()) );
+}
+
+//------------------------------------------------------------------------------
+//
+void QEImage::restoreConfiguration (PersistanceManager* pm, restorePhases restorePhase)
+{
+    if( !imageDisplayProps )
+    {
+        return;
+    }
+
+    if (restorePhase != FRAMEWORK) return;
+
+    const QString imageName = persistantName( "QEImage" );
+    PMElement imageElement = pm->getNamedConfiguration( imageName );
+
+    PMElement pvElement = imageElement.getElement( "DisplayProperties" );
+    if( pvElement.isNull() )
+    {
+        return;
+    }
+
+    bool status;
+
+    int highPixel;
+    status = pvElement.getValue( "highPixel", highPixel );
+    if( !status )
+    {
+        highPixel = imageDisplayProps->getHighPixel();
+    }
+
+    int lowPixel;
+    status = pvElement.getValue( "lowPixel", lowPixel );
+    if( !status )
+    {
+        lowPixel = imageDisplayProps->getLowPixel();
+    }
+
+    imageDisplayProps->setBrightnessContrast( highPixel, lowPixel );
+
+    bool autoBrightnessContrast;
+    status = pvElement.getValue( "autoBrightnessContrast", autoBrightnessContrast );
+    if( status )
+    {
+        imageDisplayProps->setAutoBrightnessContrast( autoBrightnessContrast );
+    }
+
+    bool contrastReversal;
+    status = pvElement.getValue( "contrastReversal", contrastReversal );
+    if( status )
+    {
+        imageDisplayProps->setContrastReversal( contrastReversal );
+    }
+
+    bool falseColour;
+    status = pvElement.getValue( "falseColour", falseColour );
+    if( status )
+    {
+        imageDisplayProps->setFalseColour( falseColour );
+    }
+
+    int histZoom;
+    status = pvElement.getValue( "histZoom", histZoom );
+    if( status )
+    {
+        imageDisplayProps->setHistZoom( histZoom );
+    }
+
+    bool log;
+    status = pvElement.getValue( "log", log );
+    if( status )
+    {
+        imageDisplayProps->setLog( log );
+    }
+
+    // Flag that the current pixel lookup table needs recalculating
+    pixelLookupValid = false;
+    qDebug() << "setting pixelLookupValid"<<pixelLookupValid;
+
 }
 
 // end

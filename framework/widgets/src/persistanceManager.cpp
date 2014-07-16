@@ -57,7 +57,7 @@
  *   For example, QEGui provides a unique name to each of the QEForm widgets it creates for presenting GUIs
  *   to the user. The unique names are in the form QEGui_window_<n>_form_<n>.
  *
- *   The QE framework generated unique persistant names for all QE widgets. This name is constructed from the
+ *   The QE framework generates unique persistant names for all QE widgets. This name is constructed from the
  *   unique persistant name given to any top level QEForm by the application, followed by the QE widget class name,
  *   followed by a numeric representation of its position in the widget hierarchy under the top level QEForm.
  *   For example a QEPvProperties widget deep within a GUI that QEGui has loaded into the fourth form in its third

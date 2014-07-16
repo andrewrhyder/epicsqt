@@ -194,8 +194,8 @@ public:
 
     QLabel* histXLabel;
 
-    void setHistZoom( int value );
-    int getHistZoom();
+    void setHistZoom( int value );                      // Set the histogram zoom percentage
+    int getHistZoom();                                  // Return the histogram zoom percentage
 
     bool statisticsValid() { return statisticsSet; }    // Return if statistics have been set
 };

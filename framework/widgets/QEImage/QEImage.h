@@ -589,6 +589,9 @@ public slots:
     QSize getVedioDestinationSize();                // Get the size of the widget where the image is being displayed (either a scroll widget within the QEImage widget, or a full screen main window)
     void showImageContextMenuCommon( const QPoint& pos, const QPoint& globalPos );  // Common support for showImageContextMenu() and showImageContextMenuFullScreen()
 
+    void saveConfiguration( PersistanceManager* pm );
+    void restoreConfiguration (PersistanceManager* pm, restorePhases restorePhase);
+
     void setup();
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
 
