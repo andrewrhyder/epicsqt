@@ -76,6 +76,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPlotter : public QEFrame {
    Q_PROPERTY (bool toolBarVisible     READ getToolBarVisible    WRITE setToolBarVisible)
    Q_PROPERTY (bool pvItemsVisible     READ getPvItemsVisible    WRITE setPvItemsVisible)
    Q_PROPERTY (bool statusVisible      READ getStatusVisible     WRITE setStatusVisible)
+   Q_PROPERTY (bool xLogarithmic       READ getXLogarithmic      WRITE setXLogarithmic)
+   Q_PROPERTY (bool yLogarithmic       READ getYLogarithmic      WRITE setYLogarithmic)
 
    // Data and Size properties,
    //
@@ -180,10 +182,16 @@ public:
    bool getToolBarVisible () const;
 
    void setPvItemsVisible (bool visible);
-   bool getPvItemsVisible() const;
+   bool getPvItemsVisible () const;
 
    void setStatusVisible (bool visible);
-   bool getStatusVisible() const;
+   bool getStatusVisible () const;
+
+   void setXLogarithmic (bool visible);
+   bool getXLogarithmic () const;
+
+   void setYLogarithmic (bool visible);
+   bool getYLogarithmic () const;
 
 signals:
     void requestAction (const QEActionRequests&);             // Signal 'launch a GUI'
@@ -248,7 +256,6 @@ private:
 
    // State data
    //
-   bool isLogarithmic;   // vs. Linear
    bool isReverse;       // vs. Normal
    bool isPaused;        // vs. Updating
    double fixedMinX;

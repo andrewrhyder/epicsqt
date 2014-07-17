@@ -550,7 +550,6 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
    this->setMinimumSize (240, 120);
 
    this->enableConextMenu = true;
-   this->isLogarithmic = false;
    this->isReverse = false;
    this->isPaused = false;
    this->selectedDataSet = 0;
@@ -1015,7 +1014,7 @@ void QEPlotter::runDataDialog (const int slot, QWidget* control)
    //
    this->dataDialog->setFieldInformation (this->getXYExpandedDataPV (slot),
                                           this->getXYAlias (slot),
-                                          this->getXYExpandedSizePV (2*slot + 1));
+                                          this->getXYExpandedSizePV (slot));
 
    n = this->dataDialog->exec (control ? control: this);
    if (n == 1) {
@@ -1081,12 +1080,12 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
          break;
 
       case QEPlotterNames::PLOTTER_LINEAR_Y_SCALE:
-         this->isLogarithmic = false;
+         this->plotArea->setYLogarithmic (false);
          this->pushState ();
          break;
 
       case QEPlotterNames::PLOTTER_LOG_Y_SCALE:
-         this->isLogarithmic = true;
+         this->plotArea->setYLogarithmic (true);
          this->pushState ();
          break;
 
@@ -1386,7 +1385,7 @@ void QEPlotter::captureState (QEPlotterState& state)
 {
    // Capture current state.
    //
-   state.isLogarithmic = this->isLogarithmic;
+   state.isLogarithmic = this->plotArea->getYLogarithmic ();
    state.isReverse = this->isReverse;
    state.isPaused = this->isPaused;
    state.xMinimum = this->fixedMinX;
@@ -1401,7 +1400,7 @@ void QEPlotter::captureState (QEPlotterState& state)
 //
 void QEPlotter::applyState (const QEPlotterState& state)
 {
-   this->isLogarithmic  = state.isLogarithmic;
+   this->plotArea->setYLogarithmic (state.isLogarithmic);
    this->isReverse  = state.isReverse;
    this->isPaused  = state.isPaused;
    this->fixedMinX  = state.xMinimum;
@@ -1518,7 +1517,7 @@ void QEPlotter::zoomInOut (const QPointF& about, const int zoomAmount)
       double newMin;
       double newMax;
 
-      if (this->isLogarithmic) {
+      if (this->plotArea->getYLogarithmic ()) {
          const double logAboutY = LOG10 (about.y ());
 
          newMin = EXP10 (logAboutY + (LOG10 (this->fixedMinY) - logAboutY) * factor);
@@ -1565,7 +1564,7 @@ void QEPlotter::setXRange (const double xMinimumIn, const double xMaximumIn)
 //
 void QEPlotter::setYRange (const double yMinimumIn, const double yMaximumIn)
 {
-   if (this->isLogarithmic) {
+   if (this->plotArea->getYLogarithmic ()) {
       this->fixedMinY = LIMIT (yMinimumIn,  0.0, +1.0e23);
    } else {
       this->fixedMinY = LIMIT (yMinimumIn, -1.0e24, +1.0e23);
@@ -2176,7 +2175,6 @@ void QEPlotter::plot ()
       yMax = this->fixedMaxY;
    }
 
-   this->plotArea->setYLogarithmic (this->isLogarithmic);
    this->plotArea->setXRange (xMin, xMax, QEGraphic::SelectBySize, 40);
    this->plotArea->setYRange (yMin, yMax, QEGraphic::SelectBySize, 40);
 
@@ -2521,6 +2519,34 @@ void QEPlotter::setStatusVisible (bool visible)
 bool QEPlotter::getStatusVisible () const
 {
    return this->statusFrame->isVisible ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPlotter::setXLogarithmic (bool isLog)
+{
+   this->plotArea->setXLogarithmic (isLog);
+   this->replotIsRequired = true;
+}
+
+bool QEPlotter::getXLogarithmic () const
+{
+   return this->plotArea->getXLogarithmic ();
+}
+
+
+//------------------------------------------------------------------------------
+//
+void QEPlotter::setYLogarithmic (bool isLog)
+{
+   this->plotArea->setYLogarithmic (isLog);
+   this->replotIsRequired = true;
+}
+
+
+bool QEPlotter::getYLogarithmic () const
+{
+   return this->plotArea->getYLogarithmic ();
 }
 
 // end
