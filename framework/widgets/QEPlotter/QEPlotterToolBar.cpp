@@ -59,16 +59,17 @@ static const struct QEPlotterPushButtonSpecifications buttonSpecs [] = {
    { GAP, ICW, true,  QString ("normal_video.png"),  QEPlotterNames::PLOTTER_NORMAL_VIDEO,       QString ("White background")   },
    { 0,   ICW, true,  QString ("reverse_video.png"), QEPlotterNames::PLOTTER_REVERSE_VIDEO,      QString ("Black background")   },
 
-   { GAP, ICW, true,  QString ("linear_scale.png"),  QEPlotterNames::PLOTTER_LINEAR_Y_SCALE,     QString ("Linear Scale")       },
-   { 0,   ICW, true,  QString ("log_scale.png"),     QEPlotterNames::PLOTTER_LOG_Y_SCALE,        QString ("Log Scale")          },
-
-   { GAP, ICW, false, QString ("My"),                QEPlotterNames::PLOTTER_MANUAL_Y_RANGE,     QString ("Manual Y Scale")     },
+   { GAP, ICW, true,  QString ("linear_scale.png"),  QEPlotterNames::PLOTTER_LINEAR_Y_SCALE,     QString ("Linear Y Scale")     },
+   { 0,   ICW, true,  QString ("log_scale.png"),     QEPlotterNames::PLOTTER_LOG_Y_SCALE,        QString ("Log Y Scale")        },
+   { 0,   ICW, false, QString ("My"),                QEPlotterNames::PLOTTER_MANUAL_Y_RANGE,     QString ("Manual Y Scale")     },
    { 0,   ICW, false, QString ("Ay"),                QEPlotterNames::PLOTTER_CURRENT_Y_RANGE,    QString ("Y Data Range Scale") },
    { 0,   ICW, false, QString ("Dy"),                QEPlotterNames::PLOTTER_DYNAMIC_Y_RANGE,    QString ("Dynamic Y Scale")    },
    { 0,   ICW, false, QString ("N"),                 QEPlotterNames::PLOTTER_NORAMLISED_Y_RANGE, QString ("Noramalised Scale")  },
    { 0,   ICW, false, QString ("F"),                 QEPlotterNames::PLOTTER_FRACTIONAL_Y_RANGE, QString ("Fractional Scale")   },
 
-   { GAP, ICW, false, QString ("Mx"),                QEPlotterNames::PLOTTER_MANUAL_X_RANGE,     QString ("Manual X Scale")     },
+   { GAP, ICW, true,  QString ("linear_scale.png"),  QEPlotterNames::PLOTTER_LINEAR_X_SCALE,     QString ("Linear X Scale")     },
+   { 0,   ICW, true,  QString ("log_scale.png"),     QEPlotterNames::PLOTTER_LOG_X_SCALE,        QString ("Log X Scale")        },
+   { 0,   ICW, false, QString ("Mx"),                QEPlotterNames::PLOTTER_MANUAL_X_RANGE,     QString ("Manual X Scale")     },
    { 0,   ICW, false, QString ("Ax"),                QEPlotterNames::PLOTTER_CURRENT_X_RANGE,    QString ("X Data Range Scale") },
    { 0,   ICW, false, QString ("Dx"),                QEPlotterNames::PLOTTER_DYNAMIC_X_RANGE,    QString ("Dynamic X Scale")    },
 

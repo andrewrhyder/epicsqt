@@ -70,6 +70,9 @@ public:
       PLOTTER_NORAMLISED_Y_RANGE,  // Range 0 to 1: Data mapped Min => 0, Max => 1
       PLOTTER_FRACTIONAL_Y_RANGE,  // Range 0 to 1: Data mapped (value / Max)
 
+      PLOTTER_LINEAR_X_SCALE,      //
+      PLOTTER_LOG_X_SCALE,         //
+
       PLOTTER_MANUAL_X_RANGE,      // User selected XMin XMax
       PLOTTER_CURRENT_X_RANGE,     // XMin/XMax based on overal min/max of current data set
       PLOTTER_DYNAMIC_X_RANGE,     // As PLOTTER_CURRENT_X_RANGE, but dynamic per update

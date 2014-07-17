@@ -40,7 +40,8 @@ public:
    void saveConfiguration (PMElement& parentElement);
    void restoreConfiguration (PMElement& parentElement);
 
-   bool isLogarithmic;   // vs. Linear
+   bool isXLogarithmic;  // vs. Linear
+   bool isYLogarithmic;  // vs. Linear
    bool isReverse;       // vs. Normal
    bool isPaused;        // vs. Updating
    double xMinimum;

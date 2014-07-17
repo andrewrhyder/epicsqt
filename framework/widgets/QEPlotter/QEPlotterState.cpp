@@ -36,8 +36,9 @@
 //
 QEPlotterState::QEPlotterState ()
 {
-    this->isLogarithmic = false;
-    this->isReverse = false;
+   this->isXLogarithmic = false;
+   this->isYLogarithmic = false;
+   this->isReverse = false;
 }
 
 //------------------------------------------------------------------------------
@@ -47,7 +48,8 @@ void QEPlotterState::saveConfiguration (PMElement& parentElement)
    QEPlotterNames meta;
    PMElement stateElement = parentElement.addElement ("PlotterState");
 
-   stateElement.addValue ("isLogarithmic", this->isLogarithmic);
+   stateElement.addValue ("isXLogarithmic", this->isXLogarithmic);
+   stateElement.addValue ("isYLogarithmic", this->isYLogarithmic);
    stateElement.addValue ("isReverse", this->isReverse);
 
    stateElement.addValue ("xMinimum", this->xMinimum);
@@ -57,7 +59,7 @@ void QEPlotterState::saveConfiguration (PMElement& parentElement)
    stateElement.addValue ("yMinimum", this->yMinimum);
    stateElement.addValue ("yMaximum", this->yMaximum);
    stateElement.addValue ("yScaleMode", QEUtilities::enumToString (meta, "ScaleModes", this->yScaleMode));
- }
+}
 
 //------------------------------------------------------------------------------
 //
@@ -72,9 +74,14 @@ void QEPlotterState::restoreConfiguration (PMElement& parentElement)
 
    if (stateElement.isNull ()) return;
 
-   status = stateElement.getValue ("isLogarithmic", boolVal);
+   status = stateElement.getValue ("isXLogarithmic", boolVal);
    if (status) {
-      this->isLogarithmic = boolVal;
+      this->isXLogarithmic = boolVal;
+   }
+
+   status = stateElement.getValue ("isYLogarithmic", boolVal);
+   if (status) {
+      this->isYLogarithmic = boolVal;
    }
 
    status = stateElement.getValue ("isReverse", boolVal);
@@ -138,7 +145,7 @@ void QEPlotterStateList::push (const QEPlotterState& state)
    // Don't let this list get tooo big.
    //
    if (this->stateList.count () > MAXIMUM_CHART_STATES) {
-       this->stateList.removeFirst ();  // remove oldest
+      this->stateList.removeFirst ();  // remove oldest
    }
 
    this->chartStatePointer = this->stateList.count ();
