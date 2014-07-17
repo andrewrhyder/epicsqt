@@ -1115,6 +1115,16 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
          this->pushState ();
          break;
 
+      case QEPlotterNames::PLOTTER_LINEAR_X_SCALE:
+         this->plotArea->setXLogarithmic (false);
+         this->pushState ();
+         break;
+
+      case QEPlotterNames::PLOTTER_LOG_X_SCALE:
+         this->plotArea->setXLogarithmic (true);
+         this->pushState ();
+         break;
+
       case QEPlotterNames::PLOTTER_MANUAL_X_RANGE:
          this->rangeDialog->setWindowTitle ("Plotter X Range");
          this->rangeDialog->setRange (this->fixedMinX, this->fixedMaxX);
@@ -1385,7 +1395,8 @@ void QEPlotter::captureState (QEPlotterState& state)
 {
    // Capture current state.
    //
-   state.isLogarithmic = this->plotArea->getYLogarithmic ();
+   state.isXLogarithmic = this->plotArea->getXLogarithmic ();
+   state.isYLogarithmic = this->plotArea->getYLogarithmic ();
    state.isReverse = this->isReverse;
    state.isPaused = this->isPaused;
    state.xMinimum = this->fixedMinX;
@@ -1400,7 +1411,8 @@ void QEPlotter::captureState (QEPlotterState& state)
 //
 void QEPlotter::applyState (const QEPlotterState& state)
 {
-   this->plotArea->setYLogarithmic (state.isLogarithmic);
+   this->plotArea->setXLogarithmic (state.isXLogarithmic);
+   this->plotArea->setYLogarithmic (state.isYLogarithmic);
    this->isReverse  = state.isReverse;
    this->isPaused  = state.isPaused;
    this->fixedMinX  = state.xMinimum;
