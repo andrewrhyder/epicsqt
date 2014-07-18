@@ -56,14 +56,13 @@ QEPlotterMenu::QEPlotterMenu (QWidget* parent) : QMenu (parent)
    this->make (menu, "White background",    false, QEPlotterNames::PLOTTER_NORMAL_VIDEO);
    this->make (menu, "Black background",    false, QEPlotterNames::PLOTTER_REVERSE_VIDEO);
 
-   this->make (menu, "Linear scale",        false, QEPlotterNames::PLOTTER_LINEAR_Y_SCALE);
-   this->make (menu, "Log Scale",           false, QEPlotterNames::PLOTTER_LOG_Y_SCALE);
-
    this->make (menu, "Play - Real time",    false, QEPlotterNames::PLOTTER_PLAY);
    this->make (menu, "Pause",               false, QEPlotterNames::PLOTTER_PAUSE);
 
    menu = new QMenu ("Y Scale", this);
    this->addMenu (menu);
+   this->make (menu, "Linear Y scale",      false, QEPlotterNames::PLOTTER_LINEAR_Y_SCALE);
+   this->make (menu, "Log Y Scale",         false, QEPlotterNames::PLOTTER_LOG_Y_SCALE);
    this->make (menu, "Manual Y Scale...",   false, QEPlotterNames::PLOTTER_MANUAL_Y_RANGE);
    this->make (menu, "Y Data Range Scale",  false, QEPlotterNames::PLOTTER_CURRENT_Y_RANGE);
    this->make (menu, "Dynamic Y Scale",     false, QEPlotterNames::PLOTTER_DYNAMIC_Y_RANGE);
@@ -72,6 +71,8 @@ QEPlotterMenu::QEPlotterMenu (QWidget* parent) : QMenu (parent)
 
    menu = new QMenu ("X Scale", this);
    this->addMenu (menu);
+   this->make (menu, "Linear X scale",      false, QEPlotterNames::PLOTTER_LINEAR_X_SCALE);
+   this->make (menu, "Log X Scale",         false, QEPlotterNames::PLOTTER_LOG_X_SCALE);
    this->make (menu, "Manual X Scale...",   false, QEPlotterNames::PLOTTER_MANUAL_X_RANGE);
    this->make (menu, "X Data Range Scale",  false, QEPlotterNames::PLOTTER_CURRENT_X_RANGE);
    this->make (menu, "Dynamic X Scale",     false, QEPlotterNames::PLOTTER_DYNAMIC_X_RANGE);
