@@ -36,6 +36,14 @@
 
 // Useful type neutral numerical macro fuctions.
 //
+// Note: the answer parameter supplied to these macros is evaluated two (or
+// three in the case of LIMIT) times. As such no expression with a side effect
+// should be used, nor an expression that that an excessive time to compute.
+//
+// Erroneous                              Use this
+// f = MAX (random (), 0.25)              t = random (); f = MAX (t, 0.25)
+// k = MAX (j++, 32);                     t = j++;  k = MAX(t, 32)
+//
 #define ABS(a)             ((a) >= 0  ? (a) : -(a))
 #define MIN(a, b)          ((a) <= (b) ? (a) : (b))
 #define MAX(a, b)          ((a) >= (b) ? (a) : (b))

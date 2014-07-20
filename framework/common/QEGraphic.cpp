@@ -30,6 +30,7 @@
 #include <qevent.h>       // QEvent maps to qcoreevent.h, not qevent.h
 #include <QECommon.h>
 
+#include <qwt_scale_engine.h>
 #include "QEGraphic.h"
 
 #define DEBUG qDebug () << "QEGraphic" << __FUNCTION__ <<  __LINE__
@@ -49,12 +50,13 @@ QEGraphic::Axis::Axis (QwtPlot* plotIn, const int axisIdIn)
 {
    this->plot = plotIn;
    this->axisId = axisIdIn;
+   this->plot->setAxisScaleEngine (this->axisId, new QwtLinearScaleEngine);
 
    // Set defaults.
    //
    this->isLogarithmic = false;
    this->scale = 1.0;
-   this->offset  = 0.0;
+   this->offset = 0.0;
    this->axisEnabled = true;
 
    // Set 'current' ranges.
@@ -63,6 +65,13 @@ QEGraphic::Axis::Axis (QwtPlot* plotIn, const int axisIdIn)
    this->transitionCount = 0;
    this->setRange (0.0, 1.0, QEGraphic::SelectByNumber, 8);
    this->transitionCount = 0;   // reset
+}
+
+//------------------------------------------------------------------------------
+//
+QEGraphic::Axis::~Axis ()
+{
+   this->plot->setAxisScaleEngine (this->axisId, NULL);
 }
 
 //------------------------------------------------------------------------------
@@ -160,7 +169,6 @@ void QEGraphic::Axis::determineAxis (const QEDisplayRanges& current)
    this->plot->setAxisScale (this->axisId, useMin, useMax , useStep);
 }
 
-
 //------------------------------------------------------------------------------
 //
 double QEGraphic::Axis::pointToReal (const int pos) const
@@ -170,10 +178,6 @@ double QEGraphic::Axis::pointToReal (const int pos) const
    // Perform basic inverse transformation.
    //
    x = this->plot->invTransform (this->axisId, pos);
-
-   if (this->isLogarithmic) {
-      x = EXP10 (x);
-   }
 
    // Scale to real world units.
    //
@@ -194,7 +198,7 @@ int QEGraphic::Axis::realToPoint (const double pos) const
    useX = this->scale * (double) pos + this->offset;
 
    if (this->isLogarithmic) {
-      useX = LOG10 (useX);
+      useX = MAX (1.0E-20, useX);   // avoid going out of range
    }
 
    // Perform basic plot transformation.
@@ -212,7 +216,7 @@ double QEGraphic::Axis::scaleValue (const double coordinate) const
 
    x = this->scale * coordinate + this->offset;
    if (this->isLogarithmic) {
-      x = LOG10 (x);
+      x = MAX (1.0E-20, x);   // avoid going out of range
    }
 
    return x;
@@ -263,10 +267,16 @@ double QEGraphic::Axis::getOffset () const
 
 //------------------------------------------------------------------------------
 //
-void QEGraphic::Axis::setLogarithmic (const bool logarithmicIn)
+void QEGraphic::Axis::setLogarithmic (const bool isLogarithmicIn)
 {
-   if (this->isLogarithmic != logarithmicIn) {
-      this->isLogarithmic = logarithmicIn;
+   if (this->isLogarithmic != isLogarithmicIn) {
+      this->isLogarithmic = isLogarithmicIn;
+
+      if (this->isLogarithmic) {
+         this->plot->setAxisScaleEngine (this->axisId, new QwtLog10ScaleEngine);
+      } else {
+         this->plot->setAxisScaleEngine (this->axisId, new QwtLinearScaleEngine);
+      }
 
       // Do immediate trasition and reset
       //
@@ -294,7 +304,7 @@ QEGraphic::QEGraphic (QWidget* parent) : QWidget (parent)
 
 //------------------------------------------------------------------------------
 //
-QEGraphic::QEGraphic (const QwtText& title, QWidget* parent) : QWidget (parent)
+QEGraphic::QEGraphic (const QString& title, QWidget* parent) : QWidget (parent)
 {
    this->plot = new QwtPlot (title, parent);
    this->construct ();
