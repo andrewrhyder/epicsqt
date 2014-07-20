@@ -161,9 +161,15 @@ bool QEDisplayRanges::getMinMax (double &min, double &max) const
 //
 void QEDisplayRanges::adjustLogMinMax (double& minOut, double& maxOut, double& majorOut) const
 {
-   minOut = floor (LOG10 (this->minimum));
-   maxOut = ceil  (LOG10 (this->maximum));
-   if ((maxOut - minOut) >= 16) {
+   minOut = MAX (1.0E-20, this->minimum);  // avoid log of -ve and zero.
+   maxOut = this->maximum;
+
+   // calc majorOut - the actual intervals are 10^(majorOut*n)
+   //
+   double r = maxOut / minOut;
+   if (r >= 1.0E24) {
+      majorOut = 3.0;
+   } else if (r >= 1.0E16) {
       majorOut = 2.0;
    } else {
       majorOut = 1.0;

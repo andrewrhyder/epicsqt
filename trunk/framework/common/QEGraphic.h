@@ -71,7 +71,7 @@ public:
       SelectBySize };  // (span / (size / value))  used for estimated major value
 
    explicit QEGraphic (QWidget* parent = 0);
-   explicit QEGraphic (const QwtText &title, QWidget* parent = 0);
+   explicit QEGraphic (const QString &title, QWidget* parent = 0);
    ~QEGraphic ();
 
    // Allow access to the inner QwtPlot object - allows direct access if needed.
@@ -195,6 +195,7 @@ private:
    class Axis {
    public:
       explicit Axis (QwtPlot* plot, const int axisId);
+      ~Axis ();
 
       void setRange (const double min, const double max,
                      const AxisMajorIntervalModes mode, const int value);
@@ -218,7 +219,7 @@ private:
       void setOffset (const double offset);
       double getOffset () const;
 
-      void setLogarithmic (const bool logarithmic);
+      void setLogarithmic (const bool isLogarithmic);
       bool getLogarithmic () const;
 
    private:
