@@ -1,6 +1,7 @@
 /*  QERadioGroup.cpp
  *
- *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
+ *  This file is part of the EPICS QT Framework, initially developed at the
+ *  Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2013
+ *  Copyright (c) 2013,2014 Australian Synchrotron.
  *
  *  Author:
  *    Andrew Starritt
@@ -32,39 +33,95 @@
 
 #define DEBUG qDebug () << "QERadioGroup" << __FUNCTION__ << __LINE__
 
-// Normally we expect 16 for an enueration PV, but framework does a special for
-// status (.STAT) PVs so need some more. Also use of local enueration values
-// means many more values may be catered for.
-//
-#define MAXIMUM_BUTTONS   64
+#define PV_VARIABLE_INDEX      0
+#define TITLE_VARIABLE_INDEX   1
 
 //-----------------------------------------------------------------------------
 // Constructor with no initialisation
 //
-QERadioGroup::QERadioGroup (QWidget* parent) :
-   QEGroupBox (" QERadioGroup ", parent)
+QERadioGroup::QERadioGroup (QWidget* parent) : QEAbstractWidget (parent)
 {
-   this->commonSetup ();
+   this->commonSetup (" QERadioGroup ");
 }
 
 //-----------------------------------------------------------------------------
 // Constructor with known variable
 //
-QERadioGroup::QERadioGroup (const QString& variableNameIn, QWidget* parent) :
-   QEGroupBox (" QERadioGroup ", parent)
+QERadioGroup::QERadioGroup (const QString& variableNameIn, QWidget* parent) : QEAbstractWidget (parent)
 {
-   this->commonSetup ();
-   this->setVariableName (variableNameIn, 0);
+   this->commonSetup (" QERadioGroup ");
+   this->setVariableName (variableNameIn, PV_VARIABLE_INDEX);
 }
 
 //-----------------------------------------------------------------------------
 // Constructor with title and known variable
 //
-QERadioGroup::QERadioGroup (const QString& title, const QString& variableNameIn, QWidget* parent) :
-   QEGroupBox (title, parent)
+QERadioGroup::QERadioGroup (const QString& title, const QString& variableNameIn,
+                            QWidget* parent) : QEAbstractWidget (parent)
 {
-   this->commonSetup ();
-   this->setVariableName (variableNameIn, 0);
+   this->commonSetup (title);
+   this->setVariableName (variableNameIn, PV_VARIABLE_INDEX);
+}
+
+//-----------------------------------------------------------------------------
+// Setup common to all constructors
+//
+void QERadioGroup::commonSetup (const QString& title)
+{
+   // Create internal widget.
+   //
+   this->internalWidget = new QRadioGroup (title, this);
+
+   // Copy actual widget size policy to the containing widget, then ensure
+   // internal widget will expand to fill container widget.
+   //
+   this->setSizePolicy (this->internalWidget->sizePolicy ());
+   this->internalWidget->setSizePolicy (QSizePolicy::Preferred, QSizePolicy::Preferred);
+
+   this->layout = new QHBoxLayout (this);
+   this->layout->setMargin (0);    // extact fit.
+   this->layout->addWidget (this->internalWidget);
+
+   QObject::connect (this->internalWidget, SIGNAL (valueChanged         (const int)),
+                     this,                 SLOT   (internalValueChanged (const int)));
+
+   // Set default property values
+   //
+   // Set up data
+   // This control uses a single data source
+   // We use 2nd "variable" for the title.
+   //
+   this->setNumVariables (2);
+
+   // Title managed as second variable.
+   //
+   this->setVariableName (title, TITLE_VARIABLE_INDEX);
+
+   this->setMinimumSize (120, 40);
+
+   // Set up default properties
+   //
+   this->setVariableAsToolTip (true);
+   this->setAllowDrop (false);
+   this->setDisplayAlarmState (true);
+   this->useDbEnumerations = true;      // as opposed to local enumeations.
+
+   // Set the initial state
+   //
+   this->currentIndex = -1;
+
+   // Use default context menu.
+   //
+   this->setupContextMenu ();
+
+   // Set up a connection to recieve variable name property changes
+   // The variable name property manager class only delivers an updated
+   // variable name after the user has stopped typing.
+   //
+   this->vnpm.setVariableIndex (PV_VARIABLE_INDEX);
+   QObject::connect
+       (&this->vnpm, SIGNAL (newVariableNameProperty  (QString, QString, unsigned int)),
+        this,        SLOT (useNewVariableNameProperty (QString, QString, unsigned int)));
 }
 
 //---------------------------------------------------------------------------------
@@ -76,146 +133,33 @@ QSize QERadioGroup::sizeHint () const
 
 //---------------------------------------------------------------------------------
 //
-QAbstractButton* QERadioGroup::createButton (QWidget* parent)
+void QERadioGroup::fontChange (const QFont& font)
 {
-   QAbstractButton* result = NULL;
+   QEAbstractWidget::fontChange (font);    // call super-class function first.
 
-   switch (this->buttonStyle) {
-      case Radio:
-         result = new QRadioButton (parent);
-         break;
-
-      case Push:
-         result = new QPushButton (parent);
-         break;
-
-      default:
-         DEBUG  << "Invalid button style" << (int) this->buttonStyle;
-         break;
+   if (this->internalWidget) {
+      // fontIn is out of date by one change, but this font is not.
+      this->internalWidget->setFont (this->font ());
    }
-   result->setAutoExclusive (true);
-   result->setCheckable (true);
-   return result;
-}
-
-//-----------------------------------------------------------------------------
-//
-void QERadioGroup::reCreateAllButtons ()
-{
-   int j;
-   QAbstractButton *button;
-
-   // First selete any old existing buttons.
-   //
-   if (this->noSelectionButton) {
-      delete this->noSelectionButton;
-      this->noSelectionButton = NULL;
-   }
-
-   while (this->buttonList.count() > 0) {
-      button = this->buttonList.takeFirst ();
-      if (button) {
-         delete button;
-      }
-   }
-
-   // Create new buttons -invisble for now.
-   // NOTE: buttons are added/removed from layout as and when needed.
-   //
-   for (j = 0; j < MAXIMUM_BUTTONS; j++) {
-      button = this->createButton (this);
-      button->setGeometry (-40, -40, 20, 20);
-      button->setVisible (false);
-
-      QObject::connect (button, SIGNAL (clicked (bool)),
-                        this,   SLOT   (buttonClicked (bool)));
-
-      this->buttonList.append (button);
-   }
-
-   // Hidden button set when no valid selection available.
-   // We cannot (in some versions) deselect all.
-   //
-   this->noSelectionButton = this->createButton (this);
-   this->noSelectionButton->setGeometry (-40, -40, 20, 20);
-   this->noSelectionButton->setVisible (false);
-}
-
-//-----------------------------------------------------------------------------
-// Setup common to all constructors
-//
-void QERadioGroup::commonSetup ()
-{
-   // QEGroupBox sets this to false (as it's not an EPICS aware widget).
-   // But the QERadioGroup is EPICS aware, so set default to true.
-   //
-   this->setVariableAsToolTip (true);
-
-   // Set up data
-   // This control uses a single data source
-   //
-   this->setNumVariables (1);
-
-   this->setMinimumSize (120, 40);
-
-   // Set up default properties
-   //
-   this->useDbEnumerations = true;  // as opposed to local enumeations.
-   this->setAllowDrop (false);
-   this->setDisplayAlarmState (true);
-
-   // Set the initial state
-   //
-   this->isConnected = false;
-   this->currentIndex = -1;
-
-   this->number = 0;
-   this->rows = 0;
-   this->cols = 2;
-   this->buttonStyle = Radio;
-
-   this->buttonLayout = new QGridLayout (this);
-   this->buttonLayout->setContentsMargins (8, 4, 8, 4);  // left, top, right, bottom
-   this->buttonLayout->setSpacing (4);
-
-   // Create buttons - invisble for now.
-   // NOTE: radio buttons are added/removed from layout as and when needed.
-   //
-   this->noSelectionButton = NULL;
-   this->buttonList.clear ();
-   this->reCreateAllButtons ();
-
-   // Use default context menu.
-   //
-   this->setupContextMenu();
-
-   // Set up a connection to recieve variable name property changes
-   // The variable name property manager class only delivers an updated
-   // variable name after the user has stopped typing.
-   //
-   QObject::connect
-         (&this->variableNamePropertyManager, SIGNAL (newVariableNameProperty    (QString, QString, unsigned int)),
-          this,                                SLOT  (useNewVariableNameProperty (QString, QString, unsigned int)));
 }
 
 //------------------------------------------------------------------------------
 // Implementation of QEWidget's virtual funtion to create the specific type of
 // QCaObject required. A QCaObject that streams integers is required.
 //
-qcaobject::QCaObject * QERadioGroup::createQcaItem (unsigned int variableIndex)
+qcaobject::QCaObject* QERadioGroup::createQcaItem (unsigned int variableIndex)
 {
-   qcaobject::QCaObject * result = NULL;
+   qcaobject::QCaObject* result = NULL;
 
-   if (variableIndex != 0) {
+   if (variableIndex != PV_VARIABLE_INDEX) {
       DEBUG << "unexpected variableIndex" << variableIndex;
       return NULL;
    }
 
-   result = new QEInteger (this->getSubstitutedVariableName (variableIndex), this,
-                           &this->integerFormatting, variableIndex);
+   result = new QEInteger (this->getSubstitutedVariableName (variableIndex),
+                           this, &this->integerFormatting, variableIndex);
    return result;
 }
-
 
 //------------------------------------------------------------------------------
 // Start updating.
@@ -225,7 +169,7 @@ qcaobject::QCaObject * QERadioGroup::createQcaItem (unsigned int variableIndex)
 //
 void QERadioGroup::establishConnection (unsigned int variableIndex)
 {
-   if (variableIndex != 0) {
+   if (variableIndex != PV_VARIABLE_INDEX) {
       DEBUG << "unexpected variableIndex" << variableIndex;
       return;
    }
@@ -234,16 +178,16 @@ void QERadioGroup::establishConnection (unsigned int variableIndex)
    // If successfull, the QCaObject object that will supply data update signals will be returned
    // Note createConnection creates the connection and returns reference to existing QCaObject.
    //
-   qcaobject::QCaObject * qca = createConnection (variableIndex);
+   qcaobject::QCaObject* qca = createConnection (variableIndex);
 
    // If a QCaObject object is now available to supply data update signals, connect it to the appropriate slots.
    //
-   if ((qca) && (variableIndex == 0)) {
-      QObject::connect (qca, SIGNAL (integerChanged (const long &, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)),
-                        this, SLOT  (valueUpdate    (const long &, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)));
+   if (qca) {
+      QObject::connect (qca,  SIGNAL (connectionChanged (QCaConnectionInfo&, const unsigned int&)),
+                        this, SLOT   (connectionChanged (QCaConnectionInfo&, const unsigned int&)));
 
-      QObject::connect (qca, SIGNAL (connectionChanged (QCaConnectionInfo &)),
-                        this, SLOT  (connectionChanged (QCaConnectionInfo &)));
+      QObject::connect (qca,  SIGNAL (integerChanged (const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int&)),
+                        this, SLOT   (valueUpdate    (const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int&)));
    }
 }
 
@@ -252,20 +196,25 @@ void QERadioGroup::establishConnection (unsigned int variableIndex)
 // Change how the s looks and change the tool tip
 // This is the slot used to recieve connection updates from a QCaObject based class.
 //
-void QERadioGroup::connectionChanged (QCaConnectionInfo & connectionInfo)
+void QERadioGroup::connectionChanged (QCaConnectionInfo& connectionInfo,
+                                      const unsigned int& variableIndex)
 {
+   bool isConnected;
+
    // Note the connected state
    //
-   this->isConnected = connectionInfo.isChannelConnected ();
+   isConnected = connectionInfo.isChannelConnected ();
 
    // Display the connected state
    //
-   this->updateToolTipConnection (this->isConnected);
-   this->updateConnectionStyle (this->isConnected);
+   this->updateToolTipConnection (isConnected, variableIndex);
+
+   this->internalWidget->setEnabled (isConnected);
 
    // more trob. than it's worth to check if this is a connect or disconnect.
    //
    this->isFirstUpdate = true;
+   this->currentIndex = -1;
 }
 
 //-----------------------------------------------------------------------------
@@ -275,9 +224,9 @@ void QERadioGroup::valueUpdate (const long &value,
                                 QCaDateTime &,
                                 const unsigned int &variableIndex)
 {
-   QAbstractButton *selectedButton = NULL;
+   int selectedIndex = -1;
 
-   if (variableIndex != 0) {
+   if (variableIndex != PV_VARIABLE_INDEX) {
       DEBUG << "unexpected variableIndex" << variableIndex;
       return;
    }
@@ -287,40 +236,21 @@ void QERadioGroup::valueUpdate (const long &value,
    //
    if (this->isFirstUpdate) {
       this->isFirstUpdate = false;
-      this->setButtonText ();
+      this->setRadioGroupText ();
    }
 
-   // Set the selected index value.
+   // Set and save the selected index value.
    //
    this->currentIndex = value;
 
-   if (this->valueToButton.containsF (value)) {
-      selectedButton = this->valueToButton.valueF (value, NULL);
-      if (selectedButton) {
-         selectedButton->setChecked (true); // this will uncheck all other buttons
-      }
-
+   if (this->valueToIndex.containsF (value)) {
+      selectedIndex = this->valueToIndex.valueF (value, NULL);
+      this->internalWidget->setValue (selectedIndex);
    } else {
       // We haven't mapped this value - use hidden selection.
       // This will uncheck all the "real" buttons
       //
-      this->noSelectionButton->setChecked (true);
-      selectedButton = NULL;
-   }
-
-   // On some styles, a down push button looks very much like a non-down
-   // button. To help emphasize the selected button, we set the font of
-   // the selected button bold, and all the other buttons non-bold.
-   //
-   if (this->buttonStyle == Push) {
-      for (int j = 0; j < this->number; j++) {
-         QAbstractButton* otherButton = this->buttonList.value (j, NULL);
-         if (otherButton) {
-            QFont otherFont = otherButton->font ();
-            otherFont.setBold (otherButton == selectedButton);
-            otherButton->setFont (otherFont);
-         }
-      }
+      this->internalWidget->setValue (-1);
    }
 
    // Signal a database value change to any Link widgets
@@ -329,58 +259,14 @@ void QERadioGroup::valueUpdate (const long &value,
 
    // Invoke common alarm handling processing.
    //
-   this->processAlarmInfo (alarmInfo);
+   this->processAlarmInfo (alarmInfo, variableIndex);
 }
 
 //---------------------------------------------------------------------------------
 //
-void QERadioGroup::buttonClicked (bool)
-{
-   QAbstractButton* sendingButton = NULL;
-   int value;
-
-   // Determine signal sending widget
-   //
-   sendingButton = dynamic_cast<QAbstractButton*> (this->sender());
-   if (!sendingButton) {
-      return;
-   }
-
-   // Is this button in the association?
-   //
-   if (!this->valueToButton.containsI (sendingButton)) {
-      return;
-   }
-
-   // Get thevalue associated with this button.
-   //
-   value = this->valueToButton.valueI (sendingButton);
-
-   // Don't write current value.
-   //
-   if (value == this->getCurrentIndex ()) {
-      return;
-   }
-
-   // Write the new value.
-   // Get the variable to write to
-   //
-   QEInteger* qca = (QEInteger *) getQcaItem (0);
-
-   // If a QCa object is present (if there is a variable to write to)
-   // then write the value.
-   //
-   if (qca) {
-      qca->writeInteger (value);
-   }
-}
-
-//---------------------------------------------------------------------------------
-//
-void QERadioGroup::setButtonText ()
+void QERadioGroup::setRadioGroupText ()
 {
    qcaobject::QCaObject* qca = NULL;
-   QAbstractButton* button = NULL;
    QStringList enumerations;
    QString text;
    bool isMatch;
@@ -392,28 +278,28 @@ void QERadioGroup::setButtonText ()
    //
    // Clear maps.
    //
-   this->valueToButton.clear ();
+   this->valueToIndex.clear ();
 
    if (this->useDbEnumerations) {
-      qca = getQcaItem (0);
+      qca = getQcaItem (PV_VARIABLE_INDEX);
       if (qca) {
          enumerations = qca->getEnumerations ();
 
          // Create indentity map.
          //
          for (j = 0; j < enumerations.count (); j++) {
-            this->valueToButton.insertF (j, this->buttonList.value (j));
+            this->valueToIndex.insertF (j, j);
          }
       }
 
    } else {
 
       // Build up enumeration list using the local enumerations.  This may be
-      // sparce - e.g.: 1 => Red, 5 => Blue, 63 => Green.  We create a reverse
+      // sparce    e.g.: 1 => Red, 5 => Blue, 63 => Green.  We create a reverse
       // map 0 => 1; 1 => 5; 2 => 63 so that when user selects the an element,
       // say Blue, we can map this directly to integer value of 5.
       //
-      // Search upto values range -128 .. 128 - NOTE: this is arbitary.
+      // Search upto values range -128 .. 128    NOTE: this is arbitary.
       // Maybe localEnumeration can be modified to provide a min/max value
       // or a list of values.
       //
@@ -427,91 +313,112 @@ void QERadioGroup::setButtonText ()
          if (text.isEmpty ()) continue;
 
          j = enumerations.count ();
-         if (j >= this->buttonList.count ()) {
+         if (j >=this->internalWidget-> getMaximumButtons ()) {
             // We are full - ignore the rest.
             break;
          }
          enumerations.append (text);
 
-         this->valueToButton.insertF (n, this->buttonList.value (j));
+         this->valueToIndex.insertF (n, j);
       }
    }
 
-   this->number = MIN (enumerations.count (), this->buttonList.count ());
-   this->rows = (number + this->cols - 1) / MAX (this->cols, 1);
-
-   for (j = 0; j < this->buttonList.count (); j++) {
-      button = this->buttonList.value (j);
-      button->setVisible (j < number);
-      if (j < number) {
-         button->setText (enumerations.value (j));
-      }
-   }
-
-   this->setButtonLayout ();
+   this->internalWidget->setStrings (enumerations);
 }
 
 //---------------------------------------------------------------------------------
 //
-void QERadioGroup::setButtonLayout ()
+void QERadioGroup::internalValueChanged (const int selectedIndex)
 {
-   int j;
-   int row, col;
-
-   // Remove any existing items from the layout.
+   // Get the variable to write to
    //
-   while (this->buttonLayout->takeAt (0) != NULL);
+   QEInteger *qca = (QEInteger *) getQcaItem (PV_VARIABLE_INDEX);
 
-   // Add buttons that are now required.
-   //
-   for (j = 0; j < this->number && j < this->buttonList.count (); j++) {
-      QAbstractButton *button = this->buttonList.value (j, NULL);
-      if (button) {
+   // If a QCa object is present (if there is a variable to write to)
+   // then write the value
+   if (qca) {
+      int value;
 
-         // Find row and col - row major.
-         //
-         row = j / MAX (this->cols, 1);
-         col = j % MAX (this->cols, 1);
-
-         this->buttonLayout->addWidget (button, row, col);
+      // Validate using inverse mapping.
+      //
+      if (!this->valueToIndex.containsI (selectedIndex)) {
+         return;
       }
+
+      // Get thevalue associated with this button.
+      //
+      value = this->valueToIndex.valueI (selectedIndex);
+
+      // Don't write current value.
+      //
+      if (value == this->getCurrentIndex ()) {
+         return;
+      }
+
+      // Write the value
+      //
+      qca->writeInteger (value);
    }
 }
 
 //------------------------------------------------------------------------------
 //
-void QERadioGroup::setCurrentIndex (int indexIn)
+int QERadioGroup::getCurrentIndex () const
 {
-   this->currentIndex = LIMIT (indexIn, -1, (this->number - 1));
+   return this->currentIndex;
 }
 
 //------------------------------------------------------------------------------
 //
-int QERadioGroup::getCurrentIndex ()
+void QERadioGroup::useNewVariableNameProperty (QString variableName,
+                                               QString substitutions,
+                                               unsigned int variableIndex)
 {
-   return this->currentIndex;
+   this->setVariableNameAndSubstitutions (variableName, substitutions, variableIndex);
+
+   // Both the variable name and the title use the same default substitution string.
+   //
+   this->internalWidget->setTitle (this->getSubstitutedVariableName (TITLE_VARIABLE_INDEX));
 }
+
 
 //==============================================================================
 // Properties
 // Update variable name etc.
 //
-void QERadioGroup::setSubstitutionsProperty (QString macroSubstitutionsIn)
+void QERadioGroup::setVariableNameProperty (const QString& variableName)
 {
-   // Call parent method and also set copy held in own name property manager.
-   // Must ensure consistancy.
-   //
-   QEGroupBox::setSubstitutionsProperty (macroSubstitutionsIn);
-   this->variableNamePropertyManager.setSubstitutionsProperty (macroSubstitutionsIn);
+   this->vnpm.setVariableNameProperty (variableName);
+}
+
+QString QERadioGroup::getVariableNameProperty () const
+{
+   return this->vnpm.getVariableNameProperty ();
 }
 
 //------------------------------------------------------------------------------
 //
-void QERadioGroup::useNewVariableNameProperty (QString variableNameIn,
-                                               QString variableNameSubstitutionsIn,
-                                               unsigned int variableIndex)
+void QERadioGroup::setSubstitutionsProperty (const QString& substitutions)
 {
-   this->setVariableNameAndSubstitutions (variableNameIn, variableNameSubstitutionsIn, variableIndex);
+   this->vnpm.setSubstitutionsProperty (substitutions);
+}
+
+QString QERadioGroup::getSubstitutionsProperty () const
+{
+   return this->vnpm.getSubstitutionsProperty ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QERadioGroup::setSubstitutedTitleProperty (const QString& substitutedTitle)
+{
+   this->setVariableName (substitutedTitle, TITLE_VARIABLE_INDEX);
+   this->internalWidget->setTitle (this->getSubstitutedVariableName (TITLE_VARIABLE_INDEX));
+}
+
+QString QERadioGroup::getSubstitutedTitleProperty () const
+{
+   return this->getOriginalVariableName (TITLE_VARIABLE_INDEX);
 }
 
 //------------------------------------------------------------------------------
@@ -520,91 +427,52 @@ void QERadioGroup::setUseDbEnumerations (bool useDbEnumerationsIn)
 {
    if (this->useDbEnumerations != useDbEnumerationsIn) {
       this->useDbEnumerations = useDbEnumerationsIn;
-      this->setButtonText ();
+      this->setRadioGroupText ();
    }
 }
 
 //------------------------------------------------------------------------------
 //
-bool QERadioGroup::getUseDbEnumerations ()
+bool QERadioGroup::getUseDbEnumerations () const
 {
    return this->useDbEnumerations;
 }
 
 //------------------------------------------------------------------------------
 //
-void QERadioGroup::setLocalEnumerations (const QString & localEnumerationsIn)
+void QERadioGroup::setLocalEnumerations (const QString& localEnumerationsIn)
 {
    this->localEnumerations.setLocalEnumeration (localEnumerationsIn);
    if (!this->useDbEnumerations) {
-      this->setButtonText ();
+      this->setRadioGroupText ();
    }
 }
 
 //------------------------------------------------------------------------------
 //
-QString QERadioGroup::getLocalEnumerations ()
+QString QERadioGroup::getLocalEnumerations () const
 {
    return this->localEnumerations.getLocalEnumeration ();
 }
 
-//------------------------------------------------------------------------------
-//
-void QERadioGroup::setColumns (int colsIn)
-{
-   int constrainedCols = LIMIT (colsIn, 1, 16);
-
-   if (this->cols != constrainedCols) {
-      this->cols = constrainedCols;
-      this->rows = (this->number + this->cols - 1) / MAX (this->cols, 1);
-      this->setButtonLayout ();
-   }
-}
-
-//------------------------------------------------------------------------------
-//
-int QERadioGroup::getColumns ()
-{
-   return this->cols;
-}
-
-//------------------------------------------------------------------------------
-//
-void QERadioGroup::setButtonStyle (const ButtonStyles & buttonStyleIn)
-{
-   if (this->buttonStyle != buttonStyleIn) {
-      this->buttonStyle = buttonStyleIn;
-
-      this->reCreateAllButtons ();
-      this->setButtonText ();
-      this->setButtonLayout ();
-   }
-}
-
-//------------------------------------------------------------------------------
-//
-QERadioGroup::ButtonStyles QERadioGroup::getButtonStyle ()
-{
-   return this->buttonStyle;
-}
 
 //==============================================================================
 // Drag drop
 //
 void QERadioGroup::setDrop (QVariant drop)
 {
-   this->setVariableName (drop.toString (), 0);
-   this->establishConnection (0);
+   this->setVariableName (drop.toString (), PV_VARIABLE_INDEX);
+   this->establishConnection (PV_VARIABLE_INDEX);
 }
 
 //------------------------------------------------------------------------------
 //
 QVariant QERadioGroup::getDrop ()
 {
-   if (isDraggingVariable()) {
-      return QVariant (this->copyVariable());
+   if (isDraggingVariable ()) {
+      return QVariant (this->copyVariable ());
    } else {
-      return this->copyData();
+      return this->copyData ();
    }
 }
 
@@ -613,7 +481,7 @@ QVariant QERadioGroup::getDrop ()
 //
 QString QERadioGroup::copyVariable ()
 {
-   return this->getSubstitutedVariableName (0);
+   return this->getSubstitutedVariableName (PV_VARIABLE_INDEX);
 }
 
 //------------------------------------------------------------------------------
@@ -623,9 +491,9 @@ QVariant QERadioGroup::copyData ()
    return QVariant (this->currentIndex);
 }
 
-void QERadioGroup::paste( QVariant v )
+void QERadioGroup::paste (QVariant v)
 {
-   if (this->getAllowDrop()) {
+   if (this->getAllowDrop ()) {
       this->setDrop (v);
    }
 }
