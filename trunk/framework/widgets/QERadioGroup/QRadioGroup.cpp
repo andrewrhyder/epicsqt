@@ -192,6 +192,8 @@ void QRadioGroup::buttonClicked (bool)
 //
 void QRadioGroup::setButtonText ()
 {
+   static const QString suffix = "                                        ";
+
    QAbstractButton* button = NULL;
    int j;
 
@@ -215,7 +217,12 @@ void QRadioGroup::setButtonText ()
       button = this->buttonList.value (j);
       button->setVisible (j < numberDisplayed);
       if (j < numberDisplayed) {
-         button->setText (this->strings.value (j));
+
+         // Append spaces on end of text. Make for a more consistent selection.
+         // The length of the suffix is a bit arbitrary, but in practice 40 is
+         // more than enough.
+         //
+         button->setText (this->strings.value (j) + suffix);
       }
    }
 
