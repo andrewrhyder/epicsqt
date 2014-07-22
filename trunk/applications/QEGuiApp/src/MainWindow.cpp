@@ -1486,9 +1486,14 @@ void  MainWindow::requestAction( const QEActionRequests & request )
                     windowCreationListItem* window = &windows[i];
                     profile.addPriorityMacroSubstitutions( window->macroSubstitutions );
                     mw = mw->launchGui ( window->uiFile, window->customisationName, window->creationOption, window->hidden );
+
+                    // If a title is available, set the title applying macro substitutions first
                     if( !window->title.isEmpty() )
                     {
-                        mw->setTitle( window->title );
+                        // Get the published profile (the profile set up for the new window and it's contents, not our own profile)
+                        ContainerProfile pubProfile;
+                        macroSubstitutionList parts = macroSubstitutionList( pubProfile.getMacroSubstitutions() );
+                        mw->setTitle( parts.substitute( window->title ) );
                     }
                     profile.removePriorityMacroSubstitutions();
                 }
@@ -1832,26 +1837,31 @@ QEForm* MainWindow::createGui( QString fileName, QString customisationName, QStr
     return gui;
  }
 
-// Set the main window title (default to 'QEGui' if no title supplied)
+// Set the main window title (default to 'QEGui' if no title supplied as a parameter, or a startup parameter)
 void MainWindow::setTitle( QString title )
 {
-    startupParams* params = app->getParams();
-    if( params->applicationTitle.isEmpty() )
+    // Set the title to the title parameter if any
+    if( !title.isEmpty() )
     {
-        if( title.isEmpty() )
+        setWindowTitle( title );
+    }
+
+    // If no title parameter supplied...
+    else
+    {
+        // ...set the title to the title startup parameter, if any
+        startupParams* params = app->getParams();
+        if( !params->applicationTitle.isEmpty() )
+        {
+            setWindowTitle( params->applicationTitle );
+        }
+
+        // Can't get a title from anywhere, use a default
+        else
         {
             setWindowTitle( "QEGui" );
         }
-        else
-        {
-            setWindowTitle( title );
-        }
     }
-    else
-    {
-        setWindowTitle( params->applicationTitle );
-    }
-
 }
 
 // Return the central widget if it is the tab widget, else return NULL
