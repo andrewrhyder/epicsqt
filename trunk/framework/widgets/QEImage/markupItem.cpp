@@ -112,13 +112,14 @@ bool markupItem::hasLegend()
     return !(legend.isEmpty());
 }
 
+// Extend the markup area to include the area occupied by the legend, if any
 void markupItem::addLegendArea()
 {
     if( hasLegend() )
     {
         QRect legendArea;
         legendArea.setSize( getLegendSize() );
-        QPoint x = area.topLeft()+legendOffset;
+        QPoint x = scalableArea.topLeft()+legendOffset;
         legendArea.moveTo( x );//area.topLeft()+legendOffset );
         area = area.united( legendArea );
     }
@@ -132,7 +133,10 @@ const QPoint markupItem::getLegendTextOrigin( QPoint posScaled )
     return textOrigin;
 }
 
-// Sets the top left position of the rectangle enclosing the legend
+// Sets the top left position of the rectangle enclosing the legend relative to the markup origin.
+// Note, it's up to the markup as to what its origin is. For a vertical line it is the
+// X coordintate of the line excluding thickness and Y center of the image.
+// For a region markup it is the top left of the region, excluding handles.
 void markupItem::setLegendOffset( QPoint offset, legendJustification just )
 {
     legendOffset = offset;
