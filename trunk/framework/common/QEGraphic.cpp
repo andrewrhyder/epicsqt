@@ -89,6 +89,7 @@ void QEGraphic::Axis::setRange (const double minIn, const double maxIn,
        (this->intervalMode != modeIn) ||
        (this->intervalValue != valueIn)) {
 
+      this->target = newTarget;
       this->intervalMode = modeIn;
       this->intervalValue = valueIn;
 
@@ -100,7 +101,6 @@ void QEGraphic::Axis::setRange (const double minIn, const double maxIn,
 
       // Set up new target and transition count down.
       //
-      this->target = newTarget;
       this->transitionCount = NUMBER_TRANISTION_STEPS;
       this->determineAxis (this->source);
    }
