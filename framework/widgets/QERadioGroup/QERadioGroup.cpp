@@ -244,7 +244,7 @@ void QERadioGroup::valueUpdate (const long &value,
    this->currentIndex = value;
 
    if (this->valueToIndex.containsF (value)) {
-      selectedIndex = this->valueToIndex.valueF (value, NULL);
+      selectedIndex = this->valueToIndex.valueF (value, 0);
       this->internalWidget->setValue (selectedIndex);
    } else {
       // We haven't mapped this value - use hidden selection.
