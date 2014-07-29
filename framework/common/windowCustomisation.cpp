@@ -403,29 +403,41 @@ bool windowCustomisationList::loadCustomisation( QString xmlFile )
         return false;
     }
 
+    // Log progress
+    log.add( "Loading: ",  xmlFile );
+    log.startLevel();
+
     QDomDocument doc;
-    QDomNodeList rootNodeList;
 
     // Read and parse xmlFile
     QFile* file = QEWidget::findQEFile( xmlFile );
     if( !file )
     {
-        qDebug() << "Could not find customisation file" << xmlFile;
+        log.add( "Could not find file" );
+        log.flagError();
+        log.endLevel();
         return false;
     }
 
     if( !file->open(QIODevice::ReadOnly) )
     {
         QString error = file->errorString();
-        qDebug() << "Could not open customisation file" << xmlFile << error;
+        log.add( "Error opening file:", error );
+        log.flagError();
+        log.endLevel();
         return false;
     }
+
     // if named customisation exists, replace it
     if ( !doc.setContent( file ) )
     {
-        qDebug() << "Could not parse the XML in the customisations file" << xmlFile;
         file->close();
         delete file;
+
+        log.add( "Could not parse the XML in the customisations file" );
+        log.flagError();
+
+        log.endLevel();
         return false;
     }
     file->close();
@@ -441,7 +453,10 @@ bool windowCustomisationList::loadCustomisation( QString xmlFile )
         if( !includeFileName.isEmpty() )
         {
             // load customisation file
+            log.add( "Including customisations file: ", includeFileName );
+            log.startLevel();
             loadCustomisation(includeFileName);
+            log.endLevel();
         }
         customisationIncludeFileElement = customisationIncludeFileElement.nextSiblingElement( "CustomisationIncludeFile" );
     }
@@ -453,6 +468,7 @@ bool windowCustomisationList::loadCustomisation( QString xmlFile )
         QString customisationName = customisationElement.attribute( "Name" );
         if( !customisationName.isEmpty() )
         {
+            log.add( "Load customisation name: ", customisationName );
             // create a window customisation
             windowCustomisation* customisation = new windowCustomisation(customisationName);
             // add the window customisation to the list
@@ -508,6 +524,8 @@ bool windowCustomisationList::loadCustomisation( QString xmlFile )
         }
         customisationElement = customisationElement.nextSiblingElement( "Customisation" );
     }
+
+    log.endLevel();
     return true;
 }
 // Parse menu customisation data
@@ -882,13 +900,16 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
      return NULL;
  }
 
- // Parse a customisation include file
+ // Parse a named customisation set
  void windowCustomisationList::addIncludeCustomisation( QDomElement includeCustomisationElement, windowCustomisation* customisation, QStringList menuHierarchy )
  {
      QString includeCustomisationName = includeCustomisationElement.attribute( "Name" );
 
+     log.startLevel();
+     log.add( "Including named customisation set: ", includeCustomisationName );
+
      // Attempt to get the named customisation set
-     windowCustomisation* includeCustomisation = getCustomisation(includeCustomisationName);
+     windowCustomisation* includeCustomisation = getCustomisation( includeCustomisationName );
 
      // If the named customisation set was found, then add it
      if (includeCustomisation)
@@ -909,8 +930,11 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
      }
      else
      {
-         qDebug() << "Could not include customisation named" << includeCustomisationName << "(Perhaps it has not be read in at this stage?)";
+         log.add( "Could not include customisation set. Perhaps it has not be read in at this stage." );
+         log.flagError();
      }
+
+     log.endLevel();
 }
 
 // Ensure a menu path exists in the menu bar.

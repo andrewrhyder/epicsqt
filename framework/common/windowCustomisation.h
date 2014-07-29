@@ -143,6 +143,35 @@
 #include <QMap>
 #include <ContainerProfile.h>
 
+
+// Class for building a log of the process of loading the customisation files
+// Used for diagnosis.
+// Available in QEGui help about.
+// Output to console if if includes an error
+class customisationLog
+{
+public:
+    customisationLog(){ error = false; }
+    ~customisationLog(){}
+
+    void add( const QString message )                                            { log.append( QString( prefix ).append( message ) ); }
+    void add( const QString message, const QString param1 )                      { log.append( QString( prefix ).append( message ).append( param1 ) ); }
+    void add( const QString message, const QString param1, const QString param2 ){ log.append( QString( prefix ).append( message ).append( param1 ).append( param2 ) ); }
+
+    void startLevel(){ prefix.append( "    " ); }
+    void endLevel()  { prefix.truncate( prefix.length()-4 ); }
+    void flagError() { error = true; }
+
+    const QString getLog(){ QString s; for( int i = 0; i < log.count(); i++ ) s.append( log.at(i) ).append( "\n"); return s; }
+    bool    getError(){ return error; }
+
+private:
+    QStringList  log;    // Log of customisaiton files loaded for diagnosis
+    QString      prefix; // Current indentation, used while building customisationLog
+    bool         error;  // Log reports an error (as well as normal processing)
+};
+
+
 // Class defining an individual item (base class for button or menu item)
 class windowCustomisationItem : public QAction
 {
@@ -337,7 +366,7 @@ public:
 };
 
 // Class managing all customisation sets
-// Only instance of this class is instantiated (unless groups of customisation sets are required)
+// Only one instance of this class is instantiated (unless groups of customisation sets are required)
 // Multiple .xml files may be loaded, each defining one or more named customisations.
 class QEPLUGINLIBRARYSHARED_EXPORT windowCustomisationList : public QObject
 {
@@ -352,6 +381,8 @@ public:
 
     windowCustomisation* getCustomisation(QString name);
     void initialise( windowCustomisationInfo* customisationInfo );
+
+    customisationLog  log;                              // Log of customisaiton files loaded for diagnosis.
 
 private:
 

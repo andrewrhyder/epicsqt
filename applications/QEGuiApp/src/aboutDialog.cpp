@@ -34,6 +34,7 @@
 #include <QLibraryInfo>
 #include <QProcessEnvironment>
 #include <QDir>
+#include <QDebug>
 
 aboutDialog::aboutDialog( QString QEGuiVersion,                // Version info and the build date/time at compile time of QEGui
                           QString QEFrameworkVersionQEGui,     // Version info and the build date/time at compile time of the copy of QEPlugin library loaded by QEGui
@@ -53,6 +54,7 @@ aboutDialog::aboutDialog( QString QEGuiVersion,                // Version info a
                           QString defaultWindowCustomisationFile, // Default Window customisation file
                           QString defaultWindowCustomisationName, // Default Window customisation name
                           QString currentCustomisation,           // Current customisation set name
+                          QString windowCustomisationLoadLog,     //Log of window customisations
 
                           int disconnectedCount,                // Number of disconnected channels
                           int connectedCount,                   // Number of connected channels
@@ -125,6 +127,7 @@ aboutDialog::aboutDialog( QString QEGuiVersion,                // Version info a
     ui->defaultWindowCustomisationFileLabel->setText( defaultWindowCustomisationFile );
     ui->defaultWindowCustomisationNameLabel->setText( defaultWindowCustomisationName );
     ui->currentCustomisationLabel->setText( currentCustomisation );
+    ui->windowCustomisationLoadLogLabel->setText( windowCustomisationLoadLog );
 
     // Connections
     ui->disconnectedChannelsLabel->setText( QString( "%1" ).arg( disconnectedCount ));
