@@ -63,6 +63,7 @@ public:
     windowCustomisation* getCustomisation(QString name){ return winCustomisations.getCustomisation(name); }
 
     MainWindow* raiseGui(  QString guiFileName, QString macroSubstitutions );
+    const QString getCustomisationLog(){ return winCustomisations.log.getLog(); }
 
 
 private:

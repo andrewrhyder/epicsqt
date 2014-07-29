@@ -120,6 +120,13 @@ int QEGui::run()
         }
     }
 
+    // If there were any errors loading customisations, log the customisations
+    if( winCustomisations.log.getError() )
+    {
+        qDebug() << "Window customisation errors. Here is the log:";
+        qDebug() << winCustomisations.log.getLog();
+    }
+
     // Release the profile used while looking for customisation files
     profile.releaseProfile();
 

@@ -755,7 +755,8 @@ void MainWindow::on_actionAbout_triggered()
 
                     app->getParams()->customisationFile,                   // Default Window customisation file
                     app->getParams()->customisationName,                   // Default window customisation name
-                    QString( "not done yet" ),                             // Default window customisation name
+                    QString( "QEGui_Default" ),                            // Default window customisation name
+                    app->getCustomisationLog(),                            // Log of window customisations
 
                     disconnectedCount,                                     // Disconnection count
                     connectedCount                                         // Connection count
