@@ -147,7 +147,7 @@
 // Class for building a log of the process of loading the customisation files
 // Used for diagnosis.
 // Available in QEGui help about.
-// Output to console if if includes an error
+// Output to console if it includes an error
 class customisationLog
 {
 public:

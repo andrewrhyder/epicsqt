@@ -52,6 +52,9 @@
          <property name="text">
           <string>TextLabel</string>
          </property>
+         <property name="textInteractionFlags">
+          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+         </property>
         </widget>
        </item>
        <item row="2" column="0">
@@ -72,12 +75,18 @@
          <property name="text">
           <string>TextLabel</string>
          </property>
+         <property name="textInteractionFlags">
+          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+         </property>
         </widget>
        </item>
        <item row="3" column="1">
         <widget class="QLabel" name="QEFrameworkVersionUILoaderLabel">
          <property name="text">
           <string>TextLabel</string>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
@@ -124,6 +133,9 @@
         <widget class="QLabel" name="QtInstalledPluginsLabel">
          <property name="text">
           <string>TextLabel</string>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
@@ -312,12 +324,18 @@
          <property name="text">
           <string>TextLabel</string>
          </property>
+         <property name="textInteractionFlags">
+          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+         </property>
         </widget>
        </item>
        <item row="1" column="1">
         <widget class="QLabel" name="configurationNameLabel">
          <property name="text">
           <string>TextLabel</string>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
@@ -353,13 +371,16 @@
       <attribute name="title">
        <string>Customisation</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_3" columnstretch="0,0">
+      <layout class="QGridLayout" name="gridLayout_3" columnstretch="0">
        <item row="3" column="0">
         <layout class="QGridLayout" name="gridLayout_6" columnstretch="0,1">
          <item row="0" column="1">
           <widget class="QLabel" name="currentCustomisationLabel">
            <property name="text">
             <string>TextLabel</string>
+           </property>
+           <property name="textInteractionFlags">
+            <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
            </property>
           </widget>
          </item>
@@ -385,7 +406,7 @@
             </font>
            </property>
            <property name="text">
-            <string>Default Customisation Name:</string>
+            <string>Startup Customisation Name:</string>
            </property>
           </widget>
          </item>
@@ -393,6 +414,9 @@
           <widget class="QLabel" name="defaultWindowCustomisationNameLabel">
            <property name="text">
             <string>TextLabel</string>
+           </property>
+           <property name="textInteractionFlags">
+            <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
            </property>
           </widget>
          </item>
@@ -405,7 +429,7 @@
             </font>
            </property>
            <property name="text">
-            <string>Default Customisation File:</string>
+            <string>Startup Customisation File:</string>
            </property>
           </widget>
          </item>
@@ -413,6 +437,9 @@
           <widget class="QLabel" name="defaultWindowCustomisationFileLabel">
            <property name="text">
             <string>TextLabel</string>
+           </property>
+           <property name="textInteractionFlags">
+            <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
            </property>
           </widget>
          </item>
@@ -591,12 +618,18 @@ p, li { white-space: pre-wrap; }
          <property name="text">
           <string>TextLabel</string>
          </property>
+         <property name="textInteractionFlags">
+          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+         </property>
         </widget>
        </item>
        <item row="1" column="1">
         <widget class="QLabel" name="connectedChannelsLabel">
          <property name="text">
           <string>TextLabel</string>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>

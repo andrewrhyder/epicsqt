@@ -34,7 +34,6 @@
 #include <QLibraryInfo>
 #include <QProcessEnvironment>
 #include <QDir>
-#include <QDebug>
 
 aboutDialog::aboutDialog( QString QEGuiVersion,                // Version info and the build date/time at compile time of QEGui
                           QString QEFrameworkVersionQEGui,     // Version info and the build date/time at compile time of the copy of QEPlugin library loaded by QEGui
@@ -116,10 +115,14 @@ aboutDialog::aboutDialog( QString QEGuiVersion,                // Version info a
         ui->windowsTable->setItem(i, 0, windowTitle );
         ui->windowsTable->setItem(i, 1, windowFile );
     }
-    ui->windowsTable->resizeColumnsToContents();
+
+    if( rowCount )
+    {
+        ui->windowsTable->resizeColumnsToContents();
+    }
     ui->windowsTable->setHorizontalHeaderLabels( QStringList() << "Title" << "File" );
 
-    // Conficuration
+    // Configuration
     ui->configurationFileLabel->setText( configurationFile );
     ui->configurationNameLabel->setText( configurationName );
 
