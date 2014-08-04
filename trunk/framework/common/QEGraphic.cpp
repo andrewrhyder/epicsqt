@@ -273,7 +273,7 @@ void QEGraphic::Axis::setLogarithmic (const bool isLogarithmicIn)
       this->isLogarithmic = isLogarithmicIn;
 
       if (this->isLogarithmic) {
-#if QWT_VERSION >= 0x060000
+#if QWT_VERSION >= 0x060100
         this->plot->setAxisScaleEngine (this->axisId, new QwtLogScaleEngine);
 #else
         this->plot->setAxisScaleEngine (this->axisId, new QwtLog10ScaleEngine);
