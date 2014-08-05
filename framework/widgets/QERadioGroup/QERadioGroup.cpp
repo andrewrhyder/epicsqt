@@ -135,7 +135,8 @@ QSize QERadioGroup::sizeHint () const
 //
 void QERadioGroup::fontChange (const QFont& font)
 {
-   QEAbstractWidget::fontChange (font);    // call super-class function first.
+// Temorarily remove to avoid error in windows (MSVC compiler only) build AR 5/8/14
+//   QEAbstractWidget::fontChange (font);    // call super-class function first.
 
    if (this->internalWidget) {
       // fontIn is out of date by one change, but this font is not.
