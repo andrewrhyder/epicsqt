@@ -84,6 +84,8 @@ isEmpty( _QE_FFMPEG ) {
 #===========================================================
 # Project files
 #
+INCLUDEPATH += O.$$(EPICS_HOST_ARCH)/ui_headers
+
 # Widget and other sub projects
 # Included .pri (project include) files for each widget
 #
