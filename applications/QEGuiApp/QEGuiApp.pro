@@ -96,6 +96,7 @@ HEADERS += include/MainWindow.h \
     include/aboutDialog.h
 
 INCLUDEPATH += . \
+    O.$$(EPICS_HOST_ARCH)/ui_headers \
     ./include \
     ../../framework/widgets/include \
     ../../framework/widgets/QEForm \
