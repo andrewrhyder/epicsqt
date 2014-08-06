@@ -1249,14 +1249,18 @@ void MainWindow::loadGuiIntoNewDock( QEForm* gui,
     // If tabbed, tabify the dock
     if( QEActionRequests::isTabbedDockCreationOption( createOption ) )
     {
+        // Work through a list of all docks for thie main window
         QList<QDockWidget *> dockWidgets = findChildren<QDockWidget *>();
         for( int i = 0; i < dockWidgets.count(); i++ )
         {
+            // If the next dock is in the area where this dock is being tabbed...
             if( dockWidgetArea( dockWidgets[i] ) == dockLocation )
             {
+                // And the nect dock is not this new dock...
                 if( dock != dockWidgets[i] )
                 {
-                    tabifyDockWidget ( dock, dockWidgets[i] );
+                    // Add this new dock to the tabbed docks
+                    tabifyDockWidget( dockWidgets[i], dock );
                     break;
                 }
             }
