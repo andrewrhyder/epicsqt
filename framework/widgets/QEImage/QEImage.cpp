@@ -4021,7 +4021,7 @@ void QEImage::setFullScreen( bool fullScreenIn )
             // For example, when QEGui opens a .ui file containing a QEImage widget:
             //    - The QEImage is created when the .ui file is loaded (and on creation creates and uses the full screen widget here)
             //    - QEGui inserts the widgets created from the .ui file and presents it's main window (over the top of the QEImage's full screen window)
-            // Note, a timer event is used to to wait for any particular elapsed time,
+            // Note, a timer event is not used to to wait for any particular elapsed time,
             //       but to ensure raising the full screen window occurs after an application creating
             //       this QEImage widget has finished doing whatever it is doing (which may include
             //       showing itself over the top of the full screen window.
@@ -4429,6 +4429,15 @@ void QEImage::redisplayAllMarkups()
 // Slot to make vertical slice profile plot appear
 void QEImage::setVSliceControlsVisible()
 {
+    // Do nothing if not presenting this control.
+    // Even though this method is not called unless presentation is required, it may be called as a
+    // timer event to ensure it is called after all events are processed, which may mean properties have changed
+    if( !enableVertSlicePresentation )
+    {
+        return;
+    }
+
+    // Make vertical slice profile plot appear
     if( !appHostsControls )
     {
         vSliceLabel->setVisible( true );
@@ -4452,6 +4461,15 @@ void QEImage::setVSliceControlsNotVisible()
 // Slot to make horizontal slice profile plot appear
 void QEImage::setHSliceControlsVisible()
 {
+    // Do nothing if not presenting this control.
+    // Even though this method is not called unless presentation is required, it may be called as a
+    // timer event to ensure it is called after all events are processed, which may mean properties have changed
+    if( !enableHozSlicePresentation )
+    {
+        return;
+    }
+
+    // Make horizontal slice profile plot appear
     if( !appHostsControls )
     {
         hSliceLabel->setVisible( true );
@@ -4475,6 +4493,15 @@ void QEImage::setHSliceControlsNotVisible()
 // Slot to make arbitrary line profile plot appear
 void QEImage::setLineProfileControlsVisible()
 {
+    // Do nothing if not presenting this control.
+    // Even though this method is not called unless presentation is required, it may be called as a
+    // timer event to ensure it is called after all events are processed, which may mean properties have changed
+    if( !enableProfilePresentation )
+    {
+        return;
+    }
+
+    // Make arbitrary line profile plot appear
     if( !appHostsControls )
     {
         profileLabel->setVisible( true );
