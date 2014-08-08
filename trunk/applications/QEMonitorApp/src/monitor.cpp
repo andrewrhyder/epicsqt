@@ -23,6 +23,11 @@
  */
 
 // QE based version of CA Monitor
+// This program uses a QEString to source text based CA data.
+// A QEString is the natural source for a text output based program,
+// however the QEString can be replaced with QEInteger if you want
+// to play with QEInteger instead. Look for references to QEString and QEInteger
+// in this class.
 
 #include <QTime>
 #include <QString>
@@ -36,9 +41,15 @@ monitor::monitor( QString pvIn )
     pv = pvIn;
 
     // Create the data source, connect to data update and message signals, then subscribe to updates.
+    // Normal
     source = new QEString( pv, this, &formatting, 1, &messages );
     QObject::connect( source, SIGNAL( stringChanged( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int & ) ),
                       this, SLOT( log( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int & ) ) );
+
+    // Integer only output
+//    source = new QEInteger( pv, this, &formatting, 1, &messages );
+//    QObject::connect( source, SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int & ) ),
+//                      this, SLOT( log( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int & ) ) );
 
     QObject::connect( source, SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
                       this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
@@ -58,7 +69,10 @@ void monitor::connectionChanged( QCaConnectionInfo& connectionInfo )
 }
 
 // Log data updates and messages
+// Normal
 void monitor::log( const QString& data, QCaAlarmInfo&, QCaDateTime& timeStamp, const unsigned int & )
+// Integer only output
+// void monitor::log( const long& data, QCaAlarmInfo&, QCaDateTime& timeStamp, const unsigned int & )
 {
     *stream << QString( "%1: %2   %3\n").arg( timeStamp.text() ).arg( pv ).arg( data );
     stream->flush();

@@ -26,7 +26,8 @@
 #define MONITOR_H
 
 #include <QObject>
-#include <QEString.h>
+#include <QEString.h>   // Normal
+//#include <QEInteger.h>  // Integer only output
 #include <UserMessage.h>
 
 /*
@@ -40,16 +41,21 @@ public:
     monitor( QString pvIn );
 
 private:
-    QEString* source;
+    QEString* source;    // Normal
+//    QEInteger* source;   // Integer only output
     UserMessage messages;
-    QEStringFormatting formatting;
+    QEStringFormatting formatting;    // Normal
+//    QEIntegerFormatting formatting;   // Integer only output
     QString pv;
     QTextStream* stream;
     void newMessage( QString msg, message_types type );
 
 private slots:
     void connectionChanged( QCaConnectionInfo& );
+// Normal
     void log( const QString& data, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int & );
+// Integer only output
+//    void log( const long& data, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int & );
 };
 
 #endif // MONITOR_H
