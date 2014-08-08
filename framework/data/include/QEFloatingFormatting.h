@@ -31,7 +31,9 @@
 #include <QVariant>
 #include <Generic.h>
 
-class QEFloatingFormatting {
+#include <QEPluginLibrary_global.h>
+
+class QEPLUGINLIBRARYSHARED_EXPORT QEFloatingFormatting {
   public:
 
     // Formatting enumerations

@@ -31,6 +31,8 @@
 #include <QVariant>
 #include <Generic.h>
 
+#include <QEPluginLibrary_global.h>
+
 /*!
     This class holds formatting instructions and uses them to convert between an integer and a QVariant of any type.
     It is generally set up with it's formatting instructions and then passed to a QEInteger class that will sink and source integer data to widgets or other code.
@@ -38,7 +40,7 @@
     the QVariant reflects the underlying variable data type) and the QEInteger class.
     An example of a requirement for integer data is a combo box which must determine an integer index to select a menu option.
  */
-class QEIntegerFormatting {
+class QEPLUGINLIBRARYSHARED_EXPORT QEIntegerFormatting {
 
 public:
 
