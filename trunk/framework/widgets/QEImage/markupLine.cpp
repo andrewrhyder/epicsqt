@@ -148,7 +148,7 @@ void markupLine::setArea()
 
     //  - combine the core area with legend and the core area with handles
     area = area.united( baseArea );
-
+    qDebug() << area;
 
     owner->markupAreasStale = true;
 }

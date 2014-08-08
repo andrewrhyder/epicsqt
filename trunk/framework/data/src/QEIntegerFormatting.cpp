@@ -37,7 +37,7 @@ QEIntegerFormatting::QEIntegerFormatting() {
 
 /*
     Generate a value given an integer, using formatting defined within this class.
-    The formatting mainly applies if formatting as a string. For example, was is
+    The formatting mainly applies if formatting as a string. For example, what is
     the number base? should a sign always be included? are leading zeros requried?
     The formatting could include properties related to other types. For example, generate
     an error if attempting to convert a negative integer to an unsigned integer.
