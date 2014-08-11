@@ -1110,7 +1110,14 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw,              
                         // Use the dock toggle action from the existing dock matching the title as the menu action
                         if( component )
                         {
+                            // Get the action the user will use to show and hide the dock
                             action =  component->toggleViewAction();  // <-- crashed here re-opening .ui with image and customisation that included all image options
+
+                            // Set the visibility state of the dock to reflect the state of the action (checked or unchecked).
+                            // Originally, the dock was hidden when created if appropriate, but on Centos6 it was never shown when
+                            // the user asked for the dock by checking the dock action.
+                            // Search for 'Centos6 visibility problem' to find other fragments of code relating to this problem
+                            component->setVisible( action->isChecked() );
                         }
                         else
                         {

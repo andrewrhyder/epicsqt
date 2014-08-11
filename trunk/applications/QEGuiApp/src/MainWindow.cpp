@@ -1579,8 +1579,19 @@ void  MainWindow::requestAction( const QEActionRequests & request )
                     // Set floating if requested
                     dock->setFloating( component->creationOption == QEActionRequests::OptionFloatingDockWindow );
 
-                    // Set hidden if required
-                    dock->setVisible( !component->hidden );
+// We should be able to set the initial state of visibility here, and on most OS we can,
+// but on Centos6 if hidden here to start with it is never shown when the user asked for the dock by checking the dock action.
+// If never hidden here and hidden latter if required when the dock action is added to a customisation menu it all seems to work OK.
+// A consequence of this is if no customisation menu item for this dock is created the dock will always be shown
+// even if it supposed to be hidden (component->hidden is true).
+// Perhaps a better solution worth trying would be to set a zero period timer for each dock to set it hidden if required after
+// all event processing is complete (which is when the timer event would be processed)
+// Search for 'Centos6 visibility problem' to find other fragments of code relating to this problem
+//                    // Set hidden if required
+//                    dock->setVisible( !component->hidden );
+                    // Set the state of the dock visibility check box. The dock will be hidden later if required to match this
+                    QAction* action = dock->toggleViewAction();
+                    action->setChecked( !component->hidden );
 
                     // Record that this dock has been added
                     // This may be used by the customisation system to link a menu item to this dock.
