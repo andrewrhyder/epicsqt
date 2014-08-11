@@ -1572,8 +1572,12 @@ void  MainWindow::requestAction( const QEActionRequests & request )
                     dock->setWidget( component->widget );
                     QObject::connect( component->widget, SIGNAL(destroyed(QObject*)), this, SLOT(dockComponentDestroyed(QObject*)));
 
-
+                    // Set the dock title
+                    // Note, this also sets the dock name in the dock's toggle action, which should always
+                    // be kept the same as the dock title.
                     dock->setWindowTitle( component->title );
+
+                    // Determine the size of the dock basked on its contents
                     dock->adjustSize();
 
                     // Set floating if requested
