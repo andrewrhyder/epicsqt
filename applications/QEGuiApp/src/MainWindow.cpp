@@ -1204,17 +1204,17 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui, bool resize )
 
 // Open a gui in a new dock
 // Either as a result of the gui user requesting a new dock, or a contained object (gui push button) requesting a new dock
-void MainWindow::loadGuiIntoNewDock( QEForm* gui,
-                                     bool hidden,
-                                     QEActionRequests::Options createOption,
-                                     Qt::DockWidgetArea allowedAreas,
-                                     QDockWidget::DockWidgetFeature features,
-                                     QRect geom )
+QDockWidget* MainWindow::loadGuiIntoNewDock( QEForm* gui,
+                                             bool hidden,
+                                             QEActionRequests::Options createOption,
+                                             Qt::DockWidgetArea allowedAreas,
+                                             QDockWidget::DockWidgetFeature features,
+                                             QRect geom )
 {
     // Do nothing if couldn't create gui
     if( !gui )
     {
-        return;
+        return NULL;
     }
 
     // Ensure the gui can be resized
@@ -1284,6 +1284,9 @@ void MainWindow::loadGuiIntoNewDock( QEForm* gui,
     // Signal to the customisation system that a dock has been created.
     // The customisation system may need to use 'dock toggle' action from the dock in a menu.
     emit dockCreated( dock );
+
+    // Return the newly created dock
+    return dock;
 }
 
 // Translate a creation option to a dock location.
@@ -1353,7 +1356,7 @@ void MainWindow::newMessage( QString msg, message_types type )
 //=================================================================================
 
 // Launching a new gui given a .ui filename
-MainWindow* MainWindow::launchGui( QString guiName, QString customisationName, QEActionRequests::Options createOption, bool hidden )
+QWidget* MainWindow::launchGui( QString guiName, QString customisationName, QEActionRequests::Options createOption, bool hidden )
 {
     // Get the profile published by whatever is launching a new GUI (probably a QEPushButton)
     ContainerProfile publishedProfile;
@@ -1427,8 +1430,8 @@ MainWindow* MainWindow::launchGui( QString guiName, QString customisationName, Q
             {
                 // Create the gui and load it into a new dock
                 QEForm* gui = createGui( guiName, customisationName, true );  // Note, profile should have been published by signal code
-                loadGuiIntoNewDock( gui, hidden, createOption );
-                return this;
+                QDockWidget* dock = loadGuiIntoNewDock( gui, hidden, createOption );
+                return dock;
             }
 
         default:
@@ -1484,21 +1487,39 @@ void  MainWindow::requestAction( const QEActionRequests & request )
 
         case QEActionRequests::KindOpenFiles:
             {
+                // Create all the windows requested
                 QList<windowCreationListItem> windows = request.getWindows();
                 MainWindow* mw = this;
                 for( int i = 0; i < windows.count(); i ++ )
                 {
+                    // Get the next window to create and set up the profile
                     windowCreationListItem* window = &windows[i];
                     profile.addPriorityMacroSubstitutions( window->macroSubstitutions );
-                    mw = mw->launchGui ( window->uiFile, window->customisationName, window->creationOption, window->hidden );
 
-                    // If a title is available, set the title applying macro substitutions first
-                    if( !window->title.isEmpty() )
+                    // Create the GUI.
+                    // Depending on creation otions this may be in a new main window, in the existing main window, or in a dock of the existing window
+                    QWidget* w = mw->launchGui ( window->uiFile, window->customisationName, window->creationOption, window->hidden );
+
+                    // If a window was created and a title is available, set the title applying macro substitutions first
+                    if( w && !window->title.isEmpty() )
                     {
                         // Get the published profile (the profile set up for the new window and it's contents, not our own profile)
                         ContainerProfile pubProfile;
                         macroSubstitutionList parts = macroSubstitutionList( pubProfile.getMacroSubstitutions() );
-                        mw->setTitle( parts.substitute( window->title ) );
+
+                        // If a main window was created (or a GUI was placed in an existing main window), set the main window title
+                        if( QString::compare( w->metaObject()->className(), "QMainWindow" ) == 0 )
+                        {
+                            MainWindow* newMW = (MainWindow*)(w);
+                            newMW->setTitle( parts.substitute( window->title ) );
+                        }
+
+                        // If a GUI was created in a dock set the dock title
+                        else if( QString::compare( w->metaObject()->className(), "QDockWidget" ) == 0 )
+                        {
+                            QDockWidget* newDock = (QDockWidget*)(w);
+                            newDock->setWindowTitle( window->title );
+                        }
                     }
                     profile.removePriorityMacroSubstitutions();
                 }
@@ -1839,15 +1860,18 @@ QEForm* MainWindow::createGui( QString fileName, QString customisationName, QStr
         // Add this gui to the application wide list of guis
         guiList.append( guiListItem( gui, this, windowMenuAction, customisationName, isDock ) );
 
-        // For each main window, add a new action to the window menu
-        int i = 0;
-        MainWindow* mw;
-        while( (mw = app->getMainWindow( i )) )
+        // If not a dock, for each main window, add a new action to the window menu
+        if( !isDock )
         {
-            mw->addWindowMenuAction( windowMenuAction );
+            int i = 0;
+            MainWindow* mw;
+            while( (mw = app->getMainWindow( i )) )
+            {
+                mw->addWindowMenuAction( windowMenuAction );
 
-            // Next main window
-            i++;
+                // Next main window
+                i++;
+            }
         }
 
         app->addGui( gui, customisationName );
