@@ -133,13 +133,13 @@ QSize QERadioGroup::sizeHint () const
 
 //---------------------------------------------------------------------------------
 //
-void QERadioGroup::fontChange (const QFont& font)
+void QERadioGroup::fontChange (const QFont&)
 {
-// Temorarily remove to avoid error in windows (MSVC compiler only) build AR 5/8/14
-//   QEAbstractWidget::fontChange (font);    // call super-class function first.
-
+   // We use this overridden function as a trigger to update the internal
+   // widget's font. The given parameter (which we don't use)  lags by one change,
+   // but this->font () is up to date, so we use that.
+   //
    if (this->internalWidget) {
-      // fontIn is out of date by one change, but this font is not.
       this->internalWidget->setFont (this->font ());
    }
 }
