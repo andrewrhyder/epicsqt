@@ -718,19 +718,26 @@ bool windowCustomisationList::parseMenuAndButtonItem( QDomElement itemElement,
         windows.append( windowItem );
 
         // Read any docks to be added to this window
-        parseDockItems( windowElement, windows, dockTitle );
+        // No title is specified - dock will get its title from the .ui file
+        QString noTitle;
+        parseDockItem( windowElement, windows, dockTitle, noTitle );
 
         windowElement = windowElement.nextSiblingElement( "Window" );
     }
 
-    parseDockItems( itemElement, windows, dockTitle );
+    // Add a dock if this item contains a dock.
+    // If loading a GUI ( not associating the item with an existing dock) the title of the GUI (and of it's associated action) will be set to this item's title
+    parseDockItem( itemElement, windows, dockTitle, title );
     return true;
 }
 
 // Parse a Dock element.
 // If the dock has a title, return the title: This item is to be linked to a pre-existing dock with the given title.
 // If the dock has a UI file, return a single 'window creation list item' containing the UI file to be opened as a dock.
-void windowCustomisationList::parseDockItems( QDomElement itemElement, QList<windowCreationListItem>& windows, QString& dockTitle )
+void windowCustomisationList::parseDockItem( QDomElement itemElement,
+                                              QList<windowCreationListItem>& windows,   // List of docks to create
+                                              QString& dockTitle,                       // Title of pre-existing dock a menu item or button is to be associated with
+                                              QString& guiTitle )                       // Title of new GUI used when creating a new dock
 {
     // Get the dock element
     QDomElement dockElement = itemElement.firstChildElement( "Dock" );
@@ -756,6 +763,7 @@ void windowCustomisationList::parseDockItems( QDomElement itemElement, QList<win
         {
             windowCreationListItem windowItem;
             windowItem.uiFile = uiFile;
+            windowItem.title = guiTitle;
 
             QDomElement macroSubstitutionsElement = dockElement.firstChildElement( "MacroSubstitutions" );
             if( !macroSubstitutionsElement.isNull() )
@@ -1103,11 +1111,14 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw,              
                     // This will remain the case if a dock is to created and the 'toggle view' action from the dock is required.
                     QAction* action = NULL;
 
+                    // If the menu item holds the title of an existing dock to associate with, find the dock,
+                    // get the toggle view action from the dock, and add that action as the menu action.
                     if( !menuItem->getDockTitle().isEmpty() )
                     {
+                        // Find the existing dock by matching the title
                         QDockWidget* component =  dockedComponents.value( menuItem->getDockTitle(), NULL );
 
-                        // Use the dock toggle action from the existing dock matching the title as the menu action
+                        // If the existing dock is found, use the dock's toggle action
                         if( component )
                         {
                             // Get the action the user will use to show and hide the dock
@@ -1119,6 +1130,8 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw,              
                             // Search for 'Centos6 visibility problem' to find other fragments of code relating to this problem
                             component->setVisible( action->isChecked() );
                         }
+
+                        // If the existing dock is not found, log an error
                         else
                         {
                             // Required dock not found. Note the title that could not be found and list those that are available
@@ -1278,7 +1291,6 @@ void windowCustomisationList::activateDocks()
 
         // Perform the menu action (create the dock)
         mitba.item->itemAction();
-
     }
     QObject::disconnect(toBeActivatedMW, SIGNAL( dockCreated( QDockWidget* ) ), this, SLOT( useDock( QDockWidget* ) ));
 

@@ -136,12 +136,12 @@ private:
     QEForm* createGui( QString fileName, QString customisationName, QString restoreId, bool isDock = false ); // Create a gui with an ID (required for a restore)
     void loadGuiIntoCurrentWindow( QEForm* newGui, bool resize );     // Load a new gui into the current window (either single window, or tab)
     void loadGuiIntoNewTab( QEForm* gui );                  // Load a new gui into a new tab
-    void loadGuiIntoNewDock( QEForm* gui,
-                             bool hidden = false,
-                             QEActionRequests::Options createOption = QEActionRequests::OptionFloatingDockWindow,
-                             Qt::DockWidgetArea allowedAreas = Qt::AllDockWidgetAreas,
-                             QDockWidget::DockWidgetFeature features = QDockWidget::AllDockWidgetFeatures,
-                             QRect geom = QRect( 0, 0, 0, 0 ) ); // Load a new gui into a new dock
+    QDockWidget* loadGuiIntoNewDock( QEForm* gui,
+                                     bool hidden = false,
+                                     QEActionRequests::Options createOption = QEActionRequests::OptionFloatingDockWindow,
+                                     Qt::DockWidgetArea allowedAreas = Qt::AllDockWidgetAreas,
+                                     QDockWidget::DockWidgetFeature features = QDockWidget::AllDockWidgetFeatures,
+                                     QRect geom = QRect( 0, 0, 0, 0 ) ); // Load a new gui into a new dock
 
     MainWindow* launchLocalGui( const QString& filename );  // Launch a new gui from the 'File' menu and gui launch requests.
     MainWindow* launchLocalGui( const QString& filename,    // Launch a new gui from the requestAction slot.
@@ -208,7 +208,7 @@ private:
     QMenu* tabMenu;                                         // ???We want to keep a reference to certain widget objects. Declaring these directly in the
 
     void newMessage( QString msg, message_types type );     // Slot to receive a message to present to the user (typically from the QE framework)
-    MainWindow* launchGui( QString guiName, QString customisationName, QEActionRequests::Options creationOption, bool hidden );  // Launch a new GUI given a .ui file name
+    QWidget* launchGui( QString guiName, QString customisationName, QEActionRequests::Options creationOption, bool hidden );  // Launch a new GUI given a .ui file name
     void createActionMaps ();
 
     QMenu* windowMenu;

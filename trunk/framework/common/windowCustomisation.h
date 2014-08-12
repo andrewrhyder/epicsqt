@@ -195,8 +195,8 @@ public:
 
     QString getBuiltInAction(){return builtInAction;}
 
-    QString getDockTitle(){ return dockTitle; }
-
+    QString getDockTitle(){ return dockTitle; }                             // Return the title of an existing dock (used to find the pre-existing dock)
+    QString getGUITitle(){ return guiTitle; }                               // Return the title to be applied to a new GUI
     bool createsDocks();                                                    // Return true if at least one dock is created by this item
 
     void initialise();
@@ -214,6 +214,7 @@ private:
     ContainerProfile profile;
 
     QString widgetName;                             // Widget to locate if passing this action on to a widget in a GUI
+    QString guiTitle;                               // Title to give GUI. This overrides any title specified in the GUI.
 
 public slots:
     void itemAction();                              // Slot to call when action is triggered
@@ -401,7 +402,7 @@ private:
                                  QString& widgetName,
                                  QStringList& arguments,
                                  QString& dockTitle );
-    void parseDockItems( QDomElement itemElement, QList<windowCreationListItem>& windows, QString& dockTitle );
+    void parseDockItem( QDomElement itemElement, QList<windowCreationListItem>& windows, QString& dockTitle, QString& guiTitle );
 
     windowCustomisationMenuItem* createMenuItem       ( QDomElement itemElement, QStringList menuHierarchy); // Create a custom menu item
     windowCustomisationMenuItem* createMenuPlaceholder( QDomElement itemElement, QStringList menuHierarchy); // Create a placeholder menu (for the application to add stuff to)
