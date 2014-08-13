@@ -25,6 +25,7 @@
 
 #include <math.h>
 #include <QtDebug>
+#include <QECommon.h>
 #include <QEStringFormatting.h>
 
 /*
@@ -573,8 +574,39 @@ void QEStringFormatting::formatFromFloating( const QVariant &value ) {
         return;
     }
 
+    // NOTE: Smart notation (NOTATION_AUTOMATIC) does not honor real number precision.
+    // So select FixedNotation or ScientificNotation as appropriate.
+    //
+    QTextStream::RealNumberNotation rnn = stream.realNumberNotation();
+    if( rnn == QTextStream::SmartNotation ){
+       int prec;
+       double low_fixed_limit;
+       double high_fixed_limit;
+       double absDbValue;
+
+       // Extact precision being used.
+       prec = stream.realNumberPrecision ();
+       prec = LIMIT( prec, 0, 15 );
+
+       // Example, if prec = 3, when low limit is 0.01
+       low_fixed_limit = EXP10( 1 - prec );
+
+       high_fixed_limit = 1.0E+05;
+
+       // Work with absoloute value
+       absDbValue = ABS( dValue );
+
+       if( absDbValue == 0.0 || ( absDbValue >= low_fixed_limit && absDbValue < high_fixed_limit )){
+          stream.setRealNumberNotation( QTextStream::FixedNotation );
+       } else {
+          stream.setRealNumberNotation( QTextStream::ScientificNotation );
+       }
+    }
+
     // Generate the text
     stream << dValue;
+
+    stream.setRealNumberNotation( rnn );  // reset
 
     // Remove leading zero if required
     if( !leadingZero ) {
