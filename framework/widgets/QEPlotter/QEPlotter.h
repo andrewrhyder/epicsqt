@@ -203,8 +203,17 @@ protected:
    void establishConnection (unsigned int variableIndex);
    bool eventFilter (QObject *obj, QEvent *event);
 
-   // Paste only
+   // Drag and drop
+   void dragEnterEvent (QDragEnterEvent *event) { qcaDragEnterEvent (event); }
+   void dropEvent (QDropEvent *event)           { qcaDropEvent (event); }
+   void mousePressEvent (QMouseEvent *event)    { qcaMousePressEvent (event); }
+   void setDrop (QVariant drop);
+   QVariant getDrop ();
+
+   // Copy paste
    //
+   QString copyVariable ();
+   QVariant copyData ();
    void paste (QVariant s);
 
    void saveConfiguration (PersistanceManager* pm);

@@ -50,38 +50,50 @@ QEPlotterMenu::QEPlotterMenu (QWidget* parent) : QMenu (parent)
 
    menu = new QMenu ("General", this);
    this->addMenu (menu);
-   this->make (menu, "Previous state",      false, QEPlotterNames::PLOTTER_PREV);
-   this->make (menu, "Next state",          false, QEPlotterNames::PLOTTER_NEXT);
+   this->make (menu, "Previous state",          false, QEPlotterNames::PLOTTER_PREV);
+   this->make (menu, "Next state",              false, QEPlotterNames::PLOTTER_NEXT);
 
-   this->make (menu, "White background",    false, QEPlotterNames::PLOTTER_NORMAL_VIDEO);
-   this->make (menu, "Black background",    false, QEPlotterNames::PLOTTER_REVERSE_VIDEO);
+   this->make (menu, "White background",        false, QEPlotterNames::PLOTTER_NORMAL_VIDEO);
+   this->make (menu, "Black background",        false, QEPlotterNames::PLOTTER_REVERSE_VIDEO);
 
-   this->make (menu, "Play - Real time",    false, QEPlotterNames::PLOTTER_PLAY);
-   this->make (menu, "Pause",               false, QEPlotterNames::PLOTTER_PAUSE);
+   this->make (menu, "Play - Real time",        false, QEPlotterNames::PLOTTER_PLAY);
+   this->make (menu, "Pause",                   false, QEPlotterNames::PLOTTER_PAUSE);
 
    menu = new QMenu ("Y Scale", this);
    this->addMenu (menu);
-   this->make (menu, "Linear Y scale",      false, QEPlotterNames::PLOTTER_LINEAR_Y_SCALE);
-   this->make (menu, "Log Y Scale",         false, QEPlotterNames::PLOTTER_LOG_Y_SCALE);
-   this->make (menu, "Manual Y Scale...",   false, QEPlotterNames::PLOTTER_MANUAL_Y_RANGE);
-   this->make (menu, "Y Data Range Scale",  false, QEPlotterNames::PLOTTER_CURRENT_Y_RANGE);
-   this->make (menu, "Dynamic Y Scale",     false, QEPlotterNames::PLOTTER_DYNAMIC_Y_RANGE);
-   this->make (menu, "Noramalised Scale",   false, QEPlotterNames::PLOTTER_NORAMLISED_Y_RANGE);
-   this->make (menu, "Fractional Scale",    false, QEPlotterNames::PLOTTER_FRACTIONAL_Y_RANGE);
+   this->make (menu, "Linear Y scale",          false, QEPlotterNames::PLOTTER_LINEAR_Y_SCALE);
+   this->make (menu, "Log Y Scale",             false, QEPlotterNames::PLOTTER_LOG_Y_SCALE);
+   this->make (menu, "Manual Y Scale...",       false, QEPlotterNames::PLOTTER_MANUAL_Y_RANGE);
+   this->make (menu, "Y Data Range Scale",      false, QEPlotterNames::PLOTTER_CURRENT_Y_RANGE);
+   this->make (menu, "Dynamic Y Scale",         false, QEPlotterNames::PLOTTER_DYNAMIC_Y_RANGE);
+   this->make (menu, "Noramalised Scale",       false, QEPlotterNames::PLOTTER_NORAMLISED_Y_RANGE);
+   this->make (menu, "Fractional Scale",        false, QEPlotterNames::PLOTTER_FRACTIONAL_Y_RANGE);
 
    menu = new QMenu ("X Scale", this);
    this->addMenu (menu);
-   this->make (menu, "Linear X scale",      false, QEPlotterNames::PLOTTER_LINEAR_X_SCALE);
-   this->make (menu, "Log X Scale",         false, QEPlotterNames::PLOTTER_LOG_X_SCALE);
-   this->make (menu, "Manual X Scale...",   false, QEPlotterNames::PLOTTER_MANUAL_X_RANGE);
-   this->make (menu, "X Data Range Scale",  false, QEPlotterNames::PLOTTER_CURRENT_X_RANGE);
-   this->make (menu, "Dynamic X Scale",     false, QEPlotterNames::PLOTTER_DYNAMIC_X_RANGE);
+   this->make (menu, "Linear X scale",          false, QEPlotterNames::PLOTTER_LINEAR_X_SCALE);
+   this->make (menu, "Log X Scale",             false, QEPlotterNames::PLOTTER_LOG_X_SCALE);
+   this->make (menu, "Manual X Scale...",       false, QEPlotterNames::PLOTTER_MANUAL_X_RANGE);
+   this->make (menu, "X Data Range Scale",      false, QEPlotterNames::PLOTTER_CURRENT_X_RANGE);
+   this->make (menu, "Dynamic X Scale",         false, QEPlotterNames::PLOTTER_DYNAMIC_X_RANGE);
 
    menu = new QMenu ("Show", this);
    this->addMenu (menu);
-   this->make (menu, "Show/Hide Tool Bar",  true,  QEPlotterNames::PLOTTER_SHOW_HIDE_TOOLBAR);
-   this->make (menu, "Show/Hide PV Items",  true,  QEPlotterNames::PLOTTER_SHOW_HIDE_PV_ITEMS);
-   this->make (menu, "Show/Hide Status",    true,  QEPlotterNames::PLOTTER_SHOW_HIDE_STATUS);
+   this->make (menu, "Show/Hide Tool Bar",      true,  QEPlotterNames::PLOTTER_SHOW_HIDE_TOOLBAR);
+   this->make (menu, "Show/Hide PV Items",      true,  QEPlotterNames::PLOTTER_SHOW_HIDE_PV_ITEMS);
+   this->make (menu, "Show/Hide Status",        true,  QEPlotterNames::PLOTTER_SHOW_HIDE_STATUS);
+
+   // The following menu actions reflect the standard menu items.
+   //
+   this->addSeparator ();
+   this->make (this, "Copy variable name",      false, QEPlotterNames::PLOTTER_COPY_VARIABLE );
+   this->make (this, "Copy data",               false, QEPlotterNames::PLOTTER_COPY_DATA );
+   this->make (this, "Paste to variable name",  false, QEPlotterNames::PLOTTER_PASTE );
+
+   this->addSeparator ();
+   this->make (this, "Drag variable name",      true, QEPlotterNames::PLOTTER_DRAG_VARIABLE );
+   this->setActionChecked (QEPlotterNames::PLOTTER_DRAG_VARIABLE, true);
+   this->make (this, "Drag data",               true, QEPlotterNames::PLOTTER_DRAG_DATA );
 
    QObject::connect (this, SIGNAL (triggered             (QAction* ) ),
                      this, SLOT   (contextMenuTriggered  (QAction* )));

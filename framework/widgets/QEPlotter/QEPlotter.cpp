@@ -946,6 +946,14 @@ void QEPlotter::generalContextMenuRequested (const QPoint& pos)
    this->generalContextMenu->setActionChecked (QEPlotterNames::PLOTTER_SHOW_HIDE_STATUS,
                                                this->getStatusVisible ());
 
+   // Set dragging variable/data check boxes as appropriate.
+   //
+   this->generalContextMenu->setActionChecked (QEPlotterNames::PLOTTER_DRAG_VARIABLE,
+                                               this->isDraggingVariable ());
+   this->generalContextMenu->setActionChecked (QEPlotterNames::PLOTTER_DRAG_DATA,
+                                               !this->isDraggingVariable ());
+
+
    golbalPos = this->mapToGlobal (pos);
    this->generalContextMenu->exec (golbalPos, 0);
 }
@@ -1176,6 +1184,29 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
          this->pushState ();
          break;
 
+         // These just call the standard context menu processing.
+         //
+      case QEPlotterNames::PLOTTER_COPY_VARIABLE:
+         this->contextMenuTriggered (contextMenu::CM_COPY_VARIABLE);
+         break;
+
+      case QEPlotterNames::PLOTTER_COPY_DATA:
+         this->contextMenuTriggered (contextMenu::CM_COPY_DATA);
+         break;
+
+      case QEPlotterNames::PLOTTER_PASTE:
+         this->contextMenuTriggered (contextMenu::CM_PASTE);
+         break;
+
+      case QEPlotterNames::PLOTTER_DRAG_VARIABLE:
+         this->contextMenuTriggered (contextMenu::CM_DRAG_VARIABLE);
+         break;
+
+      case QEPlotterNames::PLOTTER_DRAG_DATA:
+         this->contextMenuTriggered (contextMenu::CM_DRAG_DATA);
+         break;
+
+         //----------------------------------------------------------------------------
          // PV item specific.
          //
       case QEPlotterNames::PLOTTER_LINE_BOLD:
@@ -1706,6 +1737,111 @@ bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
    return false;
 }
 
+//------------------------------------------------------------------------------
+//
+void QEPlotter::setDrop (QVariant drop)
+{
+   if (this->getAllowDrop()) {
+      this->paste (drop);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+QVariant QEPlotter::getDrop ()
+{
+   if (this->isDraggingVariable ()) {
+      return QVariant (this->copyVariable ());
+   }
+   else {
+      return this->copyData ();
+   }
+}
+
+
+//------------------------------------------------------------------------------
+//
+QString QEPlotter::copyVariable ()
+{
+   QString result;
+
+   for (int slot = 0; slot < ARRAY_LENGTH (this->xy); slot++) {
+      QString strData = this->getXYExpandedDataPV (slot);
+      QString strSize = this->getXYExpandedSizePV (slot);
+
+      if (!strData.isEmpty()) {
+         if( !result.isEmpty() ) {
+            result.append( " " );
+         }
+         result.append (strData);
+      }
+
+      if (!strSize.isEmpty()) {
+         if( !result.isEmpty() ) {
+            result.append( " " );
+         }
+         result.append (strSize);
+      }
+
+   }
+
+   return result;
+}
+
+//------------------------------------------------------------------------------
+// Copy all data
+//
+QVariant QEPlotter::copyData ()
+{
+   const int fw = 12;   // field width
+   DataSets* xs;
+   DataSets* ys;
+   QString result = "none";
+   int nx;
+   int ny [ARRAY_LENGTH (this->xy)];
+
+   xs = &this->xy [0];
+   if (!xs->isInUse()) {
+      // no data
+      return QVariant (result);
+   }
+
+   result = "\n";
+
+   // First to headers.
+   //
+   result.append (QString ("%1").arg (xs->letter, fw));
+   for (int slot = 1; slot < ARRAY_LENGTH (this->xy); slot++) {
+      ys = &this->xy [slot];
+      if (ys->isInUse ()) {
+         result.append (QString ("\t%1").arg (ys->letter, fw));
+         ny [slot] = ys->effectiveSize ();
+      } else {
+         ny [slot] = 0;
+      }
+   }
+   result.append (QString ("\n"));
+
+   nx = xs->effectiveSize ();
+   for (int j = 0; j < nx; j++) {
+      // Do x data
+      //
+      result.append (QString ("%1").arg (xs->data[j], fw));
+      for (int slot = 1; slot < ARRAY_LENGTH (this->xy); slot++) {
+         ys = &this->xy [slot];
+         if (ys->isInUse ()) {
+            if (j < ny [slot]) {
+               result.append (QString ("\t%1").arg (ys->data [j], fw));
+            } else {
+               result.append (QString ("\t%1").arg ("nul", fw));
+            }
+         }
+      }
+      result.append (QString ("\n"));
+   }
+
+   return QVariant (result);
+}
 
 //------------------------------------------------------------------------------
 //
