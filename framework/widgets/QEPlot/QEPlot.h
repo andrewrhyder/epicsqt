@@ -64,6 +64,9 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPlot : public QwtPlot, public QEWidget {
 
     ~QEPlot();
 
+    QSize sizeHint() const;
+
+
     // Property convenience functions
 
     void setYMin( double yMin );
