@@ -146,6 +146,14 @@ QEPlot::~QEPlot()
 }
 
 /*
+  Provides size hint in designer - in not a constraint
+ */
+QSize QEPlot::sizeHint() const
+{
+   return QSize (240, 100);
+}
+
+/*
     Implementation of QEWidget's virtual funtion to create the specific type of QCaObject required.
     For a strip chart a QCaObject that streams floating point data is required.
 */
@@ -397,7 +405,8 @@ QVariant QEPlot::copyData()
     for( int i = 0; i < QEPLOT_NUM_VARIABLES; i++ )
     {
         trace* tr = &traces[i];
-        text.append( QString( "\n%1\nx\ty\n" ).arg( tr->legend.isEmpty()?QString( "Variable %1" ).arg( i ):tr->legend ) );
+        // Use i + 1 (as opposed to just i) as variable propety names are 1 to 4, not 0 to 3.
+        text.append( QString( "\n%1\nx\ty\n" ).arg( tr->legend.isEmpty()?QString( "Variable %1" ).arg( i + 1 ):tr->legend ) );
         for( int j = 0; j < tr->xdata.count(); j++ )
         {
             text.append( QString( "%1\t%2\n" ).arg( tr->xdata[j] ).arg( tr->ydata[j]) );
