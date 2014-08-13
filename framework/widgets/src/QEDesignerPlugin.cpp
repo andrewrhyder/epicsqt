@@ -68,6 +68,7 @@
 #include <QEHistogramManager.h>
 #include <QEScalarHistogramManager.h>
 #include <QEWaveformHistogramManager.h>
+#include <QETableManager.h>
 
 #include <QEDesignerPlugin.h>
 
@@ -110,6 +111,7 @@ QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QESpinBoxManager(this));
     widgets.append(new QEStripChartManager(this));
     widgets.append(new QESubstitutedLabelManager(this));
+    widgets.append(new QETableManager(this));
     widgets.append(new QEWaveformHistogramManager(this));
 
     // Non-EPICS aware framework widgets.
