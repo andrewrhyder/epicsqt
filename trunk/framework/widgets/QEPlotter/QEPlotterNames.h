@@ -80,6 +80,12 @@ public:
       PLOTTER_PLAY,                //
       PLOTTER_PAUSE,               //
 
+      PLOTTER_COPY_VARIABLE,       // Rebadge of CM_COPY_VARIABLE
+      PLOTTER_COPY_DATA,           // Rebadge of CM_COPY_DATA
+      PLOTTER_PASTE,               // Rebadge of CM_PASTE
+      PLOTTER_DRAG_VARIABLE,       // Rebadge of CM_DRAG_VARIABLE
+      PLOTTER_DRAG_DATA,           // Rebadge of CM_DRAG_DATA
+
       // PV item context menu items.
       //
       PLOTTER_LINE_BOLD,           //
