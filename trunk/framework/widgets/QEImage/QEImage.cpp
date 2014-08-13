@@ -1929,7 +1929,7 @@ void QEImage::displayImage()
     unsigned int valP;
     unsigned int binShift = (bitDepth<8)?0:bitDepth-8;
     unsigned int bin;
-    for( int i = 0; i < HISTOGRAM_BINS-1; i++ )
+    for( int i = 0; i < HISTOGRAM_BINS; i++ )
     {
         bins[i]=0;
     }
