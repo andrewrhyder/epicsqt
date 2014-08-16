@@ -1,6 +1,7 @@
 /*  QECommon.cpp
  *
- *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
+ *  This file is part of the EPICS QT Framework, initially developed at the
+ *  Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2013
+ *  Copyright (c) 2013,2014 Australian Synchrotron.
  *
  *  Author:
  *    Andrew Starritt
@@ -31,6 +32,7 @@
 #include <QDebug>
 #include <QMetaEnum>
 #include <QMetaObject>
+#include <QRegExp>
 #include <QSize>
 #include <QWidget>
 
@@ -345,6 +347,28 @@ int QEUtilities::stringToEnum (const QObject& object,
    }
 
    if (ok) *ok = okay;
+   return result;
+}
+
+//------------------------------------------------------------------------------
+//
+QStringList QEUtilities::variantToStringList (const QVariant& v)
+{
+   QStringList result;
+   QStringList vlist;
+
+   result.clear ();
+   vlist = v.toStringList ();  // Do variant split
+   for (int v = 0; v < vlist.count(); v++) {
+      QString s;
+      QStringList slist;
+
+      s = vlist.value (v);
+      slist = s.split (QRegExp ("\\s+"), QString::SkipEmptyParts); // Do white space split
+
+      result.append (slist);
+   }
+
    return result;
 }
 

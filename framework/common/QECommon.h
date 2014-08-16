@@ -1,6 +1,7 @@
 /*  QECommon.h
  *
- *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
+ *  This file is part of the EPICS QT Framework, initially developed at the
+ *  Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2013
+ *  Copyright (c) 2013,2014 Australian Synchrotron.
  *
  *  Author:
  *    Andrew Starritt
@@ -31,6 +32,7 @@
 #include <QDateTime>
 #include <QObject>
 #include <QString>
+#include <QStringList>
 #include <QEPluginLibrary_global.h>
 
 
@@ -169,6 +171,13 @@ public:
     /// name. The function returns the first found or NULL.
     ///
     static QWidget* findWidget (QWidget* parent, const QString& className);
+
+    /// Converts QVariant to a QStringList, where each string item is further
+    /// split using white space as delimiter. This function was principally
+    /// designed for use within the paste/drop functions of widgets that support
+    /// multiple PVs.
+    ///
+    static QStringList variantToStringList (const QVariant& v);
 };
 
 # endif // QECOMMON_H
