@@ -24,8 +24,8 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-#ifndef QE_RADIO_GROUP_H
-#define QE_RADIO_GROUP_H
+#ifndef QE_TABLE_H
+#define QE_TABLE_H
 
 #include <QHBoxLayout>
 #include <QList>
@@ -50,10 +50,10 @@ class QEPLUGINLIBRARYSHARED_EXPORT QETable : public QEAbstractWidget {
 
    Q_OBJECT
 
-   // Strictly this defines the max number of columns. Must be consistant with the
+   // Strictly this defines the max number of variables. Must be consistant with the
    // number of variable name properties below and calls to PROPERTY_ACCESS below.
    //
-   #define NUMBER_OF_COLUMNS 12
+   #define NUMBER_OF_VARIABLES 12
 
 
    // QETable specific properties ===============================================
@@ -70,35 +70,46 @@ class QEPLUGINLIBRARYSHARED_EXPORT QETable : public QEAbstractWidget {
 
    /// EPICS variable names (CA PV)
    ///
-   Q_PROPERTY (QString variableName1  READ getVariableName1  WRITE setVariableName1)
-   Q_PROPERTY (QString variableName2  READ getVariableName2  WRITE setVariableName2)
-   Q_PROPERTY (QString variableName3  READ getVariableName3  WRITE setVariableName3)
-   Q_PROPERTY (QString variableName4  READ getVariableName4  WRITE setVariableName4)
-   Q_PROPERTY (QString variableName5  READ getVariableName5  WRITE setVariableName5)
-   Q_PROPERTY (QString variableName6  READ getVariableName6  WRITE setVariableName6)
-   Q_PROPERTY (QString variableName7  READ getVariableName7  WRITE setVariableName7)
-   Q_PROPERTY (QString variableName8  READ getVariableName8  WRITE setVariableName8)
-   Q_PROPERTY (QString variableName9  READ getVariableName9  WRITE setVariableName9)
-   Q_PROPERTY (QString variableName10 READ getVariableName10 WRITE setVariableName10)
-   Q_PROPERTY (QString variableName11 READ getVariableName11 WRITE setVariableName11)
-   Q_PROPERTY (QString variableName12 READ getVariableName12 WRITE setVariableName12)
+   Q_PROPERTY (QString variableName1  READ getVariableName1    WRITE setVariableName1)
+   Q_PROPERTY (QString variableName2  READ getVariableName2    WRITE setVariableName2)
+   Q_PROPERTY (QString variableName3  READ getVariableName3    WRITE setVariableName3)
+   Q_PROPERTY (QString variableName4  READ getVariableName4    WRITE setVariableName4)
+   Q_PROPERTY (QString variableName5  READ getVariableName5    WRITE setVariableName5)
+   Q_PROPERTY (QString variableName6  READ getVariableName6    WRITE setVariableName6)
+   Q_PROPERTY (QString variableName7  READ getVariableName7    WRITE setVariableName7)
+   Q_PROPERTY (QString variableName8  READ getVariableName8    WRITE setVariableName8)
+   Q_PROPERTY (QString variableName9  READ getVariableName9    WRITE setVariableName9)
+   Q_PROPERTY (QString variableName10 READ getVariableName10   WRITE setVariableName10)
+   Q_PROPERTY (QString variableName11 READ getVariableName11   WRITE setVariableName11)
+   Q_PROPERTY (QString variableName12 READ getVariableName12   WRITE setVariableName12)
 
-   Q_PROPERTY (Qt::Orientation orientation READ getOrientation  WRITE setOrientation)
+   /// The maximum number of array elements that will be displayed. Defaults to 4096.
+   ///
+   Q_PROPERTY (int displayMaximum     READ getDisplayMaximum   WRITE setDisplayMaximum)
 
-   Q_PROPERTY(bool showGrid READ showGrid WRITE setShowGrid)
-   Q_PROPERTY(Qt::PenStyle gridStyle READ gridStyle WRITE setGridStyle)
+   /// Determines if the variable values are displayed in rows (orientation is horizontal)
+   /// or in columns (orientation is vertical). The default is vertical.
+   ///
+   Q_PROPERTY (Qt::Orientation orientation READ getOrientation WRITE setOrientation)
 
+   /// Controls if table grid is displayed. Default to true.
+   ///
+   Q_PROPERTY (bool showGrid          READ showGrid            WRITE setShowGrid)
+
+   /// Sets table grid style. Defaults to SolidLine.
+   ///
+   Q_PROPERTY (Qt::PenStyle gridStyle READ gridStyle           WRITE setGridStyle)
    //
    // End of QETable specific properties =========================================
 
 public:
-   /// Create without a variable.
+   /// Create without a variable(s).
    /// Use setVariableName functions.
    //
    explicit QETable (QWidget* parent = 0);
 
    /// Destruction
-   virtual ~QETable() {}
+   virtual ~QETable() { }
 
    // Single function for all set/get PV properties.
    //
@@ -107,6 +118,9 @@ public:
 
    void setSubstitutions (const QString& substitutions);
    QString getSubstitutions () const;
+
+   void setDisplayMaximum (const int displayMaximum);
+   int getDisplayMaximum () const;
 
    void setOrientation (const Qt::Orientation orientation);
    Qt::Orientation getOrientation () const;
@@ -136,10 +150,20 @@ public:
 
    // Expose access to the internal widget's set/get functions.
    //
-   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (internalWidget, bool,         showGrid,  setShowGrid)
-   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (internalWidget, Qt::PenStyle, gridStyle, setGridStyle)
+   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (table, bool,         showGrid,  setShowGrid)
+   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (table, Qt::PenStyle, gridStyle, setGridStyle)
+
+public slots:
+   // Selects col/row depending on orientation vertical/horizontal.
+   //
+   void setSelection (int value);
+
+public:
+   int getSelection () const;
 
 signals:
+   void selectionChanged (int value);
+
    // Note, the following signals are common to many QE widgets,
    // if changing the doxygen comments, ensure relevent changes are migrated to all instances
    /// Sent when the widget is updated following a data change
@@ -158,30 +182,35 @@ protected:
    qcaobject::QCaObject* createQcaItem (unsigned int variableIndex);
 
    // Drag and Drop
-   void dragEnterEvent (QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
-   void dropEvent (QDropEvent *event)           { qcaDropEvent( event ); }
-   void mousePressEvent (QMouseEvent *event)    { qcaMousePressEvent( event ); }
+   //
+   void dragEnterEvent (QDragEnterEvent *event) { qcaDragEnterEvent (event); }
+   void dropEvent (QDropEvent *event)           { qcaDropEvent (event); }
+   void mousePressEvent (QMouseEvent *event)    { qcaMousePressEvent (event); }
    void setDrop (QVariant drop);
    QVariant getDrop ();
 
    // Copy paste
+   //
    QString copyVariable ();
    QVariant copyData ();
    void paste (QVariant s);
 
 private:
-   void commonSetup ();
+   bool isVertical () const;
    void rePopulateTable ();
+   void addVariableName (const QString& pvName);
 
    // Provides consistant interpretation of variableIndex.
    // Must be consistent with variableIndex allocation in the contructor.
    //
-   int  slotOf  (const unsigned int vi) { return (vi); }
+   int slotOf  (const unsigned int vi) { return (vi); }
 
-   QTableWidget* internalWidget;
+   QTableWidget* table;         // internal widget
    QHBoxLayout* layout;         // holds the internal widget - any layout type will do
+   int displayMaximum;
    Qt::Orientation orientation;
    QEFloatingFormatting floatingFormatting;
+   int selection;
 
    // Per PV data.
    //
@@ -195,6 +224,7 @@ private:
       void rePopulateTable ();
 
       QEFloatingArray data;
+      QCaAlarmInfo alarmInfo;
 
       QString pvName;
       QCaVariableNamePropertyManager variableNameManager;
@@ -205,9 +235,7 @@ private:
       int slot;
    };
 
-   // Slot 0 used for X data - some redundancy (e.g. colour)
-   //
-   DataSets dataSet [NUMBER_OF_COLUMNS];
+   DataSets dataSet [NUMBER_OF_VARIABLES];
 
 private slots:
    void setNewVariableName (QString variableNameIn,
@@ -221,6 +249,9 @@ private slots:
                           QCaAlarmInfo& alarmInfo,
                           QCaDateTime& timeStamp,
                           const unsigned int& variableIndex);
+
+   void currentCellChanged (int currentRow,  int currentCol,
+                            int previousRow, int previousCol);
 };
 
-#endif // QE_RADIO_GROUP_H
+#endif // QE_TABLE_H

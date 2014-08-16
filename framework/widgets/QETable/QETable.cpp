@@ -24,17 +24,22 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
+#include <QColor>
 #include <QDebug>
 #include <QECommon.h>
 #include <QEFloating.h>
+#include <QHeaderView>
 
 #include "QETable.h"
 
 #define DEBUG qDebug () << "QETable" << __FUNCTION__ << __LINE__
 
+#define DEFAULT_CELL_HEIGHT     22
+#define NULL_SELECTION          (-1)
+
 
 //=============================================================================
-//
+// DataSets class - manages a single PV
 //=============================================================================
 //
 QETable::DataSets::DataSets ()
@@ -80,9 +85,10 @@ void QETable::DataSets::rePopulateTable ()
    QTableWidgetItem* item;
    double value;
    QString image;
+   QColor colour;
 
    if (!this->isInUse ()) return;        // nothing to see here ... move along ...
-   table = this->owner->internalWidget;  // alias
+   table = this->owner->table;  // alias
    if (!table) return;                   // sainity check
 
    // Find own row/col index
@@ -94,31 +100,36 @@ void QETable::DataSets::rePopulateTable ()
       }
    }
 
-   numberElements = this->data.count ();
+   // The number of elements used/displayed is the lesser of the number avialable
+   // data elements and the overall display maximum.
+   //
+   numberElements = MIN (this->data.count (), this->owner->getDisplayMaximum ());
 
    // Ensure table large enough to accomodate all data.
    //
-   if (this->owner->orientation == Qt::Horizontal) {
-      // Is horizontal.
-      //
-      currentSize = table->columnCount ();
-      table->setColumnCount (MAX (numberElements, currentSize));
-
-      currentSize = table->rowCount ();
-      table->setRowCount (MAX (currentSize, index + 1));
-   } else {
-      // Must be vertical.
-      //
+   if (this->owner->isVertical ()) {
       currentSize = table->rowCount ();
       table->setRowCount (MAX (numberElements, currentSize));
 
       currentSize = table->columnCount ();
       table->setColumnCount (MAX (currentSize, index + 1));
+   } else {
+      currentSize = table->columnCount ();
+      table->setColumnCount (MAX (numberElements, currentSize));
+
+      currentSize = table->rowCount ();
+      table->setRowCount (MAX (currentSize, index + 1));
+   }
+
+   if (this->owner->getDisplayAlarmState ()) {
+      colour = QColor (alarmInfo.getStyleColorName ());
+   } else {
+      colour = QColor ("#f0f0f0");
    }
 
    for (int j = 0; j < numberElements; j++) {
-      int row = this->owner->orientation == Qt::Horizontal ? index : j;
-      int col = this->owner->orientation == Qt::Horizontal ? j : index;
+      int row = this->owner->isVertical () ? j : index;
+      int col = this->owner->isVertical () ? index : j;
 
       item = table->item (row, col);
       if (!item) {
@@ -131,6 +142,7 @@ void QETable::DataSets::rePopulateTable ()
       value = this->data.value (j);
       image = QString (" %1").arg (value);   // no EGU or formatting (yet).
       item->setText (image);
+      item->setBackgroundColor (colour);
    }
 }
 
@@ -152,56 +164,47 @@ void QETable::DataSets::rePopulateTable ()
 //
 QETable::QETable (QWidget* parent) : QEAbstractWidget (parent)
 {
-   this->commonSetup ();
-}
-
-//-----------------------------------------------------------------------------
-// Setup common to all constructors
-//
-void QETable::commonSetup ()
-{
-   // Create internal widget.
+   // Create internal widget. We always have at least one row and one col.
    //
-   this->internalWidget = new QTableWidget (this);
+   this->table = new QTableWidget (1, 1, this);
 
    // Copy actual widget size policy to the containing widget, then ensure
    // internal widget will expand to fill container widget.
    //
-   this->setSizePolicy (this->internalWidget->sizePolicy ());
-   this->internalWidget->setSizePolicy (QSizePolicy::Preferred, QSizePolicy::Preferred);
+   this->setSizePolicy (this->table->sizePolicy ());
+   this->table->setSizePolicy (QSizePolicy::Preferred, QSizePolicy::Preferred);
 
    this->layout = new QHBoxLayout (this);
    this->layout->setMargin (0);    // extact fit.
-   this->layout->addWidget (this->internalWidget);
+   this->layout->addWidget (this->table);
 
-   this->orientation = Qt::Vertical;
-   this->internalWidget->setRowCount (4);
-   this->internalWidget->setColumnCount (1);
 
    // Initialise data set objects.
+   // These are declared as array as opposed to being dynamically allocated,
+   // so we need need post contruction configuration.
    //
    for (int slot = 0 ; slot < ARRAY_LENGTH (this->dataSet); slot++) {
       this->dataSet [slot].setContext (this, slot);
    }
 
    // Set default property values
-   // Set up data
    //
+   this->displayMaximum = 0x1000;
+   this->selection = NULL_SELECTION;
+   this->orientation = Qt::Vertical;
    this->setNumVariables (ARRAY_LENGTH (this->dataSet));
-
-   this->setMinimumSize (120, 400);
-
-   // Set up default properties
-   //
+   this->setMinimumSize (120, 50);
    this->setVariableAsToolTip (true);
-   this->setAllowDrop (false);
-   this->setDisplayAlarmState (false);
+   this->setAllowDrop (true);
+
+   this->table->setSelectionBehavior (QAbstractItemView::SelectRows);
+   this->table->verticalHeader()->setDefaultSectionSize (DEFAULT_CELL_HEIGHT);
 
    // Use default context menu.
    //
    this->setupContextMenu ();
 
-   // Set up a connection to recieve variable name property changes
+   // Set up a connections to receive variable name property changes
    //
    // The variable name property manager class only delivers an updated
    // variable name after the user has stopped typing.
@@ -215,13 +218,18 @@ void QETable::commonSetup ()
       QObject::connect (vpnm, SIGNAL (newVariableNameProperty (QString, QString, unsigned int)),
                         this, SLOT   (setNewVariableName      (QString, QString, unsigned int)));
    }
+
+   // Set up a connections to receive table signals
+   //
+   QObject::connect (this->table, SIGNAL (currentCellChanged (int, int, int, int)),
+                     this,        SLOT   (currentCellChanged (int, int, int, int)));
 }
 
 //---------------------------------------------------------------------------------
 //
 QSize QETable::sizeHint () const
 {
-   return QSize (200, 80);
+   return QSize (222, 118);
 }
 
 //---------------------------------------------------------------------------------
@@ -232,8 +240,8 @@ void QETable::fontChange (const QFont&)
    // widget's font. The given parameter (which we don't use) lags by one change,
    // but this->font () is up to date, so we use that.
    //
-   if (this->internalWidget) {
-      this->internalWidget->setFont (this->font ());
+   if (this->table) {
+      this->table->setFont (this->font ());
    }
 }
 
@@ -272,6 +280,8 @@ void QETable::establishConnection (unsigned int variableIndex)
    //
    qcaobject::QCaObject* qca = createConnection (variableIndex);
 
+   // Sanity check
+   //
    if (!qca) {
       return;
    }
@@ -281,7 +291,6 @@ void QETable::establishConnection (unsigned int variableIndex)
 
    QObject::connect (qca, SIGNAL (floatingArrayChanged (const QVector<double>&, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)),
                      this, SLOT  (dataArrayChanged     (const QVector<double>&, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)));
-
 }
 
 //------------------------------------------------------------------------------
@@ -310,6 +319,7 @@ void QETable::dataArrayChanged (const QVector<double>& values,
    SLOT_CHECK (slot,);
 
    this->dataSet [slot].data = QEFloatingArray (values);
+   this->dataSet [slot].alarmInfo = alarmInfo;
 
    this->dataSet [slot].rePopulateTable ();
 
@@ -317,17 +327,25 @@ void QETable::dataArrayChanged (const QVector<double>& values,
    //
    emit this->dbValueChanged (values);
 
-   // Invoke common alarm handling processing.
+   // Don't invoke common alarm handling processing, as we use a PV specifc alarm
+   // dinication per col/row. Update the tool tip to reflect current alarm state.
    //
-   this->processAlarmInfo (alarmInfo, variableIndex);
+   this->updateToolTipAlarm (alarmInfo.severityName (), variableIndex);
+}
+
+//---------------------------------------------------------------------------------
+//
+bool QETable::isVertical () const
+{
+   return (this->orientation != Qt::Horizontal);
 }
 
 //---------------------------------------------------------------------------------
 //
 void QETable::rePopulateTable ()
 {
-   this->internalWidget->setRowCount (1);
-   this->internalWidget->setColumnCount (1);
+   this->table->setRowCount (1);
+   this->table->setColumnCount (1);
 
    for (int slot = 0; slot < ARRAY_LENGTH (this->dataSet); slot++) {
       this->dataSet [slot].rePopulateTable ();
@@ -352,22 +370,63 @@ void QETable::setNewVariableName (QString variableName,
    pvName = this->getSubstitutedVariableName (variableIndex).trimmed ();
    this->dataSet [slot].pvName = pvName;
 
+   // Count number of slots in use.
+   //
    int count = 0;
-
    for (int slot = 0; slot < ARRAY_LENGTH (this->dataSet); slot++) {
       if (this->dataSet [slot].isInUse()) {
          count++;
       }
    }
 
+   // Set the col/row count accordingly. Always display at least one col/row.
+   //
    count = MAX (1, count);
-   if (this->orientation == Qt::Horizontal) {
-      this->internalWidget->setRowCount (count);
+   if (this->isVertical ()) {
+      this->table->setColumnCount (count);
    } else {
-      this->internalWidget->setColumnCount (count);
+      this->table->setRowCount (count);
    }
 }
 
+//---------------------------------------------------------------------------------
+// User has clicked on cell or used up/down/left/right key to select cell.
+//
+void QETable::currentCellChanged (int currentRow, int currentCol, int, int)
+{
+   if (this->isVertical ()) {
+      this->selection = currentRow;
+   } else {
+      this->selection = currentCol;
+   }
+   emit selectionChanged (this->selection);
+}
+
+//------------------------------------------------------------------------------
+//
+void QETable::setSelection (int selectionIn)
+{
+   // A negative selection means no selection
+   //
+   if (selectionIn >= 0) {
+      this->selection = selectionIn;
+      if (this->isVertical ()) {
+         this->table->selectRow (selectionIn);
+      } else {
+         this->table->selectColumn (selectionIn);
+      }
+   } else {
+      this->selection = NULL_SELECTION;
+      this->table->clearSelection ();
+   }
+   emit selectionChanged (this->selection);
+}
+
+//------------------------------------------------------------------------------
+//
+int QETable::getSelection () const {
+   return this->selection;
+}
 
 //==============================================================================
 // Properties
@@ -396,7 +455,6 @@ void QETable::setSubstitutions (const QString& defaultSubstitutions)
    for (int slot = 0; slot < ARRAY_LENGTH (this->dataSet); slot++) {
       this->dataSet [slot].variableNameManager.setSubstitutionsProperty (defaultSubstitutions);
    }
-
 }
 
 //------------------------------------------------------------------------------
@@ -410,10 +468,34 @@ QString QETable::getSubstitutions () const
 
 //------------------------------------------------------------------------------
 //
+void QETable::setDisplayMaximum (const int displayMaximumIn)
+{
+   int temp = LIMIT (displayMaximumIn, 1, 0x10000);
+
+   if (this->displayMaximum != temp) {
+      this->displayMaximum = temp;
+      this->rePopulateTable ();
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+int QETable::getDisplayMaximum () const
+{
+    return this->displayMaximum;
+}
+
+//------------------------------------------------------------------------------
+//
 void QETable::setOrientation (const Qt::Orientation orientationIn)
 {
    if (this->orientation != orientationIn) {
       this->orientation = orientationIn;
+      if (this->isVertical ()) {
+         this->table->setSelectionBehavior (QAbstractItemView::SelectRows);
+      } else {
+         this->table->setSelectionBehavior (QAbstractItemView::SelectColumns);
+      }
       this->rePopulateTable ();
    }
 }
@@ -425,13 +507,28 @@ Qt::Orientation QETable::getOrientation () const
    return this->orientation;
 }
 
+//---------------------------------------------------------------------------------
+//
+void QETable::addVariableName (const QString& pvName)
+{
+   for (int slot = 0; slot < ARRAY_LENGTH (this->dataSet); slot++) {
+      if (this->dataSet [slot].isInUse() == false) {
+         // Found an empty slot.
+         //
+         this->setVariableName (slot, pvName);
+         break;
+      }
+   }
+}
 
 //==============================================================================
 // Drag drop
 //
 void QETable::setDrop (QVariant drop)
 {
-   this->setVariableName (0, drop.toString ());
+   if (this->getAllowDrop ()) {
+      this->paste (drop);
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -450,22 +547,37 @@ QVariant QETable::getDrop ()
 //
 QString QETable::copyVariable ()
 {
-   return this->getSubstitutedVariableName (0);
+   QString result;
+
+   // Create a space seperated list of PV names.
+   //
+   result = "";
+   for (int slot = 0; slot < ARRAY_LENGTH (this->dataSet); slot++) {
+      QString pvName = this->getSubstitutedVariableName (slot);
+      if (!pvName.isEmpty()) {
+         if (!result.isEmpty()) result.append (" ");
+         result.append (pvName);
+      }
+   }
+   return result;
 }
 
 //------------------------------------------------------------------------------
 //
 QVariant QETable::copyData ()
 {
-   return QVariant ();
+   return QVariant ();    // TBD
 }
 
 //------------------------------------------------------------------------------
 //
 void QETable::paste (QVariant v)
 {
-   if (this->getAllowDrop ()) {
-      this->setDrop (v);
+   QStringList pvNameList;
+
+   pvNameList = QEUtilities::variantToStringList (v);
+   for (int j = 0; j < pvNameList.count (); j++) {
+      this->addVariableName (pvNameList.value (j));
    }
 }
 
