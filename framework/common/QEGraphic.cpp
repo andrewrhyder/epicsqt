@@ -106,6 +106,12 @@ void QEGraphic::Axis::setRange (const double minIn, const double maxIn,
    }
 }
 
+void QEGraphic::Axis::getRange (double& min, double& max)
+{
+    min = this->useMin;
+    max = this->useMax;
+}
+
 //------------------------------------------------------------------------------
 //
 bool QEGraphic::Axis::doDynamicRescaling ()
@@ -128,14 +134,11 @@ bool QEGraphic::Axis::doDynamicRescaling ()
 //
 void QEGraphic::Axis::determineAxis (const QEDisplayRanges& current)
 {
-   double useMin;
-   double useMax;
-   double useStep;
    int canvasSize;
    int number;
 
    if (this->isLogarithmic) {
-      current.adjustLogMinMax (useMin, useMax, useStep);
+      current.adjustLogMinMax (this->useMin, this->useMax, this->useStep);
    } else {
       if (this->intervalMode == QEGraphic::SelectBySize) {
          switch (this->axisId) {
@@ -158,15 +161,17 @@ void QEGraphic::Axis::determineAxis (const QEDisplayRanges& current)
       } else {
          number = this->intervalValue;
       }
-      current.adjustMinMax (number, false, useMin, useMax, useStep);
+      current.adjustMinMax (number, false, this->useMin, this->useMax, this->useStep);
 
       // Subtract/add tolerance as Qwt Axis ploting of minor ticks a bit slack.
       //
-      useMin = useMin - (0.01 * useStep);
-      useMax = useMax + (0.01 * useStep);
+      this->useMin = this->useMin - (0.01 * this->useStep);
+      this->useMax = this->useMax + (0.01 * this->useStep);
    }
 
-   this->plot->setAxisScale (this->axisId, useMin, useMax , useStep);
+   // This is the only place we set the actual scale.
+   //
+   this->plot->setAxisScale (this->axisId, this->useMin, this->useMax, this->useStep);
 }
 
 //------------------------------------------------------------------------------
@@ -650,6 +655,31 @@ void QEGraphic::plotSelectedRight (const bool isArea)
       this->plotCurveData (xdata, ydata);
    }
 }
+
+void QEGraphic::plotCrossHairs ()
+{
+    QPointF p0;
+    double min;
+    double max;
+    DoubleVector xdata;
+    DoubleVector ydata;
+
+    p0 = pointToReal (this->currentPosition);
+
+    this->yAxis->getRange (min, max);
+    xdata.clear ();    ydata.clear ();
+    xdata << p0.x ();  ydata << min;
+    xdata << p0.x ();  ydata << max;
+    this->plotCurveData (xdata, ydata);
+
+    this->xAxis->getRange (min, max);
+    xdata.clear ();  ydata.clear ();
+    xdata << min;    ydata << p0.y ();
+    xdata << max;    ydata << p0.y ();
+    this->plotCurveData (xdata, ydata);
+
+}
+
 
 //------------------------------------------------------------------------------
 //

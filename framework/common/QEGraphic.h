@@ -126,6 +126,11 @@ public:
    void plotSelectedLeft  (const bool isArea = true);
    void plotSelectedRight (const bool isArea = false);
 
+   // Draws cross hairs at current position
+   // Uses the current curve attributes.
+   //
+   void plotCrossHairs ();
+
    // Returns the pixel distance between two real points.
    //
    QPoint pixelDistance (const QPointF& from, const QPointF& to);
@@ -199,6 +204,7 @@ private:
 
       void setRange (const double min, const double max,
                      const AxisMajorIntervalModes mode, const int value);
+      void getRange (double& min, double& max);
       bool doDynamicRescaling ();
       void determineAxis (const QEDisplayRanges& current);
 
@@ -235,9 +241,13 @@ private:
       bool isLogarithmic;   // vs. Linear
 
       // Data scaling x' = mx + c. This is applied before any log10 scaling.
-      //
+      // Allows axis scale to be different units to plot scale, e.g. minutes vs. seconds
       double scale;     // m
       double offset;    // c
+
+      double useMin;
+      double useMax;
+      double useStep;
    };
 
    void construct ();
