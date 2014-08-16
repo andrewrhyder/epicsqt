@@ -49,7 +49,14 @@ public:
     bool isMajor() const;             // Return true if there is a major alarm
     bool isInvalid() const;           // Return true if there is an invalid alarm
     QString style() const;            // Return a style string to update the widget's look to reflect the current alarm state
-    QString getColorName() const;     // Return 'standard' colour for the alarm state.
+
+    // getStyleColorName/getColorName return standard color for the alarm state.
+    // The former is paler/less solid, suitable e.g. label backgrounds. The later
+    // is more solid suitable for graphics. In both cases the reurned format is
+    // of the form of a 6 digit hex string, e.g.: "#0080ff"
+    //
+    QString getStyleColorName() const; // Return 'standard' style colour for the alarm state.
+    QString getColorName() const;      // Return 'standard' colour for the alarm state.
 
 
     static QCAALARMINFO_SEVERITY getInvalidSeverity(); // Return a severity that will not match any valid severity

@@ -116,15 +116,40 @@ bool QCaAlarmInfo::isInvalid() const {
  */
 QString QCaAlarmInfo::style() const
 {
+    QString styleColor = getStyleColorName();
+    QString result;
+
     switch( severity )
     {
-        case NO_ALARM:      return "QWidget { background-color: #e0eae0; }"; // pale green
-        case MINOR_ALARM:   return "QWidget { background-color: #ffff80; }"; // yellow
-        case MAJOR_ALARM:   return "QWidget { background-color: #ff8080; }"; // red
-        case INVALID_ALARM: return "QWidget { background-color: #ffffff; }"; // white
-        default:            return "";
+        case NO_ALARM:
+        case MINOR_ALARM:
+        case MAJOR_ALARM:
+        case INVALID_ALARM:
+            result = QString( "QWidget { background-color: %1; }" ).arg( styleColor );
+            break;
+
+        default:
+            result = "";
+    }
+
+    return result;
+}
+
+/*
+  Return the style color name for the alarm state
+ */
+QString QCaAlarmInfo::getStyleColorName() const
+{
+    switch( severity )
+    {
+        case NO_ALARM:      return "#e0eae0"; // pale green
+        case MINOR_ALARM:   return "#ffff00"; // yellow
+        case MAJOR_ALARM:   return "#ff8080"; // red
+        case INVALID_ALARM: return "#ffffff"; // white
+        default:            return "#ffffff"; // white
     }
 }
+
 
 /*
   Return the color name for the alarm state
@@ -140,7 +165,6 @@ QString QCaAlarmInfo::getColorName() const
         default:            return "#ffffff"; // white
     }
 }
-
 
 /*
   Return a severity that will not match any valid severity (static)
