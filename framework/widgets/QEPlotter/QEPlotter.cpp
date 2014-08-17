@@ -553,6 +553,8 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
    this->isReverse = false;
    this->isPaused = false;
    this->selectedDataSet = 0;
+   this->crosshairIndex = -1;
+   this->crosshairsAreRequired = false;
 
    this->setAllowDrop (false);
    this->setDisplayAlarmState (false);
@@ -939,6 +941,8 @@ void QEPlotter::generalContextMenuRequested (const QPoint& pos)
 
    // Set current checked states.
    //
+   this->generalContextMenu->setActionChecked (QEPlotterNames::PLOTTER_SHOW_HIDE_CROSSHAIRS,
+                                               this->crosshairsAreRequired);
    this->generalContextMenu->setActionChecked (QEPlotterNames::PLOTTER_SHOW_HIDE_TOOLBAR,
                                                this->getToolBarVisible ());
    this->generalContextMenu->setActionChecked (QEPlotterNames::PLOTTER_SHOW_HIDE_PV_ITEMS,
@@ -1054,6 +1058,11 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
    int n;
 
    switch (action) {
+
+      case QEPlotterNames::PLOTTER_SHOW_HIDE_CROSSHAIRS:
+         this->crosshairsAreRequired = !this->crosshairsAreRequired;
+         this->replotIsRequired = true;
+         break;
 
       case QEPlotterNames::PLOTTER_SHOW_HIDE_TOOLBAR:
          this->setToolBarVisible (! this->getToolBarVisible ());
@@ -1501,6 +1510,41 @@ void QEPlotter::nextState ()
 
 //------------------------------------------------------------------------------
 //
+void QEPlotter::calcCrosshairIndex (const double x)
+{
+   DataSets* xs = &this->xy [0];   // use a alias pointer for brevity
+   int newIndex;
+   int number;
+
+   newIndex = -1;
+   number = xs->data.count ();
+   for (int j = number - 1; j >= 0; j--) {
+      if (x >= xs->data.value (j)) {
+         // found it
+         newIndex = j;
+         break;
+      }
+   }
+
+   // Has the vertical crosshair index changed?
+   //
+   if (this->crosshairIndex != newIndex) {
+      this->crosshairIndex = newIndex;
+      if (this->crosshairsAreRequired) {
+         emit this->crosshairIndexChanged (this->crosshairIndex);
+      }
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+int QEPlotter::getCrosshairIndex () const
+{
+   return this->crosshairIndex;
+}
+
+//------------------------------------------------------------------------------
+//
 void QEPlotter::plotMouseMove (const QPointF& posn)
 {
    QString mouseReadOut;
@@ -1542,8 +1586,13 @@ void QEPlotter::plotMouseMove (const QPointF& posn)
 
    this->setReadOut (mouseReadOut);
 
-   if (this->plotArea->getLeftIsDefined () ||
-       this->plotArea->getRightIsDefined ()) {
+   // Determine and emit new vertical crosshair index if required.
+   //
+   this->calcCrosshairIndex (posn.x ());
+
+   if (this->crosshairsAreRequired  ||
+       this->plotArea->getLeftIsDefined () ||
+       this->plotArea->getRightIsDefined () ) {
       this->replotIsRequired = true;
    }
 }
@@ -2138,6 +2187,20 @@ void QEPlotter::plotOriginToPoint ()
 
 //------------------------------------------------------------------------------
 //
+void QEPlotter::plotCrosshairs ()
+{
+   QPen pen;
+
+   if (this->crosshairsAreRequired) {   // need a test
+      pen.setColor(QColor (0x808080));  // grayish
+      pen.setWidth (1);
+      this->plotArea->setCurvePen (pen);
+      this->plotArea->plotCrossHairs ();
+   }
+}
+
+//------------------------------------------------------------------------------
+//
 void QEPlotter::plot ()
 {
    QColor background;
@@ -2300,6 +2363,10 @@ void QEPlotter::plot ()
    // Draw origin to target line if defined..
    //
    this->plotOriginToPoint ();
+
+   // Draw cross hairs if selected.
+   //
+   this->plotCrosshairs ();
 
    // Save current min/max values.
    //

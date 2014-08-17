@@ -51,6 +51,7 @@ public:
 
       // General context menu items, many also available in the tool bar.
       //
+      PLOTTER_SHOW_HIDE_CROSSHAIRS, //
       PLOTTER_SHOW_HIDE_TOOLBAR,   //
       PLOTTER_SHOW_HIDE_PV_ITEMS,  //
       PLOTTER_SHOW_HIDE_STATUS,    //

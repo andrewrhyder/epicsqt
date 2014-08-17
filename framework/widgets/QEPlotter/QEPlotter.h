@@ -193,8 +193,10 @@ public:
    void setYLogarithmic (bool visible);
    bool getYLogarithmic () const;
 
+   int  getCrosshairIndex () const;
 signals:
-    void requestAction (const QEActionRequests&);             // Signal 'launch a GUI'
+   void crosshairIndexChanged (int value);          // Indicates data index cossponding to (vertical) crosshairs
+   void requestAction (const QEActionRequests&);    // Signal 'launch a GUI'
 
 protected:
    // Implementation of QEWidget's virtual funtions
@@ -279,6 +281,8 @@ private:
    int selectedDataSet;
    QTimer* tickTimer;
    int tickTimerCount;
+   int  crosshairIndex;
+   bool crosshairsAreRequired;  // controls both plotting and signal emmisions
    bool replotIsRequired;
    QEIntegerFormatting  integerFormatting;
    QEFloatingFormatting floatingFormatting;
@@ -289,7 +293,6 @@ private:
    double currentMaxX;                     // ditto max X value
    double currentMinY;                     // ditto min Y value
    double currentMaxY;                     // ditto max Y value
-
 
    enum DataPlotKinds { NotInUse,          // blank  - not in use - no data - no plot
                         DataPVPlot,        // use specified PV to provide plot data
@@ -369,11 +372,19 @@ private:
    void createInternalWidgets ();
    void selectDataSet (const int slot);
    void highLight (const int slot, const bool isHigh);
-   void plotSelectedArea ();
-   void plotOriginToPoint ();
+
+   // Optional mark ups
+   void plotSelectedArea ();      // rectangle
+   void plotOriginToPoint ();     // line - origin to target
+   void plotCrosshairs ();        // vertical and horizontal lines
+
+   void calcCrosshairIndex (const double x);
+
    void plot ();
    int maxActualYSizes () const;
    void doAnyCalculations ();
+
+   // Calculate stats
    void processSelectedItem (const QEFloatingArray& xdata,
                              const QEFloatingArray& ydata,
                              const double yMin, const double yMax);
