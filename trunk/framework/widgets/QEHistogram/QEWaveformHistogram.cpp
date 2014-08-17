@@ -134,8 +134,8 @@ void QEWaveformHistogram::establishConnection (unsigned int variableIndex)
       QObject::connect (qca, SIGNAL (floatingArrayChanged (const QVector<double>&, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)),
                         this, SLOT  (setChannelArrayValue (const QVector<double>&, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)));
 
-      QObject::connect (qca,  SIGNAL (floatingConnectionChanged (QCaConnectionInfo &, const unsigned int &)),
-                        this, SLOT   (connectionChanged         (QCaConnectionInfo &, const unsigned int &)));
+      QObject::connect (qca,  SIGNAL (connectionChanged (QCaConnectionInfo &, const unsigned int &)),
+                        this, SLOT   (connectionChanged (QCaConnectionInfo &, const unsigned int &)));
    }
 }
 

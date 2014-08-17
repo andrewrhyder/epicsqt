@@ -138,8 +138,8 @@ void QEScalarHistogram::establishConnection (unsigned int variableIndex)
       QObject::connect (qca, SIGNAL (floatingChanged (const double &, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)),
                         this, SLOT  (setChannelValue (const double &, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)));
 
-      QObject::connect (qca,  SIGNAL (floatingConnectionChanged (QCaConnectionInfo &, const unsigned int &)),
-                        this, SLOT   (connectionChanged         (QCaConnectionInfo &, const unsigned int &)));
+      QObject::connect (qca,  SIGNAL (connectionChanged (QCaConnectionInfo &, const unsigned int &)),
+                        this, SLOT   (connectionChanged (QCaConnectionInfo &, const unsigned int &)));
    }
 }
 
