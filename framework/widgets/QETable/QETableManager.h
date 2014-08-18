@@ -1,6 +1,7 @@
 /*  QETableManager.h
  *
- *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
+ *  This file is part of the EPICS QT Framework, initially developed at the
+ *  Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2013
+ *  Copyright (c) 2014 Australian Synchrotron.
  *
  *  Author:
  *    Andrew Starritt
@@ -23,8 +24,8 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-#ifndef QETABLEMANAGER_H
-#define QETABLEMANAGER_H
+#ifndef QE_TABLE_MANAGER_H
+#define QE_TABLE_MANAGER_H
 
 #include <QDesignerCustomWidgetInterface>
 #include <QEPluginLibrary_global.h>
@@ -37,4 +38,4 @@ class QEPLUGINLIBRARYSHARED_EXPORT QETableManager: public QObject, public QDesig
    QE_DECLARE_PLUGIN_MANAGER (QETable)
 };
 
-#endif                          // QETABLEMANAGER_H
+#endif  // QE_TABLE_MANAGER_H
