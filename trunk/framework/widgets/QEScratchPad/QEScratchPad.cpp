@@ -243,10 +243,10 @@ QSize QEScratchPad::sizeHint () const {
 //
 #define SLOT_CHECK(slot, default) {                                   \
    if ((slot < 0) || (slot >= ARRAY_LENGTH (this->items))) {          \
-      DEBUG << "slot out of range: " << slot;                         \
-      return default;                                                 \
+   DEBUG << "slot out of range: " << slot;                         \
+   return default;                                                 \
    }                                                                  \
-}
+   }
 
 //---------------------------------------------------------------------------------
 //
@@ -363,14 +363,14 @@ void QEScratchPad::contextMenuSelected (const int slot, const QEScratchPadMenu::
 
    switch (option) {
       case QEScratchPadMenu::SCRATCHPAD_PASTE_PV_NAME:
-         {
-            QClipboard* cb = QApplication::clipboard ();
-            QString pasteText = cb->text().trimmed();
+      {
+         QClipboard* cb = QApplication::clipboard ();
+         QString pasteText = cb->text().trimmed();
 
-            if (! pasteText.isEmpty()) {
-               this->setPvName (slot, pasteText);
-            }
+         if (! pasteText.isEmpty()) {
+            this->setPvName (slot, pasteText);
          }
+      }
          break;
 
       case QEScratchPadMenu::SCRATCHPAD_ADD_PV_NAME:
@@ -410,40 +410,22 @@ void QEScratchPad::widgetMenuSelected  (QAction* action)
 {
    bool okay;
    int option;
-   QClipboard* cb = NULL;
-   QString text;
 
    option = action->data ().toInt (&okay);
    if (!okay) {
       return;
    }
 
+   // These just call the standard context menu processing.
+   //
    switch (option) {
 
       case COPY_PV_NAMES:
-         // Create space delimited set of PV names.
-         //
-         text = "";
-         for (int slot = 0; slot < ARRAY_LENGTH (this->items); slot++) {
-            DataSets* item = &(this->items [slot]);
-
-            if (item->isInUse()) {
-               if (!text.isEmpty()) {
-                  text.append (" ");
-               };
-               text.append (this->getPvName (slot));
-            }
-         }
-         cb = QApplication::clipboard ();
-         cb->setText (text);
+         this->contextMenuTriggered (contextMenu::CM_COPY_VARIABLE);
          break;
 
       case PASTE_PV_NAMES:
-         cb = QApplication::clipboard ();
-         text = cb->text().trimmed();
-         if (!text.isEmpty()) {
-            this->addPvNameSet (text);
-         }
+         this->contextMenuTriggered (contextMenu::CM_PASTE);
          break;
 
       default:
@@ -507,22 +489,6 @@ void QEScratchPad::addPvName (const QString& pvName)
       }
    }
 }
-
-//---------------------------------------------------------------------------------
-//
-void QEScratchPad::addPvNameSet (const QString& pvNameSet)
-{
-   QStringList pvNameList;
-   int j;
-
-   // Split input string using white space as delimiter.
-   //
-   pvNameList = pvNameSet.split (QRegExp ("\\s+"), QString::SkipEmptyParts);
-   for (j = 0; j < pvNameList.count (); j++) {
-      this->addPvName (pvNameList.value (j));
-   }
-}
-
 
 //---------------------------------------------------------------------------------
 //
@@ -652,23 +618,72 @@ QString QEScratchPad::getPvName (const int slot)
 
 //---------------------------------------------------------------------------------
 //
+void QEScratchPad::setDrop (QVariant drop)
+{
+   if (this->getAllowDrop ()) {
+      this->paste (drop);
+   }
+}
+
+//---------------------------------------------------------------------------------
+//
+QVariant QEScratchPad::getDrop ()
+{
+   if (this->isDraggingVariable ()) {
+      return QVariant (this->copyVariable ());
+   } else {
+      return this->copyData ();
+   }
+}
+
+//---------------------------------------------------------------------------------
+//
+QString QEScratchPad::copyVariable ()
+{
+   QString result;
+
+   // Create a space seperated list of PV names.
+   //
+   result = "";
+   for (int slot = 0; slot < ARRAY_LENGTH (this->items); slot++) {
+      if (this->items [slot].isInUse ()) {
+         QString pvName = this->getPvName (slot);
+         if (!result.isEmpty()) result.append (" ");
+         result.append (pvName);
+      }
+   }
+   return result;
+}
+
+//---------------------------------------------------------------------------------
+//
+QVariant QEScratchPad::copyData ()
+{
+   QString result;
+
+   result = "\n";
+   for (int slot = 0; slot < ARRAY_LENGTH (this->items); slot++) {
+      if (this->items [slot].isInUse ()) {
+         QString pvName = this->getPvName (slot);
+         QString pvValue = this->items [slot].value->text ();
+
+         result.append (QString ("%1\t%2\n").arg (pvName, -40).arg (pvValue));
+
+      }
+   }
+   return QVariant (result);
+}
+
+//---------------------------------------------------------------------------------
+//
 void QEScratchPad::paste (QVariant s)
 {
-   QStringList list;
-   QString pvNameSet;
+   QStringList pvNameList;
 
-   // s.toSring is a bit limiting when s is a StringList or a List of String.
-   // We don't worry about List 0f StringList or List of List of String etc.
-   //
-   pvNameSet = "";
-   list = s.toStringList ();
-   for (int j = 0 ; j < list.count(); j++) {
-      pvNameSet.append(" ").append (list.value (j));
+   pvNameList = QEUtilities::variantToStringList (s);
+   for (int j = 0; j < pvNameList.count (); j++) {
+      this->addPvName (pvNameList.value (j));
    }
-
-   // Use pasted text to add a PV(s) to the chart.
-   //
-   this->addPvNameSet (pvNameSet);
 }
 
 //---------------------------------------------------------------------------------

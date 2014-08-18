@@ -1,4 +1,5 @@
-/*
+/*  QEDragDrop.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -14,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2012
+ *  Copyright (c) 2012, 2014
  *
  *  Author:
  *    Andrew Rhyder
@@ -74,15 +75,21 @@ QEDragDrop::QEDragDrop( QWidget* ownerIn )
 }
 
 // Start a 'drag'
-void QEDragDrop::qcaDragEnterEvent(QDragEnterEvent *event)
+void QEDragDrop::qcaDragEnterEvent(QDragEnterEvent *event, const bool allowSelfDrop)
 {
+
     // Flag a move is starting (never a copy)
     if (event->mimeData()->hasText())
     {
         if ( event->source() == owner )
         {
-            event->setDropAction( Qt::MoveAction );
-            event->accept();
+            if( allowSelfDrop )
+            {
+                event->setDropAction( Qt::MoveAction );
+                event->accept();
+            } else {
+                event->ignore();
+            }
         } else {
             event->acceptProposedAction();
         }
@@ -209,3 +216,5 @@ bool QEDragDrop::getAllowDrop()
 {
     return allowDrop;
 }
+
+// end
