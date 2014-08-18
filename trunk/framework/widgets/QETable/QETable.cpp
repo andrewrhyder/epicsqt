@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2013,2014 Australian Synchrotron.
+ *  Copyright (c) 2014 Australian Synchrotron.
  *
  *  Author:
  *    Andrew Starritt
@@ -549,7 +549,7 @@ QString QETable::copyVariable ()
 {
    QString result;
 
-   // Create a space seperated list of PV names.
+   // Create a space separated list of PV names.
    //
    result = "";
    for (int slot = 0; slot < ARRAY_LENGTH (this->dataSet); slot++) {

@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2013, 2014 Australian Synchrotron
+ *  Copyright (c) 2014 Australian Synchrotron
  *
  *  Author:
  *    Andrew Starritt
@@ -183,9 +183,9 @@ protected:
 
    // Drag and Drop
    //
-   void dragEnterEvent (QDragEnterEvent *event) { qcaDragEnterEvent (event); }
-   void dropEvent (QDropEvent *event)           { qcaDropEvent (event); }
    void mousePressEvent (QMouseEvent *event)    { qcaMousePressEvent (event); }
+   void dragEnterEvent (QDragEnterEvent *event) { qcaDragEnterEvent (event, false); }
+   void dropEvent (QDropEvent *event)           { qcaDropEvent (event); }
    void setDrop (QVariant drop);
    QVariant getDrop ();
 
