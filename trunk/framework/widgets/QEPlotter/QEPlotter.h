@@ -206,9 +206,10 @@ protected:
    bool eventFilter (QObject *obj, QEvent *event);
 
    // Drag and drop
-   void dragEnterEvent (QDragEnterEvent *event) { qcaDragEnterEvent (event); }
-   void dropEvent (QDropEvent *event)           { qcaDropEvent (event); }
+   //
    void mousePressEvent (QMouseEvent *event)    { qcaMousePressEvent (event); }
+   void dragEnterEvent (QDragEnterEvent *event) { qcaDragEnterEvent (event, false); }
+   void dropEvent (QDropEvent *event)           { qcaDropEvent (event); }
    void setDrop (QVariant drop);
    QVariant getDrop ();
 
