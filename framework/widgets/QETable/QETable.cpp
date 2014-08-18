@@ -535,7 +535,7 @@ void QETable::setDrop (QVariant drop)
 //
 QVariant QETable::getDrop ()
 {
-   if (isDraggingVariable ()) {
+   if (this->isDraggingVariable ()) {
       return QVariant (this->copyVariable ());
    } else {
       return this->copyData ();

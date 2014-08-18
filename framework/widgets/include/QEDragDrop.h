@@ -1,4 +1,5 @@
-/*
+/*  QEDragDrop.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -14,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2009, 2010
+ *  Copyright (c) 2009, 2010, 2014
  *
  *  Author:
  *    Andrew Rhyder
@@ -38,8 +39,9 @@ public:
 
     // Drag and Drop
 
-    // Called by the QE widgets in the QE widgets's drag/drop implementation
-    void qcaDragEnterEvent(QDragEnterEvent *event);
+    // Called by the QE widgets in the QE widgets's drag/drop implementation.
+    // If allowSelfDrop set false then dropping onto source widget inhibited.
+    void qcaDragEnterEvent(QDragEnterEvent *event, const bool allowSelfDrop = true);
     void qcaDropEvent(QDropEvent *event);
     void qcaMousePressEvent(QMouseEvent *event);
 

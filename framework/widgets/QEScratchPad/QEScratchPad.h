@@ -58,7 +58,7 @@ public:
 
    static const int NUMBER_OF_ITEMS = 48;
 
-   // Set (and clear is pvName is null).
+   // Set (and clear if pvName is null).
    //
    void    setPvName (const int slot, const QString& pvName);
    QString getPvName (const int slot);
@@ -66,8 +66,18 @@ public:
 protected:
    // Overtide super class functions.
    //
-   // Paste only
+   // Drag and Drop - no drop to self.
    //
+   void mousePressEvent (QMouseEvent *event)    { qcaMousePressEvent (event); }
+   void dragEnterEvent (QDragEnterEvent *event) { qcaDragEnterEvent (event, false); }
+   void dropEvent (QDropEvent *event)           { qcaDropEvent (event); }
+   void setDrop (QVariant drop);
+   QVariant getDrop ();
+
+   // Copy/Paste
+   //
+   QString copyVariable ();
+   QVariant copyData ();
    void paste (QVariant s);
 
    // override pure virtual functions
@@ -121,12 +131,10 @@ private:
    void selectItem (const int slot, const bool toggle);
    void calcMinimumHeight ();
 
-   // Perform a pvNameDropEvent 'drop'
+   // Perform a pvNameDropEvent 'drop' when dropped onto internall widget.
    //
    void pvNameDropEvent (const int slot, QDropEvent *event);
-
    void addPvName (const QString& pvName);
-   void addPvNameSet (const QString& pvNameSet);
 
 private slots:
    void contextMenuRequested (const QPoint& pos);
