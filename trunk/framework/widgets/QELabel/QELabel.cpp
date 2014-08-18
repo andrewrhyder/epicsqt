@@ -70,13 +70,10 @@ void QELabel::setup() {
 //    defaultStyleSheet = styleSheet();
     // Use label signals
     // --Currently none--
-    // Make label extent obvious when using designer (while display alarm state is inhibited).
-    setStyleSheet( "QWidget { background-color: rgb(240,240,240)}" );
 
     // Set up a connection to recieve variable name property changes
     // The variable name property manager class only delivers an updated variable name after the user has stopped typing
-    QObject::connect( &variableNamePropertyManager, SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ),
-                      this,                       SLOT ( useNewVariableNameProperty( QString, QString, unsigned int ) ) );
+    QObject::connect( &variableNamePropertyManager, SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ), this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
 
 }
 
@@ -232,5 +229,3 @@ QELabel::updateOptions QELabel::getUpdateOption()
 {
     return updateOption;
 }
-
-// end
