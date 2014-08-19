@@ -953,7 +953,7 @@ void imageMarkup::setBeamOrTargetOption( markupIds item, beamAndTargetOptions op
 QRect imageMarkup::scaleArea( QRect area, QRect scaledArea )
 {
     return QRect( scaledArea.left()   * zoomScale - (scaledArea.left() - area.left()),
-                  scaledArea.top()    * zoomScale - (scaledArea.top() - area.top()),
-                  scaledArea.width()  * zoomScale + (area.width() - scaledArea.width()),
-                  scaledArea.height() * zoomScale + (area.height() - scaledArea.height()) );
+                          scaledArea.top()    * zoomScale - (scaledArea.top() - area.top()),
+                          scaledArea.width()  * zoomScale + (area.width() - scaledArea.width() + 1 ),
+                          scaledArea.height() * zoomScale + (area.height() - scaledArea.height()) + 1 );
 }
