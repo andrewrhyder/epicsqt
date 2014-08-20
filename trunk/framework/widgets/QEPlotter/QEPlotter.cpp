@@ -1788,28 +1788,6 @@ bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
 
 //------------------------------------------------------------------------------
 //
-void QEPlotter::setDrop (QVariant drop)
-{
-   if (this->getAllowDrop()) {
-      this->paste (drop);
-   }
-}
-
-//------------------------------------------------------------------------------
-//
-QVariant QEPlotter::getDrop ()
-{
-   if (this->isDraggingVariable ()) {
-      return QVariant (this->copyVariable ());
-   }
-   else {
-      return this->copyData ();
-   }
-}
-
-
-//------------------------------------------------------------------------------
-//
 QString QEPlotter::copyVariable ()
 {
    QString result;
