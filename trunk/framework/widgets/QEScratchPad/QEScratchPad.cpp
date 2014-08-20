@@ -42,8 +42,6 @@ static const QColor clNotInUse  (0xC8C8C8);
 static const QColor clSelected  (0x7090FF);
 
 static const int NULL_SELECTION = -1;
-static const int COPY_PV_NAMES  =  1;
-static const int PASTE_PV_NAMES =  2;
 
 
 //=================================================================================
@@ -56,8 +54,6 @@ void QEScratchPad::createInternalWidgets ()
    const int horMargin = 2;    // 19 - 2 - 2 => widget height is 15
    const int horSpacing = 12;
    const int indent = 6;
-
-   QAction* action;
 
    // Main layout.
    //
@@ -143,17 +139,6 @@ void QEScratchPad::createInternalWidgets ()
    this->vLayout->addStretch ();
 
    this->pvNameSelectDialog = new QEPVNameSelectDialog (this);
-
-   this->widgetContextMenu = new QMenu (this);
-   action = new QAction ("Copy All PV Names", this->widgetContextMenu);
-   action->setCheckable (false);
-   action->setData (QVariant (COPY_PV_NAMES));
-   this->widgetContextMenu->addAction (action);
-
-   action = new QAction ("Paste All PV Names", this->widgetContextMenu);
-   action->setCheckable (false);
-   action->setData (QVariant (PASTE_PV_NAMES));
-   this->widgetContextMenu->addAction (action);
 }
 
 
@@ -212,16 +197,9 @@ QEScratchPad::QEScratchPad (QWidget* parent) : QEFrame (parent)
    this->setAllowDrop (false);
    this->setDisplayAlarmState (false);
 
-   // Connect menu itself to menu handler.
+   // Use default context menu.
    //
-   this->setContextMenuPolicy (Qt::CustomContextMenu);
-
-   QObject::connect (this, SIGNAL (customContextMenuRequested (const QPoint &)),
-                     this, SLOT   (widgetMenuRequested        (const QPoint &)));
-
-   QObject::connect (this->widgetContextMenu, SIGNAL (triggered          (QAction*)),
-                     this,                    SLOT   (widgetMenuSelected (QAction*)));
-
+   this->setupContextMenu ();
 }
 
 //---------------------------------------------------------------------------------
@@ -243,10 +221,11 @@ QSize QEScratchPad::sizeHint () const {
 //
 #define SLOT_CHECK(slot, default) {                                   \
    if ((slot < 0) || (slot >= ARRAY_LENGTH (this->items))) {          \
-   DEBUG << "slot out of range: " << slot;                         \
-   return default;                                                 \
+   DEBUG << "slot out of range: " << slot;                            \
+   return default;                                                    \
    }                                                                  \
-   }
+}
+
 
 //---------------------------------------------------------------------------------
 //
@@ -391,49 +370,6 @@ void QEScratchPad::contextMenuSelected (const int slot, const QEScratchPadMenu::
          break;
    }
 }
-
-
-//---------------------------------------------------------------------------------
-//
-void QEScratchPad::widgetMenuRequested (const QPoint& pos)
-{
-   QObject *obj = this->sender();   // who sent the signal.
-   QWidget* w = dynamic_cast<QWidget*> (obj);
-   QPoint golbalPos = w->mapToGlobal (pos);
-
-   this->widgetContextMenu->exec (golbalPos, 0);
-}
-
-//---------------------------------------------------------------------------------
-//
-void QEScratchPad::widgetMenuSelected  (QAction* action)
-{
-   bool okay;
-   int option;
-
-   option = action->data ().toInt (&okay);
-   if (!okay) {
-      return;
-   }
-
-   // These just call the standard context menu processing.
-   //
-   switch (option) {
-
-      case COPY_PV_NAMES:
-         this->contextMenuTriggered (contextMenu::CM_COPY_VARIABLE);
-         break;
-
-      case PASTE_PV_NAMES:
-         this->contextMenuTriggered (contextMenu::CM_PASTE);
-         break;
-
-      default:
-         // do nothing
-         break;
-   }
-}
-
 
 //---------------------------------------------------------------------------------
 //
@@ -614,26 +550,6 @@ QString QEScratchPad::getPvName (const int slot)
 {
    SLOT_CHECK (slot, "");
    return this->items [slot].thePvName;
-}
-
-//---------------------------------------------------------------------------------
-//
-void QEScratchPad::setDrop (QVariant drop)
-{
-   if (this->getAllowDrop ()) {
-      this->paste (drop);
-   }
-}
-
-//---------------------------------------------------------------------------------
-//
-QVariant QEScratchPad::getDrop ()
-{
-   if (this->isDraggingVariable ()) {
-      return QVariant (this->copyVariable ());
-   } else {
-      return this->copyData ();
-   }
 }
 
 //---------------------------------------------------------------------------------
