@@ -27,7 +27,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -293,8 +293,9 @@
        <item>
         <widget class="QTableWidget" name="windowsTable">
          <property name="columnCount">
-          <number>2</number>
+          <number>3</number>
          </property>
+         <column/>
          <column/>
          <column/>
         </widget>
@@ -461,8 +462,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>72</width>
-               <height>69</height>
+               <width>718</width>
+               <height>356</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_6">

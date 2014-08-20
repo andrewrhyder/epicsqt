@@ -44,8 +44,9 @@ aboutDialog::aboutDialog( QString QEGuiVersion,                // Version info a
                           QStringList envPathList,             // Path list (environment variable)
                           QString userLevel,                   // Current user level
 
-                          QStringList windowTitles,            // Window titles (must be same length as windowFiles)
-                          QStringList windowFiles,             // Window file name (must be same length as windowTitles)
+                          QStringList windowTitles,               // Window titles (windowTitles, windowFiles, windowMacroSubstitutions must be same length)
+                          QStringList windowFiles,                // Window file name (windowTitles, windowFiles, windowMacroSubstitutions must be same length)
+                          QStringList windowMacroSubstitutions,   // Window macro substitutions (windowTitles, windowFiles, windowMacroSubstitutions must be same length)
 
                           QString configurationFile,              // Configuration file
                           QString configurationName,              // Configuration name
@@ -99,7 +100,7 @@ aboutDialog::aboutDialog( QString QEGuiVersion,                // Version info a
     ui->systemPathLabelTextEdit->setPlainText( env.value( pathVarName, QString( "Couldn't find environment variable: " ).append( pathVarName ) ));
 
     // Windows
-    int rowCount = std::min( windowTitles.count(), windowFiles.count() );
+    int rowCount = std::min( std::min( windowTitles.count(), windowFiles.count() ), windowMacroSubstitutions.count() );
     ui->windowsTable->setRowCount( rowCount );
 
     for( int i = 0; i < rowCount; i++ )
@@ -112,15 +113,19 @@ aboutDialog::aboutDialog( QString QEGuiVersion,                // Version info a
         QTableWidgetItem* windowFile = new QTableWidgetItem( windowFiles[i] );
         windowFile->setFlags( flags );
 
+        QTableWidgetItem* windowMacroSubs = new QTableWidgetItem( windowMacroSubstitutions[i] );
+        windowMacroSubs->setFlags( flags );
+
         ui->windowsTable->setItem(i, 0, windowTitle );
         ui->windowsTable->setItem(i, 1, windowFile );
+        ui->windowsTable->setItem(i, 2, windowMacroSubs );
     }
 
     if( rowCount )
     {
         ui->windowsTable->resizeColumnsToContents();
     }
-    ui->windowsTable->setHorizontalHeaderLabels( QStringList() << "Title" << "File" );
+    ui->windowsTable->setHorizontalHeaderLabels( QStringList() << "Title" << "File" << "Macro Substitutions" );
 
     // Configuration
     ui->configurationFileLabel->setText( configurationFile );
