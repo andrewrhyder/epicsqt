@@ -33,7 +33,7 @@ INCLUDEPATH += . \
    ../../framework/archive \
    ../../framework/common \
    ../../framework/data/include \
-   ../../framework/widgets/include
+   ../../framework/widgets/QEWidget
 
 OTHER_FILES += \
    ./help_usage.txt \

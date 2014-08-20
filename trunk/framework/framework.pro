@@ -67,6 +67,10 @@ MOC_DIR        = O.$$(EPICS_HOST_ARCH)/moc
 OBJECTS_DIR    = O.$$(EPICS_HOST_ARCH)/obj
 UI_HEADERS_DIR = O.$$(EPICS_HOST_ARCH)/ui_headers
 
+# We don't get this include path for free - need to be explicit.
+# 
+INCLUDEPATH += O.$$(EPICS_HOST_ARCH)/ui_headers
+
 DEFINES += QWT_DLL=TRUE
 
 #===========================================================
@@ -84,8 +88,6 @@ isEmpty( _QE_FFMPEG ) {
 #===========================================================
 # Project files
 #
-INCLUDEPATH += O.$$(EPICS_HOST_ARCH)/ui_headers
-
 # Widget and other sub projects
 # Included .pri (project include) files for each widget
 #
@@ -93,8 +95,8 @@ include (adaptation_parameters/adaptation_parameters.pri)
 include (common/common.pri)
 include (api/api.pri)
 include (data/data.pri)
-include (widgets/widgets.pri)
 include (archive/archive.pri)
+include (widgets/QEWidget/QEWidget.pri)
 include (widgets/QEAbstractWidget/QEAbstractWidget.pri)
 include (widgets/QEAnalogIndicator/QEAnalogIndicator.pri)
 include (widgets/QEAnalogProgressBar/QEAnalogProgressBar.pri)

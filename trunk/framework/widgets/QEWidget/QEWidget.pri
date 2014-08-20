@@ -1,46 +1,47 @@
-# widgets.pri
+# QEWidgets.pri
 #
 # This file is part of the EPICS QT Framework, and included into
 # and as part of the overall framework plugins.pro project file.
 #
 
 INCLUDEPATH += \
-    widgets/include
+    widgets/QEWidget
 
 HEADERS += \
-    widgets/include/VariableNameManager.h \
-    widgets/include/UserMessage.h \
-    widgets/include/contextMenu.h \
-    widgets/include/QEWidget.h \
-    widgets/include/managePixmaps.h \
-    widgets/include/QEDragDrop.h \
-    widgets/include/styleManager.h \
-    widgets/include/standardProperties.h \
-    widgets/include/QEStringFormattingMethods.h \
-    widgets/include/QEToolTip.h \
-    widgets/include/QEDesignerPlugin.h \
-    widgets/include/QEDesignerPluginCommon.h \
-    widgets/include/ContainerProfile.h \
-    widgets/include/QEPluginLibrary_global.h \
-    widgets/include/persistanceManager.h \
-    widgets/include/applicationLauncher.h
+    widgets/QEWidget/VariableNameManager.h \
+    widgets/QEWidget/UserMessage.h \
+    widgets/QEWidget/contextMenu.h \
+    widgets/QEWidget/QEWidget.h \
+    widgets/QEWidget/managePixmaps.h \
+    widgets/QEWidget/QEDragDrop.h \
+    widgets/QEWidget/styleManager.h \
+    widgets/QEWidget/standardProperties.h \
+    widgets/QEWidget/QEStringFormattingMethods.h \
+    widgets/QEWidget/QEToolTip.h \
+    widgets/QEWidget/QEDesignerPlugin.h \
+    widgets/QEWidget/QEDesignerPluginCommon.h \
+    widgets/QEWidget/ContainerProfile.h \
+    widgets/QEWidget/QEPluginLibrary_global.h \
+    widgets/QEWidget/persistanceManager.h \
+    widgets/QEWidget/applicationLauncher.h
 
 SOURCES += \
-    widgets/src/VariableNameManager.cpp \
-    widgets/src/UserMessage.cpp \
-    widgets/src/contextMenu.cpp \
-    widgets/src/QEWidget.cpp \
-    widgets/src/managePixmaps.cpp \
-    widgets/src/QEDragDrop.cpp \
-    widgets/src/styleManager.cpp \
-    widgets/src/standardProperties.cpp \
-    widgets/src/QEStringFormattingMethods.cpp \
-    widgets/src/QEToolTip.cpp \
-    widgets/src/QEDesignerPlugin.cpp \
-    widgets/src/ContainerProfile.cpp \
-    widgets/src/persistanceManager.cpp\
-    widgets/src/applicationLauncher.cpp
+    widgets/QEWidget/VariableNameManager.cpp \
+    widgets/QEWidget/UserMessage.cpp \
+    widgets/QEWidget/contextMenu.cpp \
+    widgets/QEWidget/QEWidget.cpp \
+    widgets/QEWidget/managePixmaps.cpp \
+    widgets/QEWidget/QEDragDrop.cpp \
+    widgets/QEWidget/styleManager.cpp \
+    widgets/QEWidget/standardProperties.cpp \
+    widgets/QEWidget/QEStringFormattingMethods.cpp \
+    widgets/QEWidget/QEToolTip.cpp \
+    widgets/QEWidget/QEDesignerPlugin.cpp \
+    widgets/QEWidget/ContainerProfile.cpp \
+    widgets/QEWidget/persistanceManager.cpp\
+    widgets/QEWidget/applicationLauncher.cpp
 
-OTHER_FILES += widgets/include/qeplugin.json
+OTHER_FILES += \
+    widgets/QEWidget/qeplugin.json
 
 # end
