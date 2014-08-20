@@ -40,9 +40,12 @@
 
   To make use of the common QE drag drop support provided by this class, the above functions can be
   defined to simply call the equivelent drag/drop functions defined in this class as follows:
-        void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
-        void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
+        void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event [,allowSelfDrop] ); }
+        void dropEvent(QDropEvent *event)           { qcaDropEvent( event [,allText] ); }
         void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
+
+  The parameter allowSelfDrop controls if a widget i allowd to drop onto iself, defaults to false).
+  The parameter allText controls if all or only first part of text is dropped, defaults to false).
 
   To allow this class to obtain text for dragging, or deliver text dropped, the QE widgets also needs to
   implement the following functions defined in this class:
@@ -99,7 +102,7 @@ void QEDragDrop::qcaDragEnterEvent(QDragEnterEvent *event, const bool allowSelfD
 }
 
 // Perform a 'drop'
-void QEDragDrop::qcaDropEvent(QDropEvent *event)
+void QEDragDrop::qcaDropEvent(QDropEvent *event, const bool allText)
 {
     // If no text available, do nothing
     if( !event->mimeData()->hasText())
@@ -114,13 +117,21 @@ void QEDragDrop::qcaDropEvent(QDropEvent *event)
     // If there is any text, drop the text
     if( !mime->text().isEmpty() )
     {
-        // Get the component textual parts
-        QStringList pieces = mime->text().split(QRegExp("\\s+"),
-                             QString::SkipEmptyParts);
+        if( allText )
+        {
+            // Carry out the drop action. Drop all the availble text.
+            setDrop( mime->text() );
+        }
+        else
+        {
+            // Get the component textual parts
+            QStringList pieces = mime->text().split(QRegExp("\\s+"),
+                                                    QString::SkipEmptyParts);
 
-        // Carry out the drop action
-        // Assume only the first text part is of interest
-        setDrop( pieces[0] );
+            // Carry out the drop action
+            // Assume only the first text part is of interest
+            setDrop( pieces[0] );
+        }
     }
 
     // There is no text. If there is any image data, drop the image

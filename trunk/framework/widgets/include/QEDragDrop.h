@@ -35,14 +35,20 @@ public:
     QEDragDrop( QWidget* ownerIn );
     virtual ~QEDragDrop(){}
     bool getAllowDrop();
-  protected:
+protected:
 
     // Drag and Drop
 
     // Called by the QE widgets in the QE widgets's drag/drop implementation.
-    // If allowSelfDrop set false then dropping onto source widget inhibited.
-    void qcaDragEnterEvent(QDragEnterEvent *event, const bool allowSelfDrop = true);
-    void qcaDropEvent(QDropEvent *event);
+    // Set allowSelfDrop to allow dropping onto source.
+    void qcaDragEnterEvent(QDragEnterEvent *event, const bool allowSelfDrop = false);
+
+    // Handles drop event. When the drop data is textual, only the first part of the text
+    // is dropped unless allText parameter is set true in which case all the available
+    // text is dropped.
+    void qcaDropEvent(QDropEvent *event, const bool allText = false);
+
+    // initiates drag-drop
     void qcaMousePressEvent(QMouseEvent *event);
 
     // Virtual functions to allow this class to get and set the QE widgets drag/drop text
