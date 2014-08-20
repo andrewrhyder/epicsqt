@@ -90,11 +90,13 @@ windowCustomisationItem::windowCustomisationItem(
     {
         windows.append( windowsIn.at(i));
     }
-    program = programIn;
-    arguments = argumentsIn;
+
+    programLauncher.setProgramStartupOption( applicationLauncher::PSO_LOGOUTPUT );
+    programLauncher.setProgram( programIn );
+    programLauncher.setArguments( argumentsIn );
 }
 
-// Construct instance of class defining an individual item (base class for button )or menu item)
+// Construct instance of class defining an individual item (base class for button) or menu item
 windowCustomisationItem::windowCustomisationItem(windowCustomisationItem* item): QAction( 0 )
 {
     profile.takeLocalCopy();
@@ -104,8 +106,11 @@ windowCustomisationItem::windowCustomisationItem(windowCustomisationItem* item):
     {
         windows.append( item->windows.at(i));
     }
-    program = item->getProgram();
-    arguments = item->getArguments();
+
+    programLauncher.setProgramStartupOption( applicationLauncher::PSO_LOGOUTPUT );
+    programLauncher.setProgram( item->getProgram() );
+    programLauncher.setArguments( item->getArguments() );
+
     builtInAction = item->getBuiltInAction();
 
     widgetName = item->widgetName;
@@ -126,7 +131,7 @@ void windowCustomisationItem::initialise()
 {
     if( !builtInAction.isEmpty() && !widgetName.isEmpty() )
     {
-        emit newGui( QEActionRequests( builtInAction, widgetName, arguments, true, this ) );
+        emit newGui( QEActionRequests( builtInAction, widgetName, QStringList(), true, this ) );
     }
 }
 
@@ -165,9 +170,12 @@ void windowCustomisationItem::itemAction()
         // A widget name is present, assume the action is for a QE widget created by the application
         else
         {
-            emit newGui( QEActionRequests( builtInAction, widgetName, arguments, false, this ) );
+            emit newGui( QEActionRequests( builtInAction, widgetName, QStringList(), false, this ) );
         }
     }
+
+    // If the action is associated with a program, launch it
+    programLauncher.launch( NULL, NULL );
 }
 
 //==============================================================================================

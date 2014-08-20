@@ -142,6 +142,7 @@
 #include <QEActionRequests.h>
 #include <QMap>
 #include <ContainerProfile.h>
+#include <applicationLauncher.h>
 
 
 // Class for building a log of the process of loading the customisation files
@@ -190,8 +191,8 @@ public:
                              const QString widgetNameIn );                  // widget name if built in function is for a widget, not the application
     windowCustomisationItem( const QString dockTitleIn, bool unused );      // Construct instance of class defining a link to an existing dock
 
-    QString getProgram(){return program;}
-    QStringList getArguments(){return arguments;}
+    QString getProgram(){return programLauncher.getProgram();}
+    QStringList getArguments(){return programLauncher.getArguments();}
 
     QString getBuiltInAction(){return builtInAction;}
 
@@ -207,14 +208,14 @@ private:
     // Item action
     QList<windowCreationListItem> windows;          // Windows to create (.ui files and how to present them)
     QString dockTitle;                              // Title of dock to locate the associate with (not used when creating a new UI in a dock. In that case the dock to associate with is returned in the useDock() slot)
-    QString program;                                // Program to run
-    QStringList arguments;                          // Arguments for 'program'
 
     QString builtInAction;                          // Identifier of action built in to the application
     ContainerProfile profile;
 
     QString widgetName;                             // Widget to locate if passing this action on to a widget in a GUI
     QString guiTitle;                               // Title to give GUI. This overrides any title specified in the GUI.
+
+    applicationLauncher programLauncher;            // Manage any program that needs to be started
 
 public slots:
     void itemAction();                              // Slot to call when action is triggered

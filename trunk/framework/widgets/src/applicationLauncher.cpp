@@ -161,15 +161,29 @@ void applicationLauncher::launchCommon( VariableNameManager* variableNameManager
         QObject::connect( process, SIGNAL( processCompleted() ), receiver, SLOT( programCompletedSlot() ) );
     }
 
-    // Apply substitutions to the arguments
-    QStringList substitutedArguments = arguments;
-    for( int i = 0; i < substitutedArguments.size(); i++ )
+    QStringList substitutedArguments;
+    QString substitutedProgram;
+
+    // Apply substitutions if available
+    if( variableNameManager )
     {
-        substitutedArguments[i] = variableNameManager->substituteThis( substitutedArguments[i] );
+        // Apply substitutions to the arguments
+        substitutedArguments = arguments;
+        for( int i = 0; i < substitutedArguments.size(); i++ )
+        {
+            substitutedArguments[i] = variableNameManager->substituteThis( substitutedArguments[i] );
+        }
+
+        // Apply substitutions to the program name
+        substitutedProgram = variableNameManager->substituteThis( substitutedProgram );
     }
 
-    // Apply substitutions to the program name
-    QString prog = variableNameManager->substituteThis( program );
+    // Use without substitutions
+    else
+    {
+        substitutedArguments = arguments;
+        substitutedProgram = program;
+    }
 
     // Build up a single string with the command and arguments and run the program
     bool foundFileKeyword = false;
@@ -187,8 +201,8 @@ void applicationLauncher::launchCommon( VariableNameManager* variableNameManager
         }
 
         // Add the argument to the command line
-        prog.append( " " );
-        prog.append( arg );
+        substitutedProgram.append( " " );
+        substitutedProgram.append( arg );
     }
 
     // If the filename of the temporary file needs to be added, and has not been added
@@ -196,8 +210,8 @@ void applicationLauncher::launchCommon( VariableNameManager* variableNameManager
     // filename as a new argument
     if( !foundFileKeyword && tempFile && !tempFile->fileName().isEmpty() )
     {
-        prog.append( " " );
-        prog.append( tempFile->fileName() );
+        substitutedProgram.append( " " );
+        substitutedProgram.append( tempFile->fileName() );
     }
 
     // Add apropriate terminal command if starting up within a terminal
@@ -206,13 +220,13 @@ void applicationLauncher::launchCommon( VariableNameManager* variableNameManager
 #ifdef WIN32
         prog.prepend( "cmd.exe /C start " );
 #else
-        prog.prepend( "xterm -hold -e " );// use $TERM ??
+        substitutedProgram.prepend( "xterm -hold -e " );// use $TERM ??
 #endif
     }
 
     // Run the program
-    message.sendMessage( QString( "Launching: " ).append( prog ), "Application launcher" );
-    process->start( prog );
+    message.sendMessage( QString( "Launching: " ).append( substitutedProgram ), "Application launcher" );
+    process->start( substitutedProgram );
 
     // Alternate (and cleaner) way to run the program without building a string containing the program and arguments.
     // (This didn't seem to work when starting EDM with the '-one' switch, perhaps due to the
