@@ -218,7 +218,7 @@ void applicationLauncher::launchCommon( VariableNameManager* variableNameManager
     if( programStartupOption == PSO_TERMINAL )
     {
 #ifdef WIN32
-        prog.prepend( "cmd.exe /C start " );
+        substitutedProgram.prepend( "cmd.exe /C start " );
 #else
         substitutedProgram.prepend( "xterm -hold -e " );// use $TERM ??
 #endif
