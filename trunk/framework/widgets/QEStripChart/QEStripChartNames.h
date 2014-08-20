@@ -30,7 +30,7 @@
 #include <QObject>
 #include <contextMenu.h>
 
-// Define strip chart specific names (enumerations)
+// Define strip chart specific names (enumerations).
 // We use a QObject as opposed to a namespace as this allows us leverage off the
 // meta object compiler output, specifically allows us to use the enumToString
 // and stringToEnum functions in QEUtilities.
@@ -108,11 +108,6 @@ public:
    //
    enum ContextMenuOptions {
       SCCM_NONE = contextMenu::CM_SPECIFIC_WIDGETS_START_HERE,
-
-      // general chart items.
-      //
-      SCCM_COPY_PV_NAMES,
-      SCCM_PASTE_PV_NAMES,
 
       // Item specific menu options.
       //

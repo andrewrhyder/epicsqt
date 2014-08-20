@@ -190,7 +190,6 @@ static QEPVNameLists predefinedPVNameList;
 void QEStripChart::createInternalWidgets ()
 {
    unsigned int slot;
-   QAction* action;
 
    // Create dialog.
    // We have one dialog per strip chart (as opposed to per pv item) as this not only saves
@@ -306,28 +305,7 @@ void QEStripChart::createInternalWidgets ()
    this->layout2->setSpacing (4);
    this->layout2->addWidget (this->plotArea);
 
-   // Create/setup context menus.
-   //
-   // First do overall chart context menu
-   //
-   this->chartContextMenu = new QMenu (this);
-
-   action = new QAction ("Copy All PV Names", this->chartContextMenu);
-   action->setCheckable (false);
-   action->setData (QVariant (int (QEStripChartNames::SCCM_COPY_PV_NAMES)));
-   this->chartContextMenu->addAction (action);
-
-   action = new QAction ("Paste All PV Names", this->chartContextMenu);
-   action->setCheckable (false);
-   action->setData (QVariant (int (QEStripChartNames::SCCM_PASTE_PV_NAMES)));
-   this->chartContextMenu->addAction (action);
-
-   // Connect menu itself to menu handler.
-   //
-   QObject::connect (this->chartContextMenu, SIGNAL (triggered                 (QAction*)),
-                     this,                   SLOT   (chartContextMenuTriggered (QAction*)));
-
-   // Set up context menus.
+   // We use the default context menu but we need to filter activation.
    //
    this->setContextMenuPolicy (Qt::CustomContextMenu);
 
@@ -352,13 +330,10 @@ QEStripChartItem* QEStripChart::getItem (unsigned int slot)
    return (slot < NUMBER_OF_PVS) ? this->items [slot] : NULL;
 }
 
-
 //------------------------------------------------------------------------------
 //
 void QEStripChart::chartContextMenuRequested (const QPoint & pos)
 {
-   QPoint golbalPos;
-
    // Don't want to do context menu over plot canvas area - we use right-click
    // for other stuff.
    //
@@ -366,56 +341,10 @@ void QEStripChart::chartContextMenuRequested (const QPoint & pos)
    // in QEGraphic is called before this slot is invoked.
    //
    if (this->plotArea->rightButtonPressed () == false) {
-      golbalPos = this->mapToGlobal (pos);
-      this->chartContextMenu->exec (golbalPos, 0);
-   }
-}
-
-//------------------------------------------------------------------------------
-//
-void QEStripChart::chartContextMenuTriggered (QAction* action)
-{
-   bool okay;
-   QEStripChartNames::ContextMenuOptions option;
-   QClipboard* cb;
-   QString text;
-   unsigned int slot;
-
-   option = QEStripChartNames::ContextMenuOptions (action->data ().toInt (&okay));
-   if (!okay) {
-      return;
-   }
-
-   switch (option) {
-      case QEStripChartNames::SCCM_COPY_PV_NAMES:
-         // Create space delimited set of PV names.
-         //
-         text = "";
-         for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
-            QEStripChartItem * item = this->getItem (slot);
-
-            if ((item) && (item->isInUse() == true)) {
-               if (!text.isEmpty()) {
-                  text.append (" ");
-               };
-               text.append (item->getPvName ());
-            }
-         }
-         cb = QApplication::clipboard ();
-         cb->setText (text);
-         break;
-
-      case QEStripChartNames::SCCM_PASTE_PV_NAMES:
-         cb = QApplication::clipboard ();
-         text = cb->text().trimmed();
-         if (!text.isEmpty()) {
-            this->addPvNameSet (text);
-         }
-         break;
-
-      default:
-         // do nothing
-         break;
+      QMenu* menu = this->buildContextMenu ();     // Create/build standard menu.
+      QPoint golbalPos = this->mapToGlobal (pos);  // map position.
+      menu->exec (golbalPos, 0);
+      delete menu;
    }
 }
 
@@ -1010,21 +939,6 @@ void QEStripChart::addPvName (const QString& pvName)
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::addPvNameSet (const QString& pvNameSet)
-{
-   QStringList pvNameList;
-   int j;
-
-   // Split input string using white space as delimiter.
-   //
-   pvNameList = pvNameSet.split (QRegExp ("\\s+"), QString::SkipEmptyParts);
-   for (j = 0; j < pvNameList.count (); j++) {
-      this->addPvName (pvNameList.value (j));
-   }
-}
-
-//------------------------------------------------------------------------------
-//
 void QEStripChart::tickTimeout ()
 {
    this->tickTimerCount = (this->tickTimerCount + 1) % 20;
@@ -1370,38 +1284,44 @@ void QEStripChart::setYRange (const double yMinimumIn, const double yMaximumIn)
 
 //----------------------------------------------------------------------------
 //
-void QEStripChart::setDrop (QVariant drop)
+QString QEStripChart::copyVariable ()
 {
-   if (this->getAllowDrop ()) {
-      // Use dropped text to add a PV(s) to the chart.
-      //
-      this->paste (drop);
+   QString result;
+
+   // Create space delimited set of PV names.
+   //
+   result = "";
+   for (int slot = 0; slot < NUMBER_OF_PVS; slot++) {
+      QEStripChartItem* item = this->getItem (slot);
+
+      if ((item) && (item->isInUse() == true)) {
+         if (!result.isEmpty()) {
+            result.append (" ");
+         };
+         result.append (item->getPvName ());
+      }
    }
+   return result;
+}
+
+//----------------------------------------------------------------------------
+//
+QVariant QEStripChart::copyData ()
+{
+   return  QVariant ();  // place holder.
 }
 
 //----------------------------------------------------------------------------
 //
 void QEStripChart::paste (QVariant s)
 {
-   // Use pasted text to add a PV(s) to the chart.
-   //
-   QStringList list;
-   QString pvNameSet;
+   QStringList pvNameList;
 
-   // s.toSring is a bit limiting when s is a StringList or a List of String.
-   // We don't worry about List 0f StringList or List of List of String etc.
-   //
-   pvNameSet = "";
-   list = s.toStringList ();
-   for (int j = 0 ; j < list.count(); j++) {
-      pvNameSet.append(" ").append (list.value (j));
+   pvNameList = QEUtilities::variantToStringList (s);
+   for (int j = 0; j < pvNameList.count (); j++) {
+      this->addPvName (pvNameList.value (j));
    }
-
-   // Use pasted text to add a PV(s) to the chart.
-   //
-   this->addPvNameSet (pvNameSet);
 }
-
 
 //----------------------------------------------------------------------------
 // Determine if user allowed to drop new PVs into this widget.
