@@ -144,6 +144,10 @@ private:
    // Override standardProperties::setApplicationEnabled()
    void setApplicationEnabled (const bool & state);
 
+   // Insert name into the (top) of the combo box drop down list.
+   //
+   void insertIntoDropDownList (const QString& pvName);
+
    // Set pvName.
    //
    void setPvName (const QString& pvName);
@@ -197,12 +201,10 @@ protected:
    //
    // Override QEDragDrop functions.
    //
-   void dragEnterEvent (QDragEnterEvent* event) { qcaDragEnterEvent (event); }
-   void dropEvent (QDropEvent* event)           { qcaDropEvent(event); }
-   // void mousePressEvent (QMouseEvent* event)    { qcaMousePressEvent (event); }
-   void setDrop (QVariant drop);
-
-   QVariant getDrop ();
+   void mousePressEvent (QMouseEvent* event)    { qcaMousePressEvent (event); }
+   void dragEnterEvent (QDragEnterEvent* event) { qcaDragEnterEvent (event, false); }
+   void dropEvent (QDropEvent* event)           { qcaDropEvent(event, true); }
+   // This widget uses the setDrop/getDrop defined in QEWidget.
 
    void saveConfiguration (PersistanceManager* pm);
    void restoreConfiguration (PersistanceManager* pm, restorePhases restorePhase);

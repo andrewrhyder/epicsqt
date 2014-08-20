@@ -577,7 +577,6 @@ void QEPvProperties::setUpLabelChannel ()
 void QEPvProperties::establishConnection (unsigned int variableIndex)
 {
    QString substitutedPVName;
-   int slot;
 
    if (variableIndex != 0) {
       DEBUG << "unexpected variableIndex" << variableIndex;
@@ -606,20 +605,7 @@ void QEPvProperties::establishConnection (unsigned int variableIndex)
 
    // Remove this name from mid-list if it exists and (re) insert at top of list.
    //
-   for (slot = this->box->count() - 1; slot >= 0; slot--) {
-      if (this->box->itemText (slot).trimmed () == substitutedPVName) {
-         this->box->removeItem (slot);
-      }
-   }
-
-   // Make sure at least 2 free slots - one for this PV and one
-   // for the user to type.
-   //
-   while (this->box->count() >= box->maxCount () - 2) {
-      this->box->removeItem (box->count () - 1);
-   }
-
-   this->box->insertItem (0, substitutedPVName, QVariant ());
+   this->insertIntoDropDownList (substitutedPVName);
 
    // Ensure CombBox consistent .
    //
@@ -640,7 +626,8 @@ void QEPvProperties::establishConnection (unsigned int variableIndex)
 
 //------------------------------------------------------------------------------
 //
-void QEPvProperties::setRecordTypeConnection (QCaConnectionInfo& connectionInfo, const unsigned int &variableIndex)
+void QEPvProperties::setRecordTypeConnection (QCaConnectionInfo& connectionInfo,
+                                              const unsigned int &variableIndex)
 {
    const PVReadModes readMode = (PVReadModes) variableIndex;
 
@@ -925,7 +912,7 @@ void QEPvProperties::setFieldValue (const QString &value,
 // Normally, standardProperties::setApplicationEnabled() is called
 // For this widget our own version which just calls the widget's setEnabled is called.
 //
-void QEPvProperties::setApplicationEnabled (const bool & state)
+void QEPvProperties::setApplicationEnabled (const bool& state)
 {
     QWidget::setEnabled (state);
 }
@@ -949,6 +936,28 @@ void QEPvProperties::boxCurrentIndexChanged (int index)
          this->establishConnection (0);
       }
    }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPvProperties::insertIntoDropDownList (const QString& pvName)
+{
+   // Remove the PV name from mid-list if it exists and (re) insert at top of list.
+   //
+   for (int slot = this->box->count() - 1; slot >= 0; slot--) {
+      if (this->box->itemText (slot).trimmed () == pvName) {
+         this->box->removeItem (slot);
+      }
+   }
+
+   // Make sure at least 2 free slots - one for this PV and one
+   // for the user to type.
+   //
+   while (this->box->count() >= box->maxCount () - 2) {
+      this->box->removeItem (box->count () - 1);
+   }
+
+   this->box->insertItem (0, pvName, QVariant ());
 }
 
 //==============================================================================
@@ -1021,7 +1030,7 @@ void QEPvProperties::contextMenuTriggered (QAction* action)
 }
 
 //==============================================================================
-// Drag / drop
+// Save / restore
 //
 void QEPvProperties::saveConfiguration (PersistanceManager* pm)
 {
@@ -1063,27 +1072,6 @@ void QEPvProperties::setPvName (const QString& pvNameIn)
 {
    this->setVariableName (pvNameIn, 0);
    this->establishConnection (0);
-}
-
-
-//==============================================================================
-// Drag / drop
-//
-void QEPvProperties::setDrop (QVariant drop)
-{
-   if (this->getAllowDrop ()) {
-      this->setPvName (drop.toString ());
-   }
-}
-
-//------------------------------------------------------------------------------
-//
-QVariant QEPvProperties::getDrop ()
-{
-   if( isDraggingVariable() )
-      return QVariant (this->copyVariable ());
-   else
-      return this->copyData ();
 }
 
 
@@ -1134,7 +1122,21 @@ QVariant QEPvProperties::copyData ()
 //
 void QEPvProperties::paste (QVariant v)
 {
-   this->setPvName (v.toString ());
+   QStringList pvNameList;
+
+   pvNameList = QEUtilities::variantToStringList (v);
+
+   // Insert all suppled names into thw drop down list (in reverse order)
+   // and select the first PV name (if it exists of course).
+   //
+   for (int j = pvNameList.count () - 1; j >= 0 ;j--) {
+      QString pvName = pvNameList.value (j);
+      if (j > 0) {
+         this->insertIntoDropDownList (pvName);
+      } else {
+         this->setPvName (pvName);
+      }
+   }
 }
 
 // end
