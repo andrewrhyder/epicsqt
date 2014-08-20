@@ -176,6 +176,8 @@ void windowCustomisationItem::itemAction()
 
 // Construct instance of class defining an individual menu item (not a placeholder for items the application might add)
 windowCustomisationMenuItem::windowCustomisationMenuItem(
+                          customisationLog& log,                               // Log of customisation files loaded for diagnosis.
+
                           const QStringList menuHierarchyIn,                   // Location in menus to place this item. for example: 'Imaging'->'Region of interest'
                           const QString titleIn,                               // Name of this item. for example: 'Region 1'
                           const menuObjectTypes typeIn,                        // type of menu object - must be MENU_ITEM
@@ -191,10 +193,14 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(
     menuHierarchy = menuHierarchyIn;
     title = titleIn;
     separator = separatorIn;
+
+    log.add( "Adding menu item: ",  title );
 }
 
 // Construct instance of class defining an item that will request the application (or a QE widget) take a named action
 windowCustomisationMenuItem::windowCustomisationMenuItem(
+                          customisationLog& log,                               // Log of customisation files loaded for diagnosis.
+
                           const QStringList menuHierarchyIn,                   // Location in menus for application to place future items. for example: 'File' -> 'Recent'
                           const QString titleIn,                               // Title for this item. for example: 'Region 1' Usually same as name of built in function. (for example, function='Copy' and title='Copy', but may be different (function='LaunchApplication1' and title='paint.exe')
                           const menuObjectTypes typeIn,                        // type of menu object - must be MENU_PLACEHOLDER or MENU_BUILT_IN
@@ -209,10 +215,14 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(
     menuHierarchy = menuHierarchyIn;
     title = titleIn;
     separator = separatorIn;
+
+    log.add( "Adding menu item requesting an action: ",  title );
 }
 
 // Construct instance of class defining an item that will be a placeholder. The application can locate placeholder menu items and use them directly
 windowCustomisationMenuItem::windowCustomisationMenuItem(
+                          customisationLog& log,                               // Log of customisation files loaded for diagnosis.
+
                           const QStringList menuHierarchyIn,                   // Location in menus for application to place future items. for example: 'File' -> 'Recent'
                           const QString titleIn,                               // Identifier of placeholder. for example: 'Recent'
                           const menuObjectTypes typeIn,                        // type of menu object - must be MENU_PLACEHOLDER or MENU_BUILT_IN
@@ -224,10 +234,14 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(
     menuHierarchy = menuHierarchyIn;
     title = titleIn;
     separator = separatorIn;
+
+    log.add( "Adding placeholder menu item: ",  title );
 }
 
 // Construct instance of class defining an item that will be associated with an existing dock (assocaition is by dock title)
 windowCustomisationMenuItem::windowCustomisationMenuItem(
+                      customisationLog& log,                               // Log of customisation files loaded for diagnosis.
+
                       const QStringList menuHierarchyIn,                   // Location in menus for application to place future items. for example: 'File' -> 'Recent'
                       const QString titleIn,                               // Title for this item. for example: 'Brightness/Contrast' Must match the title of the dock widget it is to be associated with.
                       const menuObjectTypes typeIn,                        // type of menu object - must be MENU_ITEM
@@ -240,6 +254,8 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(
     menuHierarchy = menuHierarchyIn;
     title = titleIn;
     separator = separatorIn;
+
+    log.add( "Adding menu item linked to a dock: ",  title );
 }
 
 
@@ -253,7 +269,6 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(windowCustomisationMenu
     setText(title);
     setParent(this);
     separator = menuItem->separator;
-
 
     // Set up an action to respond to the user
     connect( this, SIGNAL( triggered()), this, SLOT(itemAction()));
@@ -476,6 +491,7 @@ bool windowCustomisationList::loadCustomisation( QString xmlFile )
             // get a first node
             QDomNode node = customisationElement.firstChild();
             // check if the item is a menu or a button item
+            log.startLevel();
             while (!node.isNull())
             {
                 QDomElement element = node.toElement();
@@ -486,9 +502,12 @@ bool windowCustomisationList::loadCustomisation( QString xmlFile )
                     QString menuName = element.attribute( "Name" );
                     QStringList menuHierarchy;
                     menuHierarchy.append(menuName);
+                    log.add( "Adding menu: ",  menuName );
 
                     // parse menu customisation
+                    log.startLevel();
                     parseMenuElement( element, customisation, menuHierarchy );
+                    log.endLevel();
                 }
 
                 // Create a menu item if required
@@ -521,6 +540,7 @@ bool windowCustomisationList::loadCustomisation( QString xmlFile )
                 }
                 node = node.nextSibling();
             }
+            log.endLevel();
         }
         customisationElement = customisationElement.nextSiblingElement( "Customisation" );
     }
@@ -614,7 +634,7 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuPlaceholder( QDo
         return NULL;
 
     // Add details for a placeholder (where the applicaiton can add menu items) to customisation set
-    windowCustomisationMenuItem* item = new windowCustomisationMenuItem( menuHierarchy, name,
+    windowCustomisationMenuItem* item = new windowCustomisationMenuItem( log, menuHierarchy, name,
                                                                          windowCustomisationMenuItem::MENU_PLACEHOLDER,
                                                                          requiresSeparator( itemElement ) );
     return item;
@@ -807,7 +827,8 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
         if( !dockTitle.isEmpty() )
         {
             // Add details for a existing dock menu item to customisation set
-            windowCustomisationMenuItem* item = new windowCustomisationMenuItem( menuHierarchy,
+            windowCustomisationMenuItem* item = new windowCustomisationMenuItem( log,
+                                                                                 menuHierarchy,
                                                                                  title,
                                                                                  windowCustomisationMenuItem::MENU_ITEM,
                                                                                  requiresSeparator( itemElement ),
@@ -819,7 +840,8 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
         else if( !builtIn.isEmpty() )
         {
             // Add details for a built in menu item to customisation set
-            windowCustomisationMenuItem* item = new windowCustomisationMenuItem( menuHierarchy,
+            windowCustomisationMenuItem* item = new windowCustomisationMenuItem( log,
+                                                                                 menuHierarchy,
                                                                                  title,
                                                                                  windowCustomisationMenuItem::MENU_BUILT_IN,
                                                                                  requiresSeparator( itemElement ),
@@ -832,7 +854,8 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
         else
         {
             // Add details for a menu item to customisation set
-            windowCustomisationMenuItem* item = new windowCustomisationMenuItem( menuHierarchy,
+            windowCustomisationMenuItem* item = new windowCustomisationMenuItem( log,
+                                                                                 menuHierarchy,
                                                                                  title,
                                                                                  windowCustomisationMenuItem::MENU_ITEM,
                                                                                  requiresSeparator( itemElement ),

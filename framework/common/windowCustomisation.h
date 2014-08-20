@@ -232,6 +232,8 @@ class windowCustomisationMenuItem : public windowCustomisationItem
 public:
     enum menuObjectTypes { MENU_UNKNOWN, MENU_ITEM, MENU_PLACEHOLDER, MENU_BUILT_IN };
     windowCustomisationMenuItem( // Construction (menu item to create new GUI windows or docks)
+                          customisationLog& log,                               // Log of customisation files loaded for diagnosis.
+
                           const QStringList menuHierarchyIn,                   // Location in menus to place this item. for example: 'Imaging'->'Region of interest'
                           const QString titleIn,                               // Name of this item. for example: 'Region 1'
                           const menuObjectTypes type,                          // type of menu object - must be MENU_ITEM
@@ -244,12 +246,16 @@ public:
 
 
     windowCustomisationMenuItem( // Construction (placeholder menu item)
+                          customisationLog& log,                               // Log of customisation files loaded for diagnosis.
+
                           const QStringList menuHierarchyIn,                   // Location in menus for application to place future items. for example: 'File' -> 'Recent'
                           const QString titleIn,                               // Identifier of placeholder. for example: 'Recent'
                           const menuObjectTypes typeIn,                        // type of menu object - must be MENU_PLACEHOLDER
                           const bool separatorIn );                            // Separator required before this
 
     windowCustomisationMenuItem( // Construction (menu item to pass a action request on to the application, or a QE widget inthe application)
+                          customisationLog& log,                               // Log of customisation files loaded for diagnosis.
+
                           const QStringList menuHierarchyIn,                   // Location in menus for application to place future items. for example: 'File' -> 'Recent'
                           const QString titleIn,                               // Title for this item. for example: 'Region 1' Usually same as name of built in function. (for example, function='Copy' and title='Copy', but may be different (function='LaunchApplication1' and title='paint.exe')
                           const menuObjectTypes typeIn,                        // type of menu object - must be MENU_BUILT_IN
@@ -259,6 +265,8 @@ public:
                           const QString widgetNameIn );                        // widget name if built in function is for a widget, not the application
 
     windowCustomisationMenuItem( // Construction (menu item to pass a action request on to the application, or a QE widget inthe application)
+                          customisationLog& log,                               // Log of customisation files loaded for diagnosis.
+
                           const QStringList menuHierarchyIn,                   // Location in menus for application to place future items. for example: 'File' -> 'Recent'
                           const QString titleIn,                               // Title for this item. for example: 'Region 1' Usually same as name of built in function. (for example, function='Copy' and title='Copy', but may be different (function='LaunchApplication1' and title='paint.exe')
                           const menuObjectTypes typeIn,                        // type of menu object - must be MENU_BUILT_IN

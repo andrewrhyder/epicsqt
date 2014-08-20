@@ -50,8 +50,9 @@ public:
                           QStringList envPathList,                // Path list (environment variable)
                           QString userLevel,                      // Current user level
 
-                          QStringList windowTitles,               // Window titles (must be same length as windowFiles)
-                          QStringList windowFiles,                // Window file name (must be same length as windowTitles)
+                          QStringList windowTitles,               // Window titles (windowTitles, windowFiles, windowMacroSubstitutions must be same length)
+                          QStringList windowFiles,                // Window file name (windowTitles, windowFiles, windowMacroSubstitutions must be same length)
+                          QStringList windowMacroSubstitutions,   // Window macro substitutions (windowTitles, windowFiles, windowMacroSubstitutions must be same length)
 
                           QString configurationFile,              // Configuration file
                           QString configurationName,              // Configuration name

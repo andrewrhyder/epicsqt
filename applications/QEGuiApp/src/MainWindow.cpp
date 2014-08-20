@@ -708,6 +708,7 @@ void MainWindow::on_actionAbout_triggered()
     // Build a list of GUI windows and their files
     QStringList windowTitles;
     QStringList windowFiles;
+    QStringList windowMacroSubstitutions;
     int i = 0;
     MainWindow* mw;
     while( (mw = app->getMainWindow( i )) )
@@ -721,6 +722,7 @@ void MainWindow::on_actionAbout_triggered()
             }
             windowTitles.append( mw->guiList[j].getForm()->getQEGuiTitle().append( docked ) );
             windowFiles.append( mw->guiList[j].getForm()->getFullFileName() );
+            windowMacroSubstitutions.append( mw->guiList[j].getForm()->getMacroSubstitutions() );
         }
 
         // Next main window
@@ -747,8 +749,9 @@ void MainWindow::on_actionAbout_triggered()
                     profile.getEnvPathList(),                              // Path list (environment variable)
                     userLevel,                                             // Current user level
 
-                    windowTitles,                                          // Window titles (must be same length as windowFiles)
-                    windowFiles,                                           // Window file name (must be same length as windowTitles)
+                    windowTitles,                                          // Window titles (windowTitles, windowFiles, windowMacroSubstitutions must be same length)
+                    windowFiles,                                           // Window file name (windowTitles, windowFiles, windowMacroSubstitutions must be same length)
+                    windowMacroSubstitutions,                              // Window macro substitutions (windowTitles, windowFiles, windowMacroSubstitutions must be same length)
 
                     app->getParams()->configurationFile,                   // Configuration file
                     app->getParams()->configurationName,                   // Configuration name
