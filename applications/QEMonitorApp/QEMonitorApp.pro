@@ -46,7 +46,7 @@ HEADERS += \
 
 INCLUDEPATH += \
     ./include \
-    ../../framework/widgets/include \
+    ../../framework/widgets/QEWidget \
     ../../framework/data/include \
     ../../framework/api/include \
     ../../framework/include
