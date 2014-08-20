@@ -522,27 +522,6 @@ void QETable::addVariableName (const QString& pvName)
 }
 
 //==============================================================================
-// Drag drop
-//
-void QETable::setDrop (QVariant drop)
-{
-   if (this->getAllowDrop ()) {
-      this->paste (drop);
-   }
-}
-
-//------------------------------------------------------------------------------
-//
-QVariant QETable::getDrop ()
-{
-   if (this->isDraggingVariable ()) {
-      return QVariant (this->copyVariable ());
-   } else {
-      return this->copyData ();
-   }
-}
-
-//==============================================================================
 // Copy / Paste
 //
 QString QETable::copyVariable ()
