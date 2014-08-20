@@ -70,9 +70,8 @@ protected:
    //
    void mousePressEvent (QMouseEvent *event)    { qcaMousePressEvent (event); }
    void dragEnterEvent (QDragEnterEvent *event) { qcaDragEnterEvent (event, false); }
-   void dropEvent (QDropEvent *event)           { qcaDropEvent (event); }
-   void setDrop (QVariant drop);
-   QVariant getDrop ();
+   void dropEvent (QDropEvent *event)           { qcaDropEvent (event, true); }
+   // This widget uses the setDrop/getDrop definned in QEWidget
 
    // Copy/Paste
    //
@@ -99,7 +98,6 @@ private:
    QHBoxLayout* titleLayout;
 
    QEPVNameSelectDialog* pvNameSelectDialog;
-   QMenu* widgetContextMenu;
 
    int selectedItem;
 
@@ -139,10 +137,6 @@ private:
 private slots:
    void contextMenuRequested (const QPoint& pos);
    void contextMenuSelected  (const int slot, const QEScratchPadMenu::ContextMenuOptions option);
-
-   void widgetMenuRequested (const QPoint& pos);
-   void widgetMenuSelected  (QAction* action);
-
 };
 
 #endif // QESCRATCHPAD_H
