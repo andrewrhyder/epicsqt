@@ -361,6 +361,10 @@ protected:
 
     void deleteQcaItem( unsigned int variableIndex, bool disconnect );       // Delete a stream of CA updates
 
+    // Default drag/drop actions.
+    void setDrop (QVariant drop) { if( getAllowDrop() ){ paste (drop); } }
+    QVariant getDrop () { return isDraggingVariable () ? QVariant( copyVariable() ) : copyData(); }
+
 private:
     unsigned int numVariables;                              // The number of process variables that will be managed for the QE widgets.
     qcaobject::QCaObject** qcaItem;                         // CA access - provides a stream of updates. One for each variable name used by the QE widgets
