@@ -149,16 +149,18 @@ public:
    void setYRange (const double yMinimumIn, const double yMaximumIn);
 
 protected:
-   // Drop only. Dragging is from individual embedded QEWidgets.
-   //
    // Override QWidget functions - call up standard handlers defined in QEDragDrop.
+   // Drag and Drop
    //
-   void dragEnterEvent (QDragEnterEvent *event) { qcaDragEnterEvent (event); }
-   void dropEvent (QDropEvent *event)           { qcaDropEvent (event); }
-   void setDrop (QVariant drop);
+   void mousePressEvent (QMouseEvent *event)    { qcaMousePressEvent (event); }
+   void dragEnterEvent (QDragEnterEvent *event) { qcaDragEnterEvent (event, false); }
+   void dropEvent (QDropEvent *event)           { qcaDropEvent (event, true); }
+   // This widget uses the setDrop/getDrop defined in QEWidget.
 
-   // Paste only
+   // Copy / paste
    //
+   QString copyVariable ();
+   QVariant copyData ();
    void paste (QVariant s);
 
    // override pure virtual functions
@@ -209,7 +211,6 @@ private:
    QVBoxLayout* layout2;
 
    QEStripChartItem* items [NUMBER_OF_PVS];
-   QMenu* chartContextMenu;
 
    bool isNormalVideo;
 
@@ -269,10 +270,6 @@ private:
 
    void addPvName (const QString& pvName);
 
-   // Handles space separated set of names
-   //
-   void addPvNameSet (const QString& pvNameSet);  // make public ??
-
    // Property access support functions.
    //
    void    setVariableNameProperty (unsigned int slot, QString pvName);
@@ -323,7 +320,6 @@ private slots:
    // From chart context menu
    //
    void chartContextMenuRequested (const QPoint& pos);
-   void chartContextMenuTriggered (QAction* action);
 
    // From tool bar
    //
