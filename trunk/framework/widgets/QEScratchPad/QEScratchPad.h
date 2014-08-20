@@ -71,7 +71,7 @@ protected:
    void mousePressEvent (QMouseEvent *event)    { qcaMousePressEvent (event); }
    void dragEnterEvent (QDragEnterEvent *event) { qcaDragEnterEvent (event, false); }
    void dropEvent (QDropEvent *event)           { qcaDropEvent (event, true); }
-   // This widget uses the setDrop/getDrop definned in QEWidget
+   // This widget uses the setDrop/getDrop defined in QEWidget.
 
    // Copy/Paste
    //
