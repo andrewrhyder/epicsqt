@@ -53,8 +53,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QETable : public QEAbstractWidget {
    // Strictly this defines the max number of variables. Must be consistant with the
    // number of variable name properties below and calls to PROPERTY_ACCESS below.
    //
-   #define NUMBER_OF_VARIABLES 12
-
+   #define NUMBER_OF_VARIABLES 20
 
    // QETable specific properties ===============================================
    // Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
@@ -82,6 +81,14 @@ class QEPLUGINLIBRARYSHARED_EXPORT QETable : public QEAbstractWidget {
    Q_PROPERTY (QString variableName10 READ getVariableName10   WRITE setVariableName10)
    Q_PROPERTY (QString variableName11 READ getVariableName11   WRITE setVariableName11)
    Q_PROPERTY (QString variableName12 READ getVariableName12   WRITE setVariableName12)
+   Q_PROPERTY (QString variableName13 READ getVariableName13   WRITE setVariableName13)
+   Q_PROPERTY (QString variableName14 READ getVariableName14   WRITE setVariableName14)
+   Q_PROPERTY (QString variableName15 READ getVariableName15   WRITE setVariableName15)
+   Q_PROPERTY (QString variableName16 READ getVariableName16   WRITE setVariableName16)
+   Q_PROPERTY (QString variableName17 READ getVariableName17   WRITE setVariableName17)
+   Q_PROPERTY (QString variableName18 READ getVariableName18   WRITE setVariableName18)
+   Q_PROPERTY (QString variableName19 READ getVariableName19   WRITE setVariableName19)
+   Q_PROPERTY (QString variableName20 READ getVariableName20   WRITE setVariableName20)
 
    /// The maximum number of array elements that will be displayed. Defaults to 4096.
    ///
@@ -145,6 +152,14 @@ public:
    PROPERTY_ACCESS  (10, 9)
    PROPERTY_ACCESS  (11, 10)
    PROPERTY_ACCESS  (12, 11)
+   PROPERTY_ACCESS  (13, 12)
+   PROPERTY_ACCESS  (14, 13)
+   PROPERTY_ACCESS  (15, 14)
+   PROPERTY_ACCESS  (16, 15)
+   PROPERTY_ACCESS  (17, 16)
+   PROPERTY_ACCESS  (18, 17)
+   PROPERTY_ACCESS  (19, 18)
+   PROPERTY_ACCESS  (20, 19)
 
    #undef PROPERTY_ACCESS
 
@@ -185,9 +200,8 @@ protected:
    //
    void mousePressEvent (QMouseEvent *event)    { qcaMousePressEvent (event); }
    void dragEnterEvent (QDragEnterEvent *event) { qcaDragEnterEvent (event, false); }
-   void dropEvent (QDropEvent *event)           { qcaDropEvent (event); }
-   void setDrop (QVariant drop);
-   QVariant getDrop ();
+   void dropEvent (QDropEvent *event)           { qcaDropEvent (event, true); }
+   // This widget uses the setDrop/getDrop defined in QEWidget.
 
    // Copy paste
    //
@@ -237,11 +251,12 @@ private:
 
    DataSets dataSet [NUMBER_OF_VARIABLES];
 
-private slots:
+public slots:
    void setNewVariableName (QString variableNameIn,
                             QString variableNameSubstitutionsIn,
                             unsigned int variableIndex);
 
+private slots:
    void connectionChanged (QCaConnectionInfo& connectionInfo,
                            const unsigned int &variableIndex);
 
