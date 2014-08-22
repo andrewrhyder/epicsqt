@@ -347,6 +347,10 @@ public:
     // Widget specific properties
 
 public:
+    // Make the text proerty non-designable. This both hides the text property within
+    // designer and stops the text value from being written to the .ui file.
+    Q_PROPERTY(QString text READ text WRITE setText DESIGNABLE false)
+
     // Update options (text, pixmap, or both)
     Q_ENUMS(UpdateOptions)
     /// Determines if data updates the label text, or the label pixmap.
