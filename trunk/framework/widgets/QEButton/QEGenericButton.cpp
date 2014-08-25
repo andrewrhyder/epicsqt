@@ -494,25 +494,31 @@ void QEGenericButton::setTextAlignment( Qt::Alignment textAlignmentIn )
     // Keep a local copy of the alignment
     textAlignment = textAlignmentIn;
 
-    // Update the style to match the property
-    QString styleSheetString = "QPushButton { text-align: ";
+    // Update the horizontal style to match the property
+    QString styleSheetString;
 
     if( textAlignmentIn & Qt::AlignLeft )
-        styleSheetString.append( "left");
+        styleSheetString.append( "text-align: left;");
     else if( textAlignment & Qt::AlignRight )
-        styleSheetString.append( "right");
-    else if( textAlignment & Qt::AlignHCenter )
-        styleSheetString.append( "center");
+        styleSheetString.append( "text-align: right;");
+// Do nothing for center. It is the default
+//    else if( textAlignment & Qt::AlignHCenter )
+//        styleSheetString.append( "text-align: center;");
 
-    else if( textAlignment & Qt::AlignTop )
-        styleSheetString.append( "top");
+    // Update the vertical style to match the property
+    if( textAlignment & Qt::AlignTop )
+        styleSheetString.append( "text-align: top;");
     else if( textAlignment & Qt::AlignBottom )
-        styleSheetString.append( "bottom");
+        styleSheetString.append( "text-align: bottom;");
 
-    styleSheetString.append( "; }" );
+    // Setting the justification in the style also appears to set the padding
+    // to greater than default so if the button is constrained in width, text
+    // doesn't fit once the justification style is applied, so force the padding
+    // if applying a justification style
+    if( !styleSheetString.isEmpty() )
+        styleSheetString.append( " padding-left: 0px; padding-right: 0px; padding-top: 3px; padding-bottom: 4px;" );
 
     updatePropertyStyle( styleSheetString );
-
 }
 Qt::Alignment QEGenericButton::getTextAlignment()
 {

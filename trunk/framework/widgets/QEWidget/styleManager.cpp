@@ -128,7 +128,7 @@ void styleManager::updateStyleSheet()
     // Do nothing if in designer.
     // Altering the style can alter properties that are written when designer saves a form.
     // For example, setting the background through the style will alter the pallete properties which will be saved when the form is saved.
-    // Designer does not indicate the file hase changed (a * beside the file name) but the pallet property can be seen to be updated
+    // Designer does not indicate the file has changed (a * beside the file name) but the pallet property can be seen to be updated
     // and if the user saves the file the pallette changes are saved.
     // So, for example, if a variable is disconnected, the style to indicate disconnected becomes permenant when the file
     // is saved because the property changed by the disconnected style is saved.
