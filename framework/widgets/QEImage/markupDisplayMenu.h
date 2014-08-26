@@ -12,6 +12,7 @@ public:
     explicit markupDisplayMenu( QWidget *parent = 0 );
 
     void setDisplayed( imageContextMenu::imageContextMenuOptions option, bool state );
+    void setItemText( imageContextMenu::imageContextMenuOptions option, QString title );
     bool isDisplayed( imageContextMenu::imageContextMenuOptions option );
     void enable( imageContextMenu::imageContextMenuOptions option, bool state );
 

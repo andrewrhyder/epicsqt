@@ -93,102 +93,55 @@ void selectMenu::setChecked( const int mode )
     }
 }
 
-void selectMenu::setPanEnabled( bool enablePan )
+QAction* selectMenu::getAction( imageContextMenu::imageContextMenuOptions option )
 {
-    actionPan->setVisible( enablePan );
+    switch( option )
+    {
+        case imageContextMenu::ICM_SELECT_PAN: return actionPan;
+        case imageContextMenu::ICM_SELECT_HSLICE:  return actionHSlice;
+        case imageContextMenu::ICM_SELECT_VSLICE:  return actionVSlice;
+        case imageContextMenu::ICM_SELECT_AREA1:   return actionArea1;
+        case imageContextMenu::ICM_SELECT_AREA2:   return actionArea2;
+        case imageContextMenu::ICM_SELECT_AREA3:   return actionArea3;
+        case imageContextMenu::ICM_SELECT_AREA4:   return actionArea4;
+        case imageContextMenu::ICM_SELECT_PROFILE: return actionProfile;
+        case imageContextMenu::ICM_SELECT_TARGET:  return actionTarget;
+        case imageContextMenu::ICM_SELECT_BEAM:    return actionBeam;
+        default:                                   return NULL;
+    }
 }
 
-void selectMenu::setVSliceEnabled( bool enableVSliceSelection )
+// Set the state of the menu items
+void selectMenu::enable( imageContextMenu::imageContextMenuOptions option, bool state )
 {
-    actionVSlice->setVisible( enableVSliceSelection );
+    QAction* action = getAction( option );
+    if( action )
+    {
+        action->setVisible( state );
+    }
 }
 
-void selectMenu::setHSlicetEnabled( bool enableHSliceSelection )
+// Set the state of the menu items
+bool selectMenu::isEnabled( imageContextMenu::imageContextMenuOptions option )
 {
-    actionHSlice->setVisible( enableHSliceSelection );
+    QAction* action = getAction( option );
+    if( action )
+    {
+        return action->isVisible();
+    }
+    else
+    {
+        return false;
+    }
 }
 
-void selectMenu::setArea1Enabled( bool enableAreaSelection )
+// Set the text of the menu items
+void selectMenu::setItemText( imageContextMenu::imageContextMenuOptions option, QString title )
 {
-    actionArea1->setVisible( enableAreaSelection );
+    QAction* action = getAction( option );
+    if( action )
+    {
+        action->setText( title );
+    }
 }
 
-void selectMenu::setArea2Enabled( bool enableAreaSelection )
-{
-    actionArea2->setVisible( enableAreaSelection );
-}
-
-void selectMenu::setArea3Enabled( bool enableAreaSelection )
-{
-    actionArea3->setVisible( enableAreaSelection );
-}
-
-void selectMenu::setArea4Enabled( bool enableAreaSelection )
-{
-    actionArea4->setVisible( enableAreaSelection );
-}
-
-void selectMenu::setProfileEnabled( bool enableProfileSelection )
-{
-    actionProfile->setVisible( enableProfileSelection );
-}
-
-void selectMenu::setTargetEnabled( bool enableTargetSelection )
-{
-    actionTarget->setVisible( enableTargetSelection );
-}
-
-void selectMenu::setBeamEnabled( bool enableBeamSelection )
-{
-    actionBeam->setVisible( enableBeamSelection );
-}
-
-bool selectMenu::getPanEnabled()
-{
-    return actionPan->isVisible();
-}
-
-bool selectMenu::getVSliceEnabled()
-{
-    return actionVSlice->isVisible();
-}
-
-bool selectMenu::getHSliceEnabled()
-{
-    return actionHSlice->isVisible();
-}
-
-bool selectMenu::getArea1Enabled()
-{
-    return actionArea1->isVisible();
-}
-
-bool selectMenu::getArea2Enabled()
-{
-    return actionArea1->isVisible();
-}
-
-bool selectMenu::getArea3Enabled()
-{
-    return actionArea1->isVisible();
-}
-
-bool selectMenu::getArea4Enabled()
-{
-    return actionArea1->isVisible();
-}
-
-bool selectMenu::getProfileEnabled()
-{
-    return actionProfile->isVisible();
-}
-
-bool selectMenu::getTargetEnabled()
-{
-    return actionTarget->isVisible();
-}
-
-bool selectMenu::getBeamEnabled()
-{
-    return actionBeam->isVisible();
-}
