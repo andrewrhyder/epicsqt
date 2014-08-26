@@ -41,35 +41,19 @@ public:
 
     imageContextMenu::imageContextMenuOptions getSelectOption( const QPoint& pos );
 
+    void enable( imageContextMenu::imageContextMenuOptions option, bool state );
+    bool isEnabled( imageContextMenu::imageContextMenuOptions option );
     void setChecked( const int mode );
+    void setItemText( imageContextMenu::imageContextMenuOptions option, QString title );
 
-    void setPanEnabled( bool enablePan );
-    void setVSliceEnabled( bool enableVSliceSelection );
-    void setHSlicetEnabled( bool enableHSliceSelection );
-    void setArea1Enabled( bool enableAreaSelection );
-    void setArea2Enabled( bool enableAreaSelection );
-    void setArea3Enabled( bool enableAreaSelection );
-    void setArea4Enabled( bool enableAreaSelection );
-    void setProfileEnabled( bool enableProfileSelection );
-    void setTargetEnabled( bool enableTargetSelection );
-    void setBeamEnabled( bool enableBeamSelection );
-
-    bool getPanEnabled();
-    bool getVSliceEnabled();
-    bool getHSliceEnabled();
-    bool getArea1Enabled();
-    bool getArea2Enabled();
-    bool getArea3Enabled();
-    bool getArea4Enabled();
-    bool getProfileEnabled();
-    bool getTargetEnabled();
-    bool getBeamEnabled();
 
 signals:
 
 public slots:
 
 private:
+    QAction* getAction( imageContextMenu::imageContextMenuOptions option );
+
     QAction* actionPan;
     QAction* actionHSlice;
     QAction* actionVSlice;

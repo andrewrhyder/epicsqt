@@ -1218,8 +1218,8 @@ void QEImage::setROI( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, 
 // (the image is needed to determine scaling)
 void QEImage::useROIData( const unsigned int& variableIndex )
 {
-#define USE_ROI_DATA( GET_ENABLED, AREA, N )                                                      \
-    if( sMenu->GET_ENABLED() && mdMenu->isDisplayed( imageContextMenu::AREA ) && roiInfo[N].getStatus() )         \
+#define USE_ROI_DATA( IS_ENABLED, IS_DISPLAY, N )                                                      \
+    if( sMenu->isEnabled( imageContextMenu::IS_ENABLED ) && mdMenu->isDisplayed( imageContextMenu::IS_DISPLAY ) && roiInfo[N].getStatus() )         \
     {                                                                                             \
         QRect rotateFlipArea = rotateFlipToImageRectangle( roiInfo[N].getArea() );                \
         videoWidget->markupRegionValueChange( N, rotateFlipArea, displayMarkups );                \
@@ -1232,25 +1232,25 @@ void QEImage::useROIData( const unsigned int& variableIndex )
         case ROI1_Y_VARIABLE:
         case ROI1_W_VARIABLE:
         case ROI1_H_VARIABLE:
-            USE_ROI_DATA( getArea1Enabled, ICM_DISPLAY_AREA1, 0 )
+            USE_ROI_DATA( ICM_SELECT_AREA1, ICM_DISPLAY_AREA1, 0 )
 
         case ROI2_X_VARIABLE:
         case ROI2_Y_VARIABLE:
         case ROI2_W_VARIABLE:
         case ROI2_H_VARIABLE:
-            USE_ROI_DATA( getArea2Enabled,  ICM_DISPLAY_AREA2, 1 )
+            USE_ROI_DATA( ICM_SELECT_AREA2,  ICM_DISPLAY_AREA2, 1 )
 
         case ROI3_X_VARIABLE:
         case ROI3_Y_VARIABLE:
         case ROI3_W_VARIABLE:
         case ROI3_H_VARIABLE:
-            USE_ROI_DATA( getArea3Enabled,  ICM_DISPLAY_AREA3, 2 )
+            USE_ROI_DATA( ICM_SELECT_AREA3,  ICM_DISPLAY_AREA3, 2 )
 
         case ROI4_X_VARIABLE:
         case ROI4_Y_VARIABLE:
         case ROI4_W_VARIABLE:
         case ROI4_H_VARIABLE:
-            USE_ROI_DATA( getArea4Enabled,  ICM_DISPLAY_AREA4, 3 )
+            USE_ROI_DATA( ICM_SELECT_AREA4,  ICM_DISPLAY_AREA4, 3 )
     }
 }
 
@@ -1312,14 +1312,14 @@ void QEImage::useProfileData( const unsigned int& variableIndex )
     switch( variableIndex )
     {
         case PROFILE_H_VARIABLE:
-            if( sMenu->getHSliceEnabled() )
+            if( sMenu->isEnabled( imageContextMenu::ICM_SELECT_HSLICE ) )
             {
                 videoWidget->markupHProfileChange( hSliceY, displayMarkups );
             }
             break;
 
         case PROFILE_V_VARIABLE:
-            if( sMenu->getVSliceEnabled() )
+            if( sMenu->isEnabled( imageContextMenu::ICM_SELECT_VSLICE ) )
             {
                 videoWidget->markupVProfileChange(  vSliceX, displayMarkups );
             }
@@ -1329,7 +1329,7 @@ void QEImage::useProfileData( const unsigned int& variableIndex )
         case LINE_PROFILE_Y1_VARIABLE:
         case LINE_PROFILE_X2_VARIABLE:
         case LINE_PROFILE_Y2_VARIABLE:
-            if( sMenu->getProfileEnabled() && lineProfileInfo.getStatus() )
+            if( sMenu->isEnabled( imageContextMenu::ICM_SELECT_PROFILE ) && lineProfileInfo.getStatus() )
             {
                 videoWidget->markupLineProfileChange( rotateFlipToImagePoint( lineProfileInfo.getPoint1() ),
                                                       rotateFlipToImagePoint( lineProfileInfo.getPoint2() ),
@@ -1384,7 +1384,7 @@ void QEImage::setEllipse( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTim
 // (the image is needed to determine scaling)
 void QEImage::useEllipseData()
 {
-    if( ellipseInfo.getStatus() )
+    if( mdMenu->isDisplayed( imageContextMenu::ICM_DISPLAY_ELLIPSE ) && ellipseInfo.getStatus() )
     {
         // Get the ellipse area from the two points defining the area
         QRect area = ellipseInfo.getArea();
@@ -1453,7 +1453,7 @@ void QEImage::setTargeting( const long& value, QCaAlarmInfo& alarmInfo, QCaDateT
 // (the image is needed to determine scaling)
 void QEImage::useTargetingData()
 {
-    if( sMenu->getTargetEnabled() && targetInfo.getStatus() && beamInfo.getStatus() )
+    if( sMenu->isEnabled( imageContextMenu::ICM_SELECT_TARGET ) && targetInfo.getStatus() && beamInfo.getStatus() )
     {
         videoWidget->markupTargetValueChange( rotateFlipToImagePoint( targetInfo.getPoint() ), displayMarkups );
         videoWidget->markupBeamValueChange( rotateFlipToImagePoint( beamInfo.getPoint() ), displayMarkups );
@@ -3061,7 +3061,7 @@ void QEImage::doContrastReversal( bool /*contrastReversal*/ )
 // Manage vertical slice selection
 void QEImage::doEnableVertSliceSelection( bool enableVSliceSelection )
 {
-    sMenu->setVSliceEnabled( enableVSliceSelection );
+    sMenu->enable( imageContextMenu::ICM_SELECT_VSLICE, enableVSliceSelection );
     mdMenu->enable( imageContextMenu::ICM_DISPLAY_VSLICE, enableVSliceSelection );
 
     // If disabling, and it is the current mode, then default to panning
@@ -3083,7 +3083,7 @@ void QEImage::doEnableVertSliceSelection( bool enableVSliceSelection )
 // Enable horizontal slice selection
 void QEImage::doEnableHozSliceSelection( bool enableHSliceSelection )
 {
-    sMenu->setHSlicetEnabled( enableHSliceSelection );
+    sMenu->enable( imageContextMenu::ICM_SELECT_HSLICE, enableHSliceSelection );
     mdMenu->enable( imageContextMenu::ICM_DISPLAY_HSLICE, enableHSliceSelection );
 
     // If disabling, and it is the current mode, then default to panning
@@ -3106,10 +3106,10 @@ void QEImage::doEnableHozSliceSelection( bool enableHSliceSelection )
 void QEImage::doEnableAreaSelection( /*imageContextMenu::imageContextMenuOptions area,*/ bool enableAreaSelection )
 {
     // Ensure the area selection menus are set up correctly
-    sMenu->setArea1Enabled( enableAreaSelection );
-    sMenu->setArea2Enabled( enableAreaSelection );
-    sMenu->setArea3Enabled( enableAreaSelection );
-    sMenu->setArea4Enabled( enableAreaSelection );
+    sMenu->enable( imageContextMenu::ICM_SELECT_AREA1, enableAreaSelection );
+    sMenu->enable( imageContextMenu::ICM_SELECT_AREA2, enableAreaSelection );
+    sMenu->enable( imageContextMenu::ICM_SELECT_AREA3, enableAreaSelection );
+    sMenu->enable( imageContextMenu::ICM_SELECT_AREA4, enableAreaSelection );
 
     mdMenu->enable( imageContextMenu::ICM_DISPLAY_AREA1, enableAreaSelection );
     mdMenu->enable( imageContextMenu::ICM_DISPLAY_AREA2, enableAreaSelection );
@@ -3144,7 +3144,7 @@ void QEImage::doEnableAreaSelection( /*imageContextMenu::imageContextMenuOptions
 // Manage profile selection
 void QEImage::doEnableProfileSelection( bool enableProfileSelection )
 {
-    sMenu->setProfileEnabled( enableProfileSelection );
+    sMenu->enable( imageContextMenu::ICM_SELECT_PROFILE, enableProfileSelection );
     mdMenu->enable( imageContextMenu::ICM_DISPLAY_PROFILE, enableProfileSelection );
 
     // If disabling, and it is the current mode, then default to panning
@@ -3166,7 +3166,7 @@ void QEImage::doEnableProfileSelection( bool enableProfileSelection )
 // Manage target selection
 void QEImage::doEnableTargetSelection( bool enableTargetSelection )
 {
-    sMenu->setTargetEnabled( enableTargetSelection );
+    sMenu->enable( imageContextMenu::ICM_SELECT_TARGET, enableTargetSelection );
     mdMenu->enable( imageContextMenu::ICM_DISPLAY_TARGET, enableTargetSelection );
 
     targetButton->setVisible( enableTargetSelection );
@@ -3190,7 +3190,7 @@ void QEImage::doEnableTargetSelection( bool enableTargetSelection )
 // Manage beam selection
 void QEImage::doEnableBeamSelection( bool enableBeamSelection )
 {
-    sMenu->setBeamEnabled( enableBeamSelection );
+    sMenu->enable( imageContextMenu::ICM_SELECT_BEAM, enableBeamSelection );
     mdMenu->enable( imageContextMenu::ICM_DISPLAY_BEAM, enableBeamSelection );
 
     // If disabling, and it is the current mode, then default to panning
@@ -3936,26 +3936,46 @@ void QEImage::setProgramStartupOption2( applicationLauncher::programStartupOptio
 applicationLauncher::programStartupOptions QEImage::getProgramStartupOption2(){ return programLauncher2.getProgramStartupOption(); }
 
 // Legends
-QString QEImage::getHozSliceLegend()                     { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_H_SLICE );        }
-void    QEImage::setHozSliceLegend      ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_H_SLICE, legend ); }
-QString QEImage::getVertSliceLegend()                    { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_V_SLICE );        }
-void    QEImage::setVertSliceLegend     ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_V_SLICE, legend ); }
-QString QEImage::getprofileLegend()                      { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_LINE );           }
-void    QEImage::setProfileLegend       ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_LINE,    legend ); }
-QString QEImage::getAreaSelection1Legend()               { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_REGION1 );        }
-void    QEImage::setAreaSelection1Legend( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_REGION1, legend ); }
-QString QEImage::getAreaSelection2Legend()               { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_REGION2 );        }
-void    QEImage::setAreaSelection2Legend( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_REGION2, legend ); }
-QString QEImage::getAreaSelection3Legend()               { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_REGION3 );        }
-void    QEImage::setAreaSelection3Legend( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_REGION3, legend ); }
-QString QEImage::getAreaSelection4Legend()               { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_REGION4 );        }
-void    QEImage::setAreaSelection4Legend( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_REGION4, legend ); }
-QString QEImage::getTargetLegend()                       { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_TARGET );         }
-void    QEImage::setTargetLegend        ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_TARGET,  legend ); }
-QString QEImage::getBeamLegend()                         { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_BEAM );           }
-void    QEImage::setBeamLegend          ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_BEAM,    legend ); }
+QString QEImage::getHozSliceLegend()                      { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_H_SLICE );        }
+void    QEImage::setHozSliceLegend      ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_H_SLICE, legend );
+                                                                   mdMenu->setItemText( imageContextMenu::ICM_DISPLAY_HSLICE, legend );
+                                                                   sMenu->setItemText( imageContextMenu::ICM_SELECT_HSLICE, legend ); }
+QString QEImage::getVertSliceLegend()                     { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_V_SLICE );        }
+void    QEImage::setVertSliceLegend     ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_V_SLICE, legend );
+                                                                   mdMenu->setItemText( imageContextMenu::ICM_DISPLAY_VSLICE, legend );
+                                                                   sMenu->setItemText( imageContextMenu::ICM_SELECT_VSLICE, legend ); }
+QString QEImage::getprofileLegend()                       { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_LINE );           }
+void    QEImage::setProfileLegend       ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_LINE,    legend );
+                                                                   mdMenu->setItemText( imageContextMenu::ICM_DISPLAY_PROFILE, legend );
+                                                                   sMenu->setItemText( imageContextMenu::ICM_SELECT_PROFILE, legend ); }
+QString QEImage::getAreaSelection1Legend()                { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_REGION1 );        }
+void    QEImage::setAreaSelection1Legend( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_REGION1, legend );
+                                                                   mdMenu->setItemText( imageContextMenu::ICM_DISPLAY_AREA1, legend );
+                                                                   sMenu->setItemText( imageContextMenu::ICM_SELECT_AREA1, legend ); }
+QString QEImage::getAreaSelection2Legend()                { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_REGION2 );        }
+void    QEImage::setAreaSelection2Legend( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_REGION2, legend );
+                                                                   mdMenu->setItemText( imageContextMenu::ICM_DISPLAY_AREA2, legend );
+                                                                   sMenu->setItemText( imageContextMenu::ICM_SELECT_AREA2, legend ); }
+QString QEImage::getAreaSelection3Legend()                { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_REGION3 );        }
+void    QEImage::setAreaSelection3Legend( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_REGION3, legend );
+                                                                   mdMenu->setItemText( imageContextMenu::ICM_DISPLAY_AREA3, legend );
+                                                                   sMenu->setItemText( imageContextMenu::ICM_SELECT_AREA3, legend ); }
+QString QEImage::getAreaSelection4Legend()                { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_REGION4 );        }
+void    QEImage::setAreaSelection4Legend( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_REGION4, legend );
+                                                                   mdMenu->setItemText( imageContextMenu::ICM_DISPLAY_AREA4, legend );
+                                                                   sMenu->setItemText( imageContextMenu::ICM_SELECT_AREA4, legend ); }
+QString QEImage::getTargetLegend()                        { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_TARGET );         }
+void    QEImage::setTargetLegend        ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_TARGET,  legend );
+                                                                   mdMenu->setItemText( imageContextMenu::ICM_DISPLAY_TARGET, legend );
+                                                                   sMenu->setItemText( imageContextMenu::ICM_SELECT_TARGET, legend ); }
+QString QEImage::getBeamLegend()                          { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_BEAM );           }
+void    QEImage::setBeamLegend          ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_BEAM,    legend );
+                                                                   mdMenu->setItemText( imageContextMenu::ICM_DISPLAY_BEAM, legend );
+                                                                   sMenu->setItemText( imageContextMenu::ICM_SELECT_BEAM, legend ); }
 QString QEImage::getEllipseLegend()                       { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_ELLIPSE );       }
-void    QEImage::setEllipseLegend       ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_ELLIPSE, legend ); }
+void    QEImage::setEllipseLegend       ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_ELLIPSE, legend );
+                                                                   mdMenu->setItemText( imageContextMenu::ICM_DISPLAY_ELLIPSE, legend );
+                                                                   /* No ellipse selection mode sMenu->setItemText( imageContextMenu::ICM_SELECT_ELLIPSE, legend );*/ }
 
 // MPEG image source URL
 void QEImage::setSubstitutedUrl( QString urlIn )

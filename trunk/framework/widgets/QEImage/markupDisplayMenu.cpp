@@ -40,7 +40,7 @@ markupDisplayMenu::markupDisplayMenu( QWidget *parent) : QMenu(parent)
     ACTION->setChecked( true );                             \
     addAction( ACTION );
 
-    // Create the buttons
+    // Create the buttons (with default titles - these will be overridden by changes to the markup legend properties)
     NEW_MARKUP_DISPLAY_MENU_BUTTON( "Horizontal Line", ICM_DISPLAY_HSLICE,    hSliceAction    )
     NEW_MARKUP_DISPLAY_MENU_BUTTON( "Vertical Line",   ICM_DISPLAY_VSLICE,    vSliceAction    )
     NEW_MARKUP_DISPLAY_MENU_BUTTON( "Area 1",          ICM_DISPLAY_AREA1,     area1Action     )
@@ -77,6 +77,16 @@ void markupDisplayMenu::setDisplayed( imageContextMenu::imageContextMenuOptions 
     if( action )
     {
         action->setChecked( state );
+    }
+}
+
+// Set the text of the menu items
+void markupDisplayMenu::setItemText( imageContextMenu::imageContextMenuOptions option, QString title )
+{
+    QAction* action = getAction( option );
+    if( action )
+    {
+        action->setText( title );
     }
 }
 
