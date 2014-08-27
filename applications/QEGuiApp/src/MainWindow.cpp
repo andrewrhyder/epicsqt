@@ -229,9 +229,6 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, QString customisationNa
     // Set the default title
     setTitle( "" );
 
-    // Hide the main tool bar (nothing in it yet)
-    ui.mainToolBar->hide();
-
     // Enable the menu bar as required
     menuBar()->setVisible( !app->getParams()->disableMenu );
 
