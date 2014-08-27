@@ -886,19 +886,20 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
  {
     QString buttonGroup;
     QString buttonIcon;
-//    // Read GroupName
-//    QDomNodeList list = itemElement.elementsByTagName( "GroupName" );
-//    if (list.count() > 0)
-//    {
-//        buttonGroup = list.at(0).toElement().text();
-//    }
 
-//    // Read Icon
-//    list = itemElement.elementsByTagName( "Icon" );
-//    if (list.count() > 0)
-//    {
-//        buttonIcon = list.at(0).toElement().text();
-//    }
+    // Read GroupName
+    QDomNodeList list = itemElement.elementsByTagName( "GroupName" );
+    if (list.count() > 0)
+    {
+        buttonGroup = list.at(0).toElement().text();
+    }
+
+    // Read Icon
+    list = itemElement.elementsByTagName( "Icon" );
+    if (list.count() > 0)
+    {
+        buttonIcon = list.at(0).toElement().text();
+    }
 
     QString title;                          // Menu item title
     QString program;                        // Program to run when the user selects this menu item
@@ -909,18 +910,18 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
     QString dockTitle;                      // Title of existing dock to associate this menu item with
 
 
-         if( parseMenuAndButtonItem( itemElement, title, windows, builtIn, program, widgetName, arguments, dockTitle ) )
-         {
-             // Add details for a button item to customisation set
-             windowCustomisationButtonItem* item = new windowCustomisationButtonItem(buttonGroup, title, buttonIcon, NULL/*!!! needs launch receiver object*/, windows, program,
-                                                                   arguments );
+     if( parseMenuAndButtonItem( itemElement, title, windows, builtIn, program, widgetName, arguments, dockTitle ) )
+     {
+         // Add details for a button item to customisation set
+         windowCustomisationButtonItem* item = new windowCustomisationButtonItem(buttonGroup, title, buttonIcon, NULL/*!!! needs launch receiver object*/, windows, program,
+                                                               arguments );
 
-             return item;
-         }
-         else
-         {
-             return NULL;
-         }
+         return item;
+     }
+     else
+     {
+         return NULL;
+     }
 }
 
  // Return a named set of customisations
@@ -1093,24 +1094,24 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw,              
         return;
     }
 
-//    // Create the toolbar
-//    QToolBar* mainToolBar = new QToolBar( "Toolbar", mw );
-//    mainToolBar->setObjectName(QString::fromUtf8( "mainToolBar" ));
-//    mw->addToolBar(Qt::TopToolBarArea, mainToolBar);
+    // Create the toolbar
+    QToolBar* mainToolBar = new QToolBar( "Toolbar", mw );
+    mainToolBar->setObjectName(QString::fromUtf8( "mainToolBar" ));
+    mw->addToolBar(Qt::TopToolBarArea, mainToolBar);
 
-//    // Add the required toolbar buttons
-//    QList<windowCustomisationButtonItem*> bList = customisation->getButtons();
-//    for ( int i = 0; i < bList.length(); i++ )
-//    {
-//        windowCustomisationButtonItem* item = new windowCustomisationButtonItem(bList.at(i));
+    // Add the required toolbar buttons
+    QList<windowCustomisationButtonItem*> bList = customisation->getButtons();
+    for ( int i = 0; i < bList.length(); i++ )
+    {
+        windowCustomisationButtonItem* item = new windowCustomisationButtonItem(bList.at(i));
 
-//        // add button action
-//        mainToolBar->addAction(item);
+        // Add button action
+        mainToolBar->addAction( item );
 
-//        // Set up an action to respond to the user
-//        QObject::connect( item, SIGNAL( newGui( const QEActionRequests& ) ),
-//                          mw, SLOT( requestAction( const QEActionRequests& ) ) );
-//    }
+        // Set up an action to respond to the user
+        QObject::connect( item, SIGNAL( newGui( const QEActionRequests& ) ),
+                          mw, SLOT( requestAction( const QEActionRequests& ) ) );
+    }
 
     // Get the menu item customisations required
     QList<windowCustomisationMenuItem*> mList = customisation->getMenuItems();
