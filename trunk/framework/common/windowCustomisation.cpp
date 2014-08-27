@@ -1095,15 +1095,21 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw,              
     }
 
     // Create the toolbar
-    QToolBar* mainToolBar = new QToolBar( "Toolbar", mw );
-    mainToolBar->setObjectName(QString::fromUtf8( "mainToolBar" ));
-    mw->addToolBar(Qt::TopToolBarArea, mainToolBar);
+    QToolBar* mainToolBar = NULL;
 
     // Add the required toolbar buttons
     QList<windowCustomisationButtonItem*> bList = customisation->getButtons();
     for ( int i = 0; i < bList.length(); i++ )
     {
         windowCustomisationButtonItem* item = new windowCustomisationButtonItem(bList.at(i));
+
+        // If there is no toolbar yet, create it
+        if( !mainToolBar )
+        {
+            mainToolBar = new QToolBar( "Toolbar", mw );
+            mainToolBar->setObjectName(QString::fromUtf8( "mainToolBar" ));
+            mw->addToolBar(Qt::TopToolBarArea, mainToolBar);
+        }
 
         // Add button action
         mainToolBar->addAction( item );
