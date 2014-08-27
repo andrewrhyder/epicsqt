@@ -169,6 +169,12 @@ public:
     /// Use the EPICS database display limits
     ///
     Q_PROPERTY( bool useDbDisplayLimits READ getUseDbDisplayLimits WRITE setUseDbDisplayLimits )
+
+    // Make the value and isActive proerties non-designable. This both hides the properties
+    // within designer and stops the values from being written to the .ui file.
+    //
+    Q_PROPERTY (int    value    READ getValue     WRITE setValue    DESIGNABLE false)
+    Q_PROPERTY (bool   isActive READ getIsActive  WRITE setIsActive DESIGNABLE false)
     //
     // End of Analog Progress Bar specific properties =================================
 
