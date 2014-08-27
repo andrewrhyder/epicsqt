@@ -39,7 +39,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEBitStatus : public QBitStatus, public QEWid
 
 // #ifdef PLUGIN_APP
 
-   // BEGIN-SINGLE-VARIABLE-PROPERTIES ===============================================
+    // BEGIN-SINGLE-VARIABLE-PROPERTIES ===============================================
     // Single Variable properties
     // These properties should be identical for every widget using a single variable.
     // WHEN MAKING CHANGES: Use the update_widget_properties script in the
@@ -147,9 +147,17 @@ public:
     Q_PROPERTY(bool displayAlarmState READ getDisplayAlarmState WRITE setDisplayAlarmState)
 
 public:
-   // END-STANDARD-PROPERTIES ========================================================
+    // END-STANDARD-PROPERTIES ========================================================
 
-// #endif
+    // QEBitStatus specific properties ================================================
+    //
+    // Make the value and isActive proerties non-designable. This both hides the properties
+    // within designer and stops the values from being written to the .ui file.
+    //
+    Q_PROPERTY (double value    READ getValue     WRITE setValue    DESIGNABLE false)
+    Q_PROPERTY (bool   isActive READ getIsActive  WRITE setIsActive DESIGNABLE false)
+    //
+    // End QEBitStatus specific properties ============================================
 
 public:
    QEBitStatus (QWidget * parent = 0);
