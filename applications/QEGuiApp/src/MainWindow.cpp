@@ -1601,7 +1601,7 @@ void  MainWindow::requestAction( const QEActionRequests & request )
                     // be kept the same as the dock title.
                     dock->setWindowTitle( component->title );
 
-                    // Determine the size of the dock basked on its contents
+                    // Determine the size of the dock based on its contents
                     dock->adjustSize();
 
                     // Set floating if requested
@@ -1615,11 +1615,13 @@ void  MainWindow::requestAction( const QEActionRequests & request )
 // Perhaps a better solution worth trying would be to set a zero period timer for each dock to set it hidden if required after
 // all event processing is complete (which is when the timer event would be processed)
 // Search for 'Centos6 visibility problem' to find other fragments of code relating to this problem
-//                    // Set hidden if required
-//                    dock->setVisible( !component->hidden );
+
                     // Set the state of the dock visibility check box. The dock will be hidden later if required to match this
                     QAction* action = dock->toggleViewAction();
                     action->setChecked( !component->hidden );
+
+                    // Set hidden if required
+                    dock->setVisible( !component->hidden );
 
                     // Record that this dock has been added
                     // This may be used by the customisation system to link a menu item to this dock.
