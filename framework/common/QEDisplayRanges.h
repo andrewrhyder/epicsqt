@@ -31,7 +31,7 @@
 
 // Refactor from QEStripChartUtilities TrackRanages with some
 // functionalty from QEGraphic.
-
+//
 class QEPLUGINLIBRARYSHARED_EXPORT QEDisplayRanges {
 public:
    explicit QEDisplayRanges ();
@@ -41,6 +41,16 @@ public:
    //
    bool operator == (const QEDisplayRanges& other) const;
    bool operator != (const QEDisplayRanges& other) const;
+
+   // Provides a fuzzy equality function with a specified tolerance.
+   // When both ranges are defined, the larger the tolerance value, the more
+   // disimilar the ranges can be and still be deemed similar (equal-ish)
+   // When tolerance set to 0.0, this function is effectively same as ==.
+   //
+   // Note: If both undefined then always returns true (equal).
+   // If one defined and one undefined then always returns false (not equal).
+   //
+   bool isSimilar (const QEDisplayRanges& other, const double tolerance) const;
 
    void clear ();
 
