@@ -235,12 +235,14 @@ void QEPlotter::createInternalWidgets ()
    QObject::connect (this->plotArea, SIGNAL (wheelRotate   (const QPointF&, const int)),
                      this,           SLOT   (zoomInOut     (const QPointF&, const int)));
 
-   QObject::connect (this->plotArea, SIGNAL (leftSelected  (const QPointF&, const QPointF&)),
-                     this,           SLOT   (scaleSelect   (const QPointF&, const QPointF&)));
+   QObject::connect (this->plotArea, SIGNAL (areaDefinition (const QPointF&, const QPointF&)),
+                     this,           SLOT   (scaleSelect    (const QPointF&, const QPointF&)));
 
-   QObject::connect (this->plotArea, SIGNAL (rightSelected (const QPointF&, const QPointF&)),
-                     this,           SLOT   (lineSelected  (const QPointF&, const QPointF&)));
+   QObject::connect (this->plotArea, SIGNAL (lineDefinition (const QPointF&, const QPointF&)),
+                     this,           SLOT   (lineSelected   (const QPointF&, const QPointF&)));
 
+   QObject::connect (this->plotArea, SIGNAL (crosshairsMove (const QPointF&)),
+                     this,           SLOT   (crosshairsMove (const QPointF&)));
 
    // Create the resizeable frame.
    //
@@ -1061,6 +1063,7 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
 
       case QEPlotterNames::PLOTTER_SHOW_HIDE_CROSSHAIRS:
          this->crosshairsAreRequired = !this->crosshairsAreRequired;
+         this->plotArea->setCrosshairsVisible (this->crosshairsAreRequired);
          this->replotIsRequired = true;
          break;
 
@@ -1545,6 +1548,15 @@ int QEPlotter::getCrosshairIndex () const
 
 //------------------------------------------------------------------------------
 //
+void QEPlotter::crosshairsMove (const QPointF& posn)
+{
+   // Determine and emit new vertical crosshair index if required.
+   //
+   this->calcCrosshairIndex (posn.x ());
+}
+
+//------------------------------------------------------------------------------
+//
 void QEPlotter::plotMouseMove (const QPointF& posn)
 {
    QString mouseReadOut;
@@ -1559,7 +1571,7 @@ void QEPlotter::plotMouseMove (const QPointF& posn)
    f.sprintf ("  y: %+.6g", posn.y ());
    mouseReadOut.append (f);
 
-   if (this->plotArea->getRightIsDefined (slope)) {
+   if (this->plotArea->getSlopeIsDefined (slope)) {
       const double dx = slope.x ();
       const double dy = slope.y ();
 
@@ -1585,16 +1597,6 @@ void QEPlotter::plotMouseMove (const QPointF& posn)
    }
 
    this->setReadOut (mouseReadOut);
-
-   // Determine and emit new vertical crosshair index if required.
-   //
-   this->calcCrosshairIndex (posn.x ());
-
-   if (this->crosshairsAreRequired  ||
-       this->plotArea->getLeftIsDefined () ||
-       this->plotArea->getRightIsDefined () ) {
-      this->replotIsRequired = true;
-   }
 }
 
 //------------------------------------------------------------------------------
@@ -1622,22 +1624,6 @@ void QEPlotter::zoomInOut (const QPointF& about, const int zoomAmount)
       this->setYRange (newMin, newMax);
       this->pushState ();
    }
-}
-
-//------------------------------------------------------------------------------
-//
-bool QEPlotter::isValidXRangeSelection (const QPoint& diff) const
-{
-   const int minDiff = 8;
-   return ((diff.x () > minDiff) && (diff.x () > ABS (3 * diff.y ())));
-}
-
-//------------------------------------------------------------------------------
-//
-bool QEPlotter::isValidYRangeSelection (const QPoint& diff) const
-{
-   const int minDiff = 8;
-   return ((diff.y () > minDiff) && (diff.y () > ABS (3 * diff.x ())));
 }
 
 //------------------------------------------------------------------------------
@@ -1676,23 +1662,21 @@ void QEPlotter::scaleSelect (const QPointF& start, const QPointF& finish)
 {
    QPoint distance = this->plotArea->pixelDistance (start, finish);
 
-   // Only proceed if user has un-ambiguously selected x scaling or y scaling.
+   // The QEGraphic validates the selection, i.e. that user has un-ambiguously
+   // selected x scaling or y scaling. Need only figure out which one.
    //
-   if (this->isValidYRangeSelection (distance)) {
+   if (ABS (distance.y ()) >=  ABS (distance.x ())) {
       // Makeing a Y scale adjustment.
       //
       this->setYRange (finish.y (), start.y ());
-      this->pushState ();
 
-   } else if (this->isValidXRangeSelection (distance)) {
+   } else {
       // Makeing a X scale adjustment.
       //
       this->setXRange (start.x (), finish.x ());
-      this->pushState ();
 
-   } else {
-      this->replotIsRequired = true;
    }
+   this->replotIsRequired = true;
 }
 
 //------------------------------------------------------------------------------
@@ -2123,62 +2107,6 @@ void QEPlotter::sizeValueChanged (const long& value,
 // Plot and plot related functions
 //------------------------------------------------------------------------------
 //
-void QEPlotter::plotSelectedArea ()
-{
-   QPoint s;
-   QPen pen;
-
-   if (this->plotArea->getLeftIsDefined (s)) {
-      this->plotArea->setCurveRenderHint (QwtPlotItem::RenderAntialiased);
-      this->plotArea->setCurveStyle (QwtPlotCurve::Lines);
-
-      if (this->isValidXRangeSelection (s) ||
-          this->isValidYRangeSelection (s)) {
-         pen.setColor(QColor (0x60E060));   // greenish
-      } else {
-         pen.setColor(QColor (0xC08080));   // redish gray
-      }
-      pen.setWidth (1);
-      this->plotArea->setCurvePen (pen);
-
-      this->plotArea->plotSelectedLeft (true);
-   }
-}
-
-//------------------------------------------------------------------------------
-//
-void QEPlotter::plotOriginToPoint ()
-{
-   QPen pen;
-
-   if (this->plotArea->getRightIsDefined ()) {
-      this->plotArea->setCurveRenderHint (QwtPlotItem::RenderAntialiased);
-      this->plotArea->setCurveStyle (QwtPlotCurve::Lines);
-
-      pen.setColor(QColor (0x80C0E0));  // blueish
-      pen.setWidth (1);
-      this->plotArea->setCurvePen (pen);
-
-      this->plotArea->plotSelectedRight (false);
-   }
-}
-
-//------------------------------------------------------------------------------
-//
-void QEPlotter::plotCrosshairs ()
-{
-   QPen pen;
-
-   if (this->crosshairsAreRequired) {   // need a test
-      pen.setColor(QColor (0x808080));  // grayish
-      pen.setWidth (1);
-      this->plotArea->setCurvePen (pen);
-      this->plotArea->plotCrossHairs ();
-   }
-}
-
-//------------------------------------------------------------------------------
-//
 void QEPlotter::plot ()
 {
    QColor background;
@@ -2334,18 +2262,6 @@ void QEPlotter::plot ()
       this->plotArea->plotCurveData (xdata, ydata);
    }
 
-   // Draw selected area box if defined.
-   //
-   this->plotSelectedArea ();
-
-   // Draw origin to target line if defined..
-   //
-   this->plotOriginToPoint ();
-
-   // Draw cross hairs if selected.
-   //
-   this->plotCrosshairs ();
-
    // Save current min/max values.
    //
    this->currentMinX = xMin;
@@ -2361,15 +2277,15 @@ void QEPlotter::plot ()
       xMax = this->fixedMaxX;
    }
 
-   // Repeat for y  - essentially the same excpet for log scale adjustment.
+   // Repeat for y.
    //
    if (this->yScaleMode != QEPlotterNames::smDynamic) {
       yMin = this->fixedMinY;
       yMax = this->fixedMaxY;
    }
 
-   this->plotArea->setXRange (xMin, xMax, QEGraphic::SelectBySize, 40);
-   this->plotArea->setYRange (yMin, yMax, QEGraphic::SelectBySize, 40);
+   this->plotArea->setXRange (xMin, xMax, QEGraphic::SelectBySize, 40, false);
+   this->plotArea->setYRange (yMin, yMax, QEGraphic::SelectBySize, 40, false);
 
    this->plotArea->replot ();
 
@@ -2553,10 +2469,6 @@ void QEPlotter::processSelectedItem (const QEFloatingArray& xdata,
 void QEPlotter::tickTimeout ()
 {
    this->tickTimerCount = (this->tickTimerCount + 1) % 20;
-
-   // Progress any on-going cgart rescaling.
-   //
-   this->plotArea->doDynamicRescaling ();
 
    if ((this->tickTimerCount % 20) == 0) {
       // 20th update, i.e. 1 second has passed - must replot.

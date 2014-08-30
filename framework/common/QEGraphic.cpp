@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2013 Australian Synchrotron.
+ *  Copyright (c) 2013, 2014 Australian Synchrotron.
  *
  *  Author:
  *    Andrew Starritt
@@ -31,6 +31,8 @@
 #include <QECommon.h>
 
 #include <qwt_scale_engine.h>
+
+#include "QEGraphicMarkup.h"
 #include "QEGraphic.h"
 
 #define DEBUG qDebug () << "QEGraphic" << __FUNCTION__ <<  __LINE__
@@ -39,7 +41,22 @@
 //
 #define MINIMUM_SPAN              (1.0e-12)
 #define MAXIMUM_SPAN              (1.0e+26)
+
 #define NUMBER_TRANISTION_STEPS   6
+
+// Each markup has a pre-allocated slot.
+//
+#define AREA_MARKUP            0
+#define LINE_MARKUP            1
+#define CROSSHAIRES_MARKUP     2
+#define HORIZONTAL_1_MARKUP    3
+#define HORIZONTAL_2_MARKUP    4
+#define HORIZONTAL_3_MARKUP    5
+#define HORIZONTAL_4_MARKUP    6
+#define VERTICAL_1_MARKUP      7
+#define VERTICAL_2_MARKUP      8
+#define VERTICAL_3_MARKUP      9
+#define VERTICAL_4_MARKUP     10
 
 
 //==============================================================================
@@ -61,10 +78,13 @@ QEGraphic::Axis::Axis (QwtPlot* plotIn, const int axisIdIn)
 
    // Set 'current' ranges.
    //
-   this->source.setRange (0.0, 1.0);
+   this->current.setRange (0.0, 1.0);
+   this->source = this->current;
+   this->target = this->current;
    this->transitionCount = 0;
-   this->setRange (0.0, 1.0, QEGraphic::SelectByNumber, 8);
-   this->transitionCount = 0;   // reset
+   this->intervalMode = QEGraphic::SelectByValue;
+   this->intervalValue = 8;
+   this->determineAxisScale ();
 }
 
 //------------------------------------------------------------------------------
@@ -77,35 +97,58 @@ QEGraphic::Axis::~Axis ()
 //------------------------------------------------------------------------------
 //
 void QEGraphic::Axis::setRange (const double minIn, const double maxIn,
-                                const AxisMajorIntervalModes modeIn, const int valueIn)
+                                const AxisMajorIntervalModes modeIn, const int valueIn,
+                                const bool immediate)
 {
    QEDisplayRanges newTarget;
+   bool rescaleIsRequired;
 
    newTarget.setRange (minIn, LIMIT (maxIn, minIn + MINIMUM_SPAN, minIn + MAXIMUM_SPAN));
 
-   // Is this a significant change?
+   // Is this a significant change? Hypothosize not.
    //
-   if ((this->target != newTarget) ||
-       (this->intervalMode != modeIn) ||
-       (this->intervalValue != valueIn)) {
+   rescaleIsRequired = false;
 
+   // Avoid rescaling for trivial changes.
+   //
+   if (!this->target.isSimilar (newTarget, 0.001)) {
       this->target = newTarget;
+      if (immediate) {
+         // Immediate - no animation.
+         //
+         this->source = this->target;
+         this->current = this->target;
+         this->transitionCount = 0;
+      } else {
+         // Not immediate - provide an animated transition.
+         // New source is where we currently are.
+         // Set up transition count down.
+         //
+         this->source = this->current;
+         this->transitionCount = NUMBER_TRANISTION_STEPS;
+      }
+      rescaleIsRequired = true;
+   }
+
+   if (this->intervalMode != modeIn) {
       this->intervalMode = modeIn;
+      rescaleIsRequired = true;
+   }
+
+   if (this->intervalValue != valueIn) {
       this->intervalValue = valueIn;
+      rescaleIsRequired = true;
+   }
 
-      // New source is where we currently are.
-      //
-      this->source = QEGraphic::calcTransitionPoint (this->source,
-                                                     this->target,
-                                                     this->transitionCount);
-
-      // Set up new target and transition count down.
-      //
-      this->transitionCount = NUMBER_TRANISTION_STEPS;
-      this->determineAxis (this->source);
+   // Something changed  - re do the scaling.
+   //
+   if (rescaleIsRequired) {
+      this->determineAxisScale ();
    }
 }
 
+//------------------------------------------------------------------------------
+//
 void QEGraphic::Axis::getRange (double& min, double& max)
 {
     min = this->useMin;
@@ -117,13 +160,15 @@ void QEGraphic::Axis::getRange (double& min, double& max)
 bool QEGraphic::Axis::doDynamicRescaling ()
 {
    bool result = false;
-   QEDisplayRanges intermediate;
 
    if (this->transitionCount > 0) {
       this->transitionCount--;
-      intermediate = QEGraphic::calcTransitionPoint (this->source, this->target,
-                                                     this->transitionCount);
-      this->determineAxis (intermediate);
+
+      // Calulate the new current point and re set axis scale.
+      //
+      this->current = QEGraphic::calcTransitionPoint (this->source, this->target,
+                                                      this->transitionCount);
+      this->determineAxisScale ();
       result = true;
    }
 
@@ -132,13 +177,13 @@ bool QEGraphic::Axis::doDynamicRescaling ()
 
 //------------------------------------------------------------------------------
 //
-void QEGraphic::Axis::determineAxis (const QEDisplayRanges& current)
+void QEGraphic::Axis::determineAxisScale ()
 {
    int canvasSize;
    int number;
 
    if (this->isLogarithmic) {
-      current.adjustLogMinMax (this->useMin, this->useMax, this->useStep);
+      this->current.adjustLogMinMax (this->useMin, this->useMax, this->useStep);
    } else {
       if (this->intervalMode == QEGraphic::SelectBySize) {
          switch (this->axisId) {
@@ -169,7 +214,7 @@ void QEGraphic::Axis::determineAxis (const QEDisplayRanges& current)
       this->useMax = this->useMax + (0.01 * this->useStep);
    }
 
-   // This is the only place we set the actual scale.
+   // This is the only place we set the actual axis scale.
    //
    this->plot->setAxisScale (this->axisId, this->useMin, this->useMax, this->useStep);
 }
@@ -180,11 +225,11 @@ double QEGraphic::Axis::pointToReal (const int pos) const
 {
    double x;
 
-   // Perform basic inverse transformation.
+   // Perform basic inverse transformation - pixel to axis coordinates.
    //
    x = this->plot->invTransform (this->axisId, pos);
 
-   // Scale to real world units.
+   // Scale from axis to real world units.
    //
    x = (x - this->offset) / this->scale;
 
@@ -289,7 +334,7 @@ void QEGraphic::Axis::setLogarithmic (const bool isLogarithmicIn)
 
       // Do immediate trasition and reset
       //
-      this->determineAxis (this->target);
+      this->determineAxisScale ();
       this->transitionCount = 0;
    }
 }
@@ -336,12 +381,28 @@ void QEGraphic::construct ()
    this->xAxis = new Axis (this->plot, QwtPlot::xBottom);
    this->yAxis = new Axis (this->plot, QwtPlot::yLeft);
 
+   for (int j = 0; j < ARRAY_LENGTH (this->markups); j++) {
+      this->markups [j] = NULL;
+   }
+
+   this->markups [AREA_MARKUP] = new QEGraphicAreaMarkup (this);
+   this->markups [LINE_MARKUP] = new QEGraphicLineMarkup (this);
+   this->markups [CROSSHAIRES_MARKUP] = new QEGraphicCrosshairsMarkup (this);
+   this->markups [HORIZONTAL_1_MARKUP] = new QEGraphicHorizontalMarkup (this, 1);
+   this->markups [HORIZONTAL_2_MARKUP] = new QEGraphicHorizontalMarkup (this, 2);
+   this->markups [HORIZONTAL_3_MARKUP] = new QEGraphicHorizontalMarkup (this, 3);
+   this->markups [HORIZONTAL_4_MARKUP] = new QEGraphicHorizontalMarkup (this, 4);
+   this->markups [VERTICAL_1_MARKUP] = new QEGraphicVerticalMarkup (this, 1);
+   this->markups [VERTICAL_2_MARKUP] = new QEGraphicVerticalMarkup (this, 2);
+   this->markups [VERTICAL_3_MARKUP] = new QEGraphicVerticalMarkup (this, 3);
+   this->markups [VERTICAL_4_MARKUP] = new QEGraphicVerticalMarkup (this, 4);
+
    // Set defaults.
    //
-   this->leftIsDefined = false;
    this->rightIsDefined = false;
 
    this->pen = QPen (QColor (0, 0, 0, 255));  // black
+   // go with default brush for now.
    this->hint = QwtPlotItem::RenderAntialiased;
    this->style = QwtPlotCurve::Lines;
 
@@ -352,6 +413,12 @@ void QEGraphic::construct ()
 
    this->plot->canvas()->setMouseTracking (true);
    this->plot->canvas()->installEventFilter (this);
+
+   // Refresh Dynamic Rescaling the stip chart at 20Hz.
+   //
+   this->tickTimer = new QTimer (this);
+   connect (this->tickTimer, SIGNAL (timeout ()), this, SLOT (tickTimeout ()));
+   this->tickTimer->start (50);  // mSec = 0.05 s
 }
 
 //------------------------------------------------------------------------------
@@ -368,9 +435,16 @@ QEGraphic::~QEGraphic ()
       delete this->plotGrid;
       this->plotGrid  = NULL;
    }
-}
 
-// static int k = 100001;
+   delete this->xAxis;
+   delete this->yAxis;
+
+   for (int j = 0; j < ARRAY_LENGTH (this->markups); j++) {
+      if (this->markups [j]) {
+         delete this->markups [j];
+      }
+   }
+}
 
 //------------------------------------------------------------------------------
 //
@@ -384,10 +458,17 @@ bool QEGraphic::doDynamicRescaling ()
 
    result = a||b;
    if (result) {
-      this->plot->replot();
+      this->graphicReplot ();
    }
 
    return result;
+}
+
+//------------------------------------------------------------------------------
+//
+void  QEGraphic::tickTimeout ()
+{
+   this->doDynamicRescaling ();
 }
 
 //------------------------------------------------------------------------------
@@ -406,6 +487,16 @@ void QEGraphic::setBackgroundColour (const QColor colour)
 void QEGraphic::setGridPen (const QPen& pen)
 {
    this->plotGrid->setPen (pen);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEGraphic::setCrosshairsVisible (const bool isVisible)
+{
+   QEGraphicMarkup* markup =  this->markups [CROSSHAIRES_MARKUP];
+   if (markup) {
+      markup->setVisible (isVisible);
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -434,10 +525,10 @@ QPoint QEGraphic::realToPoint (const QPointF& pos) const
 
 //------------------------------------------------------------------------------
 //
-void QEGraphic::releaseCurves ()
+void QEGraphic::releaseCurveList (CurveList& list)
 {
-   for (int j = 0; j < this->curveList.size (); j++) {
-      QwtPlotCurve* curve = this->curveList.value (j);
+   for (int j = 0; j < list.size (); j++) {
+      QwtPlotCurve* curve = list.value (j);
       if (curve) {
          curve->detach ();
          delete curve;
@@ -446,7 +537,16 @@ void QEGraphic::releaseCurves ()
 
    // This clears the list of (now) dangaling curve references.
    //
-   this->curveList.clear ();
+   list.clear ();
+}
+
+//------------------------------------------------------------------------------
+// Releases all curves
+//
+void QEGraphic::releaseCurves ()
+{
+   this->releaseCurveList (this->userCurveList);
+   this->releaseCurveList (this->markupCurveList);
 }
 
 //------------------------------------------------------------------------------
@@ -455,13 +555,13 @@ void QEGraphic::attchOwnCurve (QwtPlotCurve* curve)
 {
    if (curve) {
       curve->attach (this->plot);
-      this->curveList.append (curve);
+      this->userCurveList.append (curve);
    }
 }
 
 //------------------------------------------------------------------------------
 //
-void QEGraphic::plotCurveData (const DoubleVector& xData, const DoubleVector& yData)
+QwtPlotCurve* QEGraphic::createCurveData (const DoubleVector& xData, const DoubleVector& yData)
 {
    QwtPlotCurve* curve;
    DoubleVector useXData;
@@ -472,6 +572,7 @@ void QEGraphic::plotCurveData (const DoubleVector& xData, const DoubleVector& yD
    // Set curve propeties using current curve attributes.
    //
    curve->setPen (this->getCurvePen ());
+   curve->setBrush (this->getCurveBrush ());
    curve->setRenderHint (this->getCurveRenderHint ());
    curve->setStyle (this->getCurveStyle ());
 
@@ -497,197 +598,224 @@ void QEGraphic::plotCurveData (const DoubleVector& xData, const DoubleVector& yD
    curve->setData (useXData, useYData);
 #endif
 
-   // Attach to this QwtPlot object.
+   // Attach new curve to the plot object.
    //
-   this->attchOwnCurve (curve);
+   curve->attach (this->plot);
+
+   return curve;
 }
 
 //------------------------------------------------------------------------------
 //
-bool QEGraphic::rightButtonPressed ()
+void QEGraphic::plotCurveData (const DoubleVector& xData, const DoubleVector& yData)
 {
-   return this->rightIsDefined;
+   QwtPlotCurve* curve;
+   curve = this->createCurveData (xData, yData);
+   this->userCurveList.append (curve);
 }
 
 //------------------------------------------------------------------------------
 //
-bool QEGraphic::getLeftIsDefined ()
+void QEGraphic::plotMarkupCurveData (const DoubleVector& xData, const DoubleVector& yData)
 {
-   return this->leftIsDefined;
+   QwtPlotCurve* curve;
+   curve = this->createCurveData (xData, yData);
+   this->markupCurveList.append (curve);
 }
 
 //------------------------------------------------------------------------------
 //
-bool QEGraphic::getLeftIsDefined (QPoint& distance)
+void QEGraphic::plotMarkups ()
 {
-   if (this->leftIsDefined) {
-      distance = this->currentPosition - this->leftOrigin;
-   }
-   return this->leftIsDefined;
-}
-
-//------------------------------------------------------------------------------
-//
-bool QEGraphic::getLeftIsDefined (QPointF& distance)
-{
-   if (this->leftIsDefined) {
-      QPointF realCurrent = this->pointToReal (this->currentPosition);
-      QPointF realLeftOrigin    = this->pointToReal (this->leftOrigin);
-
-      distance = realCurrent - realLeftOrigin;
-   }
-   return this->leftIsDefined;
-}
-
-//------------------------------------------------------------------------------
-//
-bool QEGraphic::getLeftIsDefined (QPointF& from, QPointF& to)
-{
-   if (this->leftIsDefined) {
-      to   = this->pointToReal (this->currentPosition);
-      from = this->pointToReal (this->leftOrigin);
-   }
-   return this->leftIsDefined;
-}
-
-//------------------------------------------------------------------------------
-//
-bool QEGraphic::getRightIsDefined ()
-{
-   return this->rightIsDefined;
-}
-
-//------------------------------------------------------------------------------
-//
-bool QEGraphic::getRightIsDefined (QPoint& distance)
-{
-   if (this->rightIsDefined) {
-      distance = this->currentPosition - this->rightOrigin;
-   }
-   return this->rightIsDefined;
-}
-
-//------------------------------------------------------------------------------
-//
-bool QEGraphic::getRightIsDefined (QPointF& distance)
-{
-   if (this->rightIsDefined) {
-      QPointF realCurrent = this->pointToReal (this->currentPosition);
-      QPointF realRightOrigin = this->pointToReal (this->rightOrigin);
-
-      distance = realCurrent - realRightOrigin;
-   }
-   return this->rightIsDefined;
-}
-
-//------------------------------------------------------------------------------
-//
-bool QEGraphic::getRightIsDefined (QPointF& from, QPointF& to)
-{
-   if (this->rightIsDefined) {
-      to   = this->pointToReal (this->currentPosition);
-      from = this->pointToReal (this->rightOrigin);
-   }
-   return this->leftIsDefined;
-}
-
-//------------------------------------------------------------------------------
-//
-void QEGraphic::plotSelectedLeft (const bool isArea)
-{
-   QPointF p1;
-   QPointF p2;
-   DoubleVector xdata;
-   DoubleVector ydata;
-
-   if (this->leftIsDefined) {
-
-      // Convert from canvas co-ords to real world co-ords to allow plotting
-      //
-      p1 = pointToReal (this->leftOrigin);
-      p2 = pointToReal (this->currentPosition);
-
-      // Form arrays.
-      //
-      if (isArea) {
-         xdata << p1.x ();  ydata << p1.y ();
-         xdata << p2.x ();  ydata << p1.y ();
-         xdata << p2.x ();  ydata << p2.y ();
-         xdata << p1.x ();  ydata << p2.y ();
-         xdata << p1.x ();  ydata << p1.y ();
-      } else {
-         xdata << p1.x ();  ydata << p1.y ();
-         xdata << p2.x ();  ydata << p2.y ();
+   for (int j = 0; j < ARRAY_LENGTH (this->markups); j++) {
+      if (this->markups [j]) {
+         this->markups [j]->plot ();
       }
-
-      this->plotCurveData (xdata, ydata);
    }
 }
 
 //------------------------------------------------------------------------------
 //
-void QEGraphic::plotSelectedRight (const bool isArea)
+void QEGraphic::graphicReplot ()
 {
-   QPointF p1;
-   QPointF p2;
-   DoubleVector xdata;
-   DoubleVector ydata;
-
-   if (this->rightIsDefined) {
-      // Convert from canvas co-ords to real world co-ords to allow plotting
-      //
-      p1 = pointToReal (this->rightOrigin);
-      p2 = pointToReal (this->currentPosition);
-
-      // Form arrays.
-      //
-      if (isArea) {
-         xdata << p1.x ();  ydata << p1.y ();
-         xdata << p2.x ();  ydata << p1.y ();
-         xdata << p2.x ();  ydata << p2.y ();
-         xdata << p1.x ();  ydata << p2.y ();
-         xdata << p1.x ();  ydata << p1.y ();
-      } else {
-         xdata << p1.x ();  ydata << p1.y ();
-         xdata << p2.x ();  ydata << p2.y ();
-      }
-
-      this->plotCurveData (xdata, ydata);
-   }
+   this->releaseCurveList (this->markupCurveList);
+   this->plotMarkups ();
+   this->plot->replot ();
 }
-
-void QEGraphic::plotCrossHairs ()
-{
-    QPointF p0;
-    double min;
-    double max;
-    DoubleVector xdata;
-    DoubleVector ydata;
-
-    p0 = pointToReal (this->currentPosition);
-
-    this->yAxis->getRange (min, max);
-    xdata.clear ();    ydata.clear ();
-    xdata << p0.x ();  ydata << min;
-    xdata << p0.x ();  ydata << max;
-    this->plotCurveData (xdata, ydata);
-
-    this->xAxis->getRange (min, max);
-    xdata.clear ();  ydata.clear ();
-    xdata << min;    ydata << p0.y ();
-    xdata << max;    ydata << p0.y ();
-    this->plotCurveData (xdata, ydata);
-
-}
-
 
 //------------------------------------------------------------------------------
 //
-QPoint QEGraphic::pixelDistance (const QPointF& from, const QPointF& to)
+bool QEGraphic::rightButtonPressed () const
+{
+   return this->rightIsDefined;
+}
+
+//------------------------------------------------------------------------------
+//
+bool QEGraphic::getSlopeIsDefined (QPointF& slope) const
+{
+   bool result;
+   QEGraphicLineMarkup* markup = static_cast <QEGraphicLineMarkup*> (this->markups [LINE_MARKUP]);
+
+   if (markup && markup->isVisible ()) {
+      slope = markup->getSlope ();
+      result = true;
+   } else {
+      slope = QPointF (0.0, 0.0);
+      result = false;
+   }
+   return result;
+}
+
+//------------------------------------------------------------------------------
+//
+QPoint QEGraphic::pixelDistance (const QPointF& from, const QPointF& to) const
 {
    QPoint pointFrom = this->realToPoint (from);
    QPoint pointTo = this->realToPoint (to);
    return pointTo - pointFrom;
+}
+
+//------------------------------------------------------------------------------
+//
+QEGraphicMarkup* QEGraphic::mouseIsOverMarkup ()
+{
+   QEGraphicMarkup* search;
+   int minDistance;
+
+   search = NULL;
+   minDistance = 100000;  // some unfeasible large distance. A real distance much smaller.
+
+   for (int j = 0; j < ARRAY_LENGTH (this->markups); j++) {
+      QEGraphicMarkup* markup = this->markups [j];
+      if (markup) {
+         int dist;
+         if (markup->isOver (this->realMousePosition, dist)) {
+            // Note: <=  operator. All things being equal this means:
+            // Last in, best dressed.  That is essentially the same as the
+            // plotMarkups, i.e. we find the markup the user can see.
+            //
+            if (dist <= minDistance) {
+               minDistance = dist;
+               search = markup;
+            }
+         }
+      }
+   }
+   return search;
+}
+
+//------------------------------------------------------------------------------
+//
+void QEGraphic::canvasMousePress (QMouseEvent* mouseEvent)
+{
+   Qt::MouseButton button;
+   QEGraphicMarkup* search;
+
+   button = mouseEvent->button ();
+   this->realMousePosition = this->pointToReal (mouseEvent->pos ());
+
+   search = NULL;
+
+   // We can always "find" AREA_MARKUP/LINE_MARKUP.
+   //
+   if (button == Qt::LeftButton) {
+      search = this->markups [AREA_MARKUP];
+   } else if (button == Qt::RightButton) {
+      search = this->markups [LINE_MARKUP];
+   }
+
+   // Is press over/closer an existing/visible markup?
+   // Iff we found something, then replace search.
+   //
+   QEGraphicMarkup* t = this->mouseIsOverMarkup ();
+   if (t) search = t;
+
+   // Mark this markup as selected.
+   //
+   if (search) {
+      search->setSelected (true);
+   }
+
+   for (int j = 0; j < ARRAY_LENGTH (this->markups); j++) {
+      QEGraphicMarkup* markup = this->markups [j];
+      if (markup && markup->isSelected ()) {
+         markup->mousePress (this->realMousePosition, button);
+      }
+   }
+
+   if (button == Qt::RightButton) {
+      this->rightIsDefined = true;
+   }
+
+   // Treat as a mouse move as well.
+   this->canvasMouseMove (mouseEvent, true);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEGraphic::canvasMouseRelease (QMouseEvent* mouseEvent)
+{
+   Qt::MouseButton button;
+
+   button = mouseEvent->button ();
+   this->realMousePosition = this->pointToReal (mouseEvent->pos ());
+
+   for (int j = 0; j < ARRAY_LENGTH (this->markups); j++) {
+      QEGraphicMarkup* markup = this->markups [j];
+      if (markup && markup->isSelected ()) {
+         markup->mouseRelease (this->realMousePosition, button);
+         this->plot->canvas()->setCursor (Qt::CrossCursor);
+      }
+   }
+
+   if (button == Qt::RightButton) {
+      this->rightIsDefined = false;
+   }
+
+   // Treat as a mouse move as well.
+   this->canvasMouseMove (mouseEvent, true);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEGraphic::canvasMouseMove (QMouseEvent* mouseEvent, const bool isButtonAction)
+{
+   bool replotIsRequired;
+
+   this->realMousePosition = this->pointToReal (mouseEvent->pos ());
+
+   replotIsRequired = false;
+   for (int j = 0; j < ARRAY_LENGTH (this->markups); j++) {
+      QEGraphicMarkup* markup = this->markups [j];
+      if (markup && markup->isSelected ()) {
+         markup->mouseMove (this->realMousePosition);
+         // A selected item will need replotted.
+         //
+         replotIsRequired = true;
+      }
+   }
+
+   if (replotIsRequired | isButtonAction ) {
+      this->graphicReplot ();
+   }
+
+   if (!replotIsRequired) {
+      // Nothing selected. Is cursor over markup
+      //
+      QEGraphicMarkup* search;
+      QCursor cursor;
+
+      search = this->mouseIsOverMarkup ();
+      if (search) {
+         cursor = search->getCursor ();
+      } else {
+         cursor = Qt::CrossCursor;
+      }
+      this->plot->canvas()->setCursor (cursor);
+   }
+
+   emit mouseMove (this->realMousePosition);
 }
 
 //------------------------------------------------------------------------------
@@ -703,76 +831,23 @@ bool QEGraphic::eventFilter (QObject* obj, QEvent* event)
       case QEvent::MouseButtonPress:
          mouseEvent = static_cast<QMouseEvent *> (event);
          if (obj == this->plot->canvas ()) {
-            // save where we are.
-            //
-            this->currentPosition = mouseEvent->pos ();
-            switch (mouseEvent->button ()) {
-               case Qt::LeftButton:
-                  this->leftOrigin = mouseEvent->pos ();
-                  this->leftIsDefined = true;
-                  emit mouseMove (this->pointToReal (this->currentPosition));
-                  return true;  // we have handled this mouse press
-                  break;
-
-               case Qt::RightButton:
-                  this->rightOrigin = mouseEvent->pos ();
-                  this->rightIsDefined = true;
-                  emit mouseMove (this->pointToReal (this->currentPosition));
-                  return true;  // we have handled this mouse press
-                  break;
-
-               default:
-                  break;
-            }
+            this->canvasMousePress (mouseEvent);
+            return true;  // we have handled this mouse press
          }
          break;
-
 
       case QEvent::MouseButtonRelease:
          mouseEvent = static_cast<QMouseEvent *> (event);
          if (obj == this->plot->canvas ()) {
-            // save where we are.
-            //
-            this->currentPosition = mouseEvent->pos ();
-
-            switch (mouseEvent->button ()) {
-               case Qt::LeftButton:
-                  if (this->leftIsDefined) {
-                     this->leftIsDefined = false;
-                     emit leftSelected (this->pointToReal (this->leftOrigin),
-                                        this->pointToReal (this->currentPosition));
-                     emit mouseMove (this->pointToReal (this->currentPosition));
-                     return true;  // we have handled this mouse press
-                  }
-                  break;
-
-               case Qt::RightButton:
-                  if (this->rightIsDefined) {
-                     this->rightIsDefined = false;
-                     emit rightSelected (this->pointToReal (this->rightOrigin),
-                                         this->pointToReal (this->currentPosition));
-                     emit mouseMove (this->pointToReal (this->currentPosition));
-                     return true;  // we have handled this mouse press
-                  }
-                  break;
-
-               default:
-                  break;
-            }
+            this->canvasMouseRelease (mouseEvent);
+            return true;  // we have handled this mouse press
          }
          break;
 
       case QEvent::MouseMove:
          mouseEvent = static_cast<QMouseEvent *> (event);
          if (obj == this->plot->canvas ()) {
-            // save where we are.
-            //
-            this->currentPosition = mouseEvent->pos ();
-
-            // Convert to real world coordinates and send to amyome interested.
-            //
-            emit mouseMove (this->pointToReal (this->currentPosition));
-
+            this->canvasMouseMove (mouseEvent, false);
             return true;  // we have handled move nouse event
          }
          break;
@@ -781,16 +856,21 @@ bool QEGraphic::eventFilter (QObject* obj, QEvent* event)
          wheelEvent = static_cast<QWheelEvent *> (event);
          if (obj == this->plot->canvas ()) {
 
-            emit wheelRotate (this->pointToReal (this->currentPosition),
+            emit wheelRotate (this->realMousePosition,
                               wheelEvent->delta ());
 
             return true;  // we have handled wheel event
          }
          break;
 
-      default:
+      case QEvent::Resize:
+         if (obj == this->plot->canvas ()) {
+            this->graphicReplot ();
+         }
          break;
 
+      default:
+         break;
    }
 
    return false;
@@ -799,25 +879,29 @@ bool QEGraphic::eventFilter (QObject* obj, QEvent* event)
 //------------------------------------------------------------------------------
 //
 void QEGraphic::setXRange (const double min, const double max,
-                           const AxisMajorIntervalModes mode, const int value)
+                           const AxisMajorIntervalModes mode, const int value,
+                           const bool immediate)
 {
-   this->xAxis->setRange (min, max, mode, value);
+   this->xAxis->setRange (min, max, mode, value, immediate);
 }
-
 
 //------------------------------------------------------------------------------
 //
 void QEGraphic::setYRange (const double min, const double max,
-                           const AxisMajorIntervalModes mode, const int value)
+                           const AxisMajorIntervalModes mode, const int value,
+                           const bool immediate)
 {
-   this->yAxis->setRange (min, max, mode, value);
+   this->yAxis->setRange (min, max, mode, value, immediate);
 }
 
 //------------------------------------------------------------------------------
 //
 void QEGraphic::replot ()
 {
-   this->plot->replot();
+   // User artefacts already plotted - now do markup plots.
+   //
+   this->plotMarkups ();
+   this->plot->replot ();
 }
 
 //------------------------------------------------------------------------------
@@ -827,8 +911,24 @@ void QEGraphic::setCurvePen (const QPen& penIn)
    this->pen = penIn;
 }
 
-QPen QEGraphic::getCurvePen () {
+//------------------------------------------------------------------------------
+//
+QPen QEGraphic::getCurvePen () const {
    return this->pen;
+}
+
+//------------------------------------------------------------------------------
+//
+void QEGraphic::setCurveBrush (const QBrush& brushIn)
+{
+   this->brush = brushIn;
+}
+
+//------------------------------------------------------------------------------
+//
+QBrush QEGraphic::getCurveBrush () const
+{
+   return this->brush;
 }
 
 //------------------------------------------------------------------------------
@@ -838,6 +938,8 @@ void QEGraphic::setCurveRenderHint (const QwtPlotItem::RenderHint hintIn)
    this->hint = hintIn;
 }
 
+//------------------------------------------------------------------------------
+//
 QwtPlotItem::RenderHint QEGraphic::getCurveRenderHint ()
 {
    return this->hint;
@@ -850,6 +952,8 @@ void QEGraphic::setCurveStyle (const QwtPlotCurve::CurveStyle styleIn)
    this->style = styleIn;
 }
 
+//------------------------------------------------------------------------------
+//
 QwtPlotCurve::CurveStyle QEGraphic::getCurveStyle ()
 {
    return this->style;

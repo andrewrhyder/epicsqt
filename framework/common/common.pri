@@ -14,6 +14,7 @@ HEADERS += \
    common/QEFrameworkVersion.h \
    common/QEPVNameSelectDialog.h \
    common/QEGraphic.h \
+   common/QEGraphicMarkup.h \
    common/QEOneToOne.h \
    common/QEScaling.h \
    common/QEScanTimers.h \
@@ -31,6 +32,7 @@ SOURCES += \
    common/QEFrameworkVersion.cpp \
    common/QEPVNameSelectDialog.cpp \
    common/QEGraphic.cpp \
+   common/QEGraphicMarkup.cpp \
    common/QEScaling.cpp \
    common/QEScanTimers.cpp \
    common/PasswordDialog.cpp \

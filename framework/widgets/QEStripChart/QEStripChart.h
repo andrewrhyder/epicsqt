@@ -186,9 +186,6 @@ private:
    // Recalculates plots chart data
    //
    void recalculateData ();
-
-   void plotSelectedArea ();
-   void plotOriginToPoint ();
    void plotData ();
 
    // Internal widgets and state data.
@@ -260,13 +257,6 @@ private:
 
    void captureState (QEStripChartState& chartState);
    void applyState (const QEStripChartState& chartState);
-
-   // Checks if the differance (distance) between mouse down and mouse up
-   // positions is sufficient and unambiguous. For a given diff, only one of
-   // these functions can return true, however both may return false.
-   //
-   bool isValidTRangeSelection (const QPoint& distance) const;
-   bool isValidYRangeSelection (const QPoint& distance) const;
 
    void addPvName (const QString& pvName);
 
