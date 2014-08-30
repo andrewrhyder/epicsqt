@@ -32,7 +32,7 @@ INCLUDEPATH += . \
    ../../framework/adaptation_parameters \
    ../../framework/archive \
    ../../framework/common \
-   ../../framework/data/include \
+   ../../framework/data \
    ../../framework/widgets/QEWidget
 
 OTHER_FILES += \

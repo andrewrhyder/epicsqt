@@ -104,10 +104,9 @@ INCLUDEPATH += . \
     ../../framework/widgets/QEWidget \
     ../../framework/widgets/QEForm \
     ../../framework/widgets/QELogin \
-    ../../framework/data/include \
-    ../../framework/api/include \
-    ../../framework/common \
-    ../../framework/include
+    ../../framework/data \
+    ../../framework/api \
+    ../../framework/common
 
 # Explicity add ../../framework/common, and hence QEFrameworkVersion.h, to the dependacy path
 # so that changes to the version/release numbers force relavent recompilations.

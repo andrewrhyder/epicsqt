@@ -47,9 +47,8 @@ HEADERS += \
 INCLUDEPATH += \
     ./include \
     ../../framework/widgets/QEWidget \
-    ../../framework/data/include \
-    ../../framework/api/include \
-    ../../framework/include
+    ../../framework/data \
+    ../../framework/api
 
 LIBS += -L../../framework/designer -lQEPlugin
 
