@@ -54,12 +54,16 @@ bool QEDisplayRanges::operator == (const QEDisplayRanges& other) const
       //
       if (this->isDefined) {
          // Both defined.
+         //
          result = (this->minimum == other.minimum) && (this->maximum == other.maximum);
       } else {
          // Both undefined.
+         //
          result = true;
       }
    } else {
+      // One defined, one undefined.
+      //
       result = false;
    }
 
@@ -67,11 +71,46 @@ bool QEDisplayRanges::operator == (const QEDisplayRanges& other) const
 }
 
 //------------------------------------------------------------------------------
-// Define != as not == , this ensures consistancy as is only sensible definition.
+// Define != as not == , this ensures consistancy as is the only sensible definition.
 //
 bool QEDisplayRanges::operator != (const QEDisplayRanges& other) const
 {
    return !(*this == other);
+}
+
+//------------------------------------------------------------------------------
+//
+bool QEDisplayRanges::isSimilar (const QEDisplayRanges& other, const double tolerance) const
+{
+   bool result;
+
+   if (this->isDefined == other.isDefined) {
+      // Both defined or both not defined.
+      //
+      if (this->isDefined) {
+         // Both defined.
+         //
+         double s1 = this->maximum -this->minimum;
+         double s2 = other.maximum - other.minimum;
+
+         double d1 = ABS(this->minimum - other.minimum);
+         double d2 = ABS(this->maximum - other.maximum);
+
+         double q = MAX (d1, d2) / MIN (s1, s2);
+
+         result = (q <= tolerance);
+      } else {
+         // Both undefined, i.e. equal.
+         //
+         result = true;
+      }
+   } else {
+      // One defined, one undefined.
+      //
+      result = false;
+   }
+
+   return result;
 }
 
 //------------------------------------------------------------------------------
