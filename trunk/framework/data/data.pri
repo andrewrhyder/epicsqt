@@ -5,51 +5,51 @@
 #
 
 INCLUDEPATH += \
-   data/include
+   data
 
 HEADERS += \
-   data/include/QCaAlarmInfo.h \
-   data/include/QCaConnectionInfo.h \
-   data/include/QCaDataPoint.h \
-   data/include/QCaDateTime.h \
-   data/include/QCaEventFilter.h \
-   data/include/QCaEventUpdate.h \
-   data/include/QCaObject.h \
-   data/include/QCaStateMachine.h \
-   data/include/QCaVariableNamePropertyManager.h \
-   data/include/QEByteArray.h \
-   data/include/QEFloating.h \
-   data/include/QEFloatingArray.h \
-   data/include/QEFloatingFormatting.h \
-   data/include/QEInteger.h \
-   data/include/QEIntegerArray.h \
-   data/include/QEIntegerFormatting.h \
-   data/include/QELocalEnumeration.h \
-   data/include/QEString.h \
-   data/include/QEStringFormatting.h \
-   data/include/qepicspv.h
+   data/QCaAlarmInfo.h \
+   data/QCaConnectionInfo.h \
+   data/QCaDataPoint.h \
+   data/QCaDateTime.h \
+   data/QCaEventFilter.h \
+   data/QCaEventUpdate.h \
+   data/QCaObject.h \
+   data/QCaStateMachine.h \
+   data/QCaVariableNamePropertyManager.h \
+   data/QEByteArray.h \
+   data/QEFloating.h \
+   data/QEFloatingArray.h \
+   data/QEFloatingFormatting.h \
+   data/QEInteger.h \
+   data/QEIntegerArray.h \
+   data/QEIntegerFormatting.h \
+   data/QELocalEnumeration.h \
+   data/QEString.h \
+   data/QEStringFormatting.h \
+   data/qepicspv.h
 
 
 SOURCES += \
-   data/src/QCaAlarmInfo.cpp \
-   data/src/QCaConnectionInfo.cpp \
-   data/src/QCaDataPoint.cpp \
-   data/src/QCaDateTime.cpp \
-   data/src/QCaEventFilter.cpp \
-   data/src/QCaEventUpdate.cpp \
-   data/src/QCaObject.cpp \
-   data/src/QCaStateMachine.cpp \
-   data/src/QCaVariableNamePropertyManager.cpp \
-   data/src/QEByteArray.cpp \
-   data/src/QEFloating.cpp \
-   data/src/QEFloatingArray.cpp \
-   data/src/QEFloatingFormatting.cpp \
-   data/src/QEInteger.cpp \
-   data/src/QEIntegerArray.cpp \
-   data/src/QEIntegerFormatting.cpp \
-   data/src/QELocalEnumeration.cpp \
-   data/src/QEString.cpp \
-   data/src/QEStringFormatting.cpp \
-   data/src/qepicspv.cpp
+   data/QCaAlarmInfo.cpp \
+   data/QCaConnectionInfo.cpp \
+   data/QCaDataPoint.cpp \
+   data/QCaDateTime.cpp \
+   data/QCaEventFilter.cpp \
+   data/QCaEventUpdate.cpp \
+   data/QCaObject.cpp \
+   data/QCaStateMachine.cpp \
+   data/QCaVariableNamePropertyManager.cpp \
+   data/QEByteArray.cpp \
+   data/QEFloating.cpp \
+   data/QEFloatingArray.cpp \
+   data/QEFloatingFormatting.cpp \
+   data/QEInteger.cpp \
+   data/QEIntegerArray.cpp \
+   data/QEIntegerFormatting.cpp \
+   data/QELocalEnumeration.cpp \
+   data/QEString.cpp \
+   data/QEStringFormatting.cpp \
+   data/qepicspv.cpp
 
 # end
