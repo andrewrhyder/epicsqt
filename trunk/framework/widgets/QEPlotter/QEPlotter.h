@@ -373,11 +373,6 @@ private:
    void selectDataSet (const int slot);
    void highLight (const int slot, const bool isHigh);
 
-   // Optional mark ups
-   void plotSelectedArea ();      // rectangle
-   void plotOriginToPoint ();     // line - origin to target
-   void plotCrosshairs ();        // vertical and horizontal lines
-
    void calcCrosshairIndex (const double x);
 
    void plot ();
@@ -396,13 +391,6 @@ private:
    void setYRange (const double yMinimum, const double yMaximum);
 
    void setReadOut (const QString& text);
-
-   // Checks if the differance (distance) between mouse down and mouse up
-   // positions is sufficient and unambiguous. For a given diff, only one of
-   // these functions can returns true, however both may return false.
-   //
-   bool isValidXRangeSelection (const QPoint& diff) const;
-   bool isValidYRangeSelection (const QPoint& diff) const;
 
    void captureState (QEPlotterState& state);
    void applyState (const QEPlotterState& state);
@@ -515,6 +503,7 @@ private slots:
 
    void scaleSelect    (const QPointF& origin, const QPointF& offset);
    void lineSelected   (const QPointF& origin, const QPointF& offset);
+   void crosshairsMove (const QPointF& posn);
 
    friend class DataSets;
 };

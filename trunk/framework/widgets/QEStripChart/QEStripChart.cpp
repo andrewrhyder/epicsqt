@@ -285,11 +285,11 @@ void QEStripChart::createInternalWidgets ()
    QObject::connect (this->plotArea, SIGNAL (wheelRotate   (const QPointF&, const int)),
                      this,           SLOT   (zoomInOut     (const QPointF&, const int)));
 
-   QObject::connect (this->plotArea, SIGNAL (leftSelected  (const QPointF&, const QPointF&)),
-                     this,           SLOT   (scaleSelect   (const QPointF&, const QPointF&)));
+   QObject::connect (this->plotArea, SIGNAL (areaDefinition (const QPointF&, const QPointF&)),
+                     this,           SLOT   (scaleSelect    (const QPointF&, const QPointF&)));
 
-   QObject::connect (this->plotArea, SIGNAL (rightSelected (const QPointF&, const QPointF&)),
-                     this,           SLOT   (lineSelected  (const QPointF&, const QPointF&)));
+   QObject::connect (this->plotArea, SIGNAL (lineDefinition (const QPointF&, const QPointF&)),
+                     this,           SLOT   (lineSelected   (const QPointF&, const QPointF&)));
 
    // Create layouts.
    //
@@ -414,48 +414,6 @@ void QEStripChart::recalculateData ()
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::plotSelectedArea ()
-{
-   QPoint s;
-   QPen pen;
-
-   if (this->plotArea->getLeftIsDefined (s)) {
-      this->plotArea->setCurveRenderHint (QwtPlotItem::RenderAntialiased);
-      this->plotArea->setCurveStyle (QwtPlotCurve::Lines);
-
-      if (this->isValidTRangeSelection (s) ||
-          this->isValidYRangeSelection (s)) {
-         pen.setColor(QColor (0x60E060));   // greenish
-      } else {
-         pen.setColor(QColor (0xC08080));   // redish gray
-      }
-      pen.setWidth (1);
-      this->plotArea->setCurvePen (pen);
-
-      this->plotArea->plotSelectedLeft (true);
-   }
-}
-
-//------------------------------------------------------------------------------
-//
-void QEStripChart::plotOriginToPoint ()
-{
-   QPen pen;
-
-   if (this->plotArea->getRightIsDefined ()) {
-      this->plotArea->setCurveRenderHint (QwtPlotItem::RenderAntialiased);
-      this->plotArea->setCurveStyle (QwtPlotCurve::Lines);
-
-      pen.setColor(QColor (0x80C0E0));  // blueish
-      pen.setWidth (1);
-      this->plotArea->setCurvePen (pen);
-
-      this->plotArea->plotSelectedRight (false);
-   }
-}
-
-//------------------------------------------------------------------------------
-//
 void QEStripChart::plotData ()
 {
    unsigned int slot;
@@ -487,7 +445,7 @@ void QEStripChart::plotData ()
       this->timeUnits = "days";
    }
 
-   this->plotArea->setXScale (1.0/timeScale);
+   this->plotArea->setXScale (1.0 / this->timeScale);
    this->plotArea->setXLogarithmic (false);
    this->plotArea->setYLogarithmic (this->yScaleMode == QEStripChartNames::log);
 
@@ -500,22 +458,14 @@ void QEStripChart::plotData ()
       }
    }
 
-   // Draw selected area box if defined.
-   //
-   this->plotSelectedArea ();
-
-   // Draw origin to target line if defined..
-   //
-   this->plotOriginToPoint ();
-
    if (this->chartYScale == QEStripChartNames::dynamic) {
       // Re-calculate chart range.
       //
       this->calcDisplayMinMax ();
    }
 
-   this->plotArea->setYRange (this->getYMinimum (), this->getYMaximum (), QEGraphic::SelectBySize, 40);
-   this->plotArea->setXRange (-d/this->timeScale, 0.0, QEGraphic::SelectByNumber, 5);
+   this->plotArea->setYRange (this->getYMinimum (), this->getYMaximum (), QEGraphic::SelectBySize, 40, false);
+   this->plotArea->setXRange (-d/this->timeScale, 0.0, QEGraphic::SelectByValue, 5, false);
 
    this->plotArea->replot ();
 
@@ -553,35 +503,20 @@ void QEStripChart::plotData ()
 
 //------------------------------------------------------------------------------
 //
-bool QEStripChart::isValidTRangeSelection (const QPoint& diff) const
-{
-   const int minDiff = 8;
-   return ((diff.x () > minDiff) && (diff.x () > ABS (3 * diff.y ())));
-}
-
-//------------------------------------------------------------------------------
-//
-bool QEStripChart::isValidYRangeSelection (const QPoint& diff) const
-{
-   const int minDiff = 8;
-   return ((diff.y () > minDiff) && (diff.y () > ABS (3 * diff.x ())));
-}
-
-//------------------------------------------------------------------------------
-//
 void QEStripChart::scaleSelect (const QPointF& start, const QPointF& finish)
 {
    QPoint distance = this->plotArea->pixelDistance (start, finish);
 
-   // Only proceed if user has un-ambiguously selected x scaling or y scaling.
+   // The QEGraphic validates the selection, i.e. that user has un-ambiguously
+   // selected x (time) scaling or y scaling. Need only figure out which one.
    //
-   if (this->isValidYRangeSelection (distance)) {
+   if (ABS (distance.y ()) >=  ABS (distance.x ())) {
       // Makeing a Y scale adjustment.
       //
       this->setYRange (finish.y (), start.y ());
       this->pushState ();
 
-   } else if (this->isValidTRangeSelection (distance)) {
+   } else  {
       // Makeing a time scale adjustment.
       //
       double dt;
@@ -606,9 +541,8 @@ void QEStripChart::scaleSelect (const QPointF& start, const QPointF& finish)
       this->setEndDateTime (et);
       this->pushState ();
 
-   } else {
-      this->replotIsRequired = true;
    }
+   this->replotIsRequired = true;
 }
 
 //------------------------------------------------------------------------------
@@ -665,7 +599,7 @@ void QEStripChart::plotMouseMove  (const QPointF& posn)
    f.sprintf ("  %+.10g", real.y ());
    mouseReadOut.append (f);
 
-   if (this->plotArea->getRightIsDefined (slope)) {
+   if (this->plotArea->getSlopeIsDefined (slope)) {
       const double dt = slope.x ();
       const double dy = slope.y ();
 
@@ -691,11 +625,6 @@ void QEStripChart::plotMouseMove  (const QPointF& posn)
    }
 
    this->setReadOut (mouseReadOut);
-
-   if (this->plotArea->getLeftIsDefined () ||
-      this->plotArea->getRightIsDefined ()) {
-      this->replotIsRequired = true;
-   }
 }
 
 //------------------------------------------------------------------------------
@@ -786,8 +715,14 @@ QEStripChart::QEStripChart (QWidget * parent) : QEFrame (parent)
 
    this->setMinimumSize (1080, 400);   // keep this and sizeHint consistant
 
+   // Construct internal widgets for this chart.
+   //
+   this->createInternalWidgets ();
+
    this->timeZoneSpec = Qt::LocalTime;
-   this->duration = 600;  // ten minutes.
+   this->duration = 600;     // ten minutes.
+   this->timeScale = 60.0;   // minutes
+   this->timeUnits = "mins";
 
    // We always use UTC (EPICS) time within the strip chart.
    // Set directly here as using setEndTime has side effects.
@@ -797,6 +732,10 @@ QEStripChart::QEStripChart (QWidget * parent) : QEFrame (parent)
    this->yMinimum = 0.0;
    this->yMaximum = 100.0;
 
+   this->plotArea->setXScale (1.0 / this->timeScale);
+   this->plotArea->setXRange (-this->duration / this->timeScale, 0.0, QEGraphic::SelectByValue, 5, true);
+   this->plotArea->setYRange (this->yMinimum, this->yMaximum, QEGraphic::SelectBySize, 40, true);
+
    this->variableNameSubstitutions = "";
    this->setNumVariables (0);
 
@@ -804,10 +743,6 @@ QEStripChart::QEStripChart (QWidget * parent) : QEFrame (parent)
    //
    this->timeDialog = new QEStripChartTimeDialog (this);
    this->yRangeDialog = new QEStripChartRangeDialog (this);
-
-   // Construct internal widgets for this chart.
-   //
-   this->createInternalWidgets ();
 
    // Refresh the stip chart at 1Hz.
    //
@@ -946,10 +881,6 @@ void QEStripChart::tickTimeout ()
    if (this->recalcIsRequired) {
       this->recalculateData ();
    }
-
-   // Progress any on-going chart rescaling.
-   //
-   this->plotArea->doDynamicRescaling ();
 
    if ((this->tickTimerCount % 20) == 0) {
       // 20th update, i.e. 1 second has passed - must replot.
