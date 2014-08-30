@@ -149,12 +149,12 @@ void QETable::DataSets::rePopulateTable ()
 
 //==============================================================================
 // Slot range checking macro function.
-// Set default to nil for void functions.
+// Set defaultValue to nil for void functions.
 //
-#define SLOT_CHECK(slot, default) {                                \
+#define SLOT_CHECK(slot, defaultValue) {                           \
    if ((slot < 0) || (slot >= ARRAY_LENGTH (this->dataSet))) {     \
       DEBUG << "slot out of range: " << slot;                      \
-      return default;                                              \
+      return defaultValue;                                         \
    }                                                               \
 }
 
@@ -178,6 +178,9 @@ QETable::QETable (QWidget* parent) : QEAbstractWidget (parent)
    this->layout->setMargin (0);    // extact fit.
    this->layout->addWidget (this->table);
 
+   this->table->setMouseTracking (true);
+   this->table->horizontalHeader()->installEventFilter (this);
+   this->table->verticalHeader()->installEventFilter (this);
 
    // Initialise data set objects.
    // These are declared as array as opposed to being dynamically allocated,
@@ -191,6 +194,8 @@ QETable::QETable (QWidget* parent) : QEAbstractWidget (parent)
    //
    this->displayMaximum = 0x1000;
    this->selection = NULL_SELECTION;
+   this->emitSelectionChangeInhibited = false;
+   this->columnWidthMinimum = 80;
    this->orientation = Qt::Vertical;
    this->setNumVariables (ARRAY_LENGTH (this->dataSet));
    this->setMinimumSize (120, 50);
@@ -213,7 +218,7 @@ QETable::QETable (QWidget* parent) : QEAbstractWidget (parent)
       QCaVariableNamePropertyManager* vpnm;
 
       vpnm = &this->dataSet [slot].variableNameManager;
-      vpnm->setVariableIndex (slot);
+      vpnm->setVariableIndex (slot);   // Use slot as variable index.
 
       QObject::connect (vpnm, SIGNAL (newVariableNameProperty (QString, QString, unsigned int)),
                         this, SLOT   (setNewVariableName      (QString, QString, unsigned int)));
@@ -223,6 +228,7 @@ QETable::QETable (QWidget* parent) : QEAbstractWidget (parent)
    //
    QObject::connect (this->table, SIGNAL (currentCellChanged (int, int, int, int)),
                      this,        SLOT   (currentCellChanged (int, int, int, int)));
+
 }
 
 //---------------------------------------------------------------------------------
@@ -243,6 +249,13 @@ void QETable::fontChange (const QFont&)
    if (this->table) {
       this->table->setFont (this->font ());
    }
+}
+
+//---------------------------------------------------------------------------------
+//
+void QETable::resizeEvent (QResizeEvent*)
+{
+   this->resizeCoulumns ();
 }
 
 //------------------------------------------------------------------------------
@@ -342,6 +355,28 @@ bool QETable::isVertical () const
 
 //---------------------------------------------------------------------------------
 //
+void QETable::resizeCoulumns ()
+{
+   int count;
+   int otherStuff;
+   int colWidth;
+
+   count = this->table->columnCount ();
+   count = MAX (1, count);
+
+   // Allow for side headers and scroll bar.
+   //
+   otherStuff = table->verticalHeader()->width() + 20;
+   colWidth = (this->table->width () - otherStuff) / count;
+   colWidth = MAX (this->columnWidthMinimum, colWidth);
+
+   for (int col = 0; col < count; col++) {
+      this->table->setColumnWidth (col, colWidth);
+   }
+}
+
+//---------------------------------------------------------------------------------
+//
 void QETable::rePopulateTable ()
 {
    this->table->setRowCount (1);
@@ -350,6 +385,7 @@ void QETable::rePopulateTable ()
    for (int slot = 0; slot < ARRAY_LENGTH (this->dataSet); slot++) {
       this->dataSet [slot].rePopulateTable ();
    }
+   this->resizeCoulumns ();
 }
 
 //------------------------------------------------------------------------------
@@ -387,19 +423,22 @@ void QETable::setNewVariableName (QString variableName,
    } else {
       this->table->setRowCount (count);
    }
+   this->resizeCoulumns ();
 }
 
 //---------------------------------------------------------------------------------
-// User has clicked on cell or used up/down/left/right key to select cell.
+// User has clicked on cell or used up/down/left/right key to select cell,
+// or we have programtically selected a row/coll.
 //
 void QETable::currentCellChanged (int currentRow, int currentCol, int, int)
 {
-   if (this->isVertical ()) {
-      this->selection = currentRow;
-   } else {
-      this->selection = currentCol;
+   this->selection = (this->isVertical () ? currentRow : currentCol);
+
+   // This prevents infinite looping in the case of cyclic connections.
+   //
+   if (!this->emitSelectionChangeInhibited) {
+      emit this->selectionChanged (this->selection);
    }
-   emit selectionChanged (this->selection);
 }
 
 //------------------------------------------------------------------------------
@@ -408,18 +447,22 @@ void QETable::setSelection (int selectionIn)
 {
    // A negative selection means no selection
    //
-   if (selectionIn >= 0) {
+   if (selectionIn < 0) selectionIn = NULL_SELECTION;
+   if (this->selection != selectionIn) {
       this->selection = selectionIn;
-      if (this->isVertical ()) {
-         this->table->selectRow (selectionIn);
+
+      this->emitSelectionChangeInhibited = true;
+      if (selectionIn >= 0) {
+         if (this->isVertical ()) {
+            this->table->selectRow (selectionIn);
+         } else {
+            this->table->selectColumn (selectionIn);
+         }
       } else {
-         this->table->selectColumn (selectionIn);
+         this->table->clearSelection ();
       }
-   } else {
-      this->selection = NULL_SELECTION;
-      this->table->clearSelection ();
+      this->emitSelectionChangeInhibited = false;
    }
-   emit selectionChanged (this->selection);
 }
 
 //------------------------------------------------------------------------------
@@ -483,6 +526,25 @@ void QETable::setDisplayMaximum (const int displayMaximumIn)
 int QETable::getDisplayMaximum () const
 {
     return this->displayMaximum;
+}
+
+//------------------------------------------------------------------------------
+//
+void QETable::setColumnWidthMinimum (const int minimumColumnWidthIn)
+{
+   int temp = LIMIT (minimumColumnWidthIn, 20, 320);
+
+   if (this->columnWidthMinimum != temp) {
+      this->columnWidthMinimum = temp;
+      this->resizeCoulumns ();
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+int QETable::getColumnWidthMinimum () const
+{
+   return this->columnWidthMinimum;
 }
 
 //------------------------------------------------------------------------------

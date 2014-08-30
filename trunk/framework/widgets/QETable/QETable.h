@@ -44,31 +44,33 @@
 #include <QCaVariableNamePropertyManager.h>
 #include <QEPluginLibrary_global.h>
 
-// QEAbstractWidget provides all standard QEWidget properties
-//
+/*!
+   This class provides an EPICS aware table widget which is capable of displaying
+   upto 20 array PVs in tabular form. When in the default vertical orientation
+   each column displays a consecutive elemnent from an array EPICS variable.
+
+   When in horizonal mode, the table and functionality is transposed.
+
+   It is tighly integrated, via theQEAbstractWidget, with the base class QEWidget
+   class which provides generic support such as macro substitutions, drag/drop,
+   and standard properties. QEAbstractWidget provides all standard properties.
+ */
 class QEPLUGINLIBRARYSHARED_EXPORT QETable : public QEAbstractWidget {
 
    Q_OBJECT
 
-   // Strictly this defines the max number of variables. Must be consistant with the
-   // number of variable name properties below and calls to PROPERTY_ACCESS below.
+   // Must be consistant with the number of variable name properties below and
+   // calls to PROPERTY_ACCESS below.
    //
-   #define NUMBER_OF_VARIABLES 20
+   #define MAXIMUM_NUMBER_OF_VARIABLES 20
 
    // QETable specific properties ===============================================
+   /// EPICS variable names (CA PV)
+   //
    // Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
    // A property name ending with 'Name' results in some sort of string a variable being displayed,
    // but will only accept alphanumeric and won't generate callbacks on change.
-
-   /// Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1[,] NAME2=VALUE2...
-   /// Values may be quoted strings. For example, 'PUMP=PMP3, NAME = "My Pump"'
-   /// These substitutions are applied to variable names for all QE widgets.
-   /// In some widgets are are also used for other purposes.
-   ///
-   Q_PROPERTY (QString variableSubstitutions READ getSubstitutions WRITE setSubstitutions)
-
-   /// EPICS variable names (CA PV)
-   ///
+   //
    Q_PROPERTY (QString variableName1  READ getVariableName1    WRITE setVariableName1)
    Q_PROPERTY (QString variableName2  READ getVariableName2    WRITE setVariableName2)
    Q_PROPERTY (QString variableName3  READ getVariableName3    WRITE setVariableName3)
@@ -90,9 +92,23 @@ class QEPLUGINLIBRARYSHARED_EXPORT QETable : public QEAbstractWidget {
    Q_PROPERTY (QString variableName19 READ getVariableName19   WRITE setVariableName19)
    Q_PROPERTY (QString variableName20 READ getVariableName20   WRITE setVariableName20)
 
-   /// The maximum number of array elements that will be displayed. Defaults to 4096.
+   /// Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1[,] NAME2=VALUE2...
+   /// Values may be quoted strings. For example, 'PUMP=PMP3, NAME = "My Pump"'
+   /// These substitutions are applied to variable names for all QE widgets.
+   /// In some widgets are are also used for other purposes.
    ///
-   Q_PROPERTY (int displayMaximum     READ getDisplayMaximum   WRITE setDisplayMaximum)
+   Q_PROPERTY (QString variableSubstitutions READ getSubstitutions WRITE setSubstitutions)
+
+   /// Specified the minimum allow column width. The widget will shrink/expand the width
+   /// of each column to as to exactly fit the with of the widget. However, columns will
+   /// not shrink to less than the value provided by this property. Defaults to 80.
+   ///
+   Q_PROPERTY (int colWidthMinimum    READ getColumnWidthMinimum   WRITE setColumnWidthMinimum)
+
+   /// The maximum number of array elements that will be displayed irrespective of the
+   /// number of elements that the EPICS variable contains. Defaults to 4096.
+   ///
+   Q_PROPERTY (int displayMaximum     READ getDisplayMaximum       WRITE setDisplayMaximum)
 
    /// Determines if the variable values are displayed in rows (orientation is horizontal)
    /// or in columns (orientation is vertical). The default is vertical.
@@ -125,6 +141,9 @@ public:
 
    void setSubstitutions (const QString& substitutions);
    QString getSubstitutions () const;
+
+   void setColumnWidthMinimum (const int columnWidthMinimum);
+   int getColumnWidthMinimum () const;
 
    void setDisplayMaximum (const int displayMaximum);
    int getDisplayMaximum () const;
@@ -163,13 +182,13 @@ public:
 
    #undef PROPERTY_ACCESS
 
-   // Expose access to the internal widget's set/get functions.
+   // Expose access to the internal table widget's set/get functions.
    //
    QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (table, bool,         showGrid,  setShowGrid)
    QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (table, Qt::PenStyle, gridStyle, setGridStyle)
 
 public slots:
-   // Selects col/row depending on orientation vertical/horizontal.
+   // Selects row/col depending on orientation vertical/horizontal.
    //
    void setSelection (int value);
 
@@ -190,6 +209,7 @@ signals:
 protected:
    QSize sizeHint () const;
    void fontChange (const QFont& font);
+   void resizeEvent (QResizeEvent* event);
 
    // override QEWidget fnctions.
    //
@@ -213,6 +233,7 @@ private:
    bool isVertical () const;
    void rePopulateTable ();
    void addVariableName (const QString& pvName);
+   void resizeCoulumns ();
 
    // Provides consistant interpretation of variableIndex.
    // Must be consistent with variableIndex allocation in the contructor.
@@ -225,6 +246,8 @@ private:
    Qt::Orientation orientation;
    QEFloatingFormatting floatingFormatting;
    int selection;
+   bool emitSelectionChangeInhibited;
+   int columnWidthMinimum;
 
    // Per PV data.
    //
@@ -249,7 +272,7 @@ private:
       int slot;
    };
 
-   DataSets dataSet [NUMBER_OF_VARIABLES];
+   DataSets dataSet [MAXIMUM_NUMBER_OF_VARIABLES];
 
 public slots:
    void setNewVariableName (QString variableNameIn,
