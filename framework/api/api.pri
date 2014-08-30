@@ -5,21 +5,21 @@
 #
 
 INCLUDEPATH += \
-    api/include
+    api
 
 HEADERS += \
-    api/include/Generic.h \
-    api/include/CaRecord.h \
-    api/include/CaRef.h \
-    api/include/CaObject.h \
-    api/include/CaConnection.h \
-    api/include/CaObjectPrivate.h
+    api/Generic.h \
+    api/CaRecord.h \
+    api/CaRef.h \
+    api/CaObject.h \
+    api/CaConnection.h \
+    api/CaObjectPrivate.h
 
 SOURCES += \
-    api/src/Generic.cpp \
-    api/src/CaRecord.cpp \
-    api/src/CaObject.cpp \
-    api/src/CaConnection.cpp \
-    api/src/CaRef.cpp
+    api/Generic.cpp \
+    api/CaRecord.cpp \
+    api/CaObject.cpp \
+    api/CaConnection.cpp \
+    api/CaRef.cpp
 
 # end
