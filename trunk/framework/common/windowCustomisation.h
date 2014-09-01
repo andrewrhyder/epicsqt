@@ -300,6 +300,8 @@ class windowCustomisationButtonItem : public windowCustomisationItem
 public:
     windowCustomisationButtonItem( // Construction
                             const QString buttonGroupIn,                         // Name of toolbar button group in which to place a button
+                            const QString buttonToolbarIn,                       // Name of toolbar in which to place a button
+                            const Qt::ToolBarArea buttonLocationIn,              // Location of toolbar in which to place a button
                             const QString buttonTextIn,                          // Text to place in button
                             const QString buttonIconIn,                          // Icon for button
 
@@ -310,12 +312,26 @@ public:
 
     windowCustomisationButtonItem( // Construction
                             const QString buttonGroupIn,                         // Name of toolbar button group in which to place a button
+                            const QString buttonToolbarIn,                       // Name of toolbar in which to place a button
+                            const Qt::ToolBarArea buttonLocationIn,              // Location of toolbar in which to place a button
+                            const QString buttonTextIn,                          // Text to place in button
+                            const QString buttonIconIn,                          // Icon for button
+
+                            const QString builtIn,                               // Name of built in function (built into the application or a QE widget). For example: 'Region 1'
+                            const QString widgetNameIn );                        // widget name if built in function is for a widget, not the application
+
+    windowCustomisationButtonItem( // Construction
+                            const QString buttonGroupIn,                         // Name of toolbar button group in which to place a button
+                            const QString buttonToolbarIn,                       // Name of toolbar in which to place a button
+                            const Qt::ToolBarArea buttonLocationIn,              // Location of toolbar in which to place a button
                             const QString buttonTextIn,                          // Text to place in button
                             const QString buttonIconIn );                        // Icon for button
 
     windowCustomisationButtonItem(windowCustomisationButtonItem* buttonItem);
 
     QString getButtonGroup(){ return buttonGroup; }
+    QString getButtonToolbar(){ return buttonToolbar; }
+    Qt::ToolBarArea getButtonLocation(){ return buttonLocation; }
     QString getButtonText(){ return buttonText; }
     QString getButtonIcon(){ return buttonIcon; }
 
@@ -323,9 +339,11 @@ private:
     // Button details.
     // All details are optional.
     // A button is created if buttonText or buttonIcon is available
-    QString buttonGroup;        // Name of toolbar button group in which to place a button
-    QString buttonText;         // Text to place in button
-    QString buttonIcon;         // Icon for button
+    QString buttonGroup;            // Name of toolbar button group in which to place a button
+    QString buttonToolbar;          // Name of toolbar in which to place a button
+    Qt::ToolBarArea buttonLocation; // Location of toolbar in which to place a button
+    QString buttonText;             // Text to place in button
+    QString buttonIcon;             // Icon for button
 };
 
 // Class defining the customisation of a window.

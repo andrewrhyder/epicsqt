@@ -300,6 +300,8 @@ void windowCustomisationMenuItem::prependMenuHierarchy( QStringList preMenuHiera
 // Construct instance of class defining an individual button item
 windowCustomisationButtonItem::windowCustomisationButtonItem(
                         const QString buttonGroupIn,                         // Name of toolbar button group in which to place a button
+                        const QString buttonToolbarIn,                       // Name of toolbar in which to place a button
+                        const Qt::ToolBarArea buttonLocationIn,              // Location of toolbar in which to place a button
                         const QString buttonTextIn,                          // Text to place in button
                         const QString buttonIconIn,                          // Icon for button
 
@@ -309,30 +311,57 @@ windowCustomisationButtonItem::windowCustomisationButtonItem(
                         const QStringList argumentsIn )                      // Arguments for 'program'
                             : windowCustomisationItem( launchRequestReceiver, windowsIn, programIn, argumentsIn )
 {
-    buttonGroup = buttonGroupIn;
-    buttonText = buttonTextIn;
-    buttonIcon = buttonIconIn;
+    buttonGroup    = buttonGroupIn;
+    buttonToolbar  = buttonToolbarIn;
+    buttonLocation = buttonLocationIn;
+    buttonText     = buttonTextIn;
+    buttonIcon     = buttonIconIn;
 }
 
 // Construct instance of class defining an individual button item
 windowCustomisationButtonItem::windowCustomisationButtonItem(
                         const QString buttonGroupIn,                         // Name of toolbar button group in which to place a button
+                        const QString buttonToolbarIn,                       // Name of toolbar in which to place a button
+                        const Qt::ToolBarArea buttonLocationIn,              // Location of toolbar in which to place a button
+                        const QString buttonTextIn,                          // Text to place in button
+                        const QString buttonIconIn,                          // Icon for button
+
+                        const QString builtIn,                               // Name of built in function (built into the application or a QE widget). For example: 'Region 1'
+                        const QString widgetNameIn )                        // widget name if built in function is for a widget, not the application
+                            : windowCustomisationItem( builtIn, widgetNameIn )
+{
+    buttonGroup    = buttonGroupIn;
+    buttonToolbar  = buttonToolbarIn;
+    buttonLocation = buttonLocationIn;
+    buttonText     = buttonTextIn;
+    buttonIcon     = buttonIconIn;
+}
+
+// Construct instance of class defining an individual button item
+windowCustomisationButtonItem::windowCustomisationButtonItem(
+                        const QString buttonGroupIn,                         // Name of toolbar button group in which to place a button
+                        const QString buttonToolbarIn,                       // Name of toolbar in which to place a button
+                        const Qt::ToolBarArea buttonLocationIn,              // Location of toolbar in which to place a button
                         const QString buttonTextIn,                          // Text to place in button
                         const QString buttonIconIn )                         // Icon for button
                             : windowCustomisationItem()
 {
-    buttonGroup = buttonGroupIn;
-    buttonText = buttonTextIn;
-    buttonIcon = buttonIconIn;
+    buttonGroup    = buttonGroupIn;
+    buttonToolbar  = buttonToolbarIn;
+    buttonLocation = buttonLocationIn;
+    buttonText     = buttonTextIn;
+    buttonIcon     = buttonIconIn;
 }
 
 // Copy construct
 windowCustomisationButtonItem::windowCustomisationButtonItem(windowCustomisationButtonItem* buttonItem)                  // New window customisation name (menu, buttons, etc)
                             : windowCustomisationItem( buttonItem )
 {
-    buttonGroup = buttonItem->getButtonGroup();
-    buttonText = buttonItem->getButtonText();
-    buttonIcon = buttonItem->getButtonIcon();
+    buttonGroup    = buttonItem->getButtonGroup();
+    buttonToolbar  = buttonItem->getButtonToolbar();
+    buttonLocation = buttonItem->getButtonLocation();
+    buttonText     = buttonItem->getButtonText();
+    buttonIcon     = buttonItem->getButtonIcon();
     setText(buttonText);
     setParent(this);
 
@@ -648,7 +677,7 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuPlaceholder( QDo
     return item;
 }
 
-// ???!!!
+// Parse the contents of a menu item or tool bar button
 bool windowCustomisationList::parseMenuAndButtonItem( QDomElement itemElement,
                                                       QString& title,
                                                       QList<windowCreationListItem>& windows,
@@ -658,6 +687,8 @@ bool windowCustomisationList::parseMenuAndButtonItem( QDomElement itemElement,
                                                       QStringList& arguments,
                                                       QString& dockTitle )
 {
+    // Get the name
+    //!!! should this be optional for a button if an icon is supplied???
     title = itemElement.attribute( "Name" );
     if( title.isEmpty() )
     {
@@ -885,21 +916,39 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
  windowCustomisationButtonItem*  windowCustomisationList::createButtonItem( QDomElement itemElement )
  {
     QString buttonGroup;
+    QString buttonToolbar;
+    Qt::ToolBarArea buttonLocation;
     QString buttonIcon;
 
     // Read GroupName
-    QDomNodeList list = itemElement.elementsByTagName( "GroupName" );
-    if (list.count() > 0)
+    buttonGroup = itemElement.attribute( "Group" );
+
+    // Read Toolbar name
+    buttonToolbar = itemElement.attribute( "Toolbar" );
+    if( buttonToolbar.isEmpty() )
     {
-        buttonGroup = list.at(0).toElement().text();
+        buttonToolbar = "Toolbar";
+    }
+
+    // Read Toolbar location
+    buttonLocation = Qt::TopToolBarArea;    // Assume top
+    QString location = itemElement.attribute( "Location" );
+
+    if( !location.compare( "Left") )
+    {
+        buttonLocation = Qt::LeftToolBarArea;
+    }
+    else if( !location.compare( "Right") )
+    {
+        buttonLocation = Qt::RightToolBarArea;
+    }
+    else if( !location.compare( "Bottom") )
+    {
+        buttonLocation = Qt::BottomToolBarArea;
     }
 
     // Read Icon
-    list = itemElement.elementsByTagName( "Icon" );
-    if (list.count() > 0)
-    {
-        buttonIcon = list.at(0).toElement().text();
-    }
+    buttonIcon = itemElement.attribute( "Icon" );
 
     QString title;                          // Menu item title
     QString program;                        // Program to run when the user selects this menu item
@@ -912,11 +961,37 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
 
      if( parseMenuAndButtonItem( itemElement, title, windows, builtIn, program, widgetName, arguments, dockTitle ) )
      {
-         // Add details for a button item to customisation set
-         windowCustomisationButtonItem* item = new windowCustomisationButtonItem(buttonGroup, title, buttonIcon, NULL/*!!! needs launch receiver object*/, windows, program,
-                                                               arguments );
+         // If any windows or a program, build an item that holds these
+         // (Not sure why these are grouped. Either all options (windows, program, or built-in) should be mutually exclusive, or any mix allowed
+         if( windows.count() || !program.isEmpty() )
+         {
+             // Add details for a button item to customisation set
+             windowCustomisationButtonItem* item = new windowCustomisationButtonItem( buttonGroup,
+                                                                                      buttonToolbar,
+                                                                                      buttonLocation,
+                                                                                      title,
+                                                                                      buttonIcon,
+                                                                                      NULL/*!!! needs launch receiver object*/,
+                                                                                      windows,
+                                                                                      program,
+                                                                                      arguments );
 
-         return item;
+             return item;
+         }
+         // No windows or program, so assume a built in function
+         else
+         {
+             // Add details for a button item to customisation set
+             windowCustomisationButtonItem* item = new windowCustomisationButtonItem( buttonGroup,
+                                                                                      buttonToolbar,
+                                                                                      buttonLocation,
+                                                                                      title,
+                                                                                      buttonIcon,
+                                                                                      builtIn,
+                                                                                      widgetName );
+
+             return item;
+         }
      }
      else
      {
@@ -1078,7 +1153,7 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw,              
         customisationInfo->menus.clear();
 
         // Remove all current toolbars
-        foreach (QToolBar* toolBar, customisationInfo->toolbars)
+        foreach (QToolBar* toolBar, customisationInfo->toolbars )
         {
             mw->removeToolBar( toolBar );
             delete toolBar;
@@ -1094,25 +1169,32 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw,              
         return;
     }
 
-    // Create the toolbar
-    QToolBar* mainToolBar = NULL;
-
     // Add the required toolbar buttons
     QList<windowCustomisationButtonItem*> bList = customisation->getButtons();
     for ( int i = 0; i < bList.length(); i++ )
     {
-        windowCustomisationButtonItem* item = new windowCustomisationButtonItem(bList.at(i));
+        QToolBar* tb;
+
+        windowCustomisationButtonItem* item = new windowCustomisationButtonItem( bList.at(i) );
 
         // If there is no toolbar yet, create it
-        if( !mainToolBar )
+        // Note, the toolbar location is set when the toolbar is first created.
+        // If buttons request the same toolbar name, but different locations, the firs one in wins.
+        QMap<QString, QToolBar*>::const_iterator i = customisationInfo->toolbars.find( item->getButtonToolbar() );
+        if( i != customisationInfo->toolbars.end() )
         {
-            mainToolBar = new QToolBar( "Toolbar", mw );
-            mainToolBar->setObjectName(QString::fromUtf8( "mainToolBar" ));
-            mw->addToolBar(Qt::TopToolBarArea, mainToolBar);
+            tb = i.value();
+        }
+        else
+        {
+            tb = new QToolBar( item->getButtonToolbar(), mw );
+            mw->addToolBar( item->getButtonLocation(), tb );
+
+            customisationInfo->toolbars.insert( item->getButtonToolbar(), tb );
         }
 
         // Add button action
-        mainToolBar->addAction( item );
+        tb->addAction( item );
 
         // Set up an action to respond to the user
         QObject::connect( item, SIGNAL( newGui( const QEActionRequests& ) ),
