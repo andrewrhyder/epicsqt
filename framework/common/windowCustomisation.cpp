@@ -1180,10 +1180,10 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw,              
         // If there is no toolbar yet, create it
         // Note, the toolbar location is set when the toolbar is first created.
         // If buttons request the same toolbar name, but different locations, the firs one in wins.
-        QMap<QString, QToolBar*>::const_iterator i = customisationInfo->toolbars.find( item->getButtonToolbar() );
-        if( i != customisationInfo->toolbars.end() )
+        QMap<QString, QToolBar*>::const_iterator itb = customisationInfo->toolbars.find( item->getButtonToolbar() );
+        if( itb != customisationInfo->toolbars.end() )
         {
-            tb = i.value();
+            tb = itb.value();
         }
         else
         {
@@ -1195,6 +1195,21 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw,              
 
         // Add button action
         tb->addAction( item );
+
+        // Set the icon if possible
+        if( !item->getButtonIcon().isEmpty() )
+        {
+            QFile* file = QEWidget::findQEFile( item->getButtonIcon() );
+            if( file )
+            {
+                QIcon icon = QIcon( file->fileName() );
+                if( !icon.isNull() )
+                {
+                    item->setIcon( icon );
+                }
+                delete file;
+            }
+        }
 
         // Set up an action to respond to the user
         QObject::connect( item, SIGNAL( newGui( const QEActionRequests& ) ),
