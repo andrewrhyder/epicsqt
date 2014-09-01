@@ -35,6 +35,8 @@
 #include <QObject>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QString>
+#include <QStringList>
 #include <QTimer>
 #include <QVector>
 #include <QWidget>
@@ -194,15 +196,34 @@ public:
    bool getYLogarithmic () const;
 
    int  getCrosshairIndex () const;
+
 signals:
-   void crosshairIndexChanged (int value);          // Indicates data index cossponding to (vertical) crosshairs
-   void requestAction (const QEActionRequests&);    // Signal 'launch a GUI'
+   // Indicates data index cossponding to (vertical) crosshairs.
+   //
+   void crosshairIndexChanged (int value);
+
+   // Set, get and emit set of active data PV names.
+   // Note: this applies to the data PV names only and does not include any sizing PVs.
+   //
+public slots:
+   void setDataPvNameSet (const QStringList& pvNameSet);
+
+public:
+   QStringList getDataPvNameSet () const;
+
+signals:
+   void pvDataNameSetChanged (const QStringList& nameSet);
+
+   // Signal to 'launch a GUI'
+   //
+   void requestAction (const QEActionRequests&);
 
 protected:
    // Implementation of QEWidget's virtual funtions
    //
    qcaobject::QCaObject* createQcaItem (unsigned int variableIndex);
    void establishConnection (unsigned int variableIndex);
+   void activated ();
    bool eventFilter (QObject *obj, QEvent *event);
 
    // Drag and drop
@@ -284,6 +305,7 @@ private:
    int  crosshairIndex;
    bool crosshairsAreRequired;  // controls both plotting and signal emmisions
    bool replotIsRequired;
+   bool emitPvNameSetChangeInhibited;
    QEIntegerFormatting  integerFormatting;
    QEFloatingFormatting floatingFormatting;
 

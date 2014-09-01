@@ -311,6 +311,7 @@ void QEPlotter::createInternalWidgets ()
    this->nameValue->setAlignment (Qt::AlignRight);      \
    this->nameValue->setToolTip (tip);                   \
 }
+
    SET_VALUE_LABEL (minValue, "Minimum Value");
    SET_VALUE_LABEL (maxValue, "Maximum Value");
    SET_VALUE_LABEL (maxAtValue, "Maximum Value X co-ordinate");
@@ -557,6 +558,7 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
    this->selectedDataSet = 0;
    this->crosshairIndex = -1;
    this->crosshairsAreRequired = false;
+   this->emitPvNameSetChangeInhibited = false;
 
    this->setAllowDrop (false);
    this->setDisplayAlarmState (false);
@@ -721,6 +723,12 @@ void QEPlotter::setNewVariableName (QString variableName,
 
    this->replotIsRequired = true;
    this->setToolTipSummary ();
+
+   // This prevents infinite looping in the case of cyclic connections.
+   //
+   if (!this->emitPvNameSetChangeInhibited) {
+      emit this->pvDataNameSetChanged (this->getDataPvNameSet ());
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -819,9 +827,17 @@ void QEPlotter::establishConnection (unsigned int variableIndex)
    }
 }
 
-
 //------------------------------------------------------------------------------
 //
+void QEPlotter::activated ()
+{
+   // This prevents infinite looping in the case of cyclic connections.
+   //
+   if (!this->emitPvNameSetChangeInhibited) {
+      emit this->pvDataNameSetChanged (this->getDataPvNameSet ());
+   }
+}
+
 //------------------------------------------------------------------------------
 //
 int QEPlotter::findSlot (QObject *obj)
@@ -1554,6 +1570,40 @@ void QEPlotter::crosshairsMove (const QPointF& posn)
    //
    this->calcCrosshairIndex (posn.x ());
 }
+
+
+//------------------------------------------------------------------------------
+//
+void QEPlotter::setDataPvNameSet (const QStringList& pvNameSet)
+{
+   this->emitPvNameSetChangeInhibited = true;
+
+   for (int slot = 0; slot < ARRAY_LENGTH (this->xy); slot++) {
+      QString pvName = pvNameSet.value (slot, "");
+      this->setNewVariableName (pvName, "", 2*slot + 0);
+      this->setNewVariableName ("",     "", 2*slot + 1);
+   }
+
+   this->emitPvNameSetChangeInhibited = false;
+}
+
+//------------------------------------------------------------------------------
+//
+QStringList QEPlotter::getDataPvNameSet () const
+{
+   QStringList result;
+
+   for (int slot = 0; slot < ARRAY_LENGTH (this->xy); slot++) {
+      QString pvName = this->getXYExpandedDataPV (slot);
+
+      if (!pvName.isEmpty()) {
+         result.append (pvName);
+      }
+   }
+
+   return result;
+}
+
 
 //------------------------------------------------------------------------------
 //
