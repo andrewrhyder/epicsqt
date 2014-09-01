@@ -1508,7 +1508,7 @@ void  MainWindow::requestAction( const QEActionRequests & request )
                         macroSubstitutionList parts = macroSubstitutionList( pubProfile.getMacroSubstitutions() );
 
                         // If a main window was created (or a GUI was placed in an existing main window), set the main window title
-                        if( QString::compare( w->metaObject()->className(), "QMainWindow" ) == 0 )
+                        if( QString::compare( w->metaObject()->className(), "MainWindow" ) == 0 )
                         {
                             MainWindow* newMW = (MainWindow*)(w);
                             newMW->setTitle( parts.substitute( window->title ) );
