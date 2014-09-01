@@ -115,7 +115,7 @@ QEStripChartItem::QEStripChartItem (QEStripChart* chartIn,
 
    // We have to be general here.
    //
-   this->caLabel->setPrecision (9);
+   this->caLabel->setPrecision (6);
    this->caLabel->setUseDbPrecision (false);
    this->caLabel->setNotationProperty (QELabel::Automatic);
 
