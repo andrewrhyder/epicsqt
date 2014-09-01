@@ -166,6 +166,11 @@ void QEWidget::activate()
     // called by that class when a variable name is defined or changed
     for( unsigned int i = 0; i < numVariables; i++ )
         establishConnection( i );
+
+    // Ask the widget to perform any tasks which should only be done once all other widgets have been created.
+    // For example, if a widget wants to notify other widgets through signals during construction, other widgets
+    // may not be present yet to recieve the signals. This type of notification could be held off untill now.
+    activated();
 }
 
 /*
@@ -240,6 +245,15 @@ qcaobject::QCaObject* QEWidget::createQcaItem( unsigned int )
 void QEWidget::establishConnection( unsigned int )
 {
 }
+
+// Default implementation of activated().
+// Widgets may have tasks which should only be done once all other widgets have been created.
+// For example, if a widget wants to notify other widgets through signals during construction, other widgets
+// may not be present yet to recieve the signals. This type of notification could be held off untill now.
+void QEWidget::activated()
+{
+}
+
 
 
 /*

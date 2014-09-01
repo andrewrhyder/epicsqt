@@ -354,6 +354,7 @@ protected:
 
     virtual qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );  // Function to create a appropriate superclass of QCaObject to stream data updates
     virtual void establishConnection( unsigned int variableIndex );             // Create a CA connection and initiates updates if required
+    virtual void activated();                                                   // Do any post-all-widgets-constructed stuff
 
     QString persistantName( QString prefix );               // Returns a string that will not change between runs of the application (given the same configuration)
 
