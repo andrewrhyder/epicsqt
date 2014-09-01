@@ -46,8 +46,8 @@
 
 /*!
    This class provides an EPICS aware table widget which is capable of displaying
-   upto 20 array PVs in tabular form. When in the default vertical orientation
-   each column displays a consecutive elemnent from an array EPICS variable.
+   up to 20 array PVs in tabular form. When in the default vertical orientation
+   each column displays a consecutive element from an array EPICS variable.
 
    When in horizonal mode, the table and functionality is transposed.
 
