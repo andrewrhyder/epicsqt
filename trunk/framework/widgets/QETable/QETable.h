@@ -30,6 +30,7 @@
 #include <QHBoxLayout>
 #include <QList>
 #include <QString>
+#include <QStringList>
 #include <QSize>
 #include <QTableWidget>
 #include <QVector>
@@ -187,9 +188,9 @@ public:
    QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (table, bool,         showGrid,  setShowGrid)
    QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (table, Qt::PenStyle, gridStyle, setGridStyle)
 
-public slots:
    // Selects row/col depending on orientation vertical/horizontal.
    //
+public slots:
    void setSelection (int value);
 
 public:
@@ -197,6 +198,17 @@ public:
 
 signals:
    void selectionChanged (int value);
+
+   // Set, get and emit set of active PV names.
+   //
+public slots:
+   void setPvNameSet (const QStringList& pvNameSet);
+
+public:
+   QStringList getPvNameSet () const;
+
+signals:
+   void pvNameSetChanged (const QStringList& nameSet);
 
    // Note, the following signals are common to many QE widgets,
    // if changing the doxygen comments, ensure relevent changes are migrated to all instances
@@ -215,6 +227,7 @@ protected:
    //
    void establishConnection (unsigned int variableIndex);
    qcaobject::QCaObject* createQcaItem (unsigned int variableIndex);
+   void activated ();
 
    // Drag and Drop
    //
@@ -246,8 +259,9 @@ private:
    Qt::Orientation orientation;
    QEFloatingFormatting floatingFormatting;
    int selection;
-   bool emitSelectionChangeInhibited;
    int columnWidthMinimum;
+   bool emitSelectionChangeInhibited;
+   bool emitPvNameSetChangeInhibited;
 
    // Per PV data.
    //
@@ -274,12 +288,11 @@ private:
 
    DataSets dataSet [MAXIMUM_NUMBER_OF_VARIABLES];
 
-public slots:
+private slots:
    void setNewVariableName (QString variableNameIn,
                             QString variableNameSubstitutionsIn,
                             unsigned int variableIndex);
 
-private slots:
    void connectionChanged (QCaConnectionInfo& connectionInfo,
                            const unsigned int &variableIndex);
 

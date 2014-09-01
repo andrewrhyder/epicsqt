@@ -178,10 +178,6 @@ QETable::QETable (QWidget* parent) : QEAbstractWidget (parent)
    this->layout->setMargin (0);    // extact fit.
    this->layout->addWidget (this->table);
 
-   this->table->setMouseTracking (true);
-   this->table->horizontalHeader()->installEventFilter (this);
-   this->table->verticalHeader()->installEventFilter (this);
-
    // Initialise data set objects.
    // These are declared as array as opposed to being dynamically allocated,
    // so we need need post contruction configuration.
@@ -195,6 +191,7 @@ QETable::QETable (QWidget* parent) : QEAbstractWidget (parent)
    this->displayMaximum = 0x1000;
    this->selection = NULL_SELECTION;
    this->emitSelectionChangeInhibited = false;
+   this->emitPvNameSetChangeInhibited = false;
    this->columnWidthMinimum = 80;
    this->orientation = Qt::Vertical;
    this->setNumVariables (ARRAY_LENGTH (this->dataSet));
@@ -304,6 +301,17 @@ void QETable::establishConnection (unsigned int variableIndex)
 
    QObject::connect (qca, SIGNAL (floatingArrayChanged (const QVector<double>&, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)),
                      this, SLOT  (dataArrayChanged     (const QVector<double>&, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)));
+}
+
+//------------------------------------------------------------------------------
+//
+void QETable::activated ()
+{
+   // This prevents infinite looping in the case of cyclic connections.
+   //
+   if (!this->emitPvNameSetChangeInhibited) {
+      emit this->pvNameSetChanged (this->getPvNameSet ());
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -424,6 +432,12 @@ void QETable::setNewVariableName (QString variableName,
       this->table->setRowCount (count);
    }
    this->resizeCoulumns ();
+
+   // This prevents infinite looping in the case of cyclic connections.
+   //
+   if (!this->emitSelectionChangeInhibited) {
+      emit this->pvNameSetChanged (this->getPvNameSet ());
+   }
 }
 
 //---------------------------------------------------------------------------------
@@ -470,6 +484,39 @@ void QETable::setSelection (int selectionIn)
 int QETable::getSelection () const {
    return this->selection;
 }
+
+
+//------------------------------------------------------------------------------
+//
+void QETable::setPvNameSet (const QStringList& pvNameSet)
+{
+   this->emitPvNameSetChangeInhibited = true;
+
+   for (int slot = 0; slot < ARRAY_LENGTH (this->dataSet); slot++) {
+      QString pvName = pvNameSet.value (slot, "");
+      this->setNewVariableName (pvName, "", slot);
+   }
+
+   this->emitPvNameSetChangeInhibited = false;
+}
+
+//------------------------------------------------------------------------------
+//
+QStringList QETable::getPvNameSet () const
+{
+   QStringList result;
+
+   result.clear ();
+   for (int slot = 0; slot < ARRAY_LENGTH (this->dataSet); slot++) {
+      QString pvName = this->getSubstitutedVariableName (slot);
+      if (!pvName.isEmpty()) {
+         result.append (pvName);
+      }
+   }
+
+   return result;
+}
+
 
 //==============================================================================
 // Properties
