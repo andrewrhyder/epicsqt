@@ -38,6 +38,8 @@
 class QEPLUGINLIBRARYSHARED_EXPORT QEGenericEdit : public QLineEdit, public QEWidget {
 
 Q_OBJECT
+    Q_PROPERTY(QString text READ text WRITE setText DESIGNABLE false)
+
     // BEGIN-SINGLE-VARIABLE-PROPERTIES ===============================================
     // Single Variable properties
     // These properties should be identical for every widget using a single variable.
