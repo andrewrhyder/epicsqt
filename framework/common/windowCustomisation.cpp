@@ -43,6 +43,7 @@
 #include <QEWidget.h>
 #include <QDockWidget>
 #include <QEScaling.h>
+#include <macroSubstitution.h>
 
 //==============================================================================================
 // windowCustomisationItem
@@ -190,6 +191,7 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(
                           const QString titleIn,                               // Name of this item. for example: 'Region 1'
                           const menuObjectTypes typeIn,                        // type of menu object - must be MENU_ITEM
                           const bool separatorIn,                              // Separator required before this
+                          const itemCheckInfo& checkInfoIn,                    // Information about the item's checkable state
 
                           const QObject* launchRequestReceiver,                // Object (typically QEGui application) which will accept requests to launch a new GUI
                           const QList<windowCreationListItem>& windowsIn,      // Windows to display (centrals and docks)
@@ -201,6 +203,7 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(
     menuHierarchy = menuHierarchyIn;
     title = titleIn;
     separator = separatorIn;
+    checkInfo = checkInfoIn;
 
     log.add( "Adding menu item: ",  title );
 }
@@ -213,6 +216,7 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(
                           const QString titleIn,                               // Title for this item. for example: 'Region 1' Usually same as name of built in function. (for example, function='Copy' and title='Copy', but may be different (function='LaunchApplication1' and title='paint.exe')
                           const menuObjectTypes typeIn,                        // type of menu object - must be MENU_PLACEHOLDER or MENU_BUILT_IN
                           const bool separatorIn,                              // Separator required before this
+                          const itemCheckInfo& checkInfoIn,                     // Information about the item's checkable state
 
                           const QString builtIn,                               // Name of built in function (built into the application or a QE widget). For example: 'Region 1'
                           const QString widgetNameIn )                         // widget name if built in function is for a widget, not the application
@@ -223,6 +227,7 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(
     menuHierarchy = menuHierarchyIn;
     title = titleIn;
     separator = separatorIn;
+    checkInfo = checkInfoIn;
 
     log.add( "Adding menu item requesting an action: ",  title );
 }
@@ -234,7 +239,8 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(
                           const QStringList menuHierarchyIn,                   // Location in menus for application to place future items. for example: 'File' -> 'Recent'
                           const QString titleIn,                               // Identifier of placeholder. for example: 'Recent'
                           const menuObjectTypes typeIn,                        // type of menu object - must be MENU_PLACEHOLDER or MENU_BUILT_IN
-                          const bool separatorIn )                             // Separator required before this
+                          const bool separatorIn,                              // Separator required before this
+                          const itemCheckInfo& checkInfoIn )                    // Information about the item's checkable state
 
                           : windowCustomisationItem( titleIn )
 {
@@ -242,6 +248,7 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(
     menuHierarchy = menuHierarchyIn;
     title = titleIn;
     separator = separatorIn;
+    checkInfo = checkInfoIn;
 
     log.add( "Adding placeholder menu item: ",  title );
 }
@@ -254,6 +261,7 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(
                       const QString titleIn,                               // Title for this item. for example: 'Brightness/Contrast' Must match the title of the dock widget it is to be associated with.
                       const menuObjectTypes typeIn,                        // type of menu object - must be MENU_ITEM
                       const bool separatorIn,                              // Separator required before this
+                      const itemCheckInfo& checkInfoIn,                     // Information about the item's checkable state
 
                       const QString dockTitleIn )                          // Title of existing dock widget to assocaite the menu item with
                       : windowCustomisationItem( dockTitleIn, true )
@@ -262,6 +270,7 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(
     menuHierarchy = menuHierarchyIn;
     title = titleIn;
     separator = separatorIn;
+    checkInfo = checkInfoIn;
 
     log.add( "Adding menu item linked to a dock: ",  title );
 }
@@ -277,6 +286,7 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(windowCustomisationMenu
     setText(title);
     setParent(this);
     separator = menuItem->separator;
+    checkInfo = menuItem->checkInfo;
 
     // Set up an action to respond to the user
     connect( this, SIGNAL( triggered()), this, SLOT(itemAction()));
@@ -642,14 +652,13 @@ void windowCustomisationList::parseMenuElement( QDomElement element, windowCusto
     }
 }
 
-// Determine if an item contains a 'separator' tag
+// Determine if an item contains a 'Separator' tag
 bool windowCustomisationList::requiresSeparator( QDomElement itemElement )
 {
     // Determine if separator is required
     QDomElement separatorElement = itemElement.firstChildElement( "Separator" );
     return !separatorElement.isNull();
 }
-
 
 //// Add details for a menu item to customisation set
 //windowCustomisationMenuItem* windowCustomisationList::createMenuBuiltIn( QDomElement itemElement, QStringList menuHierarchy)
@@ -673,7 +682,8 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuPlaceholder( QDo
     // Add details for a placeholder (where the applicaiton can add menu items) to customisation set
     windowCustomisationMenuItem* item = new windowCustomisationMenuItem( log, menuHierarchy, name,
                                                                          windowCustomisationMenuItem::MENU_PLACEHOLDER,
-                                                                         requiresSeparator( itemElement ) );
+                                                                         requiresSeparator( itemElement ),
+                                                                         itemCheckInfo( itemElement ) );
     return item;
 }
 
@@ -871,6 +881,7 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
                                                                                  title,
                                                                                  windowCustomisationMenuItem::MENU_ITEM,
                                                                                  requiresSeparator( itemElement ),
+                                                                                 itemCheckInfo( itemElement ),
 
                                                                                  dockTitle );
             return item;
@@ -884,6 +895,7 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
                                                                                  title,
                                                                                  windowCustomisationMenuItem::MENU_BUILT_IN,
                                                                                  requiresSeparator( itemElement ),
+                                                                                 itemCheckInfo( itemElement ),
 
                                                                                  builtIn,
                                                                                  widgetName );
@@ -898,6 +910,7 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
                                                                                  title,
                                                                                  windowCustomisationMenuItem::MENU_ITEM,
                                                                                  requiresSeparator( itemElement ),
+                                                                                 itemCheckInfo( itemElement ),
 
                                                                                  NULL/*!!! needs launch receiver object*/,
                                                                                  windows,
@@ -1238,6 +1251,17 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw,              
 
             case windowCustomisationMenuItem::MENU_ITEM:
                 {
+                    // Make the item checkable if required (and if nessesary checked)
+                    itemCheckInfo checkInfo = menuItem->getCheckInfo();
+                    if( checkInfo.getCheckable() )
+                    {
+                        menuItem->setCheckable( true );
+
+                        ContainerProfile profile;
+                        macroSubstitutionList parts = macroSubstitutionList( profile.getMacroSubstitutions() );
+                        menuItem->setChecked( parts.getValue( checkInfo.getKey() ) == checkInfo.getValue() );
+                    }
+
                     // Set up an action to respond to the user
                     QObject::connect( menuItem, SIGNAL( newGui( const QEActionRequests& ) ),
                                       mw, SLOT( requestAction( const QEActionRequests& ) ) );
@@ -1449,4 +1473,42 @@ void windowCustomisationList::useDock( QDockWidget* dock )
     }
 }
 
-// end
+// Constructor
+itemCheckInfo::itemCheckInfo()
+{
+    checkable = false;
+}
+
+// itemCheckInfo constructor.
+// Parses xml to determine if an item is checkable (check box or radio button) and if it is exclusive (a radio button)
+itemCheckInfo::itemCheckInfo( QDomElement itemElement )
+{
+    // Assume not checkable
+    checkable = false;
+
+    // Determine if a item is to be presented checkable
+    QDomElement element = itemElement.firstChildElement( "Checkable" );
+    if( !element.isNull() )
+    {
+        // Note it is checkable
+        checkable = true;
+
+        // Get the macro substitution key and value that will be used to determine if it is checked
+        QString subs = element.text();
+        macroSubstitutionList macros( subs );
+        if( macros.getCount() == 1 )
+        {
+            key = macros.getKey( 0 );
+            value = macros.getValue( 0 );
+        }
+    }
+}
+
+// Copy constructor
+itemCheckInfo::itemCheckInfo( const itemCheckInfo &other )
+{
+    key = other.key;
+    value = other.value;
+    checkable = other.checkable;
+}
+

@@ -172,6 +172,23 @@ private:
     bool         error;  // Log reports an error (as well as normal processing)
 };
 
+// Class to determine if an item is checkable (check box or radio button) and if it is exclusive (a radio button)
+class itemCheckInfo
+{
+public:
+    itemCheckInfo();
+    itemCheckInfo( QDomElement itemElement );
+    itemCheckInfo( const itemCheckInfo &other );
+    const QString getKey(){ return key; }
+    const QString getValue(){ return value; }
+    bool getCheckable(){ return checkable; }
+
+private:
+    QString key;        // Macro substitution key
+    QString value;      // Macro substitution value
+    bool checkable;     // True if checkable
+};
+
 
 // Class defining an individual item (base class for button or menu item)
 class windowCustomisationItem : public QAction
@@ -239,6 +256,7 @@ public:
                           const QString titleIn,                               // Name of this item. for example: 'Region 1'
                           const menuObjectTypes type,                          // type of menu object - must be MENU_ITEM
                           const bool separatorIn,                              // Separator required before this
+                          const itemCheckInfo& checkInfoIn,                     // Information about the item's checkable state
 
                           const QObject* launchRequestReceiver,                // Object (typically QEGui application) which will accept requests to launch a new GUI
                           const QList<windowCreationListItem>& windowsIn,      // Windows to display (centrals and docks)
@@ -252,7 +270,8 @@ public:
                           const QStringList menuHierarchyIn,                   // Location in menus for application to place future items. for example: 'File' -> 'Recent'
                           const QString titleIn,                               // Identifier of placeholder. for example: 'Recent'
                           const menuObjectTypes typeIn,                        // type of menu object - must be MENU_PLACEHOLDER
-                          const bool separatorIn );                            // Separator required before this
+                          const bool separatorIn,                              // Separator required before this
+                          const itemCheckInfo& checkInfoIn );                   // Information about the item's checkable state
 
     windowCustomisationMenuItem( // Construction (menu item to pass a action request on to the application, or a QE widget inthe application)
                           customisationLog& log,                               // Log of customisation files loaded for diagnosis.
@@ -261,6 +280,7 @@ public:
                           const QString titleIn,                               // Title for this item. for example: 'Region 1' Usually same as name of built in function. (for example, function='Copy' and title='Copy', but may be different (function='LaunchApplication1' and title='paint.exe')
                           const menuObjectTypes typeIn,                        // type of menu object - must be MENU_BUILT_IN
                           const bool separatorIn,                              // Separator required before this
+                          const itemCheckInfo& checkInfoIn,                     // Information about the item's checkable state
 
                           const QString builtIn,                               // Name of built in function (built into the application or a QE widget). For example: 'Region 1'
                           const QString widgetNameIn );                        // widget name if built in function is for a widget, not the application
@@ -272,6 +292,7 @@ public:
                           const QString titleIn,                               // Title for this item. for example: 'Region 1' Usually same as name of built in function. (for example, function='Copy' and title='Copy', but may be different (function='LaunchApplication1' and title='paint.exe')
                           const menuObjectTypes typeIn,                        // type of menu object - must be MENU_BUILT_IN
                           const bool separatorIn,                              // Separator required before this
+                          const itemCheckInfo& checkInfoIn,                     // Information about the item's checkable state
 
                           const QString dockTitleIn );                         // Title of existing dock widget to assocaite the menu item with
 
@@ -283,6 +304,7 @@ public:
     menuObjectTypes getType(){ return type; }
 
     bool hasSeparator(){ return separator; }
+    const itemCheckInfo& getCheckInfo() { return checkInfo; }
 
 private:
     menuObjectTypes type;
@@ -292,6 +314,7 @@ private:
     QStringList menuHierarchy;  // Location in menus to place this item. for example: 'Imaging'->'Region of interest'
     QString title;              // Name of this item. for example: 'Region 1'
     bool separator;             // Separator should appear before this item
+    itemCheckInfo checkInfo;    // Information about the item's checkable state
 };
 
 // Class defining an individual button item
