@@ -40,6 +40,7 @@
 #include <manageConfigDialog.h>
 #include <windowCustomisation.h>
 #include <QCloseEvent>
+#include <QDockWidget>
 
 // Only include PSI caQtDM integration if required.
 // To include PSI caQtDM stuff, don't define QE_USE_CAQTDM directly, define environment variable
@@ -237,6 +238,18 @@ private:
                                     // For example, in the plotter form, look for a QEPlotter
 
     windowCustomisationList::dockMap dockedComponents;          // List of docks created to host components from QE widgets. Used when applying customisations. (customisation system can link menu items to pre-existing docks)
+
+
+// Search for 'Centos6 visibility problem' to find other fragments of code and more doco on this problem.
+//
+// Can't set initial state of visibility of docks correctly on Centos6. This is part of a workaround for this problem.
+//++++++++++++++++++++++++++++++++++++++++++++++++
+private:
+    QList<QDockWidget*> unmanagedDocks;       // Docks that have not had visibility set yet
+    QList<bool>         unmanagedDockStates;  // Visibility states
+private slots:
+    void setUnmanagedDockVisibility( bool visible );    // Slot to set dock's visibility at a time when it can be set effectivly on Centos6
+//++++++++++++++++++++++++++++++++++++++++++++++++
 
 private slots:
     void on_actionManage_Configurations_triggered();

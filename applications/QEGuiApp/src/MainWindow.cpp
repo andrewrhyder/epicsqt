@@ -179,11 +179,12 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, QString customisationNa
 {
     app = appIn;
 
+    // Initialise pointers
     tabMenu = NULL;
     windowMenu = NULL;
     recentMenu = NULL;
     editMenu = NULL;
-    
+
     // Only include PSI caQtDM integration if required.
     // To include PSI caQtDM stuff, don't define QE_USE_CAQTDM directly, define environment variable
     // QE_CAQTDM to be processed by QEGuiApp.pro
@@ -1604,21 +1605,43 @@ void  MainWindow::requestAction( const QEActionRequests & request )
                     // Set floating if requested
                     dock->setFloating( component->creationOption == QEActionRequests::OptionFloatingDockWindow );
 
-// We should be able to set the initial state of visibility here, and on most OS we can,
-// but on Centos6 if hidden here to start with it is never shown when the user asked for the dock by checking the dock action.
-// If never hidden here and hidden latter if required when the dock action is added to a customisation menu it all seems to work OK.
-// A consequence of this is if no customisation menu item for this dock is created the dock will always be shown
-// even if it supposed to be hidden (component->hidden is true).
-// Perhaps a better solution worth trying would be to set a zero period timer for each dock to set it hidden if required after
-// all event processing is complete (which is when the timer event would be processed)
-// Search for 'Centos6 visibility problem' to find other fragments of code relating to this problem
 
                     // Set the state of the dock visibility check box. The dock will be hidden later if required to match this
                     QAction* action = dock->toggleViewAction();
                     action->setChecked( !component->hidden );
 
-                    // Set hidden if required
-                    dock->setVisible( !component->hidden );
+// Search for 'Centos6 visibility problem' to find other fragments of code and more doco on this problem.
+//
+// Can't set initial state of visibility of docks correctly on Centos6. This is part of a workaround for this problem.
+//
+// We should be able to set the initial state of visibility here, and on most OS we can,
+// but on Centos6 if hidden here to start with it is never shown when the user asks for the dock by checking the dock action.
+// If never hidden here and hidden latter if required when the dock action is added to a customisation menu it all seems to work OK.
+// A consequence of this is if no customisation menu item for this dock is created the dock will always be shown
+// even if it supposed to be hidden (component->hidden is true).
+// As a work around, hiding the dock is postponed until it reports being visible.
+// This is achieved by:
+// - Not setting the visibility state now
+// - Adding the dock (and the desired visibility state) to a list of docks that still need to have their visibility set
+// - Connecting a slot to the dock's visibilityChanged signal that will set the desired visibility
+// The result is that on Centos6 the visibility is set at a time when it will take effect.
+//------------------------------------------------
+//                    // Set hidden if required
+//                    dock->setVisible( !component->hidden );
+//------------------------------------------------
+//++++++++++++++++++++++++++++++++++++++++++++++++
+
+                    // Note this dock and what the visibility it should have
+                    if( dock->isVisible() == component->hidden )
+                    {
+                        unmanagedDocks.append( dock );
+                        unmanagedDockStates.append( !component->hidden );
+                        // Connect to the visibility changed signal as this appears to be a good time to update the visibility for Centos6
+                        // (since it is never hidden here now there will always be a visibilityChanged signal as it is first made visible)
+                        QObject::connect( dock, SIGNAL( visibilityChanged ( bool ) ),
+                                          this, SLOT( setUnmanagedDockVisibility(  bool ) ) );
+                    }
+//++++++++++++++++++++++++++++++++++++++++++++++++
 
                     // Record that this dock has been added
                     // This may be used by the customisation system to link a menu item to this dock.
@@ -1632,6 +1655,44 @@ void  MainWindow::requestAction( const QEActionRequests & request )
 
     }
 }
+
+
+
+// Search for 'Centos6 visibility problem' to find other fragments of code and more doco on this problem.
+//
+// Can't set initial state of visibility of docks correctly on Centos6. This is part of a workaround for this problem.
+//++++++++++++++++++++++++++++++++++++++++++++++++
+// Slot to set dock's visibility at a time when it can be set effectivly on Centos6
+void MainWindow::setUnmanagedDockVisibility( bool /*visible*/ )
+{
+    // Now that a dock has been created and the visible state is changing, set the visibility to what we really want.
+    // Ideally, we should have been able to do this when we created the dock, and on most OS we can,
+    // but on centos6 it doesn't work and we needed to postpone it.
+    // Note, this signal will be called for each dock, but on each call we manage the visibility of
+    // any docks created and not yet managed; we run through the entire list.
+    // In practice it appears the this signal is called after all docks have been created.
+    // While idealy each dock should be dealt with when it signals this slot, it is not
+    // that easy to identify the sending dock so just process all outstanding docks on the first signal from any dock.
+    for( int i = 0; i < unmanagedDocks.count(); i++ )
+    {
+        // Get the next dock
+        QDockWidget* dock = unmanagedDocks.at(i);
+
+        // Ensure no more signals, including the one that would be generated by setting the dock visible on the next line
+        QObject::disconnect( dock, SIGNAL( visibilityChanged ( bool ) ),
+                             this, SLOT( setUnmanagedDockVisibility(  bool ) ) );
+
+        // Set the visibility to the desired state
+        dock->setVisible( unmanagedDockStates.at(i) );
+    }
+
+    // Clear the lists now they are fully processed
+    unmanagedDocks.clear();
+    unmanagedDockStates.clear();
+}
+//++++++++++++++++++++++++++++++++++++++++++++++++
+
+
 
 // Slot to delete a dock holding a component that the application is hosting on
 // behalf of a QE widget.
