@@ -5666,7 +5666,7 @@ void QEImage::optionAction( imageContextMenu::imageContextMenuOptions option, bo
         case imageContextMenu::ICM_ENABLE_BEAM:                      doEnableBeamSelection     ( checked );     break;
         case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:               buttonGroup->setVisible   ( checked );     break;
         case imageContextMenu::ICM_DISPLAY_IMAGE_DISPLAY_PROPERTIES: doEnableImageDisplayProperties( checked ); break;
-        case imageContextMenu::ICM_DISPLAY_RECORDER:                 doEnableRecording         ( checked ); break;
+        case imageContextMenu::ICM_DISPLAY_RECORDER:                 doEnableRecording         ( checked );     break;
         case imageContextMenu::ICM_FULL_SCREEN:                      setFullScreen             ( checked );     break;
         case imageContextMenu::ICM_OPTIONS:                          optionsDialog->exec( this );               break;
 
