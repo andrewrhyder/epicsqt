@@ -206,6 +206,47 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(
     checkInfo = checkInfoIn;
 
     log.add( "Adding menu item: ",  title );
+    logItem( log );
+}
+
+// Log the details of a menu customisation item
+void windowCustomisationItem::logItem( customisationLog& log )
+{
+    log.startLevel();
+    if( windows.count() )
+    {
+        for( int i = 0; i < windows.count(); i++ )
+        {
+            log.add( "Create new window:" );
+            log.startLevel();
+            log.add( QString( "Title: " ).append( windows.at(i).title ) );
+            log.add( QString( "Customisations: " ).append( windows.at(i).customisationName ) );
+            log.add( QString( ".ui file: " ).append( windows.at(i).uiFile ) );
+            log.add( QString( "Macro substitutions: " ).append( windows.at(i).macroSubstitutions ) );
+            log.endLevel();
+        }
+    }
+
+    if( !dockTitle.isEmpty() )
+    {
+        log.add( QString( "Dock title: " ).append( dockTitle ) );
+    }
+
+    if( !builtInAction.isEmpty() )
+    {
+        log.add( QString( "Built-in action: " ).append( builtInAction ) );
+    }
+
+    if( !widgetName.isEmpty() )
+    {
+        log.add( QString( "Associated widget name: " ).append( widgetName ) );
+    }
+
+    if( !guiTitle.isEmpty() )
+    {
+        log.add( QString( "GUI title: " ).append( guiTitle ) );
+    }
+    log.endLevel();
 }
 
 // Construct instance of class defining an item that will request the application (or a QE widget) take a named action
@@ -1033,7 +1074,6 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
  {
      QString includeCustomisationName = includeCustomisationElement.attribute( "Name" );
 
-     log.startLevel();
      log.add( "Including named customisation set: ", includeCustomisationName );
 
      // Attempt to get the named customisation set
@@ -1061,8 +1101,6 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
          log.add( "Could not include customisation set. Perhaps it has not be read in at this stage." );
          log.flagError();
      }
-
-     log.endLevel();
 }
 
 // Ensure a menu path exists in the menu bar.
