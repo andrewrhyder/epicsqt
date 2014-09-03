@@ -1612,7 +1612,7 @@ void  MainWindow::requestAction( const QEActionRequests & request )
 
 // Search for 'Centos6 visibility problem' to find other fragments of code and more doco on this problem.
 //
-// Can't set initial state of visibility of docks correctly on Centos6. This is part of a workaround for this problem.
+// Can't set initial state of visibility of docks correctly on Centos6. This is part of a workaround for this problem .
 //
 // We should be able to set the initial state of visibility here, and on most OS we can,
 // but on Centos6 if hidden here to start with it is never shown when the user asks for the dock by checking the dock action.
