@@ -218,6 +218,7 @@ public:
     bool createsDocks();                                                    // Return true if at least one dock is created by this item
 
     void initialise();
+    void logItem( customisationLog& log );
 
 //    QMenu* menu;                                                            // Temporary reference to a menu (updated with 'toggle view' action from dock when dock is created)
 
@@ -227,11 +228,11 @@ private:
     QString dockTitle;                              // Title of dock to locate the associate with (not used when creating a new UI in a dock. In that case the dock to associate with is returned in the useDock() slot)
 
     QString builtInAction;                          // Identifier of action built in to the application
-    ContainerProfile profile;
 
     QString widgetName;                             // Widget to locate if passing this action on to a widget in a GUI
     QString guiTitle;                               // Title to give GUI. This overrides any title specified in the GUI.
 
+    ContainerProfile profile;                       // Profile to use while creating customisations.
     applicationLauncher programLauncher;            // Manage any program that needs to be started
 
 public slots:
