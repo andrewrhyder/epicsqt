@@ -175,7 +175,7 @@ void applicationLauncher::launchCommon( VariableNameManager* variableNameManager
         }
 
         // Apply substitutions to the program name
-        substitutedProgram = variableNameManager->substituteThis( substitutedProgram );
+        substitutedProgram = variableNameManager->substituteThis( program );
     }
 
     // Use without substitutions
