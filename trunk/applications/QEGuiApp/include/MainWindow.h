@@ -245,6 +245,7 @@ private:
 // Can't set initial state of visibility of docks correctly on Centos6. This is part of a workaround for this problem.
 //++++++++++++++++++++++++++++++++++++++++++++++++
 private:
+    int                 unmanagedDockSignalCount;
     QList<QDockWidget*> unmanagedDocks;       // Docks that have not had visibility set yet
     QList<bool>         unmanagedDockStates;  // Visibility states
 private slots:
