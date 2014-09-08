@@ -583,6 +583,13 @@ void QEForm::setWindowTitle( QString filename )
 }
 
 
+// Set the form title.
+// This is used to override any title set - through setWindowTitle() - when reading a ui file in readUiFile().
+void QEForm::setQEGuiTitle( const QString titleIn )
+{
+    title = titleIn;
+}
+
 // Get the form title
 QString QEForm::getQEGuiTitle()
 {

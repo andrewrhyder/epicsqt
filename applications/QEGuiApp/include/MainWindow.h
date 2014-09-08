@@ -104,7 +104,7 @@ class MainWindow : public QMainWindow, public UserMessage
     Q_OBJECT
 
 public:
-    MainWindow( QEGui* appIn, QString fileName, QString customisationName, bool openDialog, QWidget *parent = 0 );
+    MainWindow( QEGui* appIn, QString fileName, QString title, QString customisationName, bool openDialog, QWidget *parent = 0 );
 
     ~MainWindow();
 
@@ -133,8 +133,8 @@ private:
 
     void setSingleMode();                                   // Set up to use only a single gui
     void setTabMode();                                      // Set up to use multiple guis in tabs
-    QEForm* createGui( QString filename, QString customisationName, bool isDock = false );                  // Create a gui
-    QEForm* createGui( QString fileName, QString customisationName, QString restoreId, bool isDock = false ); // Create a gui with an ID (required for a restore)
+    QEForm* createGui( QString filename, QString title, QString customisationName, bool isDock = false );                  // Create a gui
+    QEForm* createGui( QString fileName, QString title, QString customisationName, QString restoreId, bool isDock = false ); // Create a gui with an ID (required for a restore)
     void loadGuiIntoCurrentWindow( QEForm* newGui, bool resize );     // Load a new gui into the current window (either single window, or tab)
     void loadGuiIntoNewTab( QEForm* gui );                  // Load a new gui into a new tab
     QDockWidget* loadGuiIntoNewDock( QEForm* gui,
@@ -209,7 +209,7 @@ private:
     QMenu* tabMenu;                                         // ???We want to keep a reference to certain widget objects. Declaring these directly in the
 
     void newMessage( QString msg, message_types type );     // Slot to receive a message to present to the user (typically from the QE framework)
-    QWidget* launchGui( QString guiName, QString customisationName, QEActionRequests::Options creationOption, bool hidden );  // Launch a new GUI given a .ui file name
+    QWidget* launchGui( QString guiName, QString title, QString customisationName, QEActionRequests::Options creationOption, bool hidden );  // Launch a new GUI given a .ui file name
     void createActionMaps ();
 
     QMenu* windowMenu;
