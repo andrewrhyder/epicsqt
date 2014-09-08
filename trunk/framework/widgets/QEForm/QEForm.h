@@ -47,8 +47,9 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
 
         virtual ~QEForm();
 
-        QString getQEGuiTitle();     // Get the title to be used as the window or form title.
-        QString getFullFileName();   // Get the standard, absolute UI file name
+        void    setQEGuiTitle( const QString titleIn ); // Set the title to be used as the window or form title. (note, also set when reading a .ui file)
+        QString getQEGuiTitle();                        // Get the title to be used as the window or form title.
+        QString getFullFileName();                      // Get the standard, absolute UI file name
         QString getUiFileName();                // Get the fully substituted file name (Not the uiFile property)
 
         // Flag indicating if form should take account of file monitoring.
@@ -94,7 +95,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
     private:
         void establishConnection( unsigned int variableIndex );
 
-        QString title;
+        QString title;                // GUI title (to be used by an application when presenting the GUI, such as in the title bar)
         QWidget* ui;
         bool alertIfUINoFound;        // True if the UI file could not be read. No alert is required, for example, when a partial UI file name is being typed in Designer
         bool fileMonitoringIsEnabled; // Only when true  does form honor any fileChanged signals from fileMon.

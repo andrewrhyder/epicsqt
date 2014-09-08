@@ -105,7 +105,7 @@ void saveRestoreManager::saveRestore( SaveRestoreSignal::saveRestoreOptions opti
                 setupProfile( NULL, app->getParams()->pathList, "", app->getParams()->substitutions );
                 for( int i = 0; i < numMainWindows; i++ )
                 {
-                    MainWindow* mw = new MainWindow( app, "", "", false );
+                    MainWindow* mw = new MainWindow( app, "", "", "", false );
                     mw->show();
                 }
 

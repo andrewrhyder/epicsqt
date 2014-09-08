@@ -179,7 +179,7 @@ void instanceManager::newWindow( const startupParams& params )
         // If no files specified, open a single window without a file name
         if( !params.filenameList.count() )
         {
-            MainWindow* mw = new MainWindow( app, "", params.customisationName, true );
+            MainWindow* mw = new MainWindow( app, "", "", params.customisationName, true );
             mw->show();
         }
 
@@ -188,7 +188,7 @@ void instanceManager::newWindow( const startupParams& params )
         {
             for( int i = 0; i < params.filenameList.count(); i++ )
             {
-                MainWindow* mw = new MainWindow( app, params.filenameList[i], params.customisationName, true );
+                MainWindow* mw = new MainWindow( app, params.filenameList[i], "", params.customisationName, true );
                 mw->show();
             }
         }

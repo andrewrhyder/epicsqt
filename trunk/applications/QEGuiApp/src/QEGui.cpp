@@ -40,6 +40,8 @@
 #include <QMetaType>
 #include <QVariant>
 #include <QMetaType>
+#include <QMessageBox>
+#include <QDateTime>
 
 Q_DECLARE_METATYPE( QEForm* )
 
@@ -123,8 +125,23 @@ int QEGui::run()
     // If there were any errors loading customisations, log the customisations
     if( winCustomisations.log.getError() )
     {
-        qDebug() << "Window customisation errors. Here is the log:";
-        qDebug() << winCustomisations.log.getLog();
+        qDebug() << "Window customisation errors. The log is being written to customisationErrors.log";
+        QMessageBox msgBox;
+        msgBox.setText("Window customisation errors. The log is being written to customisationErrors.log");
+        msgBox.exec();
+
+        QString log = winCustomisations.log.getLog();
+        QFile errorLogFile( "customisationErrors.log" );
+        if( errorLogFile.open(QFile::WriteOnly | QFile::Truncate) )
+        {
+            QTextStream errorLog( &errorLogFile );
+            errorLog << QString( "QEGui customisation log   " );
+            errorLog << QDateTime::currentDateTime().toString();
+            errorLog << "\n\nAn error occured trying to prepare customisations for QEGui. Search for ERROR:\n\n";
+            errorLog << log;
+            errorLogFile.close();
+        }
+
     }
 
     // Release the profile used while looking for customisation files
@@ -386,7 +403,7 @@ void QEGui::launchRecentGui( QString path, QStringList pathList, QString macroSu
 
     profile.setupProfile( NULL, pathList, "", macroSubstitutions );
 
-    MainWindow* mw = new MainWindow( this, path, customisationName, false );
+    MainWindow* mw = new MainWindow( this, path, "", customisationName, false );
     mw->show();
     profile.releaseProfile();
 }

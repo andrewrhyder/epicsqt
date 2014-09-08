@@ -161,7 +161,7 @@ public:
 
     void startLevel(){ prefix.append( "    " ); }
     void endLevel()  { prefix.truncate( prefix.length()-4 ); }
-    void flagError() { error = true; }
+    void flagError() { error = true; add( "ERROR: ^^^^^^^^^^^^^^^^^^^^^"); }
 
     const QString getLog(){ QString s; for( int i = 0; i < log.count(); i++ ) s.append( log.at(i) ).append( "\n"); return s; }
     bool    getError(){ return error; }
