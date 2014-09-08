@@ -59,6 +59,27 @@
 class QEGui;
 class MainWindow;
 
+// Search for 'Centos6 visibility problem' to find other fragments of code and more doco on this problem.
+//
+// Can't set initial state of visibility of docks correctly on Centos6. This is part of a workaround for this problem.
+//++++++++++++++++++++++++++++++++++++++++++++++++
+
+// Class to manage setting the visibility of a dock well after construction is complete
+class dockRef: public QObject
+{
+    Q_OBJECT
+public:
+    dockRef( QDockWidget* dockIn, bool visIn );
+private:
+    QDockWidget *dock;
+    bool requiredVis;
+    bool active;
+private slots:
+//    void setRequiredVis( bool );
+    void setRequiredVis();
+};
+//++++++++++++++++++++++++++++++++++++++++++++++++
+
 // Class used to hold information about each GUI in a main window
 class guiListItem
 {
@@ -245,11 +266,7 @@ private:
 // Can't set initial state of visibility of docks correctly on Centos6. This is part of a workaround for this problem.
 //++++++++++++++++++++++++++++++++++++++++++++++++
 private:
-    int                 unmanagedDockSignalCount;
-    QList<QDockWidget*> unmanagedDocks;       // Docks that have not had visibility set yet
-    QList<bool>         unmanagedDockStates;  // Visibility states
-private slots:
-    void setUnmanagedDockVisibility( bool visible );    // Slot to set dock's visibility at a time when it can be set effectivly on Centos6
+    QList<dockRef*>      unmanagedDocks;        // List of docks that need to have visibility managed late
 //++++++++++++++++++++++++++++++++++++++++++++++++
 
 private slots:
