@@ -300,8 +300,17 @@ void ContainerProfile::takeLocalCopy()
     QString subs;
     for( int i = 0; i < publishedProfile->macroSubstitutions.size(); i++ )
     {
-        subs.append( "," );
-        subs.append( publishedProfile->macroSubstitutions[i] );
+        QString nextSubs = publishedProfile->macroSubstitutions[i];
+        // Only add if anything present
+        if( !nextSubs.isEmpty() )
+        {
+            // Only insert delimiter if required
+            if( !subs.isEmpty() )
+            {
+                subs.append( "," );
+            }
+            subs.append( nextSubs );
+        }
     }
 
     setupLocalProfile( publishedProfile->guiLaunchConsumer,
