@@ -179,6 +179,11 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, QString title, QString 
 {
     app = appIn;
 
+
+    // Search for 'Centos6 visibility problem' to find other fragments of code and more doco on this problem.
+    // Initialise count of docks that need to have their visibility set correctly
+    unmanagedDockSignalCount = 0;
+
     // Initialise pointers
     tabMenu = NULL;
     windowMenu = NULL;
@@ -1617,7 +1622,7 @@ void  MainWindow::requestAction( const QEActionRequests & request )
 
 // Search for 'Centos6 visibility problem' to find other fragments of code and more doco on this problem.
 //
-// Can't set initial state of visibility of docks correctly on Centos6. This is part of a workaround for this problem .
+// Can't set initial state of visibility of docks correctly on Centos6. This is part of a workaround for this problem.
 //
 // We should be able to set the initial state of visibility here, and on most OS we can,
 // but on Centos6 if hidden here to start with it is never shown when the user asks for the dock by checking the dock action.
@@ -1636,16 +1641,15 @@ void  MainWindow::requestAction( const QEActionRequests & request )
 //------------------------------------------------
 //++++++++++++++++++++++++++++++++++++++++++++++++
 
+                    qDebug() << "Adding dock to list" << this << dock;
                     // Note this dock and what the visibility it should have
-                    if( dock->isVisible() == component->hidden )
-                    {
-                        unmanagedDocks.append( dock );
-                        unmanagedDockStates.append( !component->hidden );
-                        // Connect to the visibility changed signal as this appears to be a good time to update the visibility for Centos6
-                        // (since it is never hidden here now there will always be a visibilityChanged signal as it is first made visible)
-                        QObject::connect( dock, SIGNAL( visibilityChanged ( bool ) ),
-                                          this, SLOT( setUnmanagedDockVisibility(  bool ) ) );
-                    }
+                    unmanagedDocks.append( dock );
+                    unmanagedDockStates.append( !component->hidden );
+
+                    // Connect to the visibility changed signal as this appears to be a good time to update the visibility for Centos6
+                    // (since it is never hidden here now there will always be a visibilityChanged signal as it is first made visible)
+                    QObject::connect( dock, SIGNAL( visibilityChanged ( bool ) ),
+                                      this, SLOT( setUnmanagedDockVisibility(  bool ) ) );
 //++++++++++++++++++++++++++++++++++++++++++++++++
 
                     // Record that this dock has been added
@@ -1661,8 +1665,6 @@ void  MainWindow::requestAction( const QEActionRequests & request )
     }
 }
 
-
-
 // Search for 'Centos6 visibility problem' to find other fragments of code and more doco on this problem.
 //
 // Can't set initial state of visibility of docks correctly on Centos6. This is part of a workaround for this problem.
@@ -1670,7 +1672,16 @@ void  MainWindow::requestAction( const QEActionRequests & request )
 // Slot to set dock's visibility at a time when it can be set effectivly on Centos6
 void MainWindow::setUnmanagedDockVisibility( bool /*visible*/ )
 {
-    // Now that a dock has been created and the visible state is changing, set the visibility to what we really want.
+    // Note how many docks have signaled a change in visibility,
+    // and do nothing if not all docks have signaled
+    unmanagedDockSignalCount++;
+    if( unmanagedDockSignalCount < unmanagedDocks.count() )
+    {
+        return;
+    }
+
+    // Now that the docks have been created and the visible states have all been set (to something),
+    // set the visibility to what we really want.
     // Ideally, we should have been able to do this when we created the dock, and on most OS we can,
     // but on centos6 it doesn't work and we needed to postpone it.
     // Note, this signal will be called for each dock, but on each call we manage the visibility of
@@ -1694,6 +1705,7 @@ void MainWindow::setUnmanagedDockVisibility( bool /*visible*/ )
     // Clear the lists now they are fully processed
     unmanagedDocks.clear();
     unmanagedDockStates.clear();
+    unmanagedDockSignalCount = 0;
 }
 //++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -2356,9 +2368,12 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                                 }
                             }
 
-                            // GUI is not in a dock. Determine if GUI is in a tab or not
+                            // GUI is not in a dock. Note the title, and determine if GUI is in a tab or not
                             else
                             {
+                                // Add the GUI title
+                                form.addValue( "Title", gui->getQEGuiTitle() );
+
                                 // Count GUIs in central area (not docks)
                                 // Only count enough to check if there is more than one
                                 int count = 0;
@@ -2502,8 +2517,11 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                             QString presentation;
                             guiElement.getValue( "Presentation", presentation );
 
+                            QString title;
+                            guiElement.getValue( "Title", title );
+
                             bool isDock = !presentation.compare( "Dock" );
-                            QEForm* gui = createGui( name, customisationName, restoreId, isDock );
+                            QEForm* gui = createGui( name, title, customisationName, restoreId, isDock );
 
                             // If no presentation, assume the first gui is a central gui and any more are tabs.
                             // (in which case the first was also a tab and will be converted to a tab when the second tab is added)
