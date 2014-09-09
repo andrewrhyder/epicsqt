@@ -114,6 +114,8 @@ void QEScratchPad::createInternalWidgets ()
       item->value->setIndent (indent);
       item->value->setSizePolicy (QSizePolicy::Ignored, QSizePolicy::Preferred);
       item->value->setStyleSheet (QEUtilities::colourToStyle (clNotInUse));
+      item->value->setArrayAction (QEStringFormatting::INDEX);
+      item->value->setArrayIndex (0);
 
       // Set up layout - paramers must be same as titlelayout
       //
@@ -193,8 +195,10 @@ QEScratchPad::QEScratchPad (QWidget* parent) : QEFrame (parent)
    this->calcMinimumHeight ();
 
    this->selectedItem = NULL_SELECTION;
+   this->emitSelectionChangeInhibited = false;
+   this->emitPvNameSetChangeInhibited = false;
 
-   this->setAllowDrop (false);
+   this->setAllowDrop (true);
    this->setDisplayAlarmState (false);
 
    // Use default context menu.
@@ -286,7 +290,7 @@ void QEScratchPad::calcMinimumHeight ()
 
 //--------::-------------------------------------------------------------------------
 //
-void QEScratchPad::selectItem (const int slot, const bool toggle)
+void QEScratchPad::setSelectItem (const int slot, const bool toggle)
 {
    const int previousSelection = this->selectedItem;
 
@@ -313,6 +317,12 @@ void QEScratchPad::selectItem (const int slot, const bool toggle)
          QString styleSheet = QEUtilities::colourToStyle (clSelected);
          item->frame->setStyleSheet (styleSheet);
       }
+   }
+
+   // This prevents infinite looping in the case of cyclic connections.
+   //
+   if (!this->emitSelectionChangeInhibited) {
+      emit this->selectionChanged (this->selectedItem);
    }
 }
 
@@ -439,11 +449,7 @@ bool QEScratchPad::eventFilter (QObject *obj, QEvent *event)
          mouseEvent = static_cast<QMouseEvent *> (event);
          slot = this->findSlot (obj);
          if (slot >= 0 && (mouseEvent->button () ==  Qt::LeftButton)) {
-            this->selectItem (slot, true);
-            if (obj == this->items [slot].pvName) {
-               // Leverage of menu handler
-               this->contextMenuSelected (slot, QEScratchPadMenu::SCRATCHPAD_ADD_PV_NAME);
-            }
+            this->setSelectItem (slot, true);
             return true;  // we have handled this mouse press
          }
          break;
@@ -453,7 +459,7 @@ bool QEScratchPad::eventFilter (QObject *obj, QEvent *event)
          slot = this->findSlot (obj);
          if (slot >= 0 && (mouseEvent->button () ==  Qt::LeftButton)) {
             // Leverage of menu handler
-            this->selectItem (slot, false);
+            this->setSelectItem (slot, false);
             this->contextMenuSelected (slot, QEScratchPadMenu::SCRATCHPAD_ADD_PV_NAME);
             return true;  // we have handled double click
          }
@@ -506,6 +512,59 @@ bool QEScratchPad::eventFilter (QObject *obj, QEvent *event)
    return false;
 }
 
+//---------------------------------------------------------------------------------
+//
+void QEScratchPad::setSelection (int selectedItemIn)
+{
+   // A negative selection means no selection
+   //
+   if (selectedItemIn < 0) selectedItemIn = NULL_SELECTION;
+
+   if (this->selectedItem != selectedItemIn) {
+      this->emitSelectionChangeInhibited = true;
+      this->setSelectItem (selectedItemIn, false);
+      this->emitSelectionChangeInhibited = false;
+   }
+}
+
+//---------------------------------------------------------------------------------
+//
+int QEScratchPad::getSelection () const
+{
+   return this->selectedItem;
+}
+
+//---------------------------------------------------------------------------------
+//
+void QEScratchPad::setPvNameSet (const QStringList& pvNameSet)
+{
+   this->emitPvNameSetChangeInhibited = true;
+
+   for (int slot = 0; slot < ARRAY_LENGTH (this->items); slot++) {
+      QString pvName = pvNameSet.value (slot, "");
+      this->setPvName( slot, pvName);
+   }
+
+   this->emitPvNameSetChangeInhibited = false;
+}
+
+//---------------------------------------------------------------------------------
+//
+QStringList QEScratchPad::getPvNameSet () const
+{
+   QStringList result;
+
+   // Create a space seperated list of PV names.
+   //
+   result.clear ();
+   for (int slot = 0; slot < ARRAY_LENGTH (this->items); slot++) {
+      if (this->items [slot].isInUse ()) {
+         QString pvName = this->getPvName (slot);
+         result.append (pvName);
+      }
+   }
+   return result;
+}
 
 //---------------------------------------------------------------------------------
 //
@@ -541,12 +600,18 @@ void QEScratchPad::setPvName (const int slot, const QString& pvName)
    }
 
    this->calcMinimumHeight ();
+
+   // This prevents infinite looping in the case of cyclic connections.
+   //
+   if (!this->emitPvNameSetChangeInhibited) {
+      emit this->pvNameSetChanged (this->getPvNameSet ());
+   }
 }
 
 
 //---------------------------------------------------------------------------------
 //
-QString QEScratchPad::getPvName (const int slot)
+QString QEScratchPad::getPvName (const int slot) const
 {
    SLOT_CHECK (slot, "");
    return this->items [slot].thePvName;
