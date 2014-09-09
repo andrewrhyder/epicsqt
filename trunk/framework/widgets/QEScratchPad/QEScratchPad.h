@@ -61,7 +61,30 @@ public:
    // Set (and clear if pvName is null).
    //
    void    setPvName (const int slot, const QString& pvName);
-   QString getPvName (const int slot);
+   QString getPvName (const int slot) const;
+
+
+   // Selects/highlights row.
+   //
+public slots:
+   void setSelection (int value);
+
+public:
+   int getSelection () const;
+
+signals:
+   void selectionChanged (int value);
+
+   // Set, get and emit set of active PV names.
+   //
+public slots:
+   void setPvNameSet (const QStringList& pvNameSet);
+
+public:
+   QStringList getPvNameSet () const;
+
+signals:
+   void pvNameSetChanged (const QStringList& nameSet);
 
 protected:
    // Overtide super class functions.
@@ -100,12 +123,14 @@ private:
    QEPVNameSelectDialog* pvNameSelectDialog;
 
    int selectedItem;
+   bool emitSelectionChangeInhibited;
+   bool emitPvNameSetChangeInhibited;
 
    class DataSets {
    public:
       explicit DataSets ();
 
-      bool isInUse () { return !(this->thePvName.isEmpty ()); }
+      bool isInUse () const { return !(this->thePvName.isEmpty ()); }
       void setHighLighted (const bool isHigh);
 
       QString thePvName;
@@ -126,7 +151,7 @@ private:
    DataSets items [NUMBER_OF_ITEMS];
 
    void createInternalWidgets ();
-   void selectItem (const int slot, const bool toggle);
+   void setSelectItem (const int slot, const bool toggle);
    void calcMinimumHeight ();
 
    // Perform a pvNameDropEvent 'drop' when dropped onto internall widget.
