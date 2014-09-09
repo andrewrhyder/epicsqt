@@ -435,7 +435,7 @@ void QETable::setNewVariableName (QString variableName,
 
    // This prevents infinite looping in the case of cyclic connections.
    //
-   if (!this->emitSelectionChangeInhibited) {
+   if (!this->emitPvNameSetChangeInhibited) {
       emit this->pvNameSetChanged (this->getPvNameSet ());
    }
 }
