@@ -687,9 +687,15 @@ void MainWindow::raiseGui( QEForm* gui )
 
     if( i < app->getMainWindowCount() )
     {
+        // Ensure the window is not iconised
+        mw->showNormal();
+
         // Ensure the main form is visible and the active form
-        mw->raise();
-        mw->activateWindow();
+        // Note, if the window was iconised, raising and activating the window
+        // may not have any effect as (I assume) some of the un-iconising actions
+        // are carried out after we have returned to the event loop. To ensure
+        // raising and activiting occurs, do it in a timer
+        QTimer::singleShot( 100, mw, SLOT(delayedRaiseGui()) );
 
         // If using tabs, and a tab was found, the go to that tab
         if( mw->usingTabs && tabIndex < tabs->count() )
@@ -697,6 +703,18 @@ void MainWindow::raiseGui( QEForm* gui )
             tabs->setCurrentIndex( tabIndex );
         }
     }
+}
+
+// Ensure the main form is visible and the active form.
+// Note, this is doen in a timed event since if the window was iconised,
+// raising and activating the window at the same time as un-iconising it
+// may not have any effect as (I assume) some of the un-iconising actions
+// are carried out after we have returned to the event loop. To ensure
+// raising and activiting occurs, do it in a timer
+void MainWindow::delayedRaiseGui()
+{
+    raise();
+    activateWindow();
 }
 
 // Present the 'About' dialog
