@@ -309,6 +309,9 @@ private slots:
 
     void dockComponentDestroyed( QObject* component );  // A component hosted by the application has gone away, delete the dock that was holding it.
 
+    void delayedRaiseGui();                         // Timer event to ensure the main form is visible and the active form.
+
+
 signals:
     void dockCreated( QDockWidget* );               // Signal to customisation system that a dock has been created. The customisation system may need to use 'dock toggle' action from the dock in a menu
 
