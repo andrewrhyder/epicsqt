@@ -1,4 +1,902 @@
 ==================================================================================================
+Changes between 2.9.0 and 2.8.1 (this includes changes to all branches and tags and may include changes no related to this release)
+
+SUMMARY:
+Enhancements and bug fixes as listed in release notes, including the following:
+.
+Major enhancements to QEImage
+- Full screen options
+- Add YUV422, Bayer, processing
+- Enable incremental cursor movement using arrow keys
+- Enhanced display controls
+.
+Major enhancements to QEPlotter
+- Additional layout options
+- Additional scaling options
+- Interactive cursors
+- Integration with QETable widget for simultaneous display
+   of tabluar data and cursor position.
+.
+Integration with QtCaDM (thanks Anton Mezger, PSI)
+- Enable activation of QtCaDM widgets within QEGui.
+- Move towards common menu options with QtCaDM.
+- Conditional build integration with QtCaDM.
+.
+QEGui help->About...
+- Log of customisations.
+- Connections and failed connections information.
+- Most information now selectable and copyable.
+.
+Optional QEGui customisation now includes toolbar buttons and checkable menu items.
+.
+New QETable widget for a tabular display of waveforms. Can be used on its own but integrates well with QEPlotter.
+
+DETAIL:
+------------------------------------------------------------------------
+r1525 | rhyder | 2014-05-07 14:30:24 +1000 (Wed, 07 May 2014) | 4 lines
+
+For QEImage full screen mode, offer the user a choice of screen or
+screens if multiple head desktop.
+Also, update version number back to 'Development'
+
+------------------------------------------------------------------------
+r1526 | andrewstarritt | 2014-05-09 14:17:57 +1000 (Fri, 09 May 2014) | 1 line
+
+VariableNameManager - use function const qualifier where applicable
+------------------------------------------------------------------------
+r1527 | andrewstarritt | 2014-05-09 14:19:45 +1000 (Fri, 09 May 2014) | 1 line
+
+QEPlotter - add scroll bar to bar panel sub-frame (a la StripChart) as opposed to compressing these items; also use function const qualifier where applicable
+------------------------------------------------------------------------
+r1528 | zaiwang | 2014-05-12 15:57:40 +1000 (Mon, 12 May 2014) | 1 line
+
+made changes on QEImage for Detector Control System Project Demo - fix markup undesired behaviors; and on QEPVNameSelectionDialog to interface MySql database
+------------------------------------------------------------------------
+r1529 | rhyder | 2014-05-22 16:43:04 +1000 (Thu, 22 May 2014) | 3 lines
+
+Place widgets in multiple groups, (monitors, controls, graphiocs,
+tools...)
+
+------------------------------------------------------------------------
+r1530 | fernander | 2014-05-22 17:49:26 +1000 (Thu, 22 May 2014) | 1 line
+
+Updated readme file with correct information
+------------------------------------------------------------------------
+r1531 | rhyder | 2014-05-22 17:51:36 +1000 (Thu, 22 May 2014) | 2 lines
+
+Minor doco update
+
+------------------------------------------------------------------------
+r1532 | rhyder | 2014-05-22 17:56:19 +1000 (Thu, 22 May 2014) | 2 lines
+
+Minor doco update
+
+------------------------------------------------------------------------
+r1533 | rhyder | 2014-05-22 18:45:03 +1000 (Thu, 22 May 2014) | 2 lines
+
+Add QEWidget interogation function for PSI's OPI viewer
+
+------------------------------------------------------------------------
+r1534 | andrewstarritt | 2014-05-24 23:24:46 +1000 (Sat, 24 May 2014) | 1 line
+
+QEPvPropertiesUtilities.cpp - ensure file closed before function exit
+------------------------------------------------------------------------
+r1535 | andrewstarritt | 2014-05-24 23:26:13 +1000 (Sat, 24 May 2014) | 1 line
+
+QESettings.h - fix comment typos
+------------------------------------------------------------------------
+r1536 | rhyder | 2014-05-28 10:24:30 +1000 (Wed, 28 May 2014) | 2 lines
+
+Minor documentation update to QEImage
+
+------------------------------------------------------------------------
+r1537 | rhyder | 2014-05-28 10:43:59 +1000 (Wed, 28 May 2014) | 2 lines
+
+Add initial (untested) YUIV422 code to QEImage
+
+------------------------------------------------------------------------
+r1538 | rhyder | 2014-05-28 12:17:11 +1000 (Wed, 28 May 2014) | 3 lines
+
+Add connection/disconnection counts to QCa data classes and display
+those in the QEGui Help/About dialog.
+
+------------------------------------------------------------------------
+r1539 | rhyder | 2014-05-28 12:59:42 +1000 (Wed, 28 May 2014) | 2 lines
+
+Very minor comment changes only
+
+------------------------------------------------------------------------
+r1540 | rhyder | 2014-05-28 13:28:35 +1000 (Wed, 28 May 2014) | 6 lines
+
+Fix QEImage: If image is not zoomed 100% when first presented, and not
+resized by the user, then the markup scaling is not set. Markups can be
+drawn, but they are drawn at 100% over an image that is not 100%. When
+the the image is zoomed the markup scaling is set and the markups move.
+AS bug4241
+
+------------------------------------------------------------------------
+r1541 | rhyder | 2014-05-28 14:35:23 +1000 (Wed, 28 May 2014) | 3 lines
+
+In QEImage, allow cursor position to be tweaked by one pixel with up,
+down, left, right keys while mouse button is pressed.
+
+------------------------------------------------------------------------
+r1542 | rhyder | 2014-05-28 15:43:33 +1000 (Wed, 28 May 2014) | 4 lines
+
+Initial work for allowing beam and target markups to use either sort of
+cross hair markup.
+Can set properties, but VideoWidget class still to set the markup class.
+
+------------------------------------------------------------------------
+r1543 | andrewstarritt | 2014-05-28 17:09:27 +1000 (Wed, 28 May 2014) | 1 line
+
+QCaDateTime add addSeconds and secondsTo functions
+------------------------------------------------------------------------
+r1544 | andrewstarritt | 2014-05-28 17:37:23 +1000 (Wed, 28 May 2014) | 1 line
+
+rad_control.cpp - pedantic use 0.0 for real number
+------------------------------------------------------------------------
+r1545 | andrewstarritt | 2014-05-28 17:41:04 +1000 (Wed, 28 May 2014) | 1 line
+
+QEPlotter.pri - reference QEPlotter.png correctly; also explicitly include QEPluginLibrary_global.h
+------------------------------------------------------------------------
+r1546 | rhyder | 2014-05-28 22:59:48 +1000 (Wed, 28 May 2014) | 3 lines
+
+Complete adding properties to allow cursor type to be selected for
+'beam' and 'target' markups
+
+------------------------------------------------------------------------
+r1547 | andrewstarritt | 2014-05-31 14:59:02 +1000 (Sat, 31 May 2014) | 1 line
+
+QEStripChartItem: use QCaDataTime secondsTo function which matches parent class QDataTime functions
+------------------------------------------------------------------------
+r1548 | andrewstarritt | 2014-05-31 15:06:08 +1000 (Sat, 31 May 2014) | 1 line
+
+QCaDataPoint.cpp: use QCaDataTime secondsTo function which matches parent class QDataTime functions
+------------------------------------------------------------------------
+r1549 | andrewstarritt | 2014-05-31 15:17:28 +1000 (Sat, 31 May 2014) | 1 line
+
+QEPlot.cpp: use QCaDataTime secondsTo function which matches parent class QDataTime functions
+------------------------------------------------------------------------
+r1550 | andrewstarritt | 2014-05-31 16:05:09 +1000 (Sat, 31 May 2014) | 1 line
+
+QEPvProperties, QEAnalogProgressBar and QEStripChart: be consistant - use ClassName.png as opposed to icon.png
+------------------------------------------------------------------------
+r1551 | fernander | 2014-06-02 11:19:16 +1000 (Mon, 02 Jun 2014) | 3 lines
+
+Add documentation for the QEScript widget and updated existing
+documentation of the QEFileBrowser widget.
+
+------------------------------------------------------------------------
+r1552 | fernander | 2014-06-02 11:25:57 +1000 (Mon, 02 Jun 2014) | 1 line
+
+Updated documentation with information concerning the QESCript widget.
+------------------------------------------------------------------------
+r1553 | rhyder | 2014-06-02 16:01:16 +1000 (Mon, 02 Jun 2014) | 3 lines
+
+Add conditional caQtDM integration (integration occurs if environment
+variable QE_CAQTDM is defined)
+
+------------------------------------------------------------------------
+r1554 | andrewstarritt | 2014-06-02 22:56:13 +1000 (Mon, 02 Jun 2014) | 1 line
+
+Move non-EPICS aware widgets to 'EPICSQt Tools'
+------------------------------------------------------------------------
+r1555 | andrewstarritt | 2014-06-02 23:15:22 +1000 (Mon, 02 Jun 2014) | 1 line
+
+Add non EPICS aware widgest QRadioGroup/QNumericEdit. QERadioGroup/QEDNumericEdit to be modified to sub-class or side-class these widgets
+------------------------------------------------------------------------
+r1556 | rhyder | 2014-06-03 11:25:17 +1000 (Tue, 03 Jun 2014) | 5 lines
+
+In QEImage, fix bug where markups may not be drawn when image is zoomed.
+When redrawing markups, scale region being drawn to original image size
+(the coordinate system of the markups) before determining if the markup
+needs to be draw.
+
+------------------------------------------------------------------------
+r1557 | andrewstarritt | 2014-06-04 16:43:06 +1000 (Wed, 04 Jun 2014) | 1 line
+
+swap get/set parameters for QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS macro
+------------------------------------------------------------------------
+r1558 | andrewstarritt | 2014-06-04 17:07:44 +1000 (Wed, 04 Jun 2014) | 1 line
+
+QEResizeableFrame - use const qualifier on class getter functions
+------------------------------------------------------------------------
+r1559 | andrewstarritt | 2014-06-06 13:52:38 +1000 (Fri, 06 Jun 2014) | 1 line
+
+bug 4247: MainWindow.cpp - Ensure restored window geometry is at least partially on screen
+------------------------------------------------------------------------
+r1560 | andrewstarritt | 2014-06-06 16:53:26 +1000 (Fri, 06 Jun 2014) | 1 line
+
+QEAbstractWidget - new
+------------------------------------------------------------------------
+r1561 | rhyder | 2014-06-10 17:54:21 +1000 (Tue, 10 Jun 2014) | 4 lines
+
+Partial fix of markups leaving artifacts. Artifacts are wiped by next
+image update and are only obvious when manipulating markups on an image
+that is not updating
+
+------------------------------------------------------------------------
+r1562 | rhyder | 2014-06-10 19:45:28 +1000 (Tue, 10 Jun 2014) | 2 lines
+
+Add missing Qt include file required for Windows build
+
+------------------------------------------------------------------------
+r1563 | rhyder | 2014-06-11 08:36:13 +1000 (Wed, 11 Jun 2014) | 2 lines
+
+Fix filename (OK on windows, not on Linux)
+
+------------------------------------------------------------------------
+r1564 | rhyder | 2014-06-11 14:02:40 +1000 (Wed, 11 Jun 2014) | 2 lines
+
+Add all Bayer pattern options (BG GB RG GR)
+
+------------------------------------------------------------------------
+r1565 | rhyder | 2014-06-11 14:15:58 +1000 (Wed, 11 Jun 2014) | 2 lines
+
+Simplify Bayer processing.
+
+------------------------------------------------------------------------
+r1566 | rhyder | 2014-06-11 15:27:24 +1000 (Wed, 11 Jun 2014) | 2 lines
+
+Additinoal commenting regarding Bayer processing
+
+------------------------------------------------------------------------
+r1567 | fernander | 2014-06-13 19:02:48 +1000 (Fri, 13 Jun 2014) | 2 lines
+
+Refactoring QEConfiguredLayout widget.
+
+------------------------------------------------------------------------
+r1568 | fernander | 2014-06-13 19:23:17 +1000 (Fri, 13 Jun 2014) | 2 lines
+
+Refactoring QERecipe widget.
+
+------------------------------------------------------------------------
+r1569 | fernander | 2014-06-13 19:46:08 +1000 (Fri, 13 Jun 2014) | 2 lines
+
+Update some constants in QERecipe.
+
+------------------------------------------------------------------------
+r1570 | rhyder | 2014-06-16 13:54:29 +1000 (Mon, 16 Jun 2014) | 2 lines
+
+Remove specific user info from project file for caQtDM integration
+
+------------------------------------------------------------------------
+r1571 | rhyder | 2014-06-17 08:59:11 +1000 (Tue, 17 Jun 2014) | 2 lines
+
+Fix include paths required for caQtDM integration
+
+------------------------------------------------------------------------
+r1572 | rhyder | 2014-06-17 11:08:47 +1000 (Tue, 17 Jun 2014) | 2 lines
+
+Add caQtDM integration to documentation
+
+------------------------------------------------------------------------
+r1573 | rhyder | 2014-06-17 14:01:48 +1000 (Tue, 17 Jun 2014) | 2 lines
+
+Document and add file monitoring to QEFileImage widget
+
+------------------------------------------------------------------------
+r1574 | rhyder | 2014-06-18 10:38:15 +1000 (Wed, 18 Jun 2014) | 3 lines
+
+Clarify which qwt library is set up to be used when QMake is run on
+Windows
+
+------------------------------------------------------------------------
+r1575 | andrewstarritt | 2014-06-18 15:44:55 +1000 (Wed, 18 Jun 2014) | 1 line
+
+Specify MOC_DIR, OBJECTS_DIR and UI_HEADERS_DIR to place all intermediate generated files in architecture specific directories
+------------------------------------------------------------------------
+r1576 | rhyder | 2014-06-18 16:34:06 +1000 (Wed, 18 Jun 2014) | 2 lines
+
+Use the path list parameter when search for customisation files
+
+------------------------------------------------------------------------
+r1577 | andrewstarritt | 2014-06-20 11:56:22 +1000 (Fri, 20 Jun 2014) | 1 line
+
+Use a more EPICS build like intermediate directory name for moc and object files
+------------------------------------------------------------------------
+r1578 | rhyder | 2014-06-23 16:04:02 +1000 (Mon, 23 Jun 2014) | 6 lines
+
+Fix starting a server to monitor multiple instances of qegui. Temporary
+files (created by Qt when starting a server) are now created with the
+name including current username so temprary files left from another user
+which can't be deleted due to permissions don't get in the way of
+starting a server.
+
+------------------------------------------------------------------------
+r1579 | rhyder | 2014-06-23 16:17:50 +1000 (Mon, 23 Jun 2014) | 3 lines
+
+Rename named socket name (for managing single instance of QEGui) so all
+instances are together in an alphabetical list.
+
+------------------------------------------------------------------------
+r1580 | rhyder | 2014-06-24 14:33:00 +1000 (Tue, 24 Jun 2014) | 9 lines
+
+In QEImage, don't use image display controls to get pixel value ranges
+until they have been initialised. This fixes the problem where 16 bit
+images are displayed too bright until image display controls have been
+touched.
+Also, scale minimum and maximum value sliders in image display controls
+to pixel range (previously assumed 0-256). This fixes the problem where
+sliders could only be used to set low and high pixel values to 256 for
+16 bit images
+
+------------------------------------------------------------------------
+r1581 | rhyder | 2014-06-24 14:43:08 +1000 (Tue, 24 Jun 2014) | 2 lines
+
+Minor code and comment tidy. No functional changes
+
+------------------------------------------------------------------------
+r1582 | rhyder | 2014-06-24 14:43:54 +1000 (Tue, 24 Jun 2014) | 2 lines
+
+Forgot to include in last commit.
+
+------------------------------------------------------------------------
+r1583 | rhyder | 2014-07-02 22:17:22 +1000 (Wed, 02 Jul 2014) | 2 lines
+
+Fix Windows compile problem
+
+------------------------------------------------------------------------
+r1584 | andrewstarritt | 2014-07-06 09:55:26 +1000 (Sun, 06 Jul 2014) | 1 line
+
+Call up QEAbstractWidget from project file, update widget comment.
+------------------------------------------------------------------------
+r1585 | rhyder | 2014-07-08 18:15:18 +1000 (Tue, 08 Jul 2014) | 6 lines
+
+Don't display the 'open gui' dialog if a file or a customisation has
+been specified. (previously the open dialog was displayed if no filename
+was specified)
+Add hints on layouts and resizing to documentation. Also other minor
+corrections.
+
+------------------------------------------------------------------------
+r1586 | rhyder | 2014-07-08 22:49:39 +1000 (Tue, 08 Jul 2014) | 2 lines
+
+Add comments
+
+------------------------------------------------------------------------
+r1587 | rhyder | 2014-07-09 12:15:49 +1000 (Wed, 09 Jul 2014) | 1 line
+
+Re-order creation of GUI and setup of customisation so docks are available when references to them are required. (This problem was introduced very recently). Add sample customisation file and user interface file for testing QEImage widget interaction with customisation system. Other minor fixes and comment changes.
+------------------------------------------------------------------------
+r1588 | rhyder | 2014-07-09 16:10:19 +1000 (Wed, 09 Jul 2014) | 7 lines
+
+In QEImage widget, ensure markup menu is kept up to date when markups
+are hidden interactively (when user clicks over markup and selects
+'hide').
+QEImage Image Display Properties dock and recorder dock to be created
+floating.
+Also tidy comments
+
+------------------------------------------------------------------------
+r1589 | rhyder | 2014-07-09 21:07:56 +1000 (Wed, 09 Jul 2014) | 3 lines
+
+In QEImage widget prevent 1 pixel creep when only clicking on a region
+markup.
+
+------------------------------------------------------------------------
+r1590 | rhyder | 2014-07-09 21:33:22 +1000 (Wed, 09 Jul 2014) | 2 lines
+
+Minor comments
+
+------------------------------------------------------------------------
+r1591 | rhyder | 2014-07-15 15:37:33 +1000 (Tue, 15 Jul 2014) | 7 lines
+
+Always clear existing customisations when opening a file (if new
+customisations have been specified)
+Allow a customisation item to specify a new window without a .ui file.
+Log if a custiomisation include file could not be found.
+Reduce the size of the main window if no .ui file is loaded.
+Minor doco fixes
+
+------------------------------------------------------------------------
+r1592 | rhyder | 2014-07-16 16:34:46 +1000 (Wed, 16 Jul 2014) | 2 lines
+
+Initial changes to add save and restore to QEImage widget.
+
+------------------------------------------------------------------------
+r1593 | andrewstarritt | 2014-07-17 18:51:06 +1000 (Thu, 17 Jul 2014) | 1 line
+
+QEPlotter: add xLogarithmic and yLogarithmic properties rto allow design time configuration. Remove class member isLogarithmic as this also stored in internal QEGraphic object; and fix slot selection error on call to setFieldInformation.
+------------------------------------------------------------------------
+r1594 | andrewstarritt | 2014-07-17 19:02:26 +1000 (Thu, 17 Jul 2014) | 1 line
+
+QEPlotter: add xLogarithmic control to tool bar and saved status
+------------------------------------------------------------------------
+r1595 | andrewstarritt | 2014-07-18 10:48:59 +1000 (Fri, 18 Jul 2014) | 1 line
+
+QEPlotter - X log/linear scaling option to the X axis context menu
+------------------------------------------------------------------------
+r1596 | andrewstarritt | 2014-07-20 19:03:21 +1000 (Sun, 20 Jul 2014) | 1 line
+
+QEGraphic - use QwtLog10ScaleEngine when using a logarithmic axis
+------------------------------------------------------------------------
+r1597 | andrewstarritt | 2014-07-21 18:47:54 +1000 (Mon, 21 Jul 2014) | 1 line
+
+QERadioGroup - inherit from QEAbstactWidget and use embedded QRadioGroup widget
+------------------------------------------------------------------------
+r1598 | rhyder | 2014-07-22 14:54:42 +1000 (Tue, 22 Jul 2014) | 4 lines
+
+Fix titles set up in customisation files. Macros are now applied to main
+windows that do not open a .ui file. Title in customisation file takes
+precedence over a startup title parameter.
+
+------------------------------------------------------------------------
+r1599 | rhyder | 2014-07-22 15:39:38 +1000 (Tue, 22 Jul 2014) | 2 lines
+
+Tidy documentation format
+
+------------------------------------------------------------------------
+r1600 | rhyder | 2014-07-23 14:17:42 +1000 (Wed, 23 Jul 2014) | 3 lines
+
+Fix QEImage vertical line markup legend artifact. (only noticable when
+moving markup while image is not updating)
+
+------------------------------------------------------------------------
+r1601 | andrewstarritt | 2014-07-27 14:41:22 +1000 (Sun, 27 Jul 2014) | 1 line
+
+QEGraphic.cpp - assign value to target before using it as parameter to calcTransitionPoint
+------------------------------------------------------------------------
+r1602 | rhyder | 2014-07-28 12:20:18 +1000 (Mon, 28 Jul 2014) | 2 lines
+
+Ensure qwt builds before and after 6.1
+
+------------------------------------------------------------------------
+r1603 | rhyder | 2014-07-28 22:52:22 +1000 (Mon, 28 Jul 2014) | 1 line
+
+Avoid 'passing NULL to non-pointer argument' warning.
+------------------------------------------------------------------------
+r1604 | rhyder | 2014-07-29 12:50:58 +1000 (Tue, 29 Jul 2014) | 2 lines
+
+Add log of customisation load to 'help->about'
+
+------------------------------------------------------------------------
+r1605 | rhyder | 2014-07-29 13:54:30 +1000 (Tue, 29 Jul 2014) | 3 lines
+
+Tidy help->about dialog, and make more info in dialog selectable (and
+copyable).
+
+------------------------------------------------------------------------
+r1606 | rhyder | 2014-07-29 15:11:18 +1000 (Tue, 29 Jul 2014) | 2 lines
+
+Add documentation on customisation files log
+
+------------------------------------------------------------------------
+r1607 | rhyder | 2014-08-05 09:38:24 +1000 (Tue, 05 Aug 2014) | 2 lines
+
+Fix QWT version number in qwt version specific code
+
+------------------------------------------------------------------------
+r1608 | rhyder | 2014-08-05 13:44:07 +1000 (Tue, 05 Aug 2014) | 3 lines
+
+Temorarily fix to handle missing class method for windows build (MSVC
+compiler only)
+
+------------------------------------------------------------------------
+r1609 | andrewstarritt | 2014-08-05 17:42:24 +1000 (Tue, 05 Aug 2014) | 1 line
+
+UI_HEADERS_DIR directive does not automatically make its way into the INCLUDEPATH, explicitly include ui header files
+------------------------------------------------------------------------
+r1610 | andrewstarritt | 2014-08-05 17:44:54 +1000 (Tue, 05 Aug 2014) | 1 line
+
+QERadioGroup - null selected index value is -1
+------------------------------------------------------------------------
+r1611 | rhyder | 2014-08-06 14:47:08 +1000 (Wed, 06 Aug 2014) | 4 lines
+
+Fix presentation of QEImage profiles.
+Doco changes for user levels.
+Tweak help->about box
+
+------------------------------------------------------------------------
+r1612 | rhyder | 2014-08-06 22:39:30 +1000 (Wed, 06 Aug 2014) | 1 line
+
+Ensure more than two docks can be tabbed
+------------------------------------------------------------------------
+r1613 | rhyder | 2014-08-06 22:53:57 +1000 (Wed, 06 Aug 2014) | 1 line
+
+Trivial comment typo correction
+------------------------------------------------------------------------
+r1614 | rhyder | 2014-08-08 21:12:16 +1000 (Fri, 08 Aug 2014) | 2 lines
+
+Add different operational modes to QEFileImage example
+
+------------------------------------------------------------------------
+r1615 | rhyder | 2014-08-08 21:22:00 +1000 (Fri, 08 Aug 2014) | 3 lines
+
+Ensure QEFloatingFormatting and QEIntegerFormatting symbols are exported
+in library.
+
+------------------------------------------------------------------------
+r1616 | rhyder | 2014-08-08 22:11:11 +1000 (Fri, 08 Aug 2014) | 3 lines
+
+Update QEMonitor application with commented out code to demonstrate
+QEInteger if required.
+
+------------------------------------------------------------------------
+r1617 | rhyder | 2014-08-11 16:42:36 +1000 (Mon, 11 Aug 2014) | 7 lines
+
+QEImage workaround for Centos6. We should be able to set the initial
+state of dock visibility, and on most OS we can, but on Centos6 if a
+dock is initially hidden it is never shown when the user asked for the
+dock by checking the dock action. If not hidden after creation and
+hidden latter if required when the dock action is added to a
+customisation menu it all seems to work OK.
+
+------------------------------------------------------------------------
+r1618 | rhyder | 2014-08-11 18:21:35 +1000 (Mon, 11 Aug 2014) | 2 lines
+
+Minor source doco
+
+------------------------------------------------------------------------
+r1619 | rhyder | 2014-08-12 13:01:56 +1000 (Tue, 12 Aug 2014) | 4 lines
+
+Fix bug where docked GUIs created for custom menu items did not have the
+title set to match the menu item.
+Also fix where docks were added to main window list.
+
+------------------------------------------------------------------------
+r1620 | andrewstarritt | 2014-08-12 15:41:27 +1000 (Tue, 12 Aug 2014) | 1 line
+
+QERadioGroup tidy up fontChange function's comments
+------------------------------------------------------------------------
+r1621 | rhyder | 2014-08-13 11:06:10 +1000 (Wed, 13 Aug 2014) | 2 lines
+
+Fix QEImage binning (last bin not being cleared)
+
+------------------------------------------------------------------------
+r1622 | andrewstarritt | 2014-08-13 11:37:38 +1000 (Wed, 13 Aug 2014) | 1 line
+
+QEPlotter - complete drag/drop and copy/paste functionality
+------------------------------------------------------------------------
+r1623 | andrewstarritt | 2014-08-13 11:41:06 +1000 (Wed, 13 Aug 2014) | 1 line
+
+QEPlot - for copyData - label variab;es 1 to 4 as per property names, also create a sizeHint function
+------------------------------------------------------------------------
+r1624 | andrewstarritt | 2014-08-13 11:50:29 +1000 (Wed, 13 Aug 2014) | 1 line
+
+QEStringFormatting.cpp - honor real number precision when using NOTATION_AUTOMATIC
+------------------------------------------------------------------------
+r1625 | andrewstarritt | 2014-08-13 15:12:33 +1000 (Wed, 13 Aug 2014) | 1 line
+
+QETable - basic functionality available, but needs refinement
+------------------------------------------------------------------------
+r1626 | andrewstarritt | 2014-08-13 15:13:58 +1000 (Wed, 13 Aug 2014) | 1 line
+
+QETable - include into both project defn. and designer plugin
+------------------------------------------------------------------------
+r1627 | andrewstarritt | 2014-08-16 16:26:36 +1000 (Sat, 16 Aug 2014) | 1 line
+
+Create common variant to (PV) string list function for widgets that support multiple variables (QETable, QEPlotter etc.)
+------------------------------------------------------------------------
+r1628 | andrewstarritt | 2014-08-16 16:28:14 +1000 (Sat, 16 Aug 2014) | 1 line
+
+QEGraphic: modifiy to provide a plot cross hairs capability
+------------------------------------------------------------------------
+r1629 | andrewstarritt | 2014-08-16 17:40:25 +1000 (Sat, 16 Aug 2014) | 1 line
+
+QCaAlarmInfo: provide access to style colour in same way as colour name is accessed (as string) and use new function in the style function
+------------------------------------------------------------------------
+r1630 | andrewstarritt | 2014-08-16 18:25:15 +1000 (Sat, 16 Aug 2014) | 1 line
+
+QETable: add copy/paste/drop capability, alarm state handling; and row/col selection slot/signal
+------------------------------------------------------------------------
+r1631 | andrewstarritt | 2014-08-17 10:37:41 +1000 (Sun, 17 Aug 2014) | 1 line
+
+QEHistogram(s) use connectionChanged as opposed to floatingConnectionChanged
+------------------------------------------------------------------------
+r1632 | andrewstarritt | 2014-08-17 11:36:27 +1000 (Sun, 17 Aug 2014) | 1 line
+
+QEPlotter: add cross hairs capabiity together with crosshair index signal emmision
+------------------------------------------------------------------------
+r1633 | andrewstarritt | 2014-08-18 18:40:55 +1000 (Mon, 18 Aug 2014) | 1 line
+
+QEDragDrop: provide qcaDragEnterEvent optional parameter to inhibit dropping onto source widget
+------------------------------------------------------------------------
+r1634 | andrewstarritt | 2014-08-18 18:45:40 +1000 (Mon, 18 Aug 2014) | 1 line
+
+QELabel.cpp - undo change accidentally commit to revision 1633
+------------------------------------------------------------------------
+r1635 | andrewstarritt | 2014-08-18 22:35:15 +1000 (Mon, 18 Aug 2014) | 1 line
+
+QETable - dis-allow dropping on self, and fix up copy-paste  copyright year errors
+------------------------------------------------------------------------
+r1636 | andrewstarritt | 2014-08-18 22:36:18 +1000 (Mon, 18 Aug 2014) | 1 line
+
+QEPlotter - dis-allow drag-dropping to self
+------------------------------------------------------------------------
+r1637 | rhyder | 2014-08-20 08:06:17 +1000 (Wed, 20 Aug 2014) | 4 lines
+
+In QEImage remove markup artifact when moving markups over a scaled
+image. The artifact was only visible until the next update making it
+only obvous for images that were updating slowly or not at all.
+
+------------------------------------------------------------------------
+r1638 | andrewstarritt | 2014-08-20 10:06:23 +1000 (Wed, 20 Aug 2014) | 1 line
+
+ScratchPad.ui - allow dropping
+------------------------------------------------------------------------
+r1639 | andrewstarritt | 2014-08-20 10:26:37 +1000 (Wed, 20 Aug 2014) | 1 line
+
+QEDragDrop: set default allowSelfDrop parameter to false. For qcaDropEvent add optional parameter, allText (defaults to false) that controls what text is dropped. For QEWidget define default actions for  setDrop and getDrop.
+------------------------------------------------------------------------
+r1640 | andrewstarritt | 2014-08-20 10:30:10 +1000 (Wed, 20 Aug 2014) | 1 line
+
+QEScratchPad: use standard widget menu and srandard getDrop/setDrop functions
+------------------------------------------------------------------------
+r1641 | rhyder | 2014-08-20 12:08:43 +1000 (Wed, 20 Aug 2014) | 4 lines
+
+Improve logging of logging of customisation parsing for use in 'about'
+dialog.
+Add current macro substitutions for each window shown in 'about' dialog
+
+------------------------------------------------------------------------
+r1642 | andrewstarritt | 2014-08-20 12:48:10 +1000 (Wed, 20 Aug 2014) | 1 line
+
+QETable - modify to allow upto 20 PVs (can accomodate all plotter data PVs), allow full text drop and use QEWidget defined setDrop/getDrop functions
+------------------------------------------------------------------------
+r1643 | andrewstarritt | 2014-08-20 13:55:05 +1000 (Wed, 20 Aug 2014) | 1 line
+
+QEPvPropertiess - configure dropEvent  for full text droping and use extra name to populate combo box drop down list; and use QEWidget defined setDrop/getDrop functions
+------------------------------------------------------------------------
+r1644 | andrewstarritt | 2014-08-20 13:56:12 +1000 (Wed, 20 Aug 2014) | 1 line
+
+QEPlotter - configure dropEvent for full text droping and use QEWidget defined setDrop/getDrop functions
+------------------------------------------------------------------------
+r1645 | andrewstarritt | 2014-08-20 13:57:15 +1000 (Wed, 20 Aug 2014) | 1 line
+
+QEScratchPad.h - fix comment typo.
+------------------------------------------------------------------------
+r1646 | andrewstarritt | 2014-08-20 13:58:54 +1000 (Wed, 20 Aug 2014) | 1 line
+
+QEStripChart - configure dropEvent for full text droping and use QEWidget defined setDrop/getDrop functions; also use standard widget context menu
+------------------------------------------------------------------------
+r1647 | rhyder | 2014-08-20 15:02:44 +1000 (Wed, 20 Aug 2014) | 3 lines
+
+Fix customisation - was not launching external programs (uses generic
+programLauncher class)
+
+------------------------------------------------------------------------
+r1648 | andrewstarritt | 2014-08-20 18:11:41 +1000 (Wed, 20 Aug 2014) | 1 line
+
+QEWidget: organise into single directory (phase 1)
+------------------------------------------------------------------------
+r1649 | andrewstarritt | 2014-08-20 18:13:09 +1000 (Wed, 20 Aug 2014) | 1 line
+
+QEWidget: organise into single directory (phase 2)
+------------------------------------------------------------------------
+r1650 | andrewstarritt | 2014-08-20 18:43:48 +1000 (Wed, 20 Aug 2014) | 1 line
+
+delete empty directries src and include
+------------------------------------------------------------------------
+r1651 | andrewstarritt | 2014-08-20 18:45:53 +1000 (Wed, 20 Aug 2014) | 1 line
+
+QEWidget: organise into single directory (phase 3) - update moved files and .pro/.pri files to reference new location.
+------------------------------------------------------------------------
+r1652 | rhyder | 2014-08-20 21:34:06 +1000 (Wed, 20 Aug 2014) | 2 lines
+
+Fix Windows build.
+
+------------------------------------------------------------------------
+r1653 | andrewstarritt | 2014-08-22 11:44:47 +1000 (Fri, 22 Aug 2014) | 1 line
+
+QELabel - override text property definition to make non-designable
+------------------------------------------------------------------------
+r1654 | rhyder | 2014-08-25 17:04:38 +1000 (Mon, 25 Aug 2014) | 8 lines
+
+In QE buttons, when setting the style to force justification, the
+padding was also set away from the default, which means when the text
+just fits at design time, it may not when used. To avoid this the
+horizontal padding is set zero and the vertical padding is set to the
+defaults when applying a style to control the justification. Also, since
+'horizontal center' is the default anyway, no style is imposed if the
+requested horizontal justification is center anyway.
+
+------------------------------------------------------------------------
+r1655 | rhyder | 2014-08-26 15:04:16 +1000 (Tue, 26 Aug 2014) | 3 lines
+
+In QEImage, update markup related menu item text to reflect markup
+legends
+
+------------------------------------------------------------------------
+r1656 | rhyder | 2014-08-27 12:31:53 +1000 (Wed, 27 Aug 2014) | 4 lines
+
+In QEGui hide docked windows if requested. This was removed due to
+problem with Centos6 in revision 1617, and is added back here slightly
+differently (but still needs to be checked on Centos6)
+
+------------------------------------------------------------------------
+r1657 | andrewstarritt | 2014-08-27 14:28:40 +1000 (Wed, 27 Aug 2014) | 1 line
+
+Hide inherited properties (set designable false) where these properties are diven via process variables
+------------------------------------------------------------------------
+r1658 | rhyder | 2014-08-27 15:32:39 +1000 (Wed, 27 Aug 2014) | 2 lines
+
+Very minor typo corrections
+
+------------------------------------------------------------------------
+r1659 | rhyder | 2014-08-27 21:38:36 +1000 (Wed, 27 Aug 2014) | 2 lines
+
+Remove default QEGui toolbar, add initial toolbar customisation.
+
+------------------------------------------------------------------------
+r1660 | rhyder | 2014-08-27 21:53:18 +1000 (Wed, 27 Aug 2014) | 3 lines
+
+Only create QEGui toolbar when adding toolbar buttons during
+customisation
+
+------------------------------------------------------------------------
+r1661 | andrewstarritt | 2014-08-30 18:54:28 +1000 (Sat, 30 Aug 2014) | 1 line
+
+framework/api re-organise files into single directory
+------------------------------------------------------------------------
+r1662 | andrewstarritt | 2014-08-30 18:54:58 +1000 (Sat, 30 Aug 2014) | 1 line
+
+framework/data re-organise files into single directory
+------------------------------------------------------------------------
+r1663 | andrewstarritt | 2014-08-30 18:56:44 +1000 (Sat, 30 Aug 2014) | 1 line
+
+applications - adjust projects' INCLUDEPATH definitions re change 1661 and 1662
+------------------------------------------------------------------------
+r1664 | andrewstarritt | 2014-08-30 19:43:43 +1000 (Sat, 30 Aug 2014) | 1 line
+
+QETable - auto column auto resize capability plus min width property; Also only emit selection changed signals if/when by operator action
+------------------------------------------------------------------------
+r1665 | andrewstarritt | 2014-08-30 20:39:15 +1000 (Sat, 30 Aug 2014) | 1 line
+
+QEDisplayRanges - provide isSimilar function (fuzzy equality)
+------------------------------------------------------------------------
+r1666 | andrewstarritt | 2014-08-30 20:44:31 +1000 (Sat, 30 Aug 2014) | 1 line
+
+QEGraphic - add seperate QEGraphicMarkup unit, don't replot everything when markup moved, refactor functionality from QEStripChart/QEPlotter into QEGraphic, and change API (a bit), e.g. allow non-animated axis specification, rework animation paradigm
+------------------------------------------------------------------------
+r1667 | andrewstarritt | 2014-08-30 20:50:04 +1000 (Sat, 30 Aug 2014) | 1 line
+
+remove obsoslete api and data src and include directories.
+------------------------------------------------------------------------
+r1668 | rhyder | 2014-09-01 11:17:56 +1000 (Mon, 01 Sep 2014) | 3 lines
+
+Add initial doco for QETable.
+Add doco on setting GUI titles.
+
+------------------------------------------------------------------------
+r1669 | rhyder | 2014-09-01 11:37:45 +1000 (Mon, 01 Sep 2014) | 3 lines
+
+Keep widgets in alpabetical order in documentation.
+Fix cross reference in documentation
+
+------------------------------------------------------------------------
+r1670 | rhyder | 2014-09-01 11:38:55 +1000 (Mon, 01 Sep 2014) | 2 lines
+
+Fix very minor typo in comment
+
+------------------------------------------------------------------------
+r1671 | andrewstarritt | 2014-09-01 11:56:00 +1000 (Mon, 01 Sep 2014) | 1 line
+
+QEGenericEdit.h - make text property non designable
+------------------------------------------------------------------------
+r1672 | andrewstarritt | 2014-09-01 11:57:18 +1000 (Mon, 01 Sep 2014) | 1 line
+
+QEStripChartItem.cpp - use more appropriate prescision within embedded QELabel widgets
+------------------------------------------------------------------------
+r1673 | rhyder | 2014-09-01 16:49:32 +1000 (Mon, 01 Sep 2014) | 2 lines
+
+Ongoing toolbar customisations
+
+------------------------------------------------------------------------
+r1674 | rhyder | 2014-09-01 17:13:48 +1000 (Mon, 01 Sep 2014) | 4 lines
+
+Add system simlar to QEWidget activation to allow the QE widgets perform
+tasks on startup which shouldbe performed after all widgets have been
+constructed.
+
+------------------------------------------------------------------------
+r1675 | andrewstarritt | 2014-09-01 18:02:13 +1000 (Mon, 01 Sep 2014) | 1 line
+
+QEPlotter, QETable: create pvNameSet slots and signals and emit on change; also override activated function and emit pvNameSet
+------------------------------------------------------------------------
+r1676 | rhyder | 2014-09-01 19:56:35 +1000 (Mon, 01 Sep 2014) | 2 lines
+
+Set toolbar icon if a filename is provided in the customisatino file.
+
+------------------------------------------------------------------------
+r1677 | rhyder | 2014-09-01 22:39:31 +1000 (Mon, 01 Sep 2014) | 3 lines
+
+Fix bug where title for new window from menu customisations is not
+applied
+
+------------------------------------------------------------------------
+r1678 | rhyder | 2014-09-02 16:10:58 +1000 (Tue, 02 Sep 2014) | 3 lines
+
+Add checkability to customised menu bar items with initial checked state
+based on macro substitutions
+
+------------------------------------------------------------------------
+r1679 | rhyder | 2014-09-03 13:05:54 +1000 (Wed, 03 Sep 2014) | 13 lines
+
+Workaround for Centos6 where can't set initial state of visibility of
+docks correctly.
+Search for 'Centos6 visibility problem' to find code and comment
+relating to this.
+We should be able to set the initial state of visibility when a dock is
+created, and on most OS we can, but on Centos6 if hidden at creation it
+is never shown when the user asks for the dock by checking the dock
+action.
+If never hidden at creation and hidden latter if required when the dock
+action is added to a customisation menu it all seems to work OK.
+A consequence of this is if no customisation menu item for this dock is
+created the d
+
+------------------------------------------------------------------------
+r1680 | rhyder | 2014-09-03 13:18:00 +1000 (Wed, 03 Sep 2014) | 14 lines
+
+No changes, just full comment that was intended for revision r1678.
+Workaround for Centos6 where can't set initial state of visibility of
+docks correctly.
+Search for 'Centos6 visibility problem' to find code and comment
+relating to this.
+We should be able to set the initial state of visibility when a dock is
+created, and on most OS we can, but on Centos6 if hidden at creation it
+is never shown when the user asks for the dock by checking the dock
+action.
+If never hidden at creation and hidden latter if required when the dock
+action is added to a customisation menu it all seems to work OK.
+A consequence of this is if no customisation menu item for this dock is
+created the dock will always be shown even if it supposed to be hidden.
+
+------------------------------------------------------------------------
+r1681 | rhyder | 2014-09-03 14:58:20 +1000 (Wed, 03 Sep 2014) | 3 lines
+
+Improve the logging of customisation settings in QEGui help->about.
+Also clarify how GUI titles are determined in documentation.
+
+------------------------------------------------------------------------
+r1682 | rhyder | 2014-09-07 21:47:37 +1000 (Sun, 07 Sep 2014) | 2 lines
+
+Fix recentrly introduced error when starting external program.
+
+------------------------------------------------------------------------
+r1683 | rhyder | 2014-09-08 12:42:12 +1000 (Mon, 08 Sep 2014) | 4 lines
+
+Improve logging of customisation errors.
+Make setting of GUI titles more consistent, and improve relevant
+documentation.
+
+------------------------------------------------------------------------
+r1684 | rhyder | 2014-09-08 17:34:24 +1000 (Mon, 08 Sep 2014) | 5 lines
+
+Save GUI title in saved configuration as it is no longer always just
+generated from the saved GUI file.
+Improve the Centos6 workaround for hiding docks on creation. (this still
+leaves a problem when restoring configurations with docks)
+
+------------------------------------------------------------------------
+r1685 | rhyder | 2014-09-08 17:48:20 +1000 (Mon, 08 Sep 2014) | 2 lines
+
+Simplify macro substitution manipulation
+
+------------------------------------------------------------------------
+r1686 | rhyder | 2014-09-08 22:09:52 +1000 (Mon, 08 Sep 2014) | 3 lines
+
+Improve Centos6 workaround for setting dock visibility. (works better
+when restoring configuration)
+
+------------------------------------------------------------------------
+r1687 | andrewstarritt | 2014-09-09 17:24:43 +1000 (Tue, 09 Sep 2014) | 1 line
+
+Add pvname set signal/slot and selected item signal/slot to ScratchPad
+------------------------------------------------------------------------
+r1688 | andrewstarritt | 2014-09-09 17:26:14 +1000 (Tue, 09 Sep 2014) | 1 line
+
+QETable - use correct flag to inhibit emitting the current PV Name Set
+------------------------------------------------------------------------
+r1689 | rhyder | 2014-09-10 13:08:52 +1000 (Wed, 10 Sep 2014) | 3 lines
+
+Ensure windows are un-iconised on all platforms when selected from
+'Windows' menu.
+
+------------------------------------------------------------------------
+==================================================================================================
 Changes between 2.8.1 and 2.8.0 (this includes changes to all branches and tags and may include changes no related to this release)
 
 SUMMARY:
