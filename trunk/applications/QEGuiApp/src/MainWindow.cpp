@@ -2310,6 +2310,9 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                     {
                         if( guiList[i].getForm() == gui )
                         {
+                            // Add the GUI title
+                            form.addValue( "Title", gui->getQEGuiTitle() );
+
                             // If GUI is in a dock...
                             if( guiList[i].getIsDock() )
                             {
@@ -2341,9 +2344,6 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                             // GUI is not in a dock. Note the title, and determine if GUI is in a tab or not
                             else
                             {
-                                // Add the GUI title
-                                form.addValue( "Title", gui->getQEGuiTitle() );
-
                                 // Count GUIs in central area (not docks)
                                 // Only count enough to check if there is more than one
                                 int count = 0;
