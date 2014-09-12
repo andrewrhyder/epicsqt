@@ -89,6 +89,8 @@ signals:
 protected:
    // Overtide super class functions.
    //
+   void activated ();
+
    // Drag and Drop - no drop to self.
    //
    void mousePressEvent (QMouseEvent *event)    { qcaMousePressEvent (event); }
@@ -107,8 +109,11 @@ protected:
    void saveConfiguration (PersistanceManager* pm);
    void restoreConfiguration (PersistanceManager* pm, restorePhases restorePhase);
 
-   bool eventFilter (QObject *obj, QEvent *event);
-   int findSlot (QObject *obj);
+   void showEvent (QShowEvent* event);
+   void keyPressEvent (QKeyEvent* event);
+   bool eventFilter (QObject* obj, QEvent* event);
+
+   int findSlot (QObject *obj) const;
 
 private:
    // Internal widgets.
@@ -152,11 +157,12 @@ private:
 
    void createInternalWidgets ();
    void setSelectItem (const int slot, const bool toggle);
+   int numberSlotsUsed () const;  // includes cleared slots
    void calcMinimumHeight ();
 
    // Perform a pvNameDropEvent 'drop' when dropped onto internall widget.
    //
-   void pvNameDropEvent (const int slot, QDropEvent *event);
+   void pvNameDropEvent (const int slot, QDropEvent* event);
    void addPvName (const QString& pvName);
 
 private slots:
