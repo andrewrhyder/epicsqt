@@ -62,7 +62,7 @@ public:
     windowCustomisationList* getMainWindowCustomisations(){ return &winCustomisations; }
     windowCustomisation* getCustomisation(QString name){ return winCustomisations.getCustomisation(name); }
 
-    MainWindow* raiseGui(  QString guiFileName, QString macroSubstitutions );
+    MainWindow* raiseGui(  QString guiFileName, QString macroSubstitutions, QString title );
     const QString getCustomisationLog(){ return winCustomisations.log.getLog(); }
 
 

@@ -307,15 +307,34 @@ const QList<recentFile*>&  QEGui::getRecentFiles()
 
 // If a GUI matching a filename and macro substitutions is present, ensure it is visible and has focus.
 // Return true if GUI is found
- MainWindow* QEGui::raiseGui(  QString guiFileName, QString macroSubstitutions )
+ MainWindow* QEGui::raiseGui(  QString guiFileName, QString macroSubstitutions, QString title )
 {
     for( int i = 0; i < mainWindowList.count(); i++ )
     {
         MainWindow* mw = mainWindowList[i];
+
+        // If the guifileName and macro substitution matches, ensure the specific GUI
+        // in the main window is displayed
         if( mw->showGui( guiFileName, macroSubstitutions ) )
         {
             return mw;
         }
+
+        // If the main window title matches, then show it
+        else
+        {
+            VariableNameManager vnm;
+            vnm.setVariableNameSubstitutions( macroSubstitutions );
+            QString substitutedTitle = vnm.substituteThis( title );
+            if( mw->windowTitle() == substitutedTitle )
+            {
+                mw->show();
+                mw->raise();
+                mw->activateWindow();
+                return mw;
+            }
+        }
+
     }
     return NULL;
 }
