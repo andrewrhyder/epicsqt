@@ -2271,6 +2271,7 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
 
                 PMElement id = mw.addElement( "Identity" );
                 id.addAttribute( "id", uniqueId );
+                id.addValue( "Title", windowTitle() );
 
                 PMElement geo = mw.addElement( "Geometry" );
                 QRect r = geometry();
@@ -2443,6 +2444,9 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
 
                 PMElement id = data.getElement( "Identity" );
                 id.getAttribute( "id", uniqueId );
+
+                QString mwTitle;
+                id.getValue( "Title", mwTitle );
 
                 PMElement geometry = data.getElement( "Geometry" );
                 int x, y, w, h;
@@ -2639,6 +2643,14 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                             }
                         }
                     }
+                }
+
+                // Regardless of any titles set by GUIs that have been opened, apply the title saved with the main window
+                // This is often redundant as the title will be correctly set already fromn the current main GUI, but
+                // if there is no current main GUI, then it is required.
+                if( !mwTitle.isEmpty() )
+                {
+                    setTitle( mwTitle );
                 }
 
                 // If this new GUI is the current one, make it so
