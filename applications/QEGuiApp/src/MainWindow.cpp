@@ -167,6 +167,8 @@
 #define DESIGNER_COMMAND_1 "designer-qt4"
 #define DESIGNER_COMMAND_2 "designer"
 
+#define DEFAULT_QEGUI_CUSTOMISATION "QEGui_Default"
+
 Q_DECLARE_METATYPE( QEForm* )
 
 //=================================================================================
@@ -321,7 +323,7 @@ void MainWindow::setDefaultCustomisation()
     QString defaultCustomisation = app->getParams()->customisationName;
     if( defaultCustomisation.isEmpty() )
     {
-        defaultCustomisation = "QEGui_Default";
+        defaultCustomisation = DEFAULT_QEGUI_CUSTOMISATION;
     }
 
     // Apply any required window customisations
@@ -367,10 +369,12 @@ void MainWindow::setupPlaceholderMenus()
 
 // Open a gui in a new window.
 // Present a file open dialog box and after generate the gui based on the ui file the user selects
+// Note, the current customisations are not propogated. This is because these may include dock definitions
+// and a new window should be empty. Generally, when customisations are used, they are used within custom menu items.
 void MainWindow::on_actionNew_Window_triggered()
 {
     profile.publishOwnProfile();
-    MainWindow* w = new MainWindow( app, "", "", app->getParams()->customisationName, true );
+    MainWindow* w = new MainWindow( app, "", "", DEFAULT_QEGUI_CUSTOMISATION, true );
     profile.releaseProfile();
     w->show();
 }
@@ -405,7 +409,13 @@ void MainWindow::on_actionNew_Dock_triggered()
     profile.publishOwnProfile();
     QEForm* gui = createGui( GuiFileNameDialog( "Open" ), "", app->getParams()->customisationName, true );
     profile.releaseProfile();
-    loadGuiIntoNewDock( gui );
+    QDockWidget* dock = loadGuiIntoNewDock( gui );
+
+    // Record that this dock has been added
+    if( dock )
+    {
+        dockedComponents.insert( gui->getQEGuiTitle(), dock );
+    }
 }
 
 // User requested a new gui to be opened
@@ -786,7 +796,7 @@ void MainWindow::on_actionAbout_triggered()
 
                     app->getParams()->customisationFile,                   // Default Window customisation file
                     app->getParams()->customisationName,                   // Default window customisation name
-                    QString( "QEGui_Default" ),                            // Default window customisation name
+                    QString( DEFAULT_QEGUI_CUSTOMISATION ),                // Default window customisation name
                     app->getCustomisationLog(),                            // Log of window customisations
 
                     disconnectedCount,                                     // Disconnection count
@@ -1464,10 +1474,25 @@ QWidget* MainWindow::launchGui( QString guiName, QString title, QString customis
         case QEActionRequests::OptionBottomDockWindowTabbed:
         case QEActionRequests::OptionFloatingDockWindow:
             {
-                // Create the gui and load it into a new dock
-                QEForm* gui = createGui( guiName, title, customisationName, true );  // Note, profile should have been published by signal code
-                QDockWidget* dock = loadGuiIntoNewDock( gui, hidden, createOption );
-                return dock;
+                // Only create the dock if another by the same name does not exist.
+                // This avoids the following problem scenario:
+                // - Docks created as part of customisation.
+                // - Configuration saved (including docks).
+                // - Configuration restored.  <<<--- this restores docks, then applys customisation which tries to create new docks.
+                if( !dockedComponents.contains( title ) )
+                {
+                    // Create the gui and load it into a new dock
+                    QEForm* gui = createGui( guiName, title, customisationName, true );  // Note, profile should have been published by signal code
+                    QDockWidget* dock = loadGuiIntoNewDock( gui, hidden, createOption );
+
+                    // Record that this dock has been added
+                    dockedComponents.insert( title, dock );
+                    return dock;
+                }
+                else
+                {
+                    return dockedComponents.value( title );
+                }
             }
 
         default:
@@ -1555,6 +1580,9 @@ void  MainWindow::requestAction( const QEActionRequests & request )
                         {
                             QDockWidget* newDock = (QDockWidget*)(w);
                             newDock->setWindowTitle( window->title );
+
+                            // Record that this dock has been added
+                            dockedComponents.insert( window->title, newDock );
                         }
                     }
                     profile.removePriorityMacroSubstitutions();
@@ -1913,8 +1941,9 @@ QEForm* MainWindow::createGui( QString fileName, QString title, QString customis
         QAction* windowMenuAction = new QAction( gui->getQEGuiTitle(), this );
         windowMenuAction->setData( qVariantFromValue( gui ) );
 
-        // Add this gui to the application wide list of guis
+        // Add this gui to the application wide list of guis and ensure the dock will be removed from that list if it is destroyed
         guiList.append( guiListItem( gui, this, windowMenuAction, customisationName, isDock ) );
+        QObject::connect( gui, SIGNAL( destroyed( QObject* )), this, SLOT( guiDestroyed( QObject* )) );
 
         // If not a dock, for each main window, add a new action to the window menu
         if( !isDock )
@@ -1936,6 +1965,14 @@ QEForm* MainWindow::createGui( QString fileName, QString title, QString customis
     // Return the created gui if any
     return gui;
  }
+
+// A gui (in a dock) has been destroyed.
+// Ensure we won't reference it in the GUI list
+void  MainWindow::guiDestroyed( QObject* obj)
+{
+    QEForm* gui = (QEForm*)(obj);
+    removeGuiFromGuiList( gui );
+}
 
 // Set the main window title (default to 'QEGui' if no title supplied as a parameter, or a startup parameter)
 void MainWindow::setTitle( QString title )
@@ -2567,7 +2604,13 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                                     {
                                         createOption = dockLocationToCreationOption( (Qt::DockWidgetArea)area, tabbed );
                                     }
-                                    loadGuiIntoNewDock( gui, hidden, createOption, (Qt::DockWidgetArea)allowedAreas, (QDockWidget::DockWidgetFeature)features, QRect( x, y, width, height ) );
+                                    QDockWidget* dock = loadGuiIntoNewDock( gui, hidden, createOption, (Qt::DockWidgetArea)allowedAreas, (QDockWidget::DockWidgetFeature)features, QRect( x, y, width, height ) );
+
+                                    // Record that this dock has been added
+                                    if( dock )
+                                    {
+                                        dockedComponents.insert( gui->getQEGuiTitle(), dock );
+                                    }
                                 }
 
                                 // If not a dock...
@@ -2964,9 +3007,12 @@ QDockWidget* MainWindow::getGuiDock( QWidget* gui )
 // Built a reference to a dock that may need to be hidden later.
 dockRef::dockRef( QDockWidget* dockIn, bool visIn )
 {
+    // Save the dock reference, and the required visibility state
     dock = dockIn;
     requiredVis = visIn;
-//    qDebug() << "dockRef::dockRef()" << dockIn << visIn;
+
+    // Ensure the dock won't be referenced if it is destroyed
+    QObject::connect( dock, SIGNAL(destroyed(QObject*)), this, SLOT(dockRefDestroyed(QObject*)));
 
     // Option to hide when first visible.
     // This has a problem on windows where it no initial visibility changed signal occurs
@@ -2977,6 +3023,11 @@ dockRef::dockRef( QDockWidget* dockIn, bool visIn )
     // (zero time is not intended to be a 'short' time, but timer
     // mechanism ensures this task is queued and only occurs when back processing events after construction)
     QTimer::singleShot(0, this, SLOT(setRequiredVis()));
+}
+
+void dockRef::dockRefDestroyed( QObject* )
+{
+    dock = NULL;
 }
 
 // Slot for setting dock visibility after first visibility signal
@@ -2992,7 +3043,14 @@ dockRef::dockRef( QDockWidget* dockIn, bool visIn )
 // Slot for setting dock visibility after timer (of zero) event
 void dockRef::setRequiredVis(  )
 {
-//    qDebug() << "dockRef::setRequiredVis()" << dockIn << visIn;
+    // If the dock no longer exists, don't try to reference it.
+    // If the dock has been destroyed, the destoyed signal should have been used to clear the dock reference.
+    if( dock == NULL )
+    {
+        return;
+    }
+
+    // Set the visibility state to the required state
     dock->setVisible( requiredVis );
 }
 //++++++++++++++++++++++++++++++++++++++++++++++++
