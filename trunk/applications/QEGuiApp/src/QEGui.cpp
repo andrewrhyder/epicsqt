@@ -104,7 +104,7 @@ int QEGui::run()
 
     // Load window customisations
     // First load the inbuilt default
-    // This can be overwritten by any external file with a customisation set with the name "QEGui_Default"
+    // This can be overwritten by any external file with a customisation set with the name defined by DEFAULT_QEGUI_CUSTOMISATION
     winCustomisations.loadCustomisation( ":/qe/gui/configuration/QEGuiCustomisationDefault.xml" );
 
     // Set up the profile for finding customisation files

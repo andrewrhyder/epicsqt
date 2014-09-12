@@ -1194,6 +1194,16 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw,              
                                                   windowCustomisationInfo* customisationInfo,   // Customisations loaded from customisation file
                                                   dockMap dockedComponents )                    // Map of existing docks
 {
+
+    // If this customisation has been applied, do nothing
+    // This is a bit more than for efficiency - if docks are present, and have been manipulated (scrolled, etc), we don't want to re-create them
+    if( lastAppliedCustomisation == customisationName )
+    {
+        return;
+    }
+    lastAppliedCustomisation == customisationName;
+
+
     // Clear the existing customisation (but only if we have a customisation name to replace it with)
     if( !customisationName.isEmpty() )
     {
@@ -1210,6 +1220,25 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw,              
             delete toolBar;
         }
         customisationInfo->toolbars.clear();
+
+// The following would be a good idea, but at the moment will delete docks created by any open GUIs
+// as well as those created byt the customisation set. For example the 'Image display properties' dock
+// of a QEImage widget would get deleted.
+// We should be able to identify docks created as part of the customisation. The QEGui MainWindow class
+// holds a list of docked components. This MAY be what is required. This class does not know about that
+// application though. Perhaps it should signal that is would like customisation docks to be deleted pleas,
+// or perhaps a list of customisation docks should be held (like dockRef in QEGui MainWindow)
+//        // Remove current docks
+//        QMapIterator<QString, QDockWidget*> d(dockedComponents);
+//        while( d.hasNext() )
+//        {
+//            d.next();
+//            qDebug() << "removing dock" <<d.key();
+//            QDockWidget* dock = d.value();
+//            mw->removeDockWidget( dock );
+//            delete dock;
+//        }
+//        dockedComponents.clear();
     }
 
     // Get the customisations required

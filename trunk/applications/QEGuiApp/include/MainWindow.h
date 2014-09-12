@@ -77,6 +77,7 @@ private:
 private slots:
 //    void setRequiredVis( bool );
     void setRequiredVis();
+    void dockRefDestroyed( QObject* obj );
 };
 //++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -311,6 +312,7 @@ private slots:
 
     void delayedRaiseGui();                         // Timer event to ensure the main form is visible and the active form.
 
+    void guiDestroyed( QObject* );                  // A gui (in a dock) has been destroyed.
 
 signals:
     void dockCreated( QDockWidget* );               // Signal to customisation system that a dock has been created. The customisation system may need to use 'dock toggle' action from the dock in a menu
