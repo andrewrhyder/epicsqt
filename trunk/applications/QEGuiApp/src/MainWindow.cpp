@@ -1418,8 +1418,9 @@ QWidget* MainWindow::launchGui( QString guiName, QString title, QString customis
     //!!! If a button re-launches the form it is in (with different macro substitutions) the list just grows
 
         // If the form already exists (with the same substitutions), just display that one.
+        // If a main window can be found with the same title, display that.
         // Note, even if the gui is found, if the main window is not located and raised, then a new gui will be launched.
-        MainWindow* mw = app->raiseGui( uiFile->fileName(), publishedProfile.getMacroSubstitutions().trimmed() );
+        MainWindow* mw = app->raiseGui( uiFile->fileName(), publishedProfile.getMacroSubstitutions().trimmed(), title );
         if( mw )
         {
             delete uiFile;
