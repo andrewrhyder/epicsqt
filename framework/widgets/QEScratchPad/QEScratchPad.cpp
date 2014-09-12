@@ -233,7 +233,7 @@ QSize QEScratchPad::sizeHint () const {
 
 //---------------------------------------------------------------------------------
 //
-int QEScratchPad::findSlot (QObject *obj)
+int QEScratchPad::findSlot (QObject *obj) const
 {
    int result = -1;
 
@@ -252,11 +252,9 @@ int QEScratchPad::findSlot (QObject *obj)
 
 //---------------------------------------------------------------------------------
 //
-void QEScratchPad::calcMinimumHeight ()
+int QEScratchPad::numberSlotsUsed () const
 {
    int last;
-   int count;
-   int delta_top;
 
    // Find last used item.
    //
@@ -267,21 +265,33 @@ void QEScratchPad::calcMinimumHeight ()
       }
    }
 
+   return last + 1;
+}
+
+//---------------------------------------------------------------------------------
+//
+void QEScratchPad::calcMinimumHeight ()
+{
+   int count;
+   int delta_top;
+
+   // Find number in use.
+   //
+   count = this->numberSlotsUsed ();
+
    // Allow one spare at end of widget if there is room.
    //
-   if (last  < ARRAY_LENGTH (this->items) - 1) last++;
+   if (count  < ARRAY_LENGTH (this->items)) count++;
 
    // Set visibility accordingly
    //
    for (int slot = 0; slot < ARRAY_LENGTH (this->items); slot++) {
-      this->items [slot].frame->setVisible (slot <= last);
-      if (slot <= last) {
-      }
+      this->items [slot].frame->setVisible (slot < count);
    }
 
-   // Allow +1 for titles and +1 for zero indexed nature of slot and last.
+   // Allow +1 for titles.
    //
-   count = 2 + last;
+   count += 1;
 
    delta_top = 20;
    this->setMinimumHeight ((delta_top * count) + 10);
@@ -438,6 +448,35 @@ void QEScratchPad::addPvName (const QString& pvName)
 
 //---------------------------------------------------------------------------------
 //
+void QEScratchPad::showEvent (QShowEvent* /*event*/ )
+{
+   // We need focus in order for the up/down key to work.
+   //
+   this->setFocus ();
+}
+
+//---------------------------------------------------------------------------------
+//
+void QEScratchPad::keyPressEvent (QKeyEvent * event)
+{
+   switch (event->key ()) {
+
+      case Qt::Key_Up:
+         if (this->selectedItem >= 0) {
+            this->setSelectItem (this->selectedItem - 1, false);
+         }
+         break;
+
+      case Qt::Key_Down:
+         if (this->selectedItem + 1 < this->numberSlotsUsed ()) {
+            this->setSelectItem (this->selectedItem + 1, false);
+         }
+         break;
+   }
+}
+
+//---------------------------------------------------------------------------------
+//
 bool QEScratchPad::eventFilter (QObject *obj, QEvent *event)
 {
    const QEvent::Type type = event->type ();
@@ -446,6 +485,7 @@ bool QEScratchPad::eventFilter (QObject *obj, QEvent *event)
 
    switch (type) {
       case QEvent::MouseButtonPress:
+         this->setFocus ();
          mouseEvent = static_cast<QMouseEvent *> (event);
          slot = this->findSlot (obj);
          if (slot >= 0 && (mouseEvent->button () ==  Qt::LeftButton)) {
@@ -492,7 +532,6 @@ bool QEScratchPad::eventFilter (QObject *obj, QEvent *event)
             return true;
          }
          break;
-
 
       case QEvent::Drop:
          slot = this->findSlot (obj);
@@ -619,6 +658,18 @@ QString QEScratchPad::getPvName (const int slot) const
 
 //---------------------------------------------------------------------------------
 //
+void QEScratchPad::activated ()
+{
+   // This prevents infinite looping in the case of cyclic connections.
+   //
+   if (!this->emitPvNameSetChangeInhibited) {
+      emit this->pvNameSetChanged (this->getPvNameSet ());
+   }
+}
+
+
+//---------------------------------------------------------------------------------
+//
 QString QEScratchPad::copyVariable ()
 {
    QString result;
@@ -665,6 +716,7 @@ void QEScratchPad::paste (QVariant s)
    for (int j = 0; j < pvNameList.count (); j++) {
       this->addPvName (pvNameList.value (j));
    }
+   this->setFocus ();
 }
 
 //---------------------------------------------------------------------------------
