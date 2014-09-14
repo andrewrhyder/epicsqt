@@ -39,7 +39,7 @@
 #include <QEAbstractWidget.h>
 #include <QEFloatingArray.h>
 #include <QEFloatingFormatting.h>
-
+#include <persistanceManager.h>
 #include <QCaObject.h>
 #include <QEWidget.h>
 #include <QCaVariableNamePropertyManager.h>
@@ -52,7 +52,7 @@
 
    When in horizonal mode, the table and functionality is transposed.
 
-   It is tighly integrated, via theQEAbstractWidget, with the base class QEWidget
+   It is tighly integrated, via the QEAbstractWidget, with the base class QEWidget
    class which provides generic support such as macro substitutions, drag/drop,
    and standard properties. QEAbstractWidget provides all standard properties.
  */
@@ -241,6 +241,9 @@ protected:
    QString copyVariable ();
    QVariant copyData ();
    void paste (QVariant s);
+
+   void saveConfiguration (PersistanceManager* pm);
+   void restoreConfiguration (PersistanceManager* pm, restorePhases restorePhase);
 
 private:
    bool isVertical () const;

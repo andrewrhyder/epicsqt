@@ -669,4 +669,55 @@ void QETable::paste (QVariant v)
    }
 }
 
+//------------------------------------------------------------------------------
+//
+void QETable::saveConfiguration (PersistanceManager* pm)
+{
+   const QString formName = this->persistantName ("QETable");
+   PMElement formElement = pm->addNamedConfiguration (formName);
+
+   // Save each active PV.
+   //
+   PMElement pvListElement = formElement.addElement ("PV_List");
+
+   for (int slot = 0; slot < ARRAY_LENGTH (this->dataSet); slot++) {
+      QString pvName = this->getSubstitutedVariableName (slot);
+
+      if (!pvName.isEmpty ()) {
+         PMElement pvElement = pvListElement.addElement ("PV");
+         pvElement.addAttribute ("id", slot);
+         pvElement.addValue ("Name", pvName);
+      }
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void QETable::restoreConfiguration (PersistanceManager* pm, restorePhases restorePhase)
+{
+   if (restorePhase != FRAMEWORK) return;
+
+   const QString formName = this->persistantName ("QETable");
+   PMElement formElement = pm->getNamedConfiguration (formName);
+
+   // Restore each PV.
+   //
+   PMElement pvListElement = formElement.getElement ("PV_List");
+
+   for (int slot = 0; slot < ARRAY_LENGTH (this->dataSet); slot++) {
+      PMElement pvElement = pvListElement.getElement ("PV", "id", slot);
+      QString pvName;
+      bool status;
+
+      if (pvElement.isNull ()) continue;
+
+      // Attempt to extract a PV name
+      //
+      status = pvElement.getValue ("Name", pvName);
+      if (status) {
+         this->setVariableName (slot, pvName);
+      }
+   }
+}
+
 // end
