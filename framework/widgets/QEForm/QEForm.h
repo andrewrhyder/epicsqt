@@ -31,7 +31,7 @@
 #include <QWidget>
 #include <QString>
 #include <QLabel>
-#include <QFileSystemWatcher>
+#include <QEFileMonitor.h>
 #include <QEPluginLibrary_global.h>
 #include <QCaVariableNamePropertyManager.h>
 #include <QEActionRequests.h>
@@ -94,12 +94,13 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
 
     private:
         void establishConnection( unsigned int variableIndex );
+        static void setEmbeddedFileMonitoringIsEnabled( QWidget* widget, bool fileMonitoringIsEnabled );
 
         QString title;                // GUI title (to be used by an application when presenting the GUI, such as in the title bar)
         QWidget* ui;
         bool alertIfUINoFound;        // True if the UI file could not be read. No alert is required, for example, when a partial UI file name is being typed in Designer
         bool fileMonitoringIsEnabled; // Only when true  does form honor any fileChanged signals from fileMon.
-        QFileSystemWatcher fileMon;
+        QEFileMonitor fileMon;
 
         void newMessage( QString msg, message_types type );
         void resizeEvent ( QResizeEvent * event );

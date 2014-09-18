@@ -192,6 +192,10 @@ void QEForm::reloadLater()
     // The ui file has been loaded post construction, so this widget missed out on any applied scaling.
     // Therefore apply the current scaling now.
     QEScaling::applyToWidget( ui );
+
+    // And propogate fileMonitoringIsEnabled state to any sub QEForms.
+    //
+    setEmbeddedFileMonitoringIsEnabled( this, fileMonitoringIsEnabled );
 }
 
 // Debug function to list the widget hierarchy
@@ -267,19 +271,16 @@ bool QEForm::readUiFile()
             fullUiFileName = uiDir.cleanPath( uiDir.absoluteFilePath( uiFile->fileName() ) );
 
             // Ensure no other files are being monitored (belt and braces)
-            QStringList monitoredPaths = fileMon.files();
-            if( monitoredPaths.count())
-            {
-                fileMon.removePaths( monitoredPaths );
-            }
+            fileMon.clearPath();
 
             // Is this a resource file?
             bool isResourceFile = (fullUiFileName.left(1).compare( QString( ":" )) == 0);
 
             // Monitor the opened file (if not from the Qt resource database which can't be monitored)
-            if( !isResourceFile )
+            // Do not monitor if not enabled - this uses resourses.
+            if( !isResourceFile && fileMonitoringIsEnabled)
             {
-                fileMon.addPath( fullUiFileName );
+                fileMon.setPath( fullUiFileName );
             }
 
             // If profile has been published (for example by an application creating this form), then publish our own local profile
@@ -623,11 +624,10 @@ void QEForm::fileChanged ( const QString & /*path*/ )
     // Only action if monitoring is enabled.
     if( fileMonitoringIsEnabled ){
         // Ensure we aren't monitoring files any more
-        QStringList monitoredPaths = fileMon.files();
-        fileMon.removePaths( monitoredPaths );
+        fileMon.clearPath();
 
         // Reload the file
-       reloadFile();
+        reloadFile();
     }
 }
 
@@ -704,11 +704,53 @@ QString QEForm::getUiFileName()
 void QEForm::setFileMonitoringIsEnabled( bool fileMonitoringIsEnabledIn )
 {
      fileMonitoringIsEnabled = fileMonitoringIsEnabledIn;
+
+     bool isResourceFile = (fullUiFileName.left(1).compare( QString( ":" )) == 0);
+     if( !isResourceFile && fileMonitoringIsEnabled )
+     {
+         fileMon.setPath( fullUiFileName );
+     } else {
+         fileMon.clearPath();
+     }
+
+     // Now propagate monitoring enabled state to any embedded sub forms.
+     //
+     setEmbeddedFileMonitoringIsEnabled( this, fileMonitoringIsEnabled );
 }
 
 bool QEForm::getFileMonitoringIsEnabled()
 {
     return fileMonitoringIsEnabled;
+}
+
+// [static] Performs a widget tree walk from specified parent looking form QEForm
+// widgets, and then invokes setFileMonitoringIsEnabled.
+void QEForm::setEmbeddedFileMonitoringIsEnabled( QWidget* parent, bool fileMonitoringIsEnabled )
+{
+    QObjectList childList = parent->children();
+    int n = childList.count();
+
+    for( int j = 0; j < n; j++ ){
+        QObject* child = childList.value (j);
+
+        // We need only tree walk widgets. All widget parents are themselves widgets.
+        QWidget* childWidget = dynamic_cast <QWidget *>( child );
+        if( childWidget )
+        {
+            QEForm* qeform = dynamic_cast <QEForm*>( childWidget );
+            if (qeform)
+            {
+                // We have found a QEForm - set file monitoring state
+                // Note: this call manages the tree walk from here.
+                qeform->setFileMonitoringIsEnabled( fileMonitoringIsEnabled );
+            }
+            else
+            {
+                // Keep looking for netsted QEForms
+                setEmbeddedFileMonitoringIsEnabled( childWidget, fileMonitoringIsEnabled );
+            }
+        }
+    }
 }
 
 //==============================================================================
