@@ -82,11 +82,12 @@ void QNumericEdit::commonConstructor ()
    this->mMinimum = this->minimumMin;
    this->mMaximum = this->maximumMax;
 
-   // force setValue to process.
+   // force internalSetValue to process.
    //
    this->mValue = 0.1;  // force initial update
-   this->setValue (0.0);
+   this->internalSetValue (0.0);
    this->cursor = this->cursorFirst;
+   this->emitValueChangeInhibited = false;
 }
 
 //------------------------------------------------------------------------------
@@ -137,9 +138,9 @@ bool QNumericEdit::lineEditKeyPressEvent (QKeyEvent * event)
                }
             }
             delta = pow (dblRadix, significance);
-            this->setValue (this->getValue () + delta);
+            this->internalSetValue (this->getValue () + delta);
          } else if (this->cursorOverSign ()) {
-            this->setValue (+fabs (this->getValue ()));
+            this->internalSetValue (+fabs (this->getValue ()));
          }
          break;
 
@@ -159,9 +160,9 @@ bool QNumericEdit::lineEditKeyPressEvent (QKeyEvent * event)
                }
             }
             delta = pow (dblRadix, significance);
-            this->setValue (this->getValue () - delta);
+            this->internalSetValue (this->getValue () - delta);
          } else if (this->cursorOverSign ()) {
-            this->setValue (-fabs (this->getValue ()));
+            this->internalSetValue (-fabs (this->getValue ()));
          }
          break;
 
@@ -194,9 +195,9 @@ bool QNumericEdit::lineEditKeyPressEvent (QKeyEvent * event)
       case Qt::Key_Minus:
          if (this->cursorOverSign ()) {
             if (key == Qt::Key_Plus) {
-               this->setValue (+fabs (this->getValue ()));
+               this->internalSetValue (+fabs (this->getValue ()));
             } else {
-               this->setValue (-fabs (this->getValue ()));
+               this->internalSetValue (-fabs (this->getValue ()));
             }
             this->setCursor (this->getCursor () + 1);
          }
@@ -231,7 +232,7 @@ bool QNumericEdit::lineEditKeyPressEvent (QKeyEvent * event)
             tryThis [index] = QChar (key);
 
             newval = this->valueOfImage (tryThis);
-            this->setValue (newval);
+            this->internalSetValue (newval);
             this->setCursor (this->getCursor () + 1);
 
             // If we have moved onto a filler character, then move again.
@@ -509,7 +510,7 @@ void QNumericEdit::applyLimits ()
    this->mMinimum = MAX (this->mMinimum, this->minimumMin);
    this->mMaximum = MIN (this->mMaximum, this->maximumMax);
 
-   this->setValue (this->getValue ());   // Set value forces min/max limits.
+   this->internalSetValue (this->getValue ());   // Set value forces min/max limits.
 }
 
 //------------------------------------------------------------------------------
@@ -610,7 +611,7 @@ void QNumericEdit::setMinimum (const double value)
    //
    this->mMaximum = LIMIT (this->mMaximum, this->mMinimum, this->maximumMax);
 
-   this->setValue (this->getValue ());   // Set value forces min/max limits.
+   this->internalSetValue (this->getValue ());   // Set value forces min/max limits.
    this->redisplayText ();
 }
 
@@ -631,7 +632,7 @@ void QNumericEdit::setMaximum (const double value)
    //
    this->mMinimum = LIMIT (this->mMinimum, this->minimumMin, this->mMaximum);
 
-   this->setValue (this->getValue ());   // Set value forces min/max limits.
+   this->internalSetValue (this->getValue ());   // Set value forces min/max limits.
    this->redisplayText ();
 }
 
@@ -679,13 +680,11 @@ QEFixedPointRadix::Separators QNumericEdit::getSeparator () const
    return this->fpr.getSeparator ();
 }
 
-
 //------------------------------------------------------------------------------
 //
-void QNumericEdit::setValue (const double value)
+void QNumericEdit::internalSetValue (const double value)
 {
    double constrainedValue;
-
    constrainedValue = LIMIT (value, this->mMinimum, this->mMaximum);
 
    // If value the same then nothing to do, no signal to emit. This is the
@@ -693,10 +692,25 @@ void QNumericEdit::setValue (const double value)
    //
    if (this->mValue != constrainedValue) {
       this->mValue = constrainedValue;
-      emit valueChanged (this->mValue);
-      emit valueChanged (int (this->mValue));   // range check?
+      // This prevents infinite looping in the case of cyclic connections.
+      //
+      if (!this->emitValueChangeInhibited) {
+         emit valueChanged (this->mValue);
+         emit valueChanged (int (this->mValue));   // range check?
+      }
       this->redisplayText ();
    }
+}
+
+//------------------------------------------------------------------------------
+//
+void QNumericEdit::setValue (const double value)
+{
+   // This prevents infinite looping in the case of cyclic connections.
+   //
+   this->emitValueChangeInhibited = true;
+   this->internalSetValue (value);
+   this->emitValueChangeInhibited = false;
 }
 
 //------------------------------------------------------------------------------

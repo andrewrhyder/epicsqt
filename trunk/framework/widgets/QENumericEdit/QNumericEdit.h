@@ -24,8 +24,8 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-#ifndef QX_NUMERIC_EDIT_H
-#define QX_NUMERIC_EDIT_H
+#ifndef Q_NUMERIC_EDIT_H
+#define Q_NUMERIC_EDIT_H
 
 #include <QChar>
 #include <QHBoxLayout>
@@ -161,8 +161,10 @@ private:
    int cursorFirst;       // First allowed number character within line edit
    int cursorLast;        // Last allowed number character within line edit
    int cursor;            // Current cursor position
+   bool emitValueChangeInhibited;
 
    void commonConstructor ();
+   void internalSetValue (const double value);  // used from withn the widget.
 
    bool lineEditKeyPressEvent (QKeyEvent *event);
    bool lineEditFocusInEvent (QFocusEvent *event);
@@ -198,4 +200,4 @@ private:
    void applyLimits ();                   // Ensure minMin <= min < value < max < maxMax
 };
 
-#endif  // QX_NUMERIC_EDIT_H
+#endif  // Q_NUMERIC_EDIT_H

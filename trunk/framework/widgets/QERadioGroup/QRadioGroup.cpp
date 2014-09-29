@@ -155,6 +155,7 @@ void QRadioGroup::commonSetup ()
    this->noSelectionButton = NULL;
    this->buttonList.clear ();
    this->reCreateAllButtons ();
+   this->emitValueChangeInhibited = false;
 }
 
 //---------------------------------------------------------------------------------
@@ -185,7 +186,7 @@ void QRadioGroup::buttonClicked (bool)
 
    // Get the value associated with this button.
    //
-   this->setValue (this->valueToButton.valueI (sendingButton));
+   this->internalSetValue (this->valueToButton.valueI (sendingButton));
 }
 
 //---------------------------------------------------------------------------------
@@ -258,7 +259,7 @@ void QRadioGroup::setButtonLayout ()
 
 //------------------------------------------------------------------------------
 //
-void QRadioGroup::setValue (int indexIn)
+void QRadioGroup::internalSetValue (const int indexIn)
 {
    QAbstractButton *selectedButton = NULL;
    int newIndex;
@@ -302,8 +303,24 @@ void QRadioGroup::setValue (int indexIn)
             }
          }
       }
-      emit valueChanged (this->currentIndex);
+
+      // This prevents infinite looping in the case of cyclic connections.
+      //
+      if (!this->emitValueChangeInhibited) {
+         emit valueChanged (this->currentIndex);
+      }
    }
+}
+
+//------------------------------------------------------------------------------
+//
+void QRadioGroup::setValue (const int indexIn)
+{
+   // This prevents infinite looping in the case of cyclic connections.
+   //
+   this->emitValueChangeInhibited = true;
+   this->internalSetValue (indexIn);
+   this->emitValueChangeInhibited = false;
 }
 
 //------------------------------------------------------------------------------
