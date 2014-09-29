@@ -109,7 +109,9 @@ private:
    int rows;
    int cols;
    ButtonStyles buttonStyle;
+   bool emitValueChangeInhibited;
 
+   void internalSetValue (const int value);
    QAbstractButton* createButton (QWidget* parent);
    void reCreateAllButtons ();
    void commonSetup ();
