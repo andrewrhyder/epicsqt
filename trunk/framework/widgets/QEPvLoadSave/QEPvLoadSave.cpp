@@ -115,7 +115,7 @@ QEPvLoadSave::Halves::Halves (const Sides sideIn, QEPvLoadSave* ownerIn, QBoxLay
    this->header = new QFrame ();
    this->header->setFrameShape (QFrame::NoFrame);
    this->header->setFrameShadow (QFrame::Plain);
-   this->header->setFixedHeight (68);
+   this->header->setFixedHeight (92);
    this->halfLayout->addWidget (this->header);
 
    // Create add header buttons.
@@ -177,14 +177,19 @@ QEPvLoadSave::Halves::Halves (const Sides sideIn, QEPvLoadSave* ownerIn, QBoxLay
       this->headerPushButtons [j] = button;
    }
 
-   this->tree = new QTreeView ();
+   this->macroString = new QLineEdit (this->header);
+   this->macroString->setGeometry (4, top + 32, 444, 23);
+   this->macroString->setToolTip (" Define macro substitions - applies to PV names, \n"
+                                  " group names and values when loaded from a file. ");
+
+   this->tree = new QTreeView (this->header);
+
    this->halfLayout->addWidget (this->tree);
    this->tree->setAcceptDrops (true);
    this->tree->setContextMenuPolicy (Qt::CustomContextMenu);
 
    QObject::connect (this->tree,  SIGNAL (customContextMenuRequested (const QPoint &)),
                      this->owner, SLOT   (treeMenuRequested          (const QPoint &)));
-
 
    this->footer = new QFrame ();
    this->footer->setFrameShape (QFrame::NoFrame);
@@ -252,7 +257,7 @@ void QEPvLoadSave::Halves::open (const QString& configurationFileIn)
       return;
    }
 
-   rootItem = QEPvLoadSaveUtilities::readTree (this->configurationFile);
+   rootItem = QEPvLoadSaveUtilities::readTree (this->configurationFile, this->macroString->text ());
    if (!rootItem) {
        DEBUG << "file read fail " << this->configurationFile;
        return;
