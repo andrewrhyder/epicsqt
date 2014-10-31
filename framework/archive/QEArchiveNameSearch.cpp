@@ -42,7 +42,11 @@ QEArchiveNameSearch::QEArchiveNameSearch (QWidget* parent) : QEFrame (parent)
 
    // Use standard context menu
    //
-   this->setupContextMenu ();
+   ContextMenuOptionSets menuSet = contextMenu::defaultMenuSet ();
+   menuSet.remove (contextMenu::CM_COPY_DATA);
+   menuSet.remove (contextMenu::CM_DRAG_DATA);
+
+   this->setupContextMenu (menuSet);
 
    QObject::connect (this->lineEdit, SIGNAL  (returnPressed       ()),
                      this,           SLOT    (searchReturnPressed ()));
