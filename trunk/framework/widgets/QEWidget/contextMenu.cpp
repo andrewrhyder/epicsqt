@@ -64,6 +64,21 @@ void contextMenuObject::showContextMenuSlot( const QPoint& pos )
 
 //======================================================
 
+// Create the default menu set, i.e. the lot.
+contextMenu::ContextMenuOptionSets  contextMenu::defaultMenuSet ()
+{
+    ContextMenuOptionSets result;
+
+    result.clear();
+
+    for( int j = CM_NOOPTION; j < CM_SPECIFIC_WIDGETS_START_HERE; j++ )
+    {
+        contextMenuOptions e = (contextMenuOptions) j;
+        result.insert( e );
+    }
+    return result;
+}
+
 // Create a class to manage the QE context menu
 contextMenu::contextMenu( QEWidget* qewIn )
 {
@@ -79,6 +94,8 @@ contextMenu::~contextMenu()
 // Build the QE generic context menu
 QMenu* contextMenu::buildContextMenu()
 {
+    bool addSeparator;
+
     // Create the menu
     QMenu* menu = new QMenu( );//qew->getQWidget() );
     menu->setStyle( QApplication::style() );
@@ -103,39 +120,87 @@ QMenu* contextMenu::buildContextMenu()
     // Add menu options that require the application to provide support such as launch a strip chart.
     if( hasConsumer )
     {
-        a = new QAction( "Examine Properties",     menu ); a->setCheckable( false ); a->setData( CM_SHOW_PV_PROPERTIES ); menu->addAction( a );
-        a = new QAction( "Plot in StripChart",     menu ); a->setCheckable( false ); a->setData( CM_ADD_TO_STRIPCHART );  menu->addAction( a );
-        a = new QAction( "Show in Scratch Pad",    menu ); a->setCheckable( false ); a->setData( CM_ADD_TO_SCRATCH_PAD ); menu->addAction( a );
-        menu->addSeparator();
+        addSeparator = false;
+
+        if( menuSet.contains( CM_SHOW_PV_PROPERTIES ))
+        {
+            a = new QAction( "Examine Properties",     menu ); a->setCheckable( false ); a->setData( CM_SHOW_PV_PROPERTIES ); menu->addAction( a );
+            addSeparator = true;
+        }
+
+        if( menuSet.contains( CM_ADD_TO_STRIPCHART ))
+        {
+            a = new QAction( "Plot in StripChart",     menu ); a->setCheckable( false ); a->setData( CM_ADD_TO_STRIPCHART );  menu->addAction( a );
+            addSeparator = true;
+        }
+
+        if( menuSet.contains( CM_ADD_TO_SCRATCH_PAD ))
+        {
+            a = new QAction( "Show in Scratch Pad",    menu ); a->setCheckable( false ); a->setData( CM_ADD_TO_SCRATCH_PAD ); menu->addAction( a );
+            addSeparator = true;
+        }
+
+        if( addSeparator ) menu->addSeparator();
     }
 
     // Add menu options that don't require the application to provide support such as launch a strip chart.
-    a = new QAction( "Copy variable name",     menu ); a->setCheckable( false ); a->setData( CM_COPY_VARIABLE );      menu->addAction( a );
-    a = new QAction( "Copy data",              menu ); a->setCheckable( false ); a->setData( CM_COPY_DATA );          menu->addAction( a );
-    a = new QAction( "Paste to variable name", menu ); a->setCheckable( false ); a->setData( CM_PASTE );              menu->addAction( a );
-    QClipboard *cb = QApplication::clipboard();
-    a->setEnabled( qew->getAllowDrop() && !cb->text().isEmpty() );
-    menu->addSeparator();
+    addSeparator = false;
 
-    a = new QAction( "Drag variable name",     menu ); a->setCheckable( true );  a->setData( CM_DRAG_VARIABLE );      menu->addAction( a );
-    a->setChecked( draggingVariable );
-    a = new QAction( "Drag data",              menu ); a->setCheckable( true );  a->setData( CM_DRAG_DATA );          menu->addAction( a );
-    a->setChecked( !draggingVariable );
+    if( menuSet.contains( CM_COPY_VARIABLE ))
+    {
+        a = new QAction( "Copy variable name",     menu ); a->setCheckable( false ); a->setData( CM_COPY_VARIABLE );      menu->addAction( a );
+        addSeparator = true;
+    }
+
+    if( menuSet.contains( CM_COPY_DATA ))
+    {
+        a = new QAction( "Copy data",              menu ); a->setCheckable( false ); a->setData( CM_COPY_DATA );          menu->addAction( a );
+        addSeparator = true;
+    }
+
+    if( menuSet.contains( CM_PASTE ))
+    {
+        a = new QAction( "Paste to variable name", menu ); a->setCheckable( false ); a->setData( CM_PASTE );              menu->addAction( a );
+
+        QClipboard *cb = QApplication::clipboard();
+        a->setEnabled( qew->getAllowDrop() && !cb->text().isEmpty() );
+        addSeparator = true;
+    }
+
+    if( addSeparator )  menu->addSeparator();
+
+    addSeparator = false;
+
+    if( menuSet.contains( CM_DRAG_VARIABLE ))
+    {
+        a = new QAction( "Drag variable name",     menu ); a->setCheckable( true );  a->setData( CM_DRAG_VARIABLE );      menu->addAction( a );
+        a->setChecked( draggingVariable );
+        addSeparator = true;
+    }
+
+    if( menuSet.contains( CM_DRAG_DATA ))
+    {
+        a = new QAction( "Drag data",              menu ); a->setCheckable( true );  a->setData( CM_DRAG_DATA );          menu->addAction( a );
+        a->setChecked( !draggingVariable );
+        addSeparator = true;
+    }
 
     // Add edit PV menu if and only if we are using the engineer use level.
     bool inEngineeringMode = qew->getUserLevel () == userLevelTypes::USERLEVEL_ENGINEER;
-    if ( inEngineeringMode )
+
+    if( inEngineeringMode && menuSet.contains( CM_GENERAL_PV_EDIT ))
     {
-       menu->addSeparator();
-       a = new QAction( "Edit PV", menu );
-       a->setCheckable( false );
-       a->setData( CM_GENERAL_PV_EDIT );
-       menu->addAction( a );
+        if( addSeparator ) menu->addSeparator();
+        a = new QAction( "Edit PV", menu );
+        a->setCheckable( false );
+        a->setData( CM_GENERAL_PV_EDIT );
+        menu->addAction( a );
     }
 
     menu->setTitle( "Use..." );
 
-    QObject::connect( menu, SIGNAL( triggered ( QAction* ) ), object, SLOT( contextMenuTriggeredSlot( QAction* )) );
+    QObject::connect( menu, SIGNAL( triggered ( QAction* ) ),
+                      object, SLOT( contextMenuTriggeredSlot( QAction* )) );
 
     // This object is created dynamically as opposed to at overall contruction time,
     // so need to apply current scalling, if any to the new menu.
@@ -195,11 +260,13 @@ void contextMenu::setConsumer (QObject* consumer)
 }
 
 // Connect the supplied QE widget to a slot that will present out own context menu when requested
-void contextMenu::setupContextMenu()
+void contextMenu::setupContextMenu( const ContextMenuOptionSets& menuSetIn )
 {
+    menuSet = menuSetIn;   // save required menu items.
     QWidget* qw = qew->getQWidget();
     qw->setContextMenuPolicy( Qt::CustomContextMenu );
-    QObject::connect( qw, SIGNAL( customContextMenuRequested( const QPoint& )), object, SLOT( showContextMenuSlot( const QPoint& )));
+    QObject::connect( qw, SIGNAL( customContextMenuRequested( const QPoint& )),
+                      object, SLOT( showContextMenuSlot( const QPoint& )));
 }
 
 // An action was selected from the context menu
@@ -335,4 +402,5 @@ void contextMenu::addMenuItem( QMenu* menu, const QString& title, const bool che
     a->setData( option );
     menu->addAction( a );
 }
+
 // end
