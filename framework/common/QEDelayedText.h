@@ -44,8 +44,8 @@ public:
    // Performs connect sender/signal to this setText and connects this textChanged
    // to receiver/member.
    //
-   bool doubleCconnect (const QObject* sender,   const char* signal,
-                        const QObject* receiver, const char* member) const;
+   bool doubleConnect (const QObject* sender,   const char* signal,
+                       const QObject* receiver, const char* member) const;
 
 signals:
    void textChanged (const QString &);

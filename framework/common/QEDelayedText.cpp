@@ -48,8 +48,8 @@ QEDelayedText::~QEDelayedText ()
 
 //------------------------------------------------------------------------------
 //
-bool QEDelayedText::doubleCconnect (const QObject* sender,   const char* signal,
-                                    const QObject* receiver, const char* member) const
+bool QEDelayedText::doubleConnect (const QObject* sender,   const char* signal,
+                                   const QObject* receiver, const char* member) const
 {
    bool result;
 
