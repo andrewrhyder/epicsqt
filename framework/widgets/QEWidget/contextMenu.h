@@ -27,6 +27,7 @@
 #define CONTEXTMENU_H
 
 #include <QMenu>
+#include <QSet>
 #include <QEActionRequests.h>
 
 class contextMenu;
@@ -58,11 +59,6 @@ class contextMenu
 public:
     friend class contextMenuObject;
 
-    explicit contextMenu( QEWidget* qewIn );
-    virtual ~contextMenu();
-
-
-    void setConsumer (QObject *consumer);               // Set the consumer of the signal generted by this object
     enum contextMenuOptions{ CM_NOOPTION,
                              CM_COPY_VARIABLE, CM_COPY_DATA, CM_PASTE,
                              CM_DRAG_VARIABLE, CM_DRAG_DATA,
@@ -71,7 +67,17 @@ public:
                              CM_ADD_TO_SCRATCH_PAD,
                              CM_GENERAL_PV_EDIT,
                              CM_SPECIFIC_WIDGETS_START_HERE };
-    void setupContextMenu();                            // Set up the standard QE context menu for a QE widget (conextMenu class is a base class for all QE widgets, but a menu is only available to users if this is called)
+
+    typedef QSet<contextMenuOptions> ContextMenuOptionSets;
+
+    static ContextMenuOptionSets defaultMenuSet ();     // All menu items are in the default set.
+
+    explicit contextMenu( QEWidget* qewIn );
+    virtual ~contextMenu();
+
+    void setConsumer (QObject *consumer);               // Set the consumer of the signal generted by this object
+    void setupContextMenu( const ContextMenuOptionSets& menuSet = contextMenu::defaultMenuSet ());
+                                                        // Set up the standard QE context menu for a QE widget (conextMenu class is a base class for all QE widgets, but a menu is only available to users if this is called)
     bool isDraggingVariable();                          // Return the global 'is dragging variable' flag (Dragging variable is true, draging data if false)
 
     QMenu* buildContextMenu();                             // Build the QE generic context menu
@@ -99,6 +105,7 @@ private:
     static bool draggingVariable;                       // Global 'dragging variable' flag (dragging data if false)
     QEWidget* qew;                                      // QEWidget associated with this instance
     bool hasConsumer;                                   // A launch consumer has been set (it is ok to present menu options that require application support to receive signals to, for example, start a strip chart
+    ContextMenuOptionSets menuSet;                      // Defines required set of menu items.
 };
 
 #endif // CONTEXTMENU_H
