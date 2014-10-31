@@ -26,6 +26,7 @@
 #ifndef QEARCHIVENAMESEARCH_H
 #define QEARCHIVENAMESEARCH_H
 
+#include <QLabel>
 #include <QLayout>
 #include <QLineEdit>
 #include <QListWidget>
@@ -37,7 +38,10 @@
 
 #include <QEFrame.h>
 #include <QEPluginLibrary_global.h>
+#include <QEDelayedText.h>
+
 #include <QEArchiveManager.h>
+
 
 /// This is a non EPICS aware widget.
 /// It provides a simple user means to find archived PV names.
@@ -65,24 +69,27 @@ protected:
 
 private:
    void createInternalWidgets ();
-
    void search ();
+   void setReadOut (const QString& text);
 
    // Utility to merge two string lists - result also sorted and no duplicates.
    //
    QStringList merge (const QStringList& a, const QStringList& b);
 
    QEArchiveAccess *archiveAccess;
+   QEDelayedText* delayedText;
 
    // Internal widgets.
    //
    QVBoxLayout *verticalLayout;
    QFrame *searchFrame;
    QHBoxLayout *horizontalLayout;
+   QLabel* dragThis;
    QLineEdit *lineEdit;
    QListWidget *listWidget;
 
 private slots:
+   void textEdited (const QString &);
    void searchReturnPressed ();
 };
 

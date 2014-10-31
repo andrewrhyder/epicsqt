@@ -37,6 +37,7 @@
 QEArchiveNameSearch::QEArchiveNameSearch (QWidget* parent) : QEFrame (parent)
 {
    this->archiveAccess = new QEArchiveAccess (this);
+   this->delayedText = new QEDelayedText (0.25, this);
    this->createInternalWidgets ();
 
    // Use standard context menu
@@ -45,6 +46,16 @@ QEArchiveNameSearch::QEArchiveNameSearch (QWidget* parent) : QEFrame (parent)
 
    QObject::connect (this->lineEdit, SIGNAL  (returnPressed       ()),
                      this,           SLOT    (searchReturnPressed ()));
+
+
+   this->delayedText->doubleCconnect (this->lineEdit, SIGNAL (textEdited (const QString&)),
+                                      this,           SLOT   (textEdited (const QString&)));
+
+//   QObject::connect (this->lineEdit,    SIGNAL  (textEdited (const QString&)),
+//                     this->delayedText, SLOT    (setText    (const QString&)));
+//
+//   QObject::connect (this->delayedText, SIGNAL  (textChanged (const QString&)),
+//                     this,              SLOT    (textEdited  (const QString&)));
 }
 
 //------------------------------------------------------------------------------
@@ -64,7 +75,11 @@ void QEArchiveNameSearch::search ()
 
    searchText = this->lineEdit->text ().trimmed ();
 
-   if (searchText.isEmpty ()) return;
+   if (searchText.isEmpty ()) {
+      this->listWidget->clear ();
+      this->setReadOut ("There are no matching names");
+      return;
+   }
 
    // TODO: Replace special reg exp characters (such as '.', '$' and '\' ) with the
    // escaped character sequences.
@@ -95,6 +110,28 @@ void QEArchiveNameSearch::search ()
    //
    this->listWidget->clear ();
    this->listWidget->addItems (matchingNames);
+
+   int n = matchingNames.count ();
+   if (n == 1) {
+      this->setReadOut ("There is 1 matching name");
+   } else {
+      this->setReadOut (QString ("There are %1 matching names").arg (n));
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEArchiveNameSearch::setReadOut (const QString& text)
+{
+   message_types mt (MESSAGE_TYPE_INFO, MESSAGE_KIND_STATUS);
+   this->sendMessage (text, mt);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEArchiveNameSearch::textEdited (const QString&)
+{
+   this->search ();
 }
 
 //------------------------------------------------------------------------------
@@ -174,18 +211,28 @@ void QEArchiveNameSearch::createInternalWidgets ()
    this->searchFrame->setFrameShape (QFrame::StyledPanel);
    this->searchFrame->setFrameShadow (QFrame::Raised);
 
-   this->horizontalLayout = new QHBoxLayout (searchFrame);
+   this->horizontalLayout = new QHBoxLayout (this->searchFrame);
    this->horizontalLayout->setSpacing (8);
    this->horizontalLayout->setContentsMargins (6, 4, 6, 4);
 
-   this->lineEdit = new QLineEdit (searchFrame);
+   this->dragThis = new QLabel (this->searchFrame);
+   QPixmap icon (":/qe/archive/drag_icon.png");
+   this->dragThis->setPixmap (icon);
+   this->dragThis->setToolTip (" Any selected PV names may be dragged from here ");
+   this->dragThis->setMinimumWidth (24);
+   this->dragThis->setMaximumWidth (24);
+   this->dragThis->setMaximumHeight (24);
+   this->dragThis->setAlignment (Qt::AlignCenter);
+   this->dragThis->setStyleSheet (QEUtilities::colourToStyle (QColor (240, 240, 240)));
+
+   this->horizontalLayout->addWidget (this->dragThis);
+
+   this->lineEdit = new QLineEdit (this->searchFrame);
    this->lineEdit->setToolTip ("Enter partial PV names(s) and press return");
 
-   this->horizontalLayout->addWidget (lineEdit);
+   this->horizontalLayout->addWidget (this->lineEdit);
 
-   this->horizontalLayout->setContentsMargins (32, 4, 4, 4);
-
-   this->verticalLayout->addWidget (searchFrame);
+   this->verticalLayout->addWidget (this->searchFrame);
 
    this->listWidget = new QListWidget (this);
    this->listWidget->setMinimumSize (QSize (500, 156));
