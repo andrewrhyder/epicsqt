@@ -47,15 +47,13 @@ QEArchiveNameSearch::QEArchiveNameSearch (QWidget* parent) : QEFrame (parent)
    QObject::connect (this->lineEdit, SIGNAL  (returnPressed       ()),
                      this,           SLOT    (searchReturnPressed ()));
 
+   // Connect lineEdit to this widget via delayedText.
+   //
+   this->delayedText->doubleConnect (this->lineEdit, SIGNAL (textEdited (const QString&)),
+                                     this,           SLOT   (textEdited (const QString&)));
 
-   this->delayedText->doubleCconnect (this->lineEdit, SIGNAL (textEdited (const QString&)),
-                                      this,           SLOT   (textEdited (const QString&)));
-
-//   QObject::connect (this->lineEdit,    SIGNAL  (textEdited (const QString&)),
-//                     this->delayedText, SLOT    (setText    (const QString&)));
-//
-//   QObject::connect (this->delayedText, SIGNAL  (textChanged (const QString&)),
-//                     this,              SLOT    (textEdited  (const QString&)));
+   QObject::connect (this->listWidget, SIGNAL (itemSelectionChanged ()),
+                     this,             SLOT   (itemSelectionChanged ()));
 }
 
 //------------------------------------------------------------------------------
@@ -143,6 +141,18 @@ void QEArchiveNameSearch::searchReturnPressed ()
 
 //------------------------------------------------------------------------------
 //
+void  QEArchiveNameSearch::itemSelectionChanged ()
+{
+   QList<QListWidgetItem*> itemList;
+   int n;
+
+   itemList = this->listWidget->selectedItems ();
+   n = itemList.count ();
+   this->dragThis->setEnabled (n > 0);
+}
+
+//------------------------------------------------------------------------------
+//
 QStringList QEArchiveNameSearch::getSelectedNames () const
 {
    QList<QListWidgetItem*> itemList;
@@ -223,7 +233,7 @@ void QEArchiveNameSearch::createInternalWidgets ()
    this->dragThis->setMaximumWidth (24);
    this->dragThis->setMaximumHeight (24);
    this->dragThis->setAlignment (Qt::AlignCenter);
-   this->dragThis->setStyleSheet (QEUtilities::colourToStyle (QColor (240, 240, 240)));
+   this->dragThis->setEnabled (false);
 
    this->horizontalLayout->addWidget (this->dragThis);
 
