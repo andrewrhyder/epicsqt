@@ -57,9 +57,10 @@ public:
                           QString configurationFile,              // Configuration file
                           QString configurationName,              // Configuration name
 
-                          QString defaultWindowCustomisationFile, // Default Window customisation file
-                          QString defaultWindowCustomisationName, // Default Window customisation name
-                          QString currentCustomisation,           // Current customisation set name
+                          QString defaultWindowCustomisationFile, // Default window customisation file
+                          QString defaultWindowCustomisationName, // Default window customisation name
+                          QString startupWindowCustomisationName, // Window customisation name for windows created at startup
+                          QString currentCustomisation,           // Internal default window customisation name (the default default!)
                           QString windowCustomisationLoadLog,     //Log of window customisations
 
                           int disconnectedCount,                  // Number of disconnected channels

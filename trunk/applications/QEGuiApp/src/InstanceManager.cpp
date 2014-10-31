@@ -158,7 +158,7 @@ void instanceManager::newWindow( const startupParams& params )
         // The persistance manager will signal all interested objects (including this application) that
         // they should collect and apply restore data.
         PersistanceManager* persistanceManager = profile.getPersistanceManager();
-        persistanceManager->restore( params.configurationFile, QE_CONFIG_NAME, params.configurationName  );
+        persistanceManager->restore( params.configurationFile, QE_CONFIG_NAME, params.defaultCustomisationName  );
 
         // If the restoration did not create any windows, warn the user.
         // This is especially important as an .ui file specified on the command line will now be opened,
@@ -179,7 +179,7 @@ void instanceManager::newWindow( const startupParams& params )
         // If no files specified, open a single window without a file name
         if( !params.filenameList.count() )
         {
-            MainWindow* mw = new MainWindow( app, "", "", params.customisationName, true );
+            MainWindow* mw = new MainWindow( app, "", "", params.defaultCustomisationName, true );
             mw->show();
         }
 
@@ -188,7 +188,7 @@ void instanceManager::newWindow( const startupParams& params )
         {
             for( int i = 0; i < params.filenameList.count(); i++ )
             {
-                MainWindow* mw = new MainWindow( app, params.filenameList[i], "", params.customisationName, true );
+                MainWindow* mw = new MainWindow( app, params.filenameList[i], "", params.startupCustomisationName, true );
                 mw->show();
             }
         }

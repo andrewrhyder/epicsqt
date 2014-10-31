@@ -374,9 +374,9 @@
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3" columnstretch="0">
        <item row="3" column="0">
-        <layout class="QGridLayout" name="gridLayout_6" columnstretch="0,1">
+        <layout class="QGridLayout" name="gridLayout_6" columnstretch="0,0">
          <item row="0" column="1">
-          <widget class="QLabel" name="currentCustomisationLabel">
+          <widget class="QLabel" name="internalDefaultCustomisationLabel">
            <property name="text">
             <string>TextLabel</string>
            </property>
@@ -394,7 +394,7 @@
             </font>
            </property>
            <property name="text">
-            <string>Current Customisation Name:</string>
+            <string>Internal Default Customisation Name:</string>
            </property>
           </widget>
          </item>
@@ -407,7 +407,7 @@
             </font>
            </property>
            <property name="text">
-            <string>Startup Customisation Name:</string>
+            <string>Default Customisation Name:</string>
            </property>
           </widget>
          </item>
@@ -421,7 +421,7 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
+         <item row="3" column="0">
           <widget class="QLabel" name="label_12">
            <property name="font">
             <font>
@@ -430,12 +430,35 @@
             </font>
            </property>
            <property name="text">
-            <string>Startup Customisation File:</string>
+            <string>Customisation File:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLabel" name="defaultWindowCustomisationFileLabel">
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+           <property name="textInteractionFlags">
+            <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_15">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Startup Customisation Name:</string>
            </property>
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QLabel" name="defaultWindowCustomisationFileLabel">
+          <widget class="QLabel" name="startupWindowCustomisationNameLabel">
            <property name="text">
             <string>TextLabel</string>
            </property>
@@ -462,8 +485,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>72</width>
-               <height>69</height>
+               <width>718</width>
+               <height>335</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_6">

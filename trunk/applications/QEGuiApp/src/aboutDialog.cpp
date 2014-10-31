@@ -51,10 +51,11 @@ aboutDialog::aboutDialog( QString QEGuiVersion,                // Version info a
                           QString configurationFile,              // Configuration file
                           QString configurationName,              // Configuration name
 
-                          QString defaultWindowCustomisationFile, // Default Window customisation file
-                          QString defaultWindowCustomisationName, // Default Window customisation name
-                          QString currentCustomisation,           // Current customisation set name
-                          QString windowCustomisationLoadLog,     //Log of window customisations
+                          QString defaultWindowCustomisationFile,   // Default window customisation file
+                          QString defaultWindowCustomisationName,   // Default window customisation name
+                          QString startupWindowCustomisationName,   // Startup window customisation name (for windows created at startup)
+                          QString internalDefaultCustomisationName, // Internal Default window customisation set name
+                          QString windowCustomisationLoadLog,       //Log of window customisations
 
                           int disconnectedCount,                // Number of disconnected channels
                           int connectedCount,                   // Number of connected channels
@@ -134,7 +135,8 @@ aboutDialog::aboutDialog( QString QEGuiVersion,                // Version info a
     // Customisation
     ui->defaultWindowCustomisationFileLabel->setText( defaultWindowCustomisationFile );
     ui->defaultWindowCustomisationNameLabel->setText( defaultWindowCustomisationName );
-    ui->currentCustomisationLabel->setText( currentCustomisation );
+    ui->startupWindowCustomisationNameLabel->setText( startupWindowCustomisationName );
+    ui->internalDefaultCustomisationLabel->setText( internalDefaultCustomisationName );
     ui->windowCustomisationLoadLogLabel->setText( windowCustomisationLoadLog );
 
     // Connections
