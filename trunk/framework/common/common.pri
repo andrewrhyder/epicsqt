@@ -8,6 +8,7 @@ HEADERS += \
    common/QEActionRequests.h \
    common/QECommon.h \
    common/QEDialog.h \
+   common/QEDelayedText.h \
    common/QEDisplayRanges.h \
    common/QEExpressionEvaluation.h  \
    common/QEFileMonitor.h  \
@@ -27,6 +28,7 @@ SOURCES += \
    common/QEActionRequests.cpp \
    common/QECommon.cpp \
    common/QEDialog.cpp \
+   common/QEDelayedText.cpp \
    common/QEDisplayRanges.cpp \
    common/QEExpressionEvaluation.cpp  \
    common/QEFileMonitor.cpp  \
