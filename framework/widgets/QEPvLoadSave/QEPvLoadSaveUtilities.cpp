@@ -198,7 +198,8 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readSection (QESettings* settings,
 
 //------------------------------------------------------------------------------
 //
-QEPvLoadSaveItem* QEPvLoadSaveUtilities::readPcfTree (const QString& filename)
+QEPvLoadSaveItem* QEPvLoadSaveUtilities::readPcfTree (const QString& filename,
+                                                      const QString&)
 {
    QEPvLoadSaveItem* result = NULL;
    QESettings* settings = NULL;
@@ -256,14 +257,15 @@ QVariant QEPvLoadSaveUtilities::convert (const QString& dataType, const QString&
 // the most common in use.
 //
 QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlScalerPv (const QDomElement pvElement,
+                                                          const macroSubstitutionList& macroList,
                                                           QEPvLoadSaveItem* parent)
 {
    QEPvLoadSaveItem* result = NULL;
    QVariant value (QVariant::Invalid);
 
-   QString pvName = pvElement.attribute (nameAttribute, "");
-   QString dataType = pvElement.attribute (typeAttribute, "string");
-   QString valueImage = pvElement.attribute (valueAttribute, "");
+   QString pvName     = macroList.substitute (pvElement.attribute (nameAttribute, ""));
+   QString dataType   =                       pvElement.attribute (typeAttribute, "string");
+   QString valueImage = macroList.substitute (pvElement.attribute (valueAttribute, ""));
 
    if (pvName.isEmpty() ) {
       qWarning () << __FUNCTION__ << " ignoring null PV name";
@@ -279,12 +281,13 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlScalerPv (const QDomElement pvEl
 //------------------------------------------------------------------------------
 //
 QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlArrayPv (const QDomElement pvElement,
+                                                         const macroSubstitutionList& macroList,
                                                          QEPvLoadSaveItem* parent)
 {
    QEPvLoadSaveItem* result = NULL;
    QVariantList arrayValue;
 
-   QString pvName = pvElement.attribute (nameAttribute);
+   QString pvName = macroList.substitute (pvElement.attribute (nameAttribute));
    QString dataType = pvElement.attribute (typeAttribute, "string");
    QString elementCountImage = pvElement.attribute (numberAttribute, "1");
 
@@ -313,7 +316,7 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlArrayPv (const QDomElement pvEle
       bool okay;
       int index = itemElement.attribute (indexAttribute, "-1").toInt (&okay);
       if (okay && index >= 0 && index < elementCount) {
-         QString valueImage = itemElement.attribute (valueAttribute, "");
+         QString valueImage = macroList.substitute (itemElement.attribute (valueAttribute, ""));
          QVariant value = QEPvLoadSaveUtilities::convert (dataType, valueImage);
 
          arrayValue.replace (index, value);
@@ -331,6 +334,7 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlArrayPv (const QDomElement pvEle
 //------------------------------------------------------------------------------
 //
 void QEPvLoadSaveUtilities::readXmlGroup (const QDomElement groupElement,
+                                          const macroSubstitutionList& macroList,
                                           QEPvLoadSaveItem* parent,
                                           const int level)
 {
@@ -349,16 +353,16 @@ void QEPvLoadSaveUtilities::readXmlGroup (const QDomElement groupElement,
       QString tagName = itemElement.tagName ();
 
       if (tagName == groupTagName) {
-         QString groupName = itemElement.attribute (nameAttribute);
+         QString groupName = macroList.substitute (itemElement.attribute (nameAttribute));
          QEPvLoadSaveItem* group = new QEPvLoadSaveItem (groupName, false, nilValue, parent);
 
-         QEPvLoadSaveUtilities::readXmlGroup (itemElement, group, level + 1);
+         QEPvLoadSaveUtilities::readXmlGroup (itemElement, macroList, group, level + 1);
 
       } else if  (tagName == pvTagName) {
-         QEPvLoadSaveUtilities::readXmlScalerPv (itemElement, parent);
+         QEPvLoadSaveUtilities::readXmlScalerPv (itemElement, macroList, parent);
 
       } else if  (tagName == arrayTagName) {
-         QEPvLoadSaveUtilities::readXmlArrayPv (itemElement, parent);
+         QEPvLoadSaveUtilities::readXmlArrayPv (itemElement, macroList, parent);
 
       } else {
          qWarning () << __FUNCTION__ << " ignoring unexpected tag " << tagName;
@@ -370,9 +374,11 @@ void QEPvLoadSaveUtilities::readXmlGroup (const QDomElement groupElement,
 
 //------------------------------------------------------------------------------
 //
-QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlTree (const QString& filename)
+QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlTree (const QString& filename,
+                                                      const QString& macroString)
 {
    QEPvLoadSaveItem* result = NULL;
+   macroSubstitutionList macroList (macroString);
 
    if (filename.isEmpty()) {
       qWarning () << __FUNCTION__ << " null file filename";
@@ -440,22 +446,23 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlTree (const QString& filename)
 
    // Parse XML using Qt's Document Object Model.
    //
-   QEPvLoadSaveUtilities::readXmlGroup (docElem, result, 1);
+   QEPvLoadSaveUtilities::readXmlGroup (docElem, macroList, result, 1);
 
    return result;
 }
 
 //------------------------------------------------------------------------------
 //
-QEPvLoadSaveItem* QEPvLoadSaveUtilities::readTree (const QString& filename)
+QEPvLoadSaveItem* QEPvLoadSaveUtilities::readTree (const QString& filename,
+                                                   const QString& macroString)
 {
    QEPvLoadSaveItem* result = NULL;
 
    if (filename.trimmed ().endsWith (".pcf")) {
-      result = QEPvLoadSaveUtilities::readPcfTree (filename);
+      result = QEPvLoadSaveUtilities::readPcfTree (filename, macroString);
 
    } else if (filename.trimmed ().endsWith (".xml")) {
-      result =  QEPvLoadSaveUtilities::readXmlTree (filename);
+      result =  QEPvLoadSaveUtilities::readXmlTree (filename, macroString);
 
    }
 

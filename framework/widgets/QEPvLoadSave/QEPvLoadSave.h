@@ -31,6 +31,7 @@
 #include <QPoint>
 #include <QString>
 #include <QAbstractItemModel>
+#include <QLineEdit>
 #include <QTreeView>
 #include <QItemSelectionModel>
 #include <QVBoxLayout>
@@ -177,6 +178,7 @@ private:
       QCheckBox* checkBox;
       QPushButton *headerPushButtons [NumberOfButtons];
 
+      QLineEdit* macroString;
       QTreeView* tree;                        // the tree widget
       QFrame* footer;
 

@@ -28,6 +28,7 @@
 
 #include <QVariant>
 #include <QESettings.h>
+#include <macroSubstitution.h>
 
 // Differed declarations - avoids mutual header inclusions.
 //
@@ -74,16 +75,19 @@ public:
    //
    // </QEPvLoadSave>
    //
-   static QEPvLoadSaveItem* readXmlTree (const QString& filename);
+   static QEPvLoadSaveItem* readXmlTree (const QString& filename,
+                                         const QString& macroString);
 
    // Reads old style .pcf files as used by Delphi PV Load/Save
    //
-   static QEPvLoadSaveItem* readPcfTree (const QString& filename);
+   static QEPvLoadSaveItem* readPcfTree (const QString& filename,
+                                         const QString& macroString);
 
    // This is a wrapper function that calls readXmlTree/readPcfTree
-   // It (currently) makes decision based on the filebane extension.
+   // It (currently) makes decision based on the filename extension.
    //
-   static QEPvLoadSaveItem* readTree (const QString& filename);
+   static QEPvLoadSaveItem* readTree (const QString& filename,
+                                      const QString& macroString);
 
 
    // This function creates xml file.
@@ -117,12 +121,15 @@ private:
                             const QString& valueImage);
 
    static QEPvLoadSaveItem* readXmlScalerPv (const QDomElement pvElement,
+                                             const macroSubstitutionList& macroList,
                                              QEPvLoadSaveItem* parent);
 
    static QEPvLoadSaveItem* readXmlArrayPv (const QDomElement pvElement,
+                                            const macroSubstitutionList& macroList,
                                             QEPvLoadSaveItem* parent);
 
    static void readXmlGroup (const QDomElement groupElement,
+                             const macroSubstitutionList& macroList,
                              QEPvLoadSaveItem* parent,
                              const int level);
 
