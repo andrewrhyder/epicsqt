@@ -91,6 +91,7 @@ private:
 private slots:
    void textEdited (const QString &);
    void searchReturnPressed ();
+   void itemSelectionChanged ();
 };
 
 #endif  // QEARCHIVENAMESEARCH_H 
