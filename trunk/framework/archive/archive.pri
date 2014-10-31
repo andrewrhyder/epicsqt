@@ -14,11 +14,12 @@ isEmpty( _QE_ARCHIVE_LIST ) {
 
 OTHER_FILES += \
     archive/archive_status.png \
+    archive/drag_icon.png   \
     archive/name_search.png
 
 RESOURCES += \
     archive/archive.qrc
-        
+
 HEADERS += \
     archive/maiaFault.h \
     archive/maiaObject.h \
