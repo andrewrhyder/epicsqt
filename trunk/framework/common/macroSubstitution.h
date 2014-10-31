@@ -49,24 +49,24 @@ public:
 class QEPLUGINLIBRARYSHARED_EXPORT macroSubstitutionList
 {
 public:
-    macroSubstitutionList(){}                           // Constructor - empty list
-    macroSubstitutionList( const QString string );      // Constructor - parse string
+    macroSubstitutionList(){}                             // Constructor - empty list
+    macroSubstitutionList( const QString string );        // Constructor - parse string
 
-    void addMacroSubstitutions( const QString string ); // Add substitutions - from a string
+    void addMacroSubstitutions( const QString string );   // Add substitutions - from a string
     void addMacroSubstitutions( const QList<macroSubstitution> parts ); // Add substitutions - from another list
 
-    QString substitute( const QString& string );        // Perform macro substitutions on a string
-    QString getString();                                // Return the substitution as a clean comma delimited string
+    QString substitute( const QString& string ) const;    // Perform macro substitutions on a string
+    QString getString() const;                            // Return the substitution as a clean comma delimited string
 
-    int getCount();                                     // Return the number of substitutions
-    const QString getKey( const unsigned int i );       // Return a key (given an index)
-    const QString getValue( const unsigned int i );     // Return a value (given an index)
-    const QString getValue( const QString keyIn );      // Return a value (given a key)
+    int getCount();                                       // Return the number of substitutions
+    const QString getKey( const unsigned int i ) const;   // Return a key (given an index)
+    const QString getValue( const unsigned int i ) const; // Return a value (given an index)
+    const QString getValue( const QString keyIn ) const;  // Return a value (given a key)
 
 private:
     QList<macroSubstitution> parts;                     // List of key/value pairs
 
-    void substituteKey( QString& string, QString key, const QString value ); // Substitution a single key/value
+    void static substituteKey( QString& string, QString key, const QString value ); // Substitution a single key/value
     void append( QString key, QString value );      // Add a key/value pair to the list
 
 };

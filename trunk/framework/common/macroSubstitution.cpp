@@ -329,7 +329,7 @@ void macroSubstitutionList::substituteKey( QString& string, QString key, const Q
 }
 
 // Perform a set of macro substitutions on a string
-QString macroSubstitutionList::substitute( const QString& string )
+QString macroSubstitutionList::substitute( const QString& string ) const
 {
     QString result = string;
 
@@ -344,7 +344,7 @@ QString macroSubstitutionList::substitute( const QString& string )
 }
 
 // Return the substitution as a clean comma delimited string
-QString macroSubstitutionList::getString()
+QString macroSubstitutionList::getString() const
 {
     QString result;
     int count = parts.count();
@@ -386,7 +386,7 @@ int macroSubstitutionList::getCount()
 }
 
 // Return a key
-const QString macroSubstitutionList::getKey( const unsigned int i )
+const QString macroSubstitutionList::getKey( const unsigned int i ) const
 {
     if( (int)i < parts.count() )
     {
@@ -400,7 +400,7 @@ const QString macroSubstitutionList::getKey( const unsigned int i )
 
 // Return a value (given a position index inthe macro substitution list)
 // Return an empty string if index is out of range
-const QString macroSubstitutionList::getValue( const unsigned int i )
+const QString macroSubstitutionList::getValue( const unsigned int i ) const
 {
     if( (int)i < parts.count() )
     {
@@ -414,7 +414,7 @@ const QString macroSubstitutionList::getValue( const unsigned int i )
 
 // Return a value (given a key)
 // Return an empty string if the key is not found
-const QString macroSubstitutionList::getValue( const QString keyIn )
+const QString macroSubstitutionList::getValue( const QString keyIn ) const
 {
     for( int i = 0; i < parts.count(); i++ )
     {
