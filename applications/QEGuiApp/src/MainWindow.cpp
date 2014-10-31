@@ -320,7 +320,7 @@ MainWindow::~MainWindow()
 // Used when first creating a main window, or after closing a GUI (the customisations for the GUI just closed will no longer apply)
 void MainWindow::setDefaultCustomisation()
 {
-    QString defaultCustomisation = app->getParams()->customisationName;
+    QString defaultCustomisation = app->getParams()->defaultCustomisationName;
     if( defaultCustomisation.isEmpty() )
     {
         defaultCustomisation = DEFAULT_QEGUI_CUSTOMISATION;
@@ -385,7 +385,7 @@ void MainWindow::on_actionNew_Tab_triggered()
 {
     // Create the GUI
     profile.publishOwnProfile();
-    QEForm* gui = createGui( GuiFileNameDialog( "Open" ), "", app->getParams()->customisationName );
+    QEForm* gui = createGui( GuiFileNameDialog( "Open" ), "", app->getParams()->defaultCustomisationName );
     profile.releaseProfile();
 
     // If a GUI was created, ensure tab mode is in effect and loadf the GUI into a new tab
@@ -407,7 +407,7 @@ void MainWindow::on_actionNew_Dock_triggered()
 {
     // Create the GUI
     profile.publishOwnProfile();
-    QEForm* gui = createGui( GuiFileNameDialog( "Open" ), "", app->getParams()->customisationName, true );
+    QEForm* gui = createGui( GuiFileNameDialog( "Open" ), "", app->getParams()->defaultCustomisationName, true );
     profile.releaseProfile();
     QDockWidget* dock = loadGuiIntoNewDock( gui );
 
@@ -424,7 +424,7 @@ void MainWindow::on_actionOpen_triggered()
 {
     // Create the GUI
     profile.publishOwnProfile();
-    QEForm* gui = createGui( GuiFileNameDialog( "Open" ), "", app->getParams()->customisationName, false );
+    QEForm* gui = createGui( GuiFileNameDialog( "Open" ), "", app->getParams()->defaultCustomisationName, false );
     profile.releaseProfile();
     loadGuiIntoCurrentWindow( gui, true );
 }
@@ -583,7 +583,7 @@ void MainWindow::on_actionExit_triggered()
 MainWindow* MainWindow::launchLocalGui( const QString& filename )
 {
     profile.publishOwnProfile();
-    MainWindow* w = new MainWindow( app, filename, "", app->getParams()->customisationName, true );
+    MainWindow* w = new MainWindow( app, filename, "", app->getParams()->defaultCustomisationName, true );
     profile.releaseProfile();
     w->show();
     return w;
@@ -795,8 +795,9 @@ void MainWindow::on_actionAbout_triggered()
                     app->getParams()->configurationName,                   // Configuration name
 
                     app->getParams()->customisationFile,                   // Default Window customisation file
-                    app->getParams()->customisationName,                   // Default window customisation name
-                    QString( DEFAULT_QEGUI_CUSTOMISATION ),                // Default window customisation name
+                    app->getParams()->defaultCustomisationName,            // Default window customisation name
+                    app->getParams()->startupCustomisationName,            // Window customisation name for windows created at startup
+                    QString( DEFAULT_QEGUI_CUSTOMISATION ),                // Internal default window customisation name (the default default!)
                     app->getCustomisationLog(),                            // Log of window customisations
 
                     disconnectedCount,                                     // Disconnection count

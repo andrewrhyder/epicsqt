@@ -271,12 +271,26 @@ bool startupParams::getStartupParams( QStringList args )
                         }
                         break;
 
-                    // 'window default customisations' name
-                    // Take next non switch parameter as the default window customisation name
+                    // 'window startup customisations' name
+                    // Take next non switch parameter as the window customisation name for all windows startet on startup
                     case 'n':
                         if( args.count() >= 1 && args[0].left(1) != QString( "-" ) )
                         {
-                            customisationName = args[0];
+                            startupCustomisationName = args[0];
+                            args.removeFirst();
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                        break;
+
+                    // 'window default customisations' name
+                    // Take next non switch parameter as the default window customisation name
+                    case 'd':
+                        if( args.count() >= 1 && args[0].left(1) != QString( "-" ) )
+                        {
+                            defaultCustomisationName = args[0];
                             args.removeFirst();
                         }
                         else
