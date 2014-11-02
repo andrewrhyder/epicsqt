@@ -76,8 +76,14 @@ public:
     virtual ~contextMenu();
 
     void setConsumer (QObject *consumer);               // Set the consumer of the signal generted by this object
+
+    // Set up the standard QE context menu for a QE widget (conextMenu class is a base class for
+    // all QE widgets, but a menu is only available to users if this is called)
     void setupContextMenu( const ContextMenuOptionSets& menuSet = contextMenu::defaultMenuSet ());
-                                                        // Set up the standard QE context menu for a QE widget (conextMenu class is a base class for all QE widgets, but a menu is only available to users if this is called)
+
+    void setContextMenuOptions( const ContextMenuOptionSets& menuSet );     // Update conext menu options
+    void setNumberOfContextMenuItems( const int numberOfItems );            // Set number of PV items - used to pluralise conext menu captions
+
     bool isDraggingVariable();                          // Return the global 'is dragging variable' flag (Dragging variable is true, draging data if false)
 
     QMenu* buildContextMenu();                             // Build the QE generic context menu
@@ -106,6 +112,7 @@ private:
     QEWidget* qew;                                      // QEWidget associated with this instance
     bool hasConsumer;                                   // A launch consumer has been set (it is ok to present menu options that require application support to receive signals to, for example, start a strip chart
     ContextMenuOptionSets menuSet;                      // Defines required set of menu items.
+    int numberOfItems;                                  // Number PV names to be copied/dragged
 };
 
 #endif // CONTEXTMENU_H

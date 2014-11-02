@@ -84,6 +84,7 @@ contextMenu::contextMenu( QEWidget* qewIn )
 {
     hasConsumer = false;
     qew = qewIn;
+    numberOfItems = 1;
     object = new contextMenuObject( this );
 }
 
@@ -109,13 +110,14 @@ QMenu* contextMenu::buildContextMenu()
 
         // Apply current scaling if any to new default menu.
         //
-        QEScaling::applyToWidget (defaultMenu, 10);
+        QEScaling::applyToWidget( defaultMenu, 10 );
         menu->addMenu( defaultMenu );
         menu->addSeparator();
     }
 
     // Add QE context menu
     QAction* a;
+    QString names = (numberOfItems >= 2) ? "names" : "name";
 
     // Add menu options that require the application to provide support such as launch a strip chart.
     if( hasConsumer )
@@ -148,7 +150,7 @@ QMenu* contextMenu::buildContextMenu()
 
     if( menuSet.contains( CM_COPY_VARIABLE ))
     {
-        a = new QAction( "Copy variable name",     menu ); a->setCheckable( false ); a->setData( CM_COPY_VARIABLE );      menu->addAction( a );
+        a = new QAction( "Copy variable " + names, menu ); a->setCheckable( false ); a->setData( CM_COPY_VARIABLE );      menu->addAction( a );
         addSeparator = true;
     }
 
@@ -160,7 +162,7 @@ QMenu* contextMenu::buildContextMenu()
 
     if( menuSet.contains( CM_PASTE ))
     {
-        a = new QAction( "Paste to variable name", menu ); a->setCheckable( false ); a->setData( CM_PASTE );              menu->addAction( a );
+        a = new QAction( "Paste to variable " + names, menu ); a->setCheckable( false ); a->setData( CM_PASTE );          menu->addAction( a );
 
         QClipboard *cb = QApplication::clipboard();
         a->setEnabled( qew->getAllowDrop() && !cb->text().isEmpty() );
@@ -173,7 +175,7 @@ QMenu* contextMenu::buildContextMenu()
 
     if( menuSet.contains( CM_DRAG_VARIABLE ))
     {
-        a = new QAction( "Drag variable name",     menu ); a->setCheckable( true );  a->setData( CM_DRAG_VARIABLE );      menu->addAction( a );
+        a = new QAction( "Drag variable " + names, menu ); a->setCheckable( true );  a->setData( CM_DRAG_VARIABLE );      menu->addAction( a );
         a->setChecked( draggingVariable );
         addSeparator = true;
     }
@@ -204,7 +206,7 @@ QMenu* contextMenu::buildContextMenu()
 
     // This object is created dynamically as opposed to at overall contruction time,
     // so need to apply current scalling, if any to the new menu.
-    QEScaling::applyToWidget (menu, 10);
+    QEScaling::applyToWidget( menu, 10 );
 
     return menu;
 }
@@ -268,6 +270,19 @@ void contextMenu::setupContextMenu( const ContextMenuOptionSets& menuSetIn )
     QObject::connect( qw, SIGNAL( customContextMenuRequested( const QPoint& )),
                       object, SLOT( showContextMenuSlot( const QPoint& )));
 }
+
+// Update  the conext menu items that will be presented.
+void contextMenu::setContextMenuOptions( const ContextMenuOptionSets& menuSetIn )
+{
+    menuSet = menuSetIn;   // save required menu items.
+}
+
+// Update the number of items that will be copied/dragged etc.
+void contextMenu::setNumberOfContextMenuItems ( const int numberOfItemsIn )
+{
+    numberOfItems = numberOfItemsIn;
+}
+
 
 // An action was selected from the context menu
 void contextMenu::contextMenuTriggered( int optionNum )
