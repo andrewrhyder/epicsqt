@@ -416,8 +416,8 @@ void QEPvProperties::common_setup ()
    QObject::connect (this->table, SIGNAL (customContextMenuRequested (const QPoint &)),
                      this,        SLOT   (customContextMenuRequested (const QPoint &)));
 
-   QObject::connect (this->tableContextMenu, SIGNAL (triggered             (QAction* )),
-                     this,                   SLOT   (contextMenuTriggered  (QAction* )));
+   QObject::connect (this->tableContextMenu, SIGNAL (triggered                  (QAction* )),
+                     this,                   SLOT   (customContextMenuTriggered (QAction* )));
 
 
    // Set up a connection to recieve variable name property changes
@@ -1017,7 +1017,7 @@ void QEPvProperties::customContextMenuRequested (const QPoint & posIn)
 
 //------------------------------------------------------------------------------
 //
-void QEPvProperties::contextMenuTriggered (QAction* action)
+void QEPvProperties::customContextMenuTriggered (QAction* action)
 {
    QString newPV;
 
@@ -1126,7 +1126,7 @@ void QEPvProperties::paste (QVariant v)
 
    pvNameList = QEUtilities::variantToStringList (v);
 
-   // Insert all suppled names into thw drop down list (in reverse order)
+   // Insert all suppled names into the drop down list (in reverse order)
    // and select the first PV name (if it exists of course).
    //
    for (int j = pvNameList.count () - 1; j >= 0 ;j--) {
