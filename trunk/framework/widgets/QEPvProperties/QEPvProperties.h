@@ -184,7 +184,7 @@ private slots:
    // For the table.
    //
    void customContextMenuRequested (const QPoint & pos);
-   void contextMenuTriggered (QAction* selectedItem);
+   void customContextMenuTriggered (QAction* selectedItem);
 
 signals:
    void setCurrentBoxIndex (int index);
