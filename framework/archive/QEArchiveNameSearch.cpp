@@ -40,9 +40,11 @@ QEArchiveNameSearch::QEArchiveNameSearch (QWidget* parent) : QEFrame (parent)
    this->delayedText = new QEDelayedText (0.25, this);
    this->createInternalWidgets ();
 
-   // Use standard context menu
+   // Use standard context menu - start with full option set and remove
+   // thos items not applicable to the name search widget.
    //
    ContextMenuOptionSets menuSet = contextMenu::defaultMenuSet ();
+   menuSet.remove (contextMenu::CM_PASTE);
    menuSet.remove (contextMenu::CM_COPY_DATA);
    menuSet.remove (contextMenu::CM_DRAG_DATA);
 
@@ -152,7 +154,14 @@ void  QEArchiveNameSearch::itemSelectionChanged ()
 
    itemList = this->listWidget->selectedItems ();
    n = itemList.count ();
-   this->dragThis->setEnabled (n > 0);
+   if (n > 0) {
+      this->dragThis->setEnabled (true);
+      this->dragThis->setToolTip (" Any selected PV name(s) may be dragged from here ");
+   } else {
+      this->dragThis->setEnabled (false);
+      this->dragThis->setToolTip ("");
+   }
+   this->setNumberOfContextMenuItems (n);
 }
 
 //------------------------------------------------------------------------------
@@ -230,13 +239,11 @@ void QEArchiveNameSearch::createInternalWidgets ()
    this->horizontalLayout->setContentsMargins (6, 4, 6, 4);
 
    this->dragThis = new QLabel (this->searchFrame);
+   this->dragThis->setMinimumSize (24, 24);
+   this->dragThis->setMaximumSize (24, 24);
    QPixmap icon (":/qe/archive/drag_icon.png");
    this->dragThis->setPixmap (icon);
-   this->dragThis->setToolTip (" Any selected PV names may be dragged from here ");
-   this->dragThis->setMinimumWidth (24);
-   this->dragThis->setMaximumWidth (24);
-   this->dragThis->setMaximumHeight (24);
-   this->dragThis->setAlignment (Qt::AlignCenter);
+   this->dragThis->setScaledContents (true);
    this->dragThis->setEnabled (false);
 
    this->horizontalLayout->addWidget (this->dragThis);
