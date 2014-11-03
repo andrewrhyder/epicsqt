@@ -206,8 +206,6 @@ void QEScalarHistogram::updateHistogramScale ()
                double lowLim = qca->getDisplayLimitLower ();
                double upLim = qca->getDisplayLimitUpper ();
 
-DEBUG << j << lowLim << upLim;
-
                // Has the operating range been defined??
                //
                if ((lowLim != 0.0) || (upLim != 0.0)) {
