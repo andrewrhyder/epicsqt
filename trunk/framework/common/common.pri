@@ -14,6 +14,7 @@ HEADERS += \
    common/QEFileMonitor.h  \
    common/QEFixedPointRadix.h \
    common/QEFrameworkVersion.h \
+   common/QEPvNameSearch.h \
    common/QEPVNameSelectDialog.h \
    common/QEGraphic.h \
    common/QEGraphicMarkup.h \
@@ -34,6 +35,7 @@ SOURCES += \
    common/QEFileMonitor.cpp  \
    common/QEFixedPointRadix.cpp \
    common/QEFrameworkVersion.cpp \
+   common/QEPvNameSearch.cpp \
    common/QEPVNameSelectDialog.cpp \
    common/QEGraphic.cpp \
    common/QEGraphicMarkup.cpp \
