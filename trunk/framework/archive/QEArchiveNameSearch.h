@@ -72,10 +72,6 @@ private:
    void search ();
    void setReadOut (const QString& text);
 
-   // Utility to merge two string lists - result also sorted and no duplicates.
-   //
-   QStringList merge (const QStringList& a, const QStringList& b);
-
    QEArchiveAccess *archiveAccess;
    QEDelayedText* delayedText;
 

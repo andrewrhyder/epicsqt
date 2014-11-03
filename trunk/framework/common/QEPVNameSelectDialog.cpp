@@ -33,6 +33,7 @@
 #include <QEPVNameSelectDialog.h>
 #include <ui_QEPVNameSelectDialog.h>
 
+#include <QEPvNameSearch.h>
 #include <QEArchiveManager.h>
 #include <QEScaling.h>
 
@@ -134,13 +135,15 @@ void QEPVNameSelectDialog::applyFilter ()
 {
    QString pattern = this->ui->filterEdit->text ().trimmed ();
    QRegExp regExp (pattern, Qt::CaseSensitive, QRegExp::RegExp);
+   QEPvNameSearch findNames (QEArchiveAccess::getAllPvNames ());
+
    int n;
 
    this->ui->pvNameEdit->clear ();
 
    // QEArchiveAccess ensures the list is sorted.
    //
-   this->ui->pvNameEdit->insertItems (0, QEArchiveAccess::getMatchingPVnames (regExp, true));
+   this->ui->pvNameEdit->insertItems (0, findNames.getMatchingPvNames (regExp, true));
 
    n = this->ui->pvNameEdit->count ();
    if ((n == 0) && (!this->originalPvName.isEmpty ())) {

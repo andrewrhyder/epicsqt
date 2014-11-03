@@ -27,6 +27,8 @@
 #include <QRegExp>
 
 #include <QECommon.h>
+#include <QEPvNameSearch.h>
+
 #include "QEArchiveNameSearch.h"
 
 #define DEBUG  qDebug () << "QEArchiveNameSearch::" << __FUNCTION__ << __LINE__
@@ -91,8 +93,9 @@ void QEArchiveNameSearch::search ()
    // Spilt the patterns into parts.
    //
    parts = searchText.split (QRegExp ("\\s+"), QString::SkipEmptyParts);
-
    matchingNames.clear ();
+
+   QEPvNameSearch findNames (QEArchiveAccess::getAllPvNames ());
 
    // Use each part to find a set of matching names, and then merge the list.
    //
@@ -103,11 +106,13 @@ void QEArchiveNameSearch::search ()
       // QEArchiveAccess ensures the list is sorted.
       // Find nay names containing this string (and ignore case as well).
       //
-      partMatches = QEArchiveAccess::getMatchingPVnames (part, Qt::CaseInsensitive);
+      partMatches = findNames.getMatchingPvNames (part, Qt::CaseInsensitive);
 
       // Now nmerge the lists.
       //
-      matchingNames = this->merge (matchingNames, partMatches);
+      matchingNames.append (partMatches);
+      matchingNames.sort ();
+      matchingNames.removeDuplicates ();
    }
 
    // Use names to populate the list.
@@ -271,64 +276,6 @@ void QEArchiveNameSearch::createInternalWidgets ()
    this->verticalLayout->addWidget (listWidget);
 
    this->listWidget->setCurrentRow (-1);
-}
-
-//------------------------------------------------------------------------------
-//
-QStringList QEArchiveNameSearch::merge (const QStringList& a, const QStringList& b)
-{
-   const int an = a.size ();
-   const int bn = b.size ();
-
-   QStringList result;
-   int ai, bi;
-   QString as, bs;
-
-   // Handle degenerate cases.
-   //
-   if (an == 0) return b;
-   if (bn == 0) return a;
-
-   // At least one item in each list.
-   //
-   ai = bi = 0;
-
-   // While items remaining in both lists ....
-   //
-   while (ai < an && bi < bn) {
-
-      as = a.value (ai);
-      bs = b.value (bi);
-
-      if (as < bs) {
-         result << as;
-         ai++;
-      } else if (bs < as) {
-         result << bs;
-         bi++;
-      } else {
-         // we have a duplucate
-         //
-         result << as;
-         ai++;
-         bi++;
-      }
-   }
-
-   // At least one of the list is empty - just copy whats left.
-   // More trouble than it is worth to figure out which is the empty list.
-   //
-   while (ai < an) {
-      result << a.value (ai);
-      ai++;
-   }
-
-   while (bi < bn) {
-      result << b.value (bi);
-      bi++;
-   }
-
-   return result;
 }
 
 // end
