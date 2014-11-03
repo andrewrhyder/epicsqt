@@ -42,13 +42,14 @@ static const double  NO_DATA_VALUE = -1073741824.0;
 static const QColor  NO_COLOUR_VALUE = QColor (3, 1, 4, 2);   // Pi colour ;-)
 
 
-static const double  MINIMUM_SPAN  = +1.0E-6;
+static const double  MINIMUM_SPAN  = +1.0E-12;
 static const int     MAX_CAPACITY  = 10000;
 
 //------------------------------------------------------------------------------
 //
 static bool isNullDataValue (const double x) {
-   return x == NO_DATA_VALUE;
+   double d = ABS (x - NO_DATA_VALUE);
+   return (d <= 0.001);
 }
 
 //------------------------------------------------------------------------------
@@ -558,6 +559,12 @@ void QEHistogram::paintAllItems ()
 
    if (this->mLogScale) {
       displayRange.adjustLogMinMax (this->drawMinimum, this->drawMaximum, this->drawMajor);
+      // We use, and this store,  the log of thwse values when using the log scale.
+      // drawMajor already reflects the scale scale and is typicaly 1 (as in 1 decade).
+      //
+      this->drawMinimum = LOG10 (this->drawMinimum);
+      this->drawMaximum = LOG10 (this->drawMaximum);
+
    } else {
       displayRange.adjustMinMax (numberGrid, true, this->drawMinimum, this->drawMaximum, this->drawMajor);
    }
@@ -690,7 +697,7 @@ type QEHistogram::get##name () const {                       \
 PROPERTY_ACCESS (int,    BarWidth,         LIMIT (value, 1, 120),                                 this->mAutoBarGapWidths = false)
 PROPERTY_ACCESS (int,    Gap,              LIMIT (value, 0, 20),                                  this->mAutoBarGapWidths= false)
 PROPERTY_ACCESS (double, Minimum,          LIMIT (value, -1.0E20, this->mMaximum - MINIMUM_SPAN), this->mAutoScale = false)
-PROPERTY_ACCESS (double, Maximum,          LIMIT (value, this->mMinimum + MINIMUM_SPAN, +1.0E20), this->mAutoScale = false)
+PROPERTY_ACCESS (double, Maximum,          LIMIT (value, this->mMinimum + MINIMUM_SPAN, +1.0E40), this->mAutoScale = false)
 PROPERTY_ACCESS (double, BaseLine,         value,                                                 NO_EXTRA)
 PROPERTY_ACCESS (bool,   AutoScale,        value,                                                 NO_EXTRA)
 PROPERTY_ACCESS (bool,   AutoBarGapWidths, value,                                                 NO_EXTRA)
