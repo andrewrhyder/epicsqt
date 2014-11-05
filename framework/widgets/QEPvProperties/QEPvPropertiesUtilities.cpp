@@ -309,7 +309,7 @@ bool QERecordFieldName::extractPvName (const QString & item, QString & pvName)
       for (j = 0; j < SUFFIX_NUM; j++) {
 
          if (pvName.endsWith (suffixList [j])) {
-            int at = pvName.length () - strlen (suffixList [j]);
+            int at = pvName.length () - (int)strlen (suffixList [j]);
             pvName.truncate (at);
          }
       }

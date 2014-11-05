@@ -7,10 +7,10 @@
 
 int main (int argc, char *argv[]) {
 
-   QCoreApplication *app  = new QCoreApplication (argc, argv);
+   QCoreApplication app(argc, argv);
 
    new Rad_Control ();
-   return app->exec ();
+   return app.exec ();
 }
 
 // end

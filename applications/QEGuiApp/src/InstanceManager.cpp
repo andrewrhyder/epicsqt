@@ -58,11 +58,11 @@ instanceManager::instanceManager( QEGui* appIn ) : QObject( appIn )
     // file has been left following a crash by a different user, the
     // temporary file can't be deleted if permissions don't allow. This results
     // in the server unable to start.
-    char* userEnv;
+    QByteArray userEnv;
 #ifdef WIN32 //for windows
-    userEnv = getenv( "USERNAME" );
+    userEnv = qgetenv( "USERNAME" );
 #else //for Mac or Linux
-    userEnv = getenv( "USER" );
+    userEnv = qgetenv( "USER" );
 #endif
     QString serverName = QString( QEGUISERVERNAME ).append( "_" ).append( userEnv );
 
@@ -158,7 +158,7 @@ void instanceManager::newWindow( const startupParams& params )
         // The persistance manager will signal all interested objects (including this application) that
         // they should collect and apply restore data.
         PersistanceManager* persistanceManager = profile.getPersistanceManager();
-        persistanceManager->restore( params.configurationFile, QE_CONFIG_NAME, params.defaultCustomisationName  );
+        persistanceManager->restore( params.configurationFile, QE_CONFIG_NAME, params.configurationName );
 
         // If the restoration did not create any windows, warn the user.
         // This is especially important as an .ui file specified on the command line will now be opened,
