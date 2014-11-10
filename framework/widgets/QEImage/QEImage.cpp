@@ -450,6 +450,10 @@ void QEImage::recorderDestroyed( QObject* ){ recorder = NULL; }
 // (within this widget, or hosted by the application containing this widget)
 void QEImage::presentControls()
 {
+    QString name = getName();
+    if (!name.isEmpty()){
+        name.append(" - ");
+    }
     // If components are being hosted by the application, hide any associated labels within the widget and
     // hand over the components to the application.
     // (Note, if components are not being hosted, they should always exist, but if something
@@ -461,13 +465,13 @@ void QEImage::presentControls()
         if( imageDisplayProps )
         {
             mainLayout->removeWidget( imageDisplayProps );
-            components.append( componentHostListItem( imageDisplayProps, QEActionRequests::OptionFloatingDockWindow, true, "Image Display Properties" ) );
+            components.append( componentHostListItem( imageDisplayProps, QEActionRequests::OptionFloatingDockWindow, true, name + "Image Display Properties" ) );
         }
 
         if( recorder )
         {
             mainLayout->removeWidget( recorder );
-            components.append( componentHostListItem( recorder, QEActionRequests::OptionFloatingDockWindow, true, "Recorder" ) );
+            components.append( componentHostListItem( recorder, QEActionRequests::OptionFloatingDockWindow, true, name + "Recorder" ) );
         }
 
         vSliceLabel->setVisible( false );
@@ -477,19 +481,19 @@ void QEImage::presentControls()
         if( vSliceDisplay && enableVertSlicePresentation )
         {
             graphicsLayout->removeWidget( vSliceDisplay );
-            components.append( componentHostListItem( vSliceDisplay,  QEActionRequests::OptionLeftDockWindow, true, "Vertical Slice Profile" ) );
+            components.append( componentHostListItem( vSliceDisplay,  QEActionRequests::OptionLeftDockWindow, true, name + "Vertical Slice Profile" ) );
         }
 
         if( hSliceDisplay && enableHozSlicePresentation )
         {
             graphicsLayout->removeWidget( hSliceDisplay );
-            components.append( componentHostListItem( hSliceDisplay,  QEActionRequests::OptionTopDockWindow, true, "Horizontal Slice Profile" ) );
+            components.append( componentHostListItem( hSliceDisplay,  QEActionRequests::OptionTopDockWindow, true, name + "Horizontal Slice Profile" ) );
         }
 
         if( profileDisplay && enableProfilePresentation )
         {
             graphicsLayout->removeWidget( profileDisplay );
-            components.append( componentHostListItem( profileDisplay, QEActionRequests::OptionTopDockWindow, true, "Arbitrary Profile" ) );
+            components.append( componentHostListItem( profileDisplay, QEActionRequests::OptionTopDockWindow, true, name + "Arbitrary Profile" ) );
         }
 
         buttonGroup->hide();
