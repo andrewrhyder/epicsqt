@@ -3920,6 +3920,18 @@ bool QEImage::getDisplayMarkups()
     return displayMarkups;
 }
 
+
+// Name of widget for display and identification purpose
+void QEImage::setName( QString nameIn )
+{
+    name = nameIn;
+}
+
+QString QEImage::getName()
+{
+    return name;
+}
+
 // Application launching
 // Program String
 void QEImage::setProgram1( QString program ){ programLauncher1.setProgram( program ); }
