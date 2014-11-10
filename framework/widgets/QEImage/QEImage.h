@@ -369,6 +369,9 @@ public:
     void setDisplayMarkups( bool displayMarkupsIn );                    ///< Access function for #displayMarkups property - refer to #displayMarkups property for details
     bool getDisplayMarkups();                                           ///< Access function for #displayMarkups property - refer to #displayMarkups property for details
 
+    void setName( QString nameIn );                            ///< Access function for name property - refer to #name property for details
+    QString getName();                                         ///< Access function for name property - refer to #name property for details
+
     void setProgram1( QString program );                       ///< Access function for #program1 property - refer to #program1 property for details
     QString getProgram1();                                     ///< Access function for #program1 property - refer to #program1 property for details
     void setProgram2( QString program );                       ///< Access function for #program2 property - refer to #program2 property for details
@@ -453,8 +456,6 @@ public:
 
     bool displayButtonBar;      // True if button bar should be displayed
     QImage copyImage();         // Return a QImage based on the current image
-
-    QString name;               // Widget unique name for dislap and idetification purpose
 
     void redisplayAllMarkups();
 
@@ -622,6 +623,8 @@ public slots:
     void presentControls();
 
     bool displayMarkups;
+
+    QString name;                              // Widget unique name for dislay and idetification purpose
 
     bool fullScreen;                            // True if in full screen mode
     fullScreenWindow* fullScreenMainWindow;     // Main window used to present image in full screen mode. Only present when in full screen mode
@@ -825,10 +828,6 @@ protected:
         QCaVariableNamePropertyManager variableNamePropertyManagers[QEIMAGE_NUM_VARIABLES];
     public:
 
-    /// Name of widget for display and identification purpose
-    Q_PROPERTY(QString name READ getName WRITE setName)
-    void setName(QString name){ this->name = name; }
-    QString getName(){ return name; }
     // Define a variable
     // Note, the QPROPERTY declaration itself can't be in this macro
 #define VARIABLE_PROPERTY_ACCESS(VAR_INDEX) \
@@ -1505,6 +1504,14 @@ public:
     /// The brightness and contrast is set to use the full range of pixels in the selected area.
     Q_PROPERTY(bool autoBrightnessContrast READ getAutoBrightnessContrast WRITE setAutoBrightnessContrast)
 
+    /// Name of widget for display and identification purpose.
+    /// If present is added to the start of dock names provided by a QEImage widget to an application (such as QEGui)
+    /// to diferentiate between docks provided by different instances of QEImage.
+    Q_PROPERTY(QString name READ getName WRITE setName)
+    // Note, the 'name' property above must be before the 'externalControls' property below so it is available when processing #externalControls property.
+    // This may not be the best way to code this - perhaps there is a signal on completion of reading all properties where the QEImage widget
+    // could then processes #externalControls property regardless of the property order.
+
     /// If true, image controls and views such as brightness controls and profile plots are hosted by the application as dock windows, toolbars, etc.
     /// Refer to the #ContainerProfile class and the #windowCustomisation class to see how this class asks an application to act as a host.
     Q_PROPERTY(bool externalControls READ getExternalControls WRITE setExternalControls)
@@ -1528,7 +1535,7 @@ public:
     Q_PROPERTY(bool fullScreen READ getFullScreen WRITE setFullScreen)
 
     //=========
-    // This grouop of properties should be kept consistant QE Buttons
+    // This group of properties should be kept consistant QE Buttons
 
     /// Program to run when a request is made to pass on the current image to the first external application.
     /// No attempt to run a program is made if this property is empty.
