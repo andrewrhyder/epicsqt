@@ -454,6 +454,8 @@ public:
     bool displayButtonBar;      // True if button bar should be displayed
     QImage copyImage();         // Return a QImage based on the current image
 
+    QString name;               // Widget unique name for dislap and idetification purpose
+
     void redisplayAllMarkups();
 
 private slots:
@@ -823,6 +825,10 @@ protected:
         QCaVariableNamePropertyManager variableNamePropertyManagers[QEIMAGE_NUM_VARIABLES];
     public:
 
+    /// Name of widget for display and identification purpose
+    Q_PROPERTY(QString name READ getName WRITE setName)
+    void setName(QString name){ this->name = name; }
+    QString getName(){ return name; }
     // Define a variable
     // Note, the QPROPERTY declaration itself can't be in this macro
 #define VARIABLE_PROPERTY_ACCESS(VAR_INDEX) \
