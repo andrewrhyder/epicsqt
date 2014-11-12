@@ -327,6 +327,8 @@ QEPvLoadSave::QEPvLoadSave (QWidget* parent) : QEFrame (parent)
    this->setFrameShadow (QFrame::Plain);
    this->setMinimumSize (932, 400);
 
+   this->defaultDir = "";
+
    // Create internal widgets.
    //
    this->overallLayout = new QVBoxLayout (this);
@@ -903,9 +905,16 @@ void QEPvLoadSave::copySubsetClicked (bool)
 
 //------------------------------------------------------------------------------
 //
-QString QEPvLoadSave::getDefaultDir ()
+void QEPvLoadSave::setDefaultDir (const QString& defaultDirIn)
 {
-    return "/asp/usr/config";    // TODO: temp default directory
+    this->defaultDir = defaultDirIn;
+}
+
+//------------------------------------------------------------------------------
+//
+QString QEPvLoadSave::getDefaultDir () const
+{
+    return this->defaultDir;
 }
 
 //------------------------------------------------------------------------------

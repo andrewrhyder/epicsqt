@@ -84,6 +84,12 @@ public:
    /// In some widgets are are also used for other purposes.
    ///
    Q_PROPERTY (QString defaultSubstitutions READ getSubstitutions WRITE setSubstitutions)
+
+   /// Default directory used for loading/saving files. Default to null string which is
+   /// interpreted as the current directory.
+   ///
+   Q_PROPERTY (QString defaultDir           READ getDefaultDir    WRITE setDefaultDir)
+
    //
    // End of QEPvLoadSave specific properties =====================================
 
@@ -114,6 +120,9 @@ public:
 
    void    setSubstitutions (QString configurationFileSubstitutions);
    QString getSubstitutions ();
+
+   void setDefaultDir (const QString& defaultDir);
+   QString getDefaultDir () const;
 
    // Used internally but needs to be public.
    static const int NumberOfButtons = 15;
@@ -205,6 +214,7 @@ private:
    QEPVNameSelectDialog* pvNameSelectDialog;
    QMenu* treeContextMenu;
    TreeContextMenuActionLists actionList;
+   QString defaultDir;
 
    // Only meaningfull for context menu processing, i.e. after treeMenuRequested
    // called and up until treeMenuSelected.
@@ -227,7 +237,6 @@ private:
                           const TreeContextMenuActions treeAction);
 
    void setReadOut (const QString& text);
-   QString getDefaultDir ();
 
    friend class QEPvLoadSaveModel;
 
