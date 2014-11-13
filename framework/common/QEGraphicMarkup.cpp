@@ -50,6 +50,7 @@ QEGraphicMarkup::QEGraphicMarkup (QEGraphic* ownerIn)
    this->enabled = true;
    this->selected = false;
    this->cursor = Qt::CrossCursor;
+   this->activationButton = Qt::LeftButton;
 
    this->current = QPointF (0.0, 0.0);
    this->pen.setColor (QColor (0,0,0));
@@ -194,7 +195,7 @@ QEGraphicAreaMarkup::QEGraphicAreaMarkup (QEGraphic* ownerIn) : QEGraphicMarkup 
 //
 void QEGraphicAreaMarkup::mousePress (const QPointF& realMousePosition, const Qt::MouseButton button)
 {
-   if (button == Qt::LeftButton) {
+   if (button == this->activationButton) {
       this->origin = realMousePosition;
       this->current = realMousePosition;
       this->setVisible (true);
@@ -205,7 +206,7 @@ void QEGraphicAreaMarkup::mousePress (const QPointF& realMousePosition, const Qt
 //
 void QEGraphicAreaMarkup::mouseRelease (const QPointF& realMousePosition, const Qt::MouseButton button)
 {
-   if (button == Qt::LeftButton) {
+   if (button == this->activationButton) {
       this->current = realMousePosition;
       if (this->isValidArea ()) {
          emit this->getOwner()->areaDefinition (this->origin, this->current);
@@ -264,6 +265,7 @@ QEGraphicLineMarkup::QEGraphicLineMarkup (QEGraphic* ownerIn) : QEGraphicMarkup 
 {
    this->pen.setColor(QColor (0x80C0E0));  // blueish
    this->origin = QPointF (0.0, 0.0);
+   this->activationButton = Qt::MiddleButton;
 }
 
 //-----------------------------------------------------------------------------
@@ -277,7 +279,7 @@ QPointF QEGraphicLineMarkup::getSlope () const
 //
 void QEGraphicLineMarkup::mousePress (const QPointF& realMousePosition, const Qt::MouseButton button)
 {
-   if (button == Qt::RightButton) {
+   if (button == this->activationButton) {
       this->origin = realMousePosition;
       this->current = realMousePosition;
       this->setVisible (true);
@@ -288,7 +290,7 @@ void QEGraphicLineMarkup::mousePress (const QPointF& realMousePosition, const Qt
 //
 void QEGraphicLineMarkup::mouseRelease (const QPointF& realMousePosition, const Qt::MouseButton button)
 {
-   if (button == Qt::RightButton) {
+   if (button == this->activationButton) {
       this->current = realMousePosition;
       emit this->getOwner()->lineDefinition (this->origin, this->current);
       this->setSelected (false);

@@ -501,6 +501,18 @@ void QEGraphic::setCrosshairsVisible (const bool isVisible)
 
 //------------------------------------------------------------------------------
 //
+bool QEGraphic::getCrosshairsVisible () const
+{
+   QEGraphicMarkup* markup =  this->markups [CROSSHAIRES_MARKUP];
+   if (markup) {
+      return markup->isVisible ();
+   } else {
+      return false;
+   }
+}
+
+//------------------------------------------------------------------------------
+//
 QPointF QEGraphic::pointToReal (const QPoint& pos) const
 {
    double x, y;
@@ -669,6 +681,28 @@ bool QEGraphic::getSlopeIsDefined (QPointF& slope) const
 
 //------------------------------------------------------------------------------
 //
+QPointF QEGraphic::getRealMousePosition () const
+{
+   return this->realMousePosition;
+}
+
+//------------------------------------------------------------------------------
+//
+bool QEGraphic::globalPosIsOverCanvas (const QPoint& golbalPos) const
+{
+   QPoint canvasPos;
+   QRect canvasGeo;
+
+   canvasPos = this->plot->canvas()->mapFromGlobal (golbalPos);
+   canvasGeo = this->plot->canvas()->geometry ();
+
+   return (canvasPos.x () >= 0) && (canvasPos.x () < canvasGeo.width ()) &&
+          (canvasPos.y () >= 0) && (canvasPos.y () < canvasGeo.height ());
+}
+
+
+//------------------------------------------------------------------------------
+//
 QPoint QEGraphic::pixelDistance (const QPointF& from, const QPointF& to) const
 {
    QPoint pointFrom = this->realToPoint (from);
@@ -721,7 +755,7 @@ void QEGraphic::canvasMousePress (QMouseEvent* mouseEvent)
    //
    if (button == Qt::LeftButton) {
       search = this->markups [AREA_MARKUP];
-   } else if (button == Qt::RightButton) {
+   } else if (button == Qt::MiddleButton) {
       search = this->markups [LINE_MARKUP];
    }
 
@@ -749,6 +783,7 @@ void QEGraphic::canvasMousePress (QMouseEvent* mouseEvent)
    }
 
    // Treat as a mouse move as well.
+   //
    this->canvasMouseMove (mouseEvent, true);
 }
 
