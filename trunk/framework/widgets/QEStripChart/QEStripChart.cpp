@@ -305,12 +305,9 @@ void QEStripChart::createInternalWidgets ()
    this->layout2->setSpacing (4);
    this->layout2->addWidget (this->plotArea);
 
-   // We use the default context menu but we need to filter activation.
+   // Use default context menu.
    //
-   this->setContextMenuPolicy (Qt::CustomContextMenu);
-
-   QObject::connect (this, SIGNAL (customContextMenuRequested (const QPoint &)),
-                     this, SLOT   (chartContextMenuRequested  (const QPoint &)));
+   this->setupContextMenu ();
 
    // Clear / initialise plot.
    //
@@ -328,24 +325,6 @@ void QEStripChart::createInternalWidgets ()
 QEStripChartItem* QEStripChart::getItem (unsigned int slot)
 {
    return (slot < NUMBER_OF_PVS) ? this->items [slot] : NULL;
-}
-
-//------------------------------------------------------------------------------
-//
-void QEStripChart::chartContextMenuRequested (const QPoint & pos)
-{
-   // Don't want to do context menu over plot canvas area - we use right-click
-   // for other stuff.
-   //
-   // NOTE: This check relies on the fact that the right mouse button event handler
-   // in QEGraphic is called before this slot is invoked.
-   //
-   if (this->plotArea->rightButtonPressed () == false) {
-      QMenu* menu = this->buildContextMenu ();     // Create/build standard menu.
-      QPoint golbalPos = this->mapToGlobal (pos);  // map position.
-      menu->exec (golbalPos, 0);
-      delete menu;
-   }
 }
 
 //------------------------------------------------------------------------------
