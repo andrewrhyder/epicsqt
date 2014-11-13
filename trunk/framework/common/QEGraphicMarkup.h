@@ -81,6 +81,7 @@ protected:
    QPen pen;
    QBrush brush;
    QCursor cursor;
+   Qt::MouseButton activationButton;
    bool visible;
    bool enabled;
    bool selected;

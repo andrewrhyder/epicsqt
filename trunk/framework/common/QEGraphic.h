@@ -97,6 +97,7 @@ public:
    void setGridPen (const QPen& pen);
 
    void setCrosshairsVisible (const bool isVisible);
+   bool getCrosshairsVisible () const;
 
    // Allocates a curve, sets current curve attibutes and attaches to plot.
    //
@@ -110,7 +111,12 @@ public:
    //
    void replot ();
 
-   bool rightButtonPressed () const;    // to allow inhibition of context menu.
+   bool rightButtonPressed () const;    // to allow inhibition of context menu - depricated.
+
+   QPointF getRealMousePosition () const;   // cuurrent mouse position in real world coords
+
+   bool globalPosIsOverCanvas (const QPoint& golbalPos) const;
+
    bool getSlopeIsDefined (QPointF& slope) const;
 
    // Returns the pixel distance between two real points.
