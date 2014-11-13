@@ -205,6 +205,11 @@ QCaObject::~QCaObject() {
     if( lastNewData )
         delete (carecord::CaRecord*)lastNewData;
 
+    // Release state machines
+    delete connectionMachine;
+    delete subscriptionMachine;
+    delete readMachine;
+    delete writeMachine;
 }
 
 /*
