@@ -751,11 +751,21 @@ void QEGraphic::canvasMousePress (QMouseEvent* mouseEvent)
 
    search = NULL;
 
+// Pick correct definition for middle button.
+// Note, at time of writing (building on qt4.6 through qt5.3) MidButton would
+// work for all, but it is due to be removed in the future.
+#if QT_VERSION < 0x040700
+#define MIDDLE_BUTTON Qt::MidButton
+#else
+#define MIDDLE_BUTTON Qt::MiddleButton
+#endif
+
    // We can always "find" AREA_MARKUP/LINE_MARKUP.
    //
+
    if (button == Qt::LeftButton) {
       search = this->markups [AREA_MARKUP];
-   } else if (button == Qt::MiddleButton) {
+   } else if (button == MIDDLE_BUTTON) {
       search = this->markups [LINE_MARKUP];
    }
 
