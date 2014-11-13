@@ -263,6 +263,15 @@ void QEGraphicAreaMarkup::plotMarkup ()
 //
 QEGraphicLineMarkup::QEGraphicLineMarkup (QEGraphic* ownerIn) : QEGraphicMarkup (ownerIn)
 {
+// Pick correct definition for middle button.
+// Note, at time of writing (building on qt4.6 through qt5.3) MidButton would
+// work for all, but it is due to be removed in the future.
+#if QT_VERSION < 0x040700
+#define MIDDLE_BUTTON Qt::MidButton
+#else
+#define MIDDLE_BUTTON Qt::MiddleButton
+#endif
+
    this->pen.setColor(QColor (0x80C0E0));  // blueish
    this->origin = QPointF (0.0, 0.0);
    this->activationButton = Qt::MiddleButton;
