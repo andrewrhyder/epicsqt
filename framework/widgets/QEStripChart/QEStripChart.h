@@ -307,10 +307,6 @@ private:
 private slots:
    void tickTimeout ();
 
-   // From chart context menu
-   //
-   void chartContextMenuRequested (const QPoint& pos);
-
    // From tool bar
    //
    void stateSelected (const QEStripChartNames::StateModes mode);
