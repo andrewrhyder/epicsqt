@@ -87,7 +87,7 @@ public:
     bool isDraggingVariable();                          // Return the global 'is dragging variable' flag (Dragging variable is true, draging data if false)
 
     QMenu* buildContextMenu();                             // Build the QE generic context menu
-    void contextMenuTriggered( int selectedItemNum );   // An action was selected from the context menu
+    void contextMenuTriggered( int selectedItemNum );      // An action was selected from the context menu
 
     virtual QString copyVariable(){ return ""; }        // Function a widget may implement to perform a 'copy variable' operation
     virtual QVariant copyData(){ return ""; }           // Function a widget may implement to perform a 'copy data' operation
