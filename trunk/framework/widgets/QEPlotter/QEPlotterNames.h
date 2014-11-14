@@ -55,6 +55,7 @@ public:
       PLOTTER_SHOW_HIDE_TOOLBAR,   //
       PLOTTER_SHOW_HIDE_PV_ITEMS,  //
       PLOTTER_SHOW_HIDE_STATUS,    //
+      PLOTTER_EMIT_COORDINATES,    //
 
       PLOTTER_PREV,                // Previous state
       PLOTTER_NEXT,                // Previous state

@@ -55,6 +55,7 @@ public:
    void setActionChecked (const QEPlotterNames::MenuActions action, const bool checked);
    void setActionEnabled (const QEPlotterNames::MenuActions action, const bool enabled);
    void setActionVisible (const QEPlotterNames::MenuActions action, const bool visible);
+   void setActionText    (const QEPlotterNames::MenuActions action, const QString& caption);
 
    void setState (const bool isDisplayed, const bool isBold, const bool showDots);
 

@@ -80,6 +80,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPlotter : public QEFrame {
    Q_PROPERTY (bool statusVisible      READ getStatusVisible     WRITE setStatusVisible)
    Q_PROPERTY (bool xLogarithmic       READ getXLogarithmic      WRITE setXLogarithmic)
    Q_PROPERTY (bool yLogarithmic       READ getYLogarithmic      WRITE setYLogarithmic)
+   Q_PROPERTY (QString contextMenuEmitText    READ getMenuEmitText      WRITE setMenuEmitText)
 
    // Data and Size properties,
    //
@@ -180,6 +181,9 @@ public:
    void setEnableConextMenu (bool enable);
    bool getEnableConextMenu () const;
 
+   void setMenuEmitText  (const QString& text);
+   QString getMenuEmitText () const;
+
    void setToolBarVisible (bool visible);
    bool getToolBarVisible () const;
 
@@ -201,6 +205,8 @@ signals:
    // Indicates data index cossponding to (vertical) crosshairs.
    //
    void crosshairIndexChanged (int value);
+   void xCoordinateSelected   (double xvalue);
+   void yCoordinateSelected   (double yvalue);
 
    // Set, get and emit set of active data PV names.
    // Note: this applies to the data PV names only and does not include any sizing PVs.
@@ -308,6 +314,9 @@ private:
    bool emitPvNameSetChangeInhibited;
    QEIntegerFormatting  integerFormatting;
    QEFloatingFormatting floatingFormatting;
+
+   QPointF contextMenuRequestPosition;
+   QString contextMenuEmitText;
 
    // Range of (unscaled) values of last plot.
    //
