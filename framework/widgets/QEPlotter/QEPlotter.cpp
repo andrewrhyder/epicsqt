@@ -552,6 +552,7 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
    this->setFrameShadow (QFrame::Plain);
    this->setMinimumSize (240, 120);
 
+   this->contextMenuEmitText = "Emit Coordinates";
    this->enableConextMenu = true;
    this->isReverse = false;
    this->isPaused = false;
@@ -925,17 +926,12 @@ void QEPlotter::sendRequestAction (const QString& action, const QString& pvName)
 //
 void QEPlotter::generalContextMenuRequested (const QPoint& pos)
 {
-   QPoint golbalPos;
+   const QPoint golbalPos = this->mapToGlobal (pos);
+   bool overGraphic;
 
-   // Don't want to do context menu over plot canvas area - we use right-click
-   // for other stuff.
+   // Save current mosue position.
    //
-   // NOTE: The 2nd part of this check relies on the fact that the right mouse
-   // button event handler is called before this slot is invoked.
-   //
-   if (this->plotArea->rightButtonPressed () == true) {
-       return;
-   }
+   this->contextMenuRequestPosition = this->plotArea->getRealMousePosition ();
 
    // Because they take so long top create (~ 50mSec), menu are only created as
    // and when needed. A one off 50 mS hardly noticable, while an 900 mS delay
@@ -957,6 +953,13 @@ void QEPlotter::generalContextMenuRequested (const QPoint& pos)
    this->generalContextMenu->setActionEnabled (QEPlotterNames::PLOTTER_SHOW_HIDE_STATUS,
                                                this->enableConextMenu);
 
+   overGraphic = this->plotArea->globalPosIsOverCanvas (golbalPos);
+   this->generalContextMenu->setActionEnabled (QEPlotterNames::PLOTTER_EMIT_COORDINATES,
+                                               overGraphic);
+
+   this->generalContextMenu->setActionText (QEPlotterNames::PLOTTER_EMIT_COORDINATES,
+                                            this->contextMenuEmitText);
+
    // Set current checked states.
    //
    this->generalContextMenu->setActionChecked (QEPlotterNames::PLOTTER_SHOW_HIDE_CROSSHAIRS,
@@ -975,9 +978,7 @@ void QEPlotter::generalContextMenuRequested (const QPoint& pos)
    this->generalContextMenu->setActionChecked (QEPlotterNames::PLOTTER_DRAG_DATA,
                                                !this->isDraggingVariable ());
 
-
-   golbalPos = this->mapToGlobal (pos);
-   this->generalContextMenu->exec (golbalPos, 0);
+   this->generalContextMenu->exec (golbalPos);
 }
 
 //------------------------------------------------------------------------------
@@ -1093,6 +1094,11 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
 
       case QEPlotterNames::PLOTTER_SHOW_HIDE_STATUS:
          this->setStatusVisible (! this->getStatusVisible ());
+         break;
+
+      case QEPlotterNames::PLOTTER_EMIT_COORDINATES:
+         emit this->xCoordinateSelected (this->contextMenuRequestPosition.x ());
+         emit this->yCoordinateSelected (this->contextMenuRequestPosition.y ());
          break;
 
       case QEPlotterNames::PLOTTER_PREV:
@@ -2638,6 +2644,18 @@ void QEPlotter::setEnableConextMenu (bool enable)
 bool QEPlotter::getEnableConextMenu () const
 {
    return this->enableConextMenu;
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPlotter::setMenuEmitText  (const QString& text)
+{
+   this->contextMenuEmitText = text;
+}
+
+QString QEPlotter::getMenuEmitText () const
+{
+    return this->contextMenuEmitText;
 }
 
 //------------------------------------------------------------------------------

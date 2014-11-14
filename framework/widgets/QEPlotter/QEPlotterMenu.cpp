@@ -84,6 +84,8 @@ QEPlotterMenu::QEPlotterMenu (QWidget* parent) : QMenu (parent)
    this->make (menu, "Show/Hide PV Items",      true,  QEPlotterNames::PLOTTER_SHOW_HIDE_PV_ITEMS);
    this->make (menu, "Show/Hide Status",        true,  QEPlotterNames::PLOTTER_SHOW_HIDE_STATUS);
 
+   this->make (this, "Emit Coordinates",        false, QEPlotterNames::PLOTTER_EMIT_COORDINATES );
+
    // The following menu actions reflect the standard menu items.
    //
    this->addSeparator ();
@@ -194,6 +196,19 @@ SET_ACTION (Enabled)
 SET_ACTION (Visible)
 
 #undef SET_ACTION
+
+
+//------------------------------------------------------------------------------
+//
+void  QEPlotterMenu::setActionText (const QEPlotterNames::MenuActions actionName,
+                                    const QString& caption)
+{
+   const int t =  actionName - QEPlotterNames::PLOTTER_FIRST;
+   if (t >= 0 && t < ARRAY_LENGTH (this->actionList)) {
+      QAction* action = this->actionList [t];
+      if (action) action->setText (caption);
+   }
+}
 
 //------------------------------------------------------------------------------
 //
