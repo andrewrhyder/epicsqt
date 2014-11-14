@@ -253,6 +253,10 @@ public:
     //       In this case, the units are added as the QSpinBox suffix, and not as part of a string.
     Q_PROPERTY(bool addUnits READ getAddUnitsAsSuffix WRITE setAddUnitsAsSuffix)
 
+    // Make the value proerty non-designable. This both hides the property value
+    // within designer and stops the value from being written to the .ui file.
+    //
+    Q_PROPERTY(double value READ value  WRITE setValue  DESIGNABLE false)
 };
 
 #endif //QESPINBOX_H

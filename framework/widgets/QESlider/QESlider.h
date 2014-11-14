@@ -237,6 +237,13 @@ public:
 
     Q_PROPERTY(double scale READ getScale WRITE setScale)
     Q_PROPERTY(double offset READ getOffset WRITE setOffset)
+
+    // Make the value/siider position proerties non-designable. This both hides the
+    // properties within designer and stops the values from being written to the .ui file.
+    //
+    Q_PROPERTY(double value           READ value           WRITE setValue           DESIGNABLE false)
+    Q_PROPERTY(int    sliderPosition  READ sliderPosition  WRITE setSliderPosition  DESIGNABLE false)
+
 };
 
 #endif // QESLIDER_H
