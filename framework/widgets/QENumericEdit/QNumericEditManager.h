@@ -24,8 +24,8 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-#ifndef QX_NUMERIC_EDIT_MANAGER_H
-#define QX_NUMERIC_EDIT_MANAGER_H
+#ifndef Q_NUMERIC_EDIT_MANAGER_H
+#define Q_NUMERIC_EDIT_MANAGER_H
 
 #include <QDesignerCustomWidgetInterface>
 #include <QEPluginLibrary_global.h>
@@ -41,4 +41,4 @@ class QEPLUGINLIBRARYSHARED_EXPORT QNumericEditManager :
 
 };
 
-#endif /// QX_NUMERIC_EDIT_MANAGER_H
+#endif // Q_NUMERIC_EDIT_MANAGER_H
