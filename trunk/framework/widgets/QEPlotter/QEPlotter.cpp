@@ -552,6 +552,8 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
    this->setFrameShadow (QFrame::Plain);
    this->setMinimumSize (240, 120);
 
+   this->contextMenuIsOverGraphic = false;
+   this->contextMenuRequestPosition = QPointF (0.0, 0.0);
    this->contextMenuEmitText = "Emit Coordinates";
    this->enableConextMenu = true;
    this->isReverse = false;
@@ -927,10 +929,10 @@ void QEPlotter::sendRequestAction (const QString& action, const QString& pvName)
 void QEPlotter::generalContextMenuRequested (const QPoint& pos)
 {
    const QPoint golbalPos = this->mapToGlobal (pos);
-   bool overGraphic;
 
-   // Save current mosue position.
+   // Save current mouse status/position.
    //
+   this->contextMenuIsOverGraphic = this->plotArea->globalPosIsOverCanvas (golbalPos);
    this->contextMenuRequestPosition = this->plotArea->getRealMousePosition ();
 
    // Because they take so long top create (~ 50mSec), menu are only created as
@@ -952,10 +954,8 @@ void QEPlotter::generalContextMenuRequested (const QPoint& pos)
                                                this->enableConextMenu);
    this->generalContextMenu->setActionEnabled (QEPlotterNames::PLOTTER_SHOW_HIDE_STATUS,
                                                this->enableConextMenu);
-
-   overGraphic = this->plotArea->globalPosIsOverCanvas (golbalPos);
    this->generalContextMenu->setActionEnabled (QEPlotterNames::PLOTTER_EMIT_COORDINATES,
-                                               overGraphic);
+                                               this->contextMenuIsOverGraphic);
 
    this->generalContextMenu->setActionText (QEPlotterNames::PLOTTER_EMIT_COORDINATES,
                                             this->contextMenuEmitText);
@@ -1080,7 +1080,12 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
 
       case QEPlotterNames::PLOTTER_SHOW_HIDE_CROSSHAIRS:
          this->crosshairsAreRequired = !this->crosshairsAreRequired;
-         this->plotArea->setCrosshairsVisible (this->crosshairsAreRequired);
+         if (this->contextMenuIsOverGraphic) {
+            this->plotArea->setCrosshairsVisible (this->crosshairsAreRequired,
+                                                  this->contextMenuRequestPosition);
+         } else {
+            this->plotArea->setCrosshairsVisible (this->crosshairsAreRequired);
+         }
          this->replotIsRequired = true;
          break;
 
@@ -1097,6 +1102,7 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
          break;
 
       case QEPlotterNames::PLOTTER_EMIT_COORDINATES:
+         emit this->coordinateSelected  (this->contextMenuRequestPosition);
          emit this->xCoordinateSelected (this->contextMenuRequestPosition.x ());
          emit this->yCoordinateSelected (this->contextMenuRequestPosition.y ());
          break;
