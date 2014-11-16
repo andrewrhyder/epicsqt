@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2013 Australian Synchrotron.
+ *  Copyright (c) 2013,2014 Australian Synchrotron.
  *
  *  Author:
  *    Andrew Starritt
@@ -23,8 +23,8 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-#ifndef QEPLOTTER_H
-#define QEPLOTTER_H
+#ifndef QE_PLOTTER_H
+#define QE_PLOTTER_H
 
 #include <QColor>
 #include <QCheckBox>
@@ -203,8 +203,14 @@ public:
 
 signals:
    // Indicates data index cossponding to (vertical) crosshairs.
+   // Emitted each time the cross hairs are moved.
    //
    void crosshairIndexChanged (int value);
+
+   // Emitted once each time the PLOTTER_EMIT_COORDINATES context menu item selected.
+   // We emit real world coordinates.
+   //
+   void coordinateSelected    (QPointF xyvalue);
    void xCoordinateSelected   (double xvalue);
    void yCoordinateSelected   (double yvalue);
 
@@ -315,7 +321,8 @@ private:
    QEIntegerFormatting  integerFormatting;
    QEFloatingFormatting floatingFormatting;
 
-   QPointF contextMenuRequestPosition;
+   bool    contextMenuIsOverGraphic;
+   QPointF contextMenuRequestPosition;   // only meaninful when contextMenuIsOverGraphic is true.
    QString contextMenuEmitText;
 
    // Range of (unscaled) values of last plot.
@@ -539,4 +546,4 @@ private slots:
    friend class DataSets;
 };
 
-#endif // QEPLOTTER_H
+#endif // QE_PLOTTER_H
