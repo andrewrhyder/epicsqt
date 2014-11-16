@@ -493,7 +493,7 @@ void QEGraphic::setGridPen (const QPen& pen)
 //
 void QEGraphic::setCrosshairsVisible (const bool isVisible)
 {
-   QEGraphicMarkup* markup =  this->markups [CROSSHAIRES_MARKUP];
+   QEGraphicMarkup* markup = this->markups [CROSSHAIRES_MARKUP];
    if (markup) {
       markup->setVisible (isVisible);
    }
@@ -501,9 +501,20 @@ void QEGraphic::setCrosshairsVisible (const bool isVisible)
 
 //------------------------------------------------------------------------------
 //
+void QEGraphic::setCrosshairsVisible (const bool isVisible, const QPointF& position)
+{
+   QEGraphicMarkup* markup = this->markups [CROSSHAIRES_MARKUP];
+   if (markup) {
+      markup->setVisible (isVisible);
+      markup->setCurrentPosition (position);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
 bool QEGraphic::getCrosshairsVisible () const
 {
-   QEGraphicMarkup* markup =  this->markups [CROSSHAIRES_MARKUP];
+   QEGraphicMarkup* markup = this->markups [CROSSHAIRES_MARKUP];
    if (markup) {
       return markup->isVisible ();
    } else {

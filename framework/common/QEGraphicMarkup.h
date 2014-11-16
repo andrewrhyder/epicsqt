@@ -41,6 +41,9 @@ public:
    explicit QEGraphicMarkup (QEGraphic* owner);
    virtual ~QEGraphicMarkup ();
 
+   void setCurrentPosition (const QPointF& currentPosition);
+   QPointF getCurrentPosition () const;
+
    virtual void setVisible (const bool visible);
    virtual bool isVisible () const;
 

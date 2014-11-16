@@ -66,6 +66,20 @@ QEGraphicMarkup::~QEGraphicMarkup ()
 
 //-----------------------------------------------------------------------------
 //
+void QEGraphicMarkup::setCurrentPosition (const QPointF& currentPosition)
+{
+   this->current = currentPosition;
+}
+
+//-----------------------------------------------------------------------------
+//
+QPointF QEGraphicMarkup::getCurrentPosition () const
+{
+   return this->current;
+}
+
+//-----------------------------------------------------------------------------
+//
 QCursor QEGraphicMarkup::getCursor () const
 {
    return this->cursor;
@@ -266,6 +280,7 @@ QEGraphicLineMarkup::QEGraphicLineMarkup (QEGraphic* ownerIn) : QEGraphicMarkup 
 // Pick correct definition for middle button.
 // Note, at time of writing (building on qt4.6 through qt5.3) MidButton would
 // work for all, but it is due to be removed in the future.
+//
 #if QT_VERSION < 0x040700
 #define MIDDLE_BUTTON Qt::MidButton
 #else
