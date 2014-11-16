@@ -97,6 +97,7 @@ public:
    void setGridPen (const QPen& pen);
 
    void setCrosshairsVisible (const bool isVisible);
+   void setCrosshairsVisible (const bool isVisible, const QPointF& position);
    bool getCrosshairsVisible () const;
 
    // Allocates a curve, sets current curve attibutes and attaches to plot.
