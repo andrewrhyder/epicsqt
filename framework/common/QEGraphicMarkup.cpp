@@ -289,7 +289,7 @@ QEGraphicLineMarkup::QEGraphicLineMarkup (QEGraphic* ownerIn) : QEGraphicMarkup 
 
    this->pen.setColor(QColor (0x80C0E0));  // blueish
    this->origin = QPointF (0.0, 0.0);
-   this->activationButton = Qt::MiddleButton;
+   this->activationButton = MIDDLE_BUTTON;
 }
 
 //-----------------------------------------------------------------------------
