@@ -170,7 +170,8 @@ public:
     /// Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1[,] NAME2=VALUE2... Values may be quoted strings. For example, 'PUMP=PMP3, NAME = "My Pump"'
     /// These substitutions are applied to variable names for all QE widgets. In some widgets are are also used for other purposes.
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
-private:
+
+    /// Property access function for #variableSubstitutions property. This has special behaviour to work well within designer.
     void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions )
     {
         for( int i = 0; i < QEGENERICBUTTON_NUM_VARIABLES; i++ )
@@ -178,6 +179,7 @@ private:
             variableNamePropertyManagers[i].setSubstitutionsProperty( variableNameSubstitutions );
         }
     }
+    /// Property access function for #variableSubstitutions property. This has special behaviour to work well within designer.
     QString getVariableNameSubstitutionsProperty()
     {
         return variableNamePropertyManagers[0].getSubstitutionsProperty();
