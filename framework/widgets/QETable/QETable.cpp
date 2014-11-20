@@ -106,7 +106,9 @@ void QETable::DataSets::rePopulateTable ()
    //
    titleText = this->owner->mTitles.value (index, "").trimmed ();
    if (titleText.isEmpty()) {
-      titleText.setNum (index);
+      titleText.setNum (index + 1);
+   } else if (titleText == "<>") {
+      titleText = this->pvName;
    }
 
    // The number of elements used/displayed is the lesser of the number avialable
