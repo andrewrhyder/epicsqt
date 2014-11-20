@@ -100,6 +100,10 @@ class QEPLUGINLIBRARYSHARED_EXPORT QETable : public QEAbstractWidget {
    ///
    Q_PROPERTY (QString variableSubstitutions READ getSubstitutions WRITE setSubstitutions)
 
+   /// Allows specification of tables titles.
+   ///
+   Q_PROPERTY (QStringList titles            READ getTitles        WRITE setTitles)
+
    /// Specified the minimum allow column width. The widget will shrink/expand the width
    /// of each column to as to exactly fit the with of the widget. However, columns will
    /// not shrink to less than the value provided by this property. Defaults to 80.
@@ -188,27 +192,28 @@ public:
    QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (table, bool,         showGrid,  setShowGrid)
    QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (table, Qt::PenStyle, gridStyle, setGridStyle)
 
+public slots:
+   // Sets PV col/row titles.
+   //
+   void setTitles (const QStringList& titles);
+   void setTitle (const QString& title, const int position);
+
    // Selects row/col depending on orientation vertical/horizontal.
    //
-public slots:
    void setSelection (int value);
 
-public:
-   int getSelection () const;
-
-signals:
-   void selectionChanged (int value);
-
-   // Set, get and emit set of active PV names.
+   // Set the set of PV names.
    //
-public slots:
    void setPvNameSet (const QStringList& pvNameSet);
 
 public:
+   QStringList getTitles () const;
+   int getSelection () const;
    QStringList getPvNameSet () const;
 
 signals:
-   void pvNameSetChanged (const QStringList& nameSet);
+   void selectionChanged (int value);
+   void pvNameSetChanged (const QStringList& pvNameSet);
 
    // Note, the following signals are common to many QE widgets,
    // if changing the doxygen comments, ensure relevent changes are migrated to all instances
@@ -265,6 +270,8 @@ private:
    int columnWidthMinimum;
    bool emitSelectionChangeInhibited;
    bool emitPvNameSetChangeInhibited;
+
+   QStringList mTitles;
 
    // Per PV data.
    //
