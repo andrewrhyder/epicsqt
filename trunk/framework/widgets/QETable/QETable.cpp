@@ -80,6 +80,7 @@ void QETable::DataSets::rePopulateTable ()
 {
    QTableWidget* table;
    int index;
+   QString titleText;
    int numberElements;
    int currentSize;
    QTableWidgetItem* item;
@@ -88,7 +89,7 @@ void QETable::DataSets::rePopulateTable ()
    QColor colour;
 
    if (!this->isInUse ()) return;        // nothing to see here ... move along ...
-   table = this->owner->table;  // alias
+   table = this->owner->table;           // alias
    if (!table) return;                   // sainity check
 
    // Find own row/col index
@@ -98,6 +99,14 @@ void QETable::DataSets::rePopulateTable ()
       if (this->owner->dataSet [j].isInUse ()) {
          index++;
       }
+   }
+
+   // Extract the title for this row/col.
+   // If null, just use the index.
+   //
+   titleText = this->owner->mTitles.value (index, "").trimmed ();
+   if (titleText.isEmpty()) {
+      titleText.setNum (index);
    }
 
    // The number of elements used/displayed is the lesser of the number avialable
@@ -113,12 +122,50 @@ void QETable::DataSets::rePopulateTable ()
 
       currentSize = table->columnCount ();
       table->setColumnCount (MAX (currentSize, index + 1));
+
+      // Set the title - allocate title item if needs be.
+      //
+      item = table->horizontalHeaderItem (index);
+      if (!item) {
+         item = new QTableWidgetItem ();
+         table->setHorizontalHeaderItem (index, item);
+      }
+      item->setText (titleText);
+
+      // Ensure other title is "1" - only need to do the first.
+      //
+      item = table->verticalHeaderItem (0);
+      if (!item) {
+         item = new QTableWidgetItem ();
+         table->setVerticalHeaderItem (0, item);
+      }
+      item->setText ("1");
+
    } else {
       currentSize = table->columnCount ();
       table->setColumnCount (MAX (numberElements, currentSize));
 
       currentSize = table->rowCount ();
       table->setRowCount (MAX (currentSize, index + 1));
+
+      // Set the title - allocate title item if needs be.
+      //
+      item = table->verticalHeaderItem (index);
+      if (!item) {
+         item = new QTableWidgetItem ();
+         table->setVerticalHeaderItem (index, item);
+      }
+      item->setText (titleText);
+
+      // Ensure other title is "1" - only need to do the first.
+      //
+      item = table->horizontalHeaderItem (0);
+      if (!item) {
+         item = new QTableWidgetItem ();
+         table->setHorizontalHeaderItem (0, item);
+      }
+      item->setText ("1");
+
    }
 
    if (this->owner->getDisplayAlarmState ()) {
@@ -133,7 +180,7 @@ void QETable::DataSets::rePopulateTable ()
 
       item = table->item (row, col);
       if (!item) {
-         // We need to allocate iteem and insert it into the table.
+         // We need to allocate item and insert it into the table.
          //
          item = new QTableWidgetItem ();
          table->setItem (row, col, item);
@@ -189,6 +236,7 @@ QETable::QETable (QWidget* parent) : QEAbstractWidget (parent)
    // Set default property values
    //
    this->displayMaximum = 0x1000;
+   this->mTitles.clear ();
    this->selection = NULL_SELECTION;
    this->emitSelectionChangeInhibited = false;
    this->emitPvNameSetChangeInhibited = false;
@@ -554,6 +602,43 @@ QString QETable::getSubstitutions () const
    // Any one of the PV name managers can provide the subsitutions.
    //
    return this->dataSet [0].variableNameManager.getSubstitutionsProperty ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QETable::setTitles (const QStringList& titlesIn)
+{
+   this->mTitles = titlesIn;
+
+   // Pad/truncate as required.
+   //
+   while (this->mTitles.count () < ARRAY_LENGTH (this->dataSet)) {
+      DEBUG << "adding";
+      this->mTitles.append ("");
+   }
+   while (this->mTitles.count () > ARRAY_LENGTH (this->dataSet)) {
+      DEBUG << "removing";
+      this->mTitles.removeLast ();
+   }
+
+   this->rePopulateTable ();
+}
+
+//------------------------------------------------------------------------------
+//
+QStringList QETable::getTitles () const
+{
+   return this->mTitles;
+}
+
+//------------------------------------------------------------------------------
+//
+void QETable::setTitle (const QString& title, const int position)
+{
+   if ((position >= 0) && (position < ARRAY_LENGTH (this->dataSet))) {
+      this->mTitles.replace (position, title);
+      this->rePopulateTable ();
+   }
 }
 
 //------------------------------------------------------------------------------
