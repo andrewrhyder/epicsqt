@@ -615,11 +615,9 @@ void QETable::setTitles (const QStringList& titlesIn)
    // Pad/truncate as required.
    //
    while (this->mTitles.count () < ARRAY_LENGTH (this->dataSet)) {
-      DEBUG << "adding";
       this->mTitles.append ("");
    }
    while (this->mTitles.count () > ARRAY_LENGTH (this->dataSet)) {
-      DEBUG << "removing";
       this->mTitles.removeLast ();
    }
 
