@@ -100,7 +100,10 @@ class QEPLUGINLIBRARYSHARED_EXPORT QETable : public QEAbstractWidget {
    ///
    Q_PROPERTY (QString variableSubstitutions READ getSubstitutions WRITE setSubstitutions)
 
-   /// Allows specification of tables titles.
+   /// Allows specification of tables titles. If blank, the default, then out-of-the-box
+   /// QTableWidget heading are used, i.e. 1, 2, etc.  If "<>" is specified, then this is
+   /// replaced by the PV name. This is particulary useful when PV na,es are specifed
+   /// dynamically or by substitution.
    ///
    Q_PROPERTY (QStringList titles            READ getTitles        WRITE setTitles)
 
