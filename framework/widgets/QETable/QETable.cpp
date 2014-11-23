@@ -26,6 +26,8 @@
 
 #include <QColor>
 #include <QDebug>
+#include <QTimer>
+
 #include <QECommon.h>
 #include <QEFloating.h>
 #include <QHeaderView>
@@ -240,8 +242,10 @@ QETable::QETable (QWidget* parent) : QEAbstractWidget (parent)
    this->displayMaximum = 0x1000;
    this->mTitles.clear ();
    this->selection = NULL_SELECTION;
-   this->emitSelectionChangeInhibited = false;
-   this->emitPvNameSetChangeInhibited = false;
+   this->selectionChangeInhibited = false;
+   this->pvNameSetChangeInhibited = false;
+   this->titlesChangeInhibited = false;
+
    this->columnWidthMinimum = 80;
    this->orientation = Qt::Vertical;
    this->setNumVariables (ARRAY_LENGTH (this->dataSet));
@@ -276,6 +280,19 @@ QETable::QETable (QWidget* parent) : QEAbstractWidget (parent)
    QObject::connect (this->table, SIGNAL (currentCellChanged (int, int, int, int)),
                      this,        SLOT   (currentCellChanged (int, int, int, int)));
 
+   // Post construction we need to resize the columns.
+   // Allow 80 mSec - empirically 60 mSec seemed enough.
+   // Do a second event at 200 just in case.
+   //
+   QTimer::singleShot (80,  this, SLOT (postConstruction ()));
+   QTimer::singleShot (200, this, SLOT (postConstruction ()));
+}
+
+//------------------------------------------------------------------------------
+//
+void QETable::postConstruction ()
+{
+   this->resizeCoulumns ();
 }
 
 //---------------------------------------------------------------------------------
@@ -359,9 +376,13 @@ void QETable::activated ()
 {
    // This prevents infinite looping in the case of cyclic connections.
    //
-   if (!this->emitPvNameSetChangeInhibited) {
-      emit this->pvNameSetChanged (this->getPvNameSet ());
-   }
+   this->pvNameSetChangeInhibited = true;
+   emit this->pvNameSetChanged (this->getPvNameSet ());
+   this->pvNameSetChangeInhibited = false;
+
+   this->titlesChangeInhibited = true;
+   emit this->titlesChanged (this->getTitles ());
+   this->titlesChangeInhibited = false;
 }
 
 //------------------------------------------------------------------------------
@@ -485,9 +506,9 @@ void QETable::setNewVariableName (QString variableName,
 
    // This prevents infinite looping in the case of cyclic connections.
    //
-   if (!this->emitPvNameSetChangeInhibited) {
-      emit this->pvNameSetChanged (this->getPvNameSet ());
-   }
+   this->pvNameSetChangeInhibited = true;
+   emit this->pvNameSetChanged (this->getPvNameSet ());
+   this->pvNameSetChangeInhibited = false;
 }
 
 //---------------------------------------------------------------------------------
@@ -500,22 +521,25 @@ void QETable::currentCellChanged (int currentRow, int currentCol, int, int)
 
    // This prevents infinite looping in the case of cyclic connections.
    //
-   if (!this->emitSelectionChangeInhibited) {
-      emit this->selectionChanged (this->selection);
-   }
+   this->selectionChangeInhibited = true;
+   emit this->selectionChanged (this->selection);
+   this->selectionChangeInhibited = false;
 }
 
 //------------------------------------------------------------------------------
 //
 void QETable::setSelection (int selectionIn)
 {
+   // Guard against circular signal-slot connections.
+   //
+   if (this->selectionChangeInhibited) return;
+
    // A negative selection means no selection
    //
    if (selectionIn < 0) selectionIn = NULL_SELECTION;
    if (this->selection != selectionIn) {
       this->selection = selectionIn;
 
-      this->emitSelectionChangeInhibited = true;
       if (selectionIn >= 0) {
          if (this->isVertical ()) {
             this->table->selectRow (selectionIn);
@@ -525,7 +549,6 @@ void QETable::setSelection (int selectionIn)
       } else {
          this->table->clearSelection ();
       }
-      this->emitSelectionChangeInhibited = false;
    }
 }
 
@@ -540,14 +563,14 @@ int QETable::getSelection () const {
 //
 void QETable::setPvNameSet (const QStringList& pvNameSet)
 {
-   this->emitPvNameSetChangeInhibited = true;
+   // Guard against circular signal-slot connections.
+   //
+   if (this->pvNameSetChangeInhibited) return;
 
    for (int slot = 0; slot < ARRAY_LENGTH (this->dataSet); slot++) {
       QString pvName = pvNameSet.value (slot, "");
       this->setNewVariableName (pvName, "", slot);
    }
-
-   this->emitPvNameSetChangeInhibited = false;
 }
 
 //------------------------------------------------------------------------------
@@ -566,7 +589,6 @@ QStringList QETable::getPvNameSet () const
 
    return result;
 }
-
 
 //==============================================================================
 // Properties
@@ -610,6 +632,10 @@ QString QETable::getSubstitutions () const
 //
 void QETable::setTitles (const QStringList& titlesIn)
 {
+   // Guard against circular signal-slot connections.
+   //
+   if (this->titlesChangeInhibited) return;
+
    this->mTitles = titlesIn;
 
    // Pad/truncate as required.
@@ -622,6 +648,10 @@ void QETable::setTitles (const QStringList& titlesIn)
    }
 
    this->rePopulateTable ();
+
+   this->titlesChangeInhibited = true;
+   emit this->titlesChanged (this->getTitles ());
+   this->titlesChangeInhibited = false;
 }
 
 //------------------------------------------------------------------------------
@@ -633,12 +663,29 @@ QStringList QETable::getTitles () const
 
 //------------------------------------------------------------------------------
 //
-void QETable::setTitle (const QString& title, const int position)
+void QETable::setTitle (const int position, const QString& title)
 {
+   // Guard against circular signal-slot connections.
+   //
+   if (this->titlesChangeInhibited) return;
+
    if ((position >= 0) && (position < ARRAY_LENGTH (this->dataSet))) {
       this->mTitles.replace (position, title);
       this->rePopulateTable ();
+
+      this->titlesChangeInhibited = true;
+      emit this->titlesChanged (this->getTitles ());
+      this->titlesChangeInhibited = false;
+
    }
+}
+
+//------------------------------------------------------------------------------
+//
+void QETable::setTableEntry (const int slot, const QString& pvName, const QString& title)
+{
+    this->setVariableName (slot, pvName);
+    this->setTitle (slot, title);
 }
 
 //------------------------------------------------------------------------------
