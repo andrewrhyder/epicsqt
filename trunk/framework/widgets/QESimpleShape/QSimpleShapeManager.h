@@ -1,4 +1,5 @@
-/*
+/*  QSimpleShapeManager.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -14,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2013,2014
+ *  Copyright (c) 2014
  *
  *  Author:
  *    Andrew Starritt
@@ -22,10 +23,19 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-#include <QESimpleShapeManager.h>
-#include <QESimpleShape.h>
+#ifndef Q_SIMPLE_SHAPE_MANAGER_H
+#define Q_SIMPLE_SHAPE_MANAGER_H
 
-QE_IMPLEMENT_PLUGIN_MANAGER
-   (QESimpleShape, "EPICSQt Monitors", ":/qe/simpleshape/QESimpleShape.png", false)
+#include <QDesignerCustomWidgetInterface>
+#include <QEPluginLibrary_global.h>
+#include <QEDesignerPluginCommon.h>
 
-// end
+
+class QEPLUGINLIBRARYSHARED_EXPORT QSimpleShapeManager : public QObject, public QDesignerCustomWidgetInterface {
+   Q_OBJECT
+   Q_INTERFACES(QDesignerCustomWidgetInterface)
+
+   QE_DECLARE_PLUGIN_MANAGER (QSimpleShape)
+};
+
+#endif // Q_SIMPLE_SHAPE_MANAGER_H

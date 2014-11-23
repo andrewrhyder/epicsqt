@@ -14,7 +14,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2013,2014
+ *  Copyright (c) 2014
  *
  *  Author:
  *    Andrew Starritt
@@ -22,10 +22,11 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-#include <QESimpleShapeManager.h>
-#include <QESimpleShape.h>
+#include <QSimpleShapeManager.h>
+#include <QSimpleShape.h>
 
 QE_IMPLEMENT_PLUGIN_MANAGER
-   (QESimpleShape, "EPICSQt Monitors", ":/qe/simpleshape/QESimpleShape.png", false)
+   (QSimpleShape, "EPICSQt Tools", ":/qe/simpleshape/QSimpleShape.png", false)
+
 
 // end
