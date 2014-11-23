@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2013
+ *  Copyright (c) 2013, 2014
  *
  *  Author:
  *    Andrew Starritt
@@ -23,36 +23,19 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-#ifndef QESIMPLESHAPEMANAGER_H
-#define QESIMPLESHAPEMANAGER_H
+#ifndef QE_SIMPLE_SHAPE_MANAGER_H
+#define QE_SIMPLE_SHAPE_MANAGER_H
 
 #include <QDesignerCustomWidgetInterface>
 #include <QEPluginLibrary_global.h>
+#include <QEDesignerPluginCommon.h>
 
-/*
-    ???
-*/
 class QEPLUGINLIBRARYSHARED_EXPORT QESimpleShapeManager : public QObject, public QDesignerCustomWidgetInterface {
-    Q_OBJECT
-    Q_INTERFACES(QDesignerCustomWidgetInterface)
+   Q_OBJECT
+   Q_INTERFACES(QDesignerCustomWidgetInterface)
 
-public:
-    QESimpleShapeManager( QObject *parent = 0 );
+   QE_DECLARE_PLUGIN_MANAGER (QESimpleShape)
 
-    bool isContainer() const;
-    bool isInitialized() const;
-    QIcon icon() const;
-    //QString domXml() const;
-    QString group() const;
-    QString includeFile() const;
-    QString name() const;
-    QString toolTip() const;
-    QString whatsThis() const;
-    QWidget *createWidget( QWidget *parent );
-    void initialize( QDesignerFormEditorInterface *core );
-
-private:
-    bool initialized;
 };
 
-#endif // QESIMPLESHAPEMANAGER_H
+#endif // QE_SIMPLE_SHAPE_MANAGER_H
