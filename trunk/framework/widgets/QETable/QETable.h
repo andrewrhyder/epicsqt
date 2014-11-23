@@ -144,7 +144,9 @@ public:
 
    // Single function for all set/get PV properties.
    //
+public slots:
    void    setVariableName (const int, const QString&);
+public:
    QString getVariableName (const int) const;
 
    void setSubstitutions (const QString& substitutions);
@@ -199,7 +201,7 @@ public slots:
    // Sets PV col/row titles.
    //
    void setTitles (const QStringList& titles);
-   void setTitle (const QString& title, const int position);
+   void setTitle (const int slot, const QString& title);
 
    // Selects row/col depending on orientation vertical/horizontal.
    //
@@ -209,6 +211,10 @@ public slots:
    //
    void setPvNameSet (const QStringList& pvNameSet);
 
+   // Set PV and title.
+   //
+   void setTableEntry (const int slot, const QString& pvName, const QString& title);
+
 public:
    QStringList getTitles () const;
    int getSelection () const;
@@ -217,6 +223,7 @@ public:
 signals:
    void selectionChanged (int value);
    void pvNameSetChanged (const QStringList& pvNameSet);
+   void titlesChanged (const QStringList& pvNameSet);
 
    // Note, the following signals are common to many QE widgets,
    // if changing the doxygen comments, ensure relevent changes are migrated to all instances
@@ -271,8 +278,9 @@ private:
    QEFloatingFormatting floatingFormatting;
    int selection;
    int columnWidthMinimum;
-   bool emitSelectionChangeInhibited;
-   bool emitPvNameSetChangeInhibited;
+   bool selectionChangeInhibited;
+   bool pvNameSetChangeInhibited;
+   bool titlesChangeInhibited;
 
    QStringList mTitles;
 
@@ -291,6 +299,7 @@ private:
       QCaAlarmInfo alarmInfo;
 
       QString pvName;
+      QString title;
       QCaVariableNamePropertyManager variableNameManager;
       bool isConnected;
 
@@ -316,6 +325,8 @@ private slots:
 
    void currentCellChanged (int currentRow,  int currentCol,
                             int previousRow, int previousCol);
+
+   void postConstruction ();
 };
 
 #endif // QE_TABLE_H
