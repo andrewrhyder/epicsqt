@@ -561,7 +561,8 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
    this->selectedDataSet = 0;
    this->crosshairIndex = -1;
    this->crosshairsAreRequired = false;
-   this->emitPvNameSetChangeInhibited = false;
+   this->pvNameSetChangeInhibited = false;
+   this->alaisSetChangeInhibited = false;
 
    this->setAllowDrop (false);
    this->setDisplayAlarmState (false);
@@ -729,9 +730,9 @@ void QEPlotter::setNewVariableName (QString variableName,
 
    // This prevents infinite looping in the case of cyclic connections.
    //
-   if (!this->emitPvNameSetChangeInhibited) {
-      emit this->pvDataNameSetChanged (this->getDataPvNameSet ());
-   }
+   this->pvNameSetChangeInhibited = true;
+   emit this->pvDataNameSetChanged (this->getDataPvNameSet ());
+   this->pvNameSetChangeInhibited = false;
 }
 
 //------------------------------------------------------------------------------
@@ -834,11 +835,15 @@ void QEPlotter::establishConnection (unsigned int variableIndex)
 //
 void QEPlotter::activated ()
 {
-   // This prevents infinite looping in the case of cyclic connections.
+   // This prevents infinite looping in the case of cyclic signal-slot connections.
    //
-   if (!this->emitPvNameSetChangeInhibited) {
-      emit this->pvDataNameSetChanged (this->getDataPvNameSet ());
-   }
+   this->pvNameSetChangeInhibited  = true;
+   emit this->pvDataNameSetChanged (this->getDataPvNameSet ());
+   this->pvNameSetChangeInhibited  = false;
+
+   this->alaisSetChangeInhibited = true;
+   emit this->alaisNameSetChanged (this->getAliasNameSet ());
+   this->alaisSetChangeInhibited = false;
 }
 
 //------------------------------------------------------------------------------
@@ -1588,15 +1593,15 @@ void QEPlotter::crosshairsMove (const QPointF& posn)
 //
 void QEPlotter::setDataPvNameSet (const QStringList& pvNameSet)
 {
-   this->emitPvNameSetChangeInhibited = true;
-
-   for (int slot = 0; slot < ARRAY_LENGTH (this->xy); slot++) {
-      QString pvName = pvNameSet.value (slot, "");
-      this->setNewVariableName (pvName, "", 2*slot + 0);
-      this->setNewVariableName ("",     "", 2*slot + 1);
+   // Stop infinite signal slot loops.
+   //
+   if (!this->pvNameSetChangeInhibited) {
+      for (int slot = 0; slot < ARRAY_LENGTH (this->xy); slot++) {
+         QString pvName = pvNameSet.value (slot, "");
+         this->setNewVariableName (pvName, "", 2*slot + 0);
+         this->setNewVariableName ("",     "", 2*slot + 1);
+      }
    }
-
-   this->emitPvNameSetChangeInhibited = false;
 }
 
 //------------------------------------------------------------------------------
@@ -1607,15 +1612,49 @@ QStringList QEPlotter::getDataPvNameSet () const
 
    for (int slot = 0; slot < ARRAY_LENGTH (this->xy); slot++) {
       QString pvName = this->getXYExpandedDataPV (slot);
-
-      if (!pvName.isEmpty()) {
-         result.append (pvName);
-      }
+      result.append (pvName);
    }
 
    return result;
 }
 
+
+//------------------------------------------------------------------------------
+// slot
+//
+void QEPlotter::setAliasNameSet (const QStringList& aliasNameSet)
+{
+   // Stop infinite signal slot loops.
+   //
+   if (!this->alaisSetChangeInhibited) {
+      for (int slot = 0; slot < ARRAY_LENGTH (this->xy); slot++) {
+         QString alias = aliasNameSet.value (slot, "");
+         this->setXYAlias (slot, alias);
+      }
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+QStringList QEPlotter::getAliasNameSet () const
+{
+   QStringList result;
+
+   for (int slot = 0; slot < ARRAY_LENGTH (this->xy); slot++) {
+      QString alias = this->getXYAlias (slot);
+      result.append (alias);
+   }
+
+   return result;
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPlotter::setPlotterEntry (const int slot, const QString& pvName, const QString& alias)
+{
+   this->setXYDataPV (slot, pvName);
+   this->setXYAlias (slot, alias);
+}
 
 //------------------------------------------------------------------------------
 //
@@ -2606,6 +2645,12 @@ void QEPlotter::setXYAlias (const int slot, const QString& aliasName)
    SLOT_CHECK (slot,);
    this->xy[slot].aliasName = aliasName;
    this->updateLabel (slot);
+
+   // Set guard to avoid signal slot loops.
+   //
+   this->alaisSetChangeInhibited = true;
+   emit this->alaisNameSetChanged (this->getAliasNameSet ());
+   this->alaisSetChangeInhibited = false;
 }
 
 //------------------------------------------------------------------------------
