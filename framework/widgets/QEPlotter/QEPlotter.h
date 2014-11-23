@@ -157,6 +157,11 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPlotter : public QEFrame {
    Q_PROPERTY (QColor  ColourO         READ getColourO  WRITE setColourO)
    // There is no P colour. It is fixed as black (or white for reverse video).
 
+
+   /// Allows specification of alias as a 'single property', which is also a slot.
+   ///
+   Q_PROPERTY (QStringList aliasNames  READ getAliasNameSet  WRITE setAliasNameSet)
+
 public:
    explicit QEPlotter (QWidget *parent = 0);
    ~QEPlotter();
@@ -166,17 +171,21 @@ public:
 
    // Single function for all 'Data Set' properties.
    //
-   void    setXYDataPV (const int, const QString&);
-   QString getXYDataPV (const int) const;
+public slots:
+   void    setXYDataPV (const int slot, const QString& pvName);
+public:
+   QString getXYDataPV (const int slot) const;
 
-   void    setXYSizePV (const int, const QString&);
-   QString getXYSizePV (const int) const;
+   void    setXYSizePV (const int slot, const QString& pvName);
+   QString getXYSizePV (const int slot) const;
 
-   void    setXYAlias (const int, const QString&);
-   QString getXYAlias (const int) const;
+public slots:
+   void    setXYAlias (const int slot, const QString& alias);
+public:
+   QString getXYAlias (const int slot) const;
 
-   void   setXYColour (const int, const QColor&);
-   QColor getXYColour (const int) const;
+   void   setXYColour (const int slot, const QColor& colour);
+   QColor getXYColour (const int slot) const;
 
    void setEnableConextMenu (bool enable);
    bool getEnableConextMenu () const;
@@ -219,12 +228,19 @@ signals:
    //
 public slots:
    void setDataPvNameSet (const QStringList& pvNameSet);
+   void setAliasNameSet (const QStringList& aliasNameSet);
+
+   // Set Data PV and alias.
+   //
+   void setPlotterEntry (const int slot, const QString& pvName, const QString& alias);
 
 public:
    QStringList getDataPvNameSet () const;
+   QStringList getAliasNameSet () const;
 
 signals:
    void pvDataNameSetChanged (const QStringList& nameSet);
+   void alaisNameSetChanged (const QStringList& nameSet);
 
    // Signal to 'launch a GUI'
    //
@@ -317,7 +333,8 @@ private:
    int  crosshairIndex;
    bool crosshairsAreRequired;  // controls both plotting and signal emmisions
    bool replotIsRequired;
-   bool emitPvNameSetChangeInhibited;
+   bool pvNameSetChangeInhibited;
+   bool alaisSetChangeInhibited;
    QEIntegerFormatting  integerFormatting;
    QEFloatingFormatting floatingFormatting;
 
