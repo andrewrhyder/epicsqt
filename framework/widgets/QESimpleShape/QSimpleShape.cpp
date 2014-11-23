@@ -116,13 +116,10 @@ void QSimpleShape::paintEvent (QPaintEvent*)
    int x0, x1, x2;
    int y0, y1, y2;
 
-   // Are we in an invalide state?
+   // Are we in a valid state?
    //
    if (this->getIsValid ()) {
-      colour = this->getInvalidColour ();
-
-   } else {
-      // Get current value -  constrained 0 .. 15
+      // Yes - get current value -  constrained 0 .. 15
       //
       const int mv = this->getValue ();
 
@@ -133,6 +130,11 @@ void QSimpleShape::paintEvent (QPaintEvent*)
       if (this->flashList [mv] && !this->flashStateIsOn) {
          colour = this->flashOffColour;
       }
+
+   } else {
+      // No - go with the invalid colour.
+      //
+      colour = this->getInvalidColour ();
    }
 
    boarderColour = this->getEdgeColour ();
