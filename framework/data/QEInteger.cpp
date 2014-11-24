@@ -75,6 +75,12 @@ void QEInteger::convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo, 
     else
     {
         emit integerChanged( integerFormat->formatInteger( value ), alarmInfo, timeStamp, variableIndex );
+
+        // A scalar is also an array of one element.
+        //
+        QVariantList array;
+        array.append (value);
+        emit integerArrayChanged( integerFormat->formatIntegerArray( array ), alarmInfo, timeStamp, variableIndex );
     }
 }
 

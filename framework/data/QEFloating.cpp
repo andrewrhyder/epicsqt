@@ -85,6 +85,12 @@ void QEFloating::convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo,
     else
     {
         emit floatingChanged( floatingFormat->formatFloating( value ), alarmInfo, timeStamp, variableIndex );
+
+        // A scalar is also an array of one element.
+        //
+        QVariantList array;
+        array.append (value);
+        emit floatingArrayChanged( floatingFormat->formatFloatingArray( array ), alarmInfo, timeStamp, variableIndex );
     }
 }
 
