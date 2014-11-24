@@ -29,10 +29,13 @@
 #include <QPushButton>
 #include <QWidget>
 
+#include <QECommon.h>
 #include "QEPvLoadSave.h"
 #include "QEPvLoadSaveItem.h"
 
 #define DEBUG  qDebug () << "QEPvLoadSaveItem::" << __FUNCTION__ << ":" << __LINE__
+
+static const QVariant nilValue (QVariant::Invalid);
 
 //=============================================================================
 //
@@ -441,6 +444,161 @@ void QEPvLoadSaveItem::appendChild (QEPvLoadSaveItem *child)
    // Ensure consistency
    //
    child->parentItem = this;
+}
+
+
+//=============================================================================
+// Sub class for group/leaf
+//=============================================================================
+//
+QEPvLoadSaveGroup::QEPvLoadSaveGroup (const QString& groupName,
+                                      QEPvLoadSaveItem* parent) :
+   QEPvLoadSaveItem (groupName, false, nilValue, parent)
+{
+   // place holder
+}
+
+//-----------------------------------------------------------------------------
+//
+QEPvLoadSaveGroup::~QEPvLoadSaveGroup ()
+{
+   // place holder
+}
+
+
+//=============================================================================
+// Sub class for group/leaf
+//=============================================================================
+//
+QEPvLoadSaveLeaf::QEPvLoadSaveLeaf (const QString& setPointPvNameIn,
+                                    const QString& readBackPvNameIn,
+                                    const QString& archiverPvNameIn,
+                                    const QVariant& value,
+                                    QEPvLoadSaveItem* parent) :
+   QEPvLoadSaveItem (setPointPvNameIn, true, value, parent)
+{
+   QString aggragateName;
+
+   this->setPointPvName = setPointPvNameIn;
+   this->readBackPvName = readBackPvNameIn.isEmpty () ? this->setPointPvName  : readBackPvNameIn;
+   this->archiverPvName = archiverPvNameIn.isEmpty () ? this->setPointPvName  : archiverPvNameIn;
+
+   aggragateName = this->calcNodeName ();
+   this->setNodeName (aggragateName);
+}
+
+//-----------------------------------------------------------------------------
+//
+QEPvLoadSaveLeaf::~QEPvLoadSaveLeaf ()
+{
+   // place holder
+}
+
+//-----------------------------------------------------------------------------
+//
+void QEPvLoadSaveLeaf::setSetPointPvName (const QString& pvName)
+{
+   this->setPointPvName = pvName;
+}
+
+//-----------------------------------------------------------------------------
+//
+QString QEPvLoadSaveLeaf::getSetPointPvName () const
+{
+   return this->readBackPvName;
+}
+
+//-----------------------------------------------------------------------------
+//
+void QEPvLoadSaveLeaf::setReadBackPvName (const QString& pvName)
+{
+   this->archiverPvName = pvName;
+}
+
+//-----------------------------------------------------------------------------
+//
+QString QEPvLoadSaveLeaf::getReadBackPvName () const
+{
+   return this->archiverPvName;
+}
+
+//-----------------------------------------------------------------------------
+//
+void QEPvLoadSaveLeaf::setArchiverPvName (const QString& pvName)
+{
+   this->archiverPvName = pvName;
+}
+
+//-----------------------------------------------------------------------------
+//
+QString QEPvLoadSaveLeaf::getArchiverPvName () const
+{
+   return this->archiverPvName;
+}
+
+//-----------------------------------------------------------------------------
+// Calcultes a displayable node name.
+//
+QString QEPvLoadSaveLeaf::calcNodeName () const
+{
+   QString result;
+
+   if ((this->setPointPvName == this->readBackPvName) &&
+       (this->readBackPvName == this->archiverPvName)) {
+      // All three names are the same - just use as is.
+      //
+      result = setPointPvName;
+
+   } else {
+      int n =  MIN (MIN (this->setPointPvName.length (),
+                         this->readBackPvName.length ()),
+                         this->archiverPvName.length ());
+
+      // Find the common, i.e. shared, prefix part of the three PV names.
+      //
+      int common = 0;
+      for (int j = 1; j <= n; j++) {
+         if (this->setPointPvName.left (j) != this->readBackPvName.left (j) ||
+             this->setPointPvName.left (j) != this->archiverPvName.left (j)) break;
+         common = j;
+      }
+
+      result = this->setPointPvName.left (common);
+
+      // Extract w, r and a, the PV name specific suffixes.
+      // Note: setPointPvName == result + w etc.
+      //
+      QString label  [3] = { "w", "r", "a" };
+      QString suffix [3];
+
+      suffix [0] = this->setPointPvName.right (this->setPointPvName.length() - common);
+      suffix [1] = this->readBackPvName.right (this->readBackPvName.length() - common);
+      suffix [2] = this->archiverPvName.right (this->archiverPvName.length() - common);
+
+      // Check for two suffix being equal.
+      //
+      for (int i = 0; i < 2; i++) {
+         for (int j = i + 1; j < 3; j++) {
+            if (suffix [i] == suffix [j]) {
+               // merge
+               //
+               label [i].append (label [j]);
+               label [j] = "";
+               suffix [j] = "";
+            }
+         }
+      }
+
+      result.append ("{");
+      for (int i = 0; i < 2; i++) {
+         if (!suffix [i].isEmpty ()) {
+            result.append (label [i]).append(":").append (suffix [i]).append(";");
+         }
+      }
+      result.append ("}");
+   }
+
+   return result;
 }
 
 // end
