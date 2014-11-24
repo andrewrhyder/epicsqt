@@ -163,4 +163,50 @@ private slots:
    void setArchiveData (const QObject* userData, const bool okay, const QCaDataPointList& archiveData);
 };
 
+
+//------------------------------------------------------------------------------
+// Sub class for group
+//
+class QEPvLoadSaveGroup : public QEPvLoadSaveItem {
+   Q_OBJECT
+public:
+   explicit QEPvLoadSaveGroup (const QString& groupName,
+                               QEPvLoadSaveItem* parent = 0);
+   ~QEPvLoadSaveGroup ();
+};
+
+
+//------------------------------------------------------------------------------
+// Sub class for PV leaf
+//
+class QEPvLoadSaveLeaf : public QEPvLoadSaveItem {
+   Q_OBJECT
+public:
+   explicit QEPvLoadSaveLeaf (const QString& setPointPvName,
+                              const QString& readBackPvName,    // "" implies setPointPvName
+                              const QString& archiverPvName,    // "" implies setPointPvName
+                              const QVariant& value,            // initial value
+                              QEPvLoadSaveItem* parent = 0);
+   ~QEPvLoadSaveLeaf ();
+
+   void setSetPointPvName (const QString& pvName);
+   QString getSetPointPvName () const;
+
+   void setReadBackPvName (const QString& pvName);  // "" implies setPointPvName
+   QString getReadBackPvName () const;
+
+   void setArchiverPvName (const QString& pvName);  // "" implies setPointPvName
+   QString getArchiverPvName () const;
+
+private:
+   // Merges three PV names into a single node name.
+   //
+   QString calcNodeName () const;
+
+   QString setPointPvName;
+   QString readBackPvName;
+   QString archiverPvName;
+};
+
+
 #endif    // QEPVLOADSAVEITEM_H
