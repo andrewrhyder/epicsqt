@@ -282,8 +282,6 @@ private:
    bool pvNameSetChangeInhibited;
    bool titlesChangeInhibited;
 
-   QStringList mTitles;
-
    // Per PV data.
    //
    class DataSets {
