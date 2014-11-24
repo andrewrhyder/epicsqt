@@ -47,6 +47,7 @@
 QETable::DataSets::DataSets ()
 {
    this->pvName = "";
+   this->title = "";
    this->isConnected = false;
    this->owner = NULL;
    this->slot = -1;
@@ -106,7 +107,7 @@ void QETable::DataSets::rePopulateTable ()
    // Extract the title for this row/col.
    // If null, just use the index.
    //
-   titleText = this->owner->mTitles.value (index, "").trimmed ();
+   titleText = this->title;
    if (titleText.isEmpty()) {
       titleText.setNum (index + 1);
    } else if (titleText == "<>") {
@@ -240,7 +241,6 @@ QETable::QETable (QWidget* parent) : QEAbstractWidget (parent)
    // Set default property values
    //
    this->displayMaximum = 0x1000;
-   this->mTitles.clear ();
    this->selection = NULL_SELECTION;
    this->selectionChangeInhibited = false;
    this->pvNameSetChangeInhibited = false;
@@ -582,9 +582,7 @@ QStringList QETable::getPvNameSet () const
    result.clear ();
    for (int slot = 0; slot < ARRAY_LENGTH (this->dataSet); slot++) {
       QString pvName = this->getSubstitutedVariableName (slot);
-      if (!pvName.isEmpty()) {
-         result.append (pvName);
-      }
+      result.append (pvName);
    }
 
    return result;
@@ -636,15 +634,9 @@ void QETable::setTitles (const QStringList& titlesIn)
    //
    if (this->titlesChangeInhibited) return;
 
-   this->mTitles = titlesIn;
-
-   // Pad/truncate as required.
-   //
-   while (this->mTitles.count () < ARRAY_LENGTH (this->dataSet)) {
-      this->mTitles.append ("");
-   }
-   while (this->mTitles.count () > ARRAY_LENGTH (this->dataSet)) {
-      this->mTitles.removeLast ();
+   for (int slot = 0; slot < ARRAY_LENGTH (this->dataSet); slot++) {
+      QString title = titlesIn.value (slot, "");
+      this->dataSet->title = title;
    }
 
    this->rePopulateTable ();
@@ -658,34 +650,43 @@ void QETable::setTitles (const QStringList& titlesIn)
 //
 QStringList QETable::getTitles () const
 {
-   return this->mTitles;
+   QStringList result;
+
+   result.clear ();
+   for (int slot = 0; slot < ARRAY_LENGTH (this->dataSet); slot++) {
+      QString title = this->dataSet [slot].title;
+      result.append (title);
+   }
+
+   return result;
 }
 
 //------------------------------------------------------------------------------
 //
-void QETable::setTitle (const int position, const QString& title)
+void QETable::setTitle (const int slot, const QString& title)
 {
+   SLOT_CHECK (slot,);
+
    // Guard against circular signal-slot connections.
    //
    if (this->titlesChangeInhibited) return;
 
-   if ((position >= 0) && (position < ARRAY_LENGTH (this->dataSet))) {
-      this->mTitles.replace (position, title);
-      this->rePopulateTable ();
+   this->dataSet [slot].title = title;
+   this->rePopulateTable ();
 
-      this->titlesChangeInhibited = true;
-      emit this->titlesChanged (this->getTitles ());
-      this->titlesChangeInhibited = false;
-
-   }
+   this->titlesChangeInhibited = true;
+   emit this->titlesChanged (this->getTitles ());
+   this->titlesChangeInhibited = false;
 }
 
 //------------------------------------------------------------------------------
 //
 void QETable::setTableEntry (const int slot, const QString& pvName, const QString& title)
 {
-    this->setVariableName (slot, pvName);
-    this->setTitle (slot, title);
+   SLOT_CHECK (slot,);
+
+   this->setVariableName (slot, pvName);
+   this->setTitle (slot, title);
 }
 
 //------------------------------------------------------------------------------
