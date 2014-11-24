@@ -1652,6 +1652,8 @@ QStringList QEPlotter::getAliasNameSet () const
 //
 void QEPlotter::setPlotterEntry (const int slot, const QString& pvName, const QString& alias)
 {
+   SLOT_CHECK (slot,);
+
    this->setXYDataPV (slot, pvName);
    this->setXYAlias (slot, alias);
 }
