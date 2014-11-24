@@ -636,7 +636,7 @@ void QETable::setTitles (const QStringList& titlesIn)
 
    for (int slot = 0; slot < ARRAY_LENGTH (this->dataSet); slot++) {
       QString title = titlesIn.value (slot, "");
-      this->dataSet->title = title;
+      this->dataSet [slot].title = title;
    }
 
    this->rePopulateTable ();
