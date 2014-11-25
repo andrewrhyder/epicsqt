@@ -27,7 +27,6 @@
 #define QE_SIMPLE_SHAPE_H
 
 #include <QString>
-#include <QVector>
 
 #include <QCaObject.h>
 #include <QCaVariableNamePropertyManager.h>
@@ -333,11 +332,6 @@ private slots:
                             const unsigned int& variableIndex);
 
     void setShapeValue (const long& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int&);
-
-    // Just in case hooked up to an array PV.
-    //
-    void setShapeValues (const QVector<long>& values, QCaAlarmInfo&,
-                         QCaDateTime&, const unsigned int&);
 
     void useNewVariableNameProperty (QString variableNameIn,
                                      QString variableNameSubstitutionsIn,

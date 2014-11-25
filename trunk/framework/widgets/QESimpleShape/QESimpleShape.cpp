@@ -512,9 +512,6 @@ void QESimpleShape::establishConnection (unsigned int variableIndex)
       QObject::connect (qca,  SIGNAL (integerChanged (const long &, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)),
                         this, SLOT   (setShapeValue  (const long &, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)));
 
-      QObject::connect (qca,  SIGNAL (integerArrayChanged (const QVector < long >&, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)),
-                        this, SLOT   (setShapeValues      (const QVector < long >&, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)));
-
       QObject::connect (qca,  SIGNAL (connectionChanged (QCaConnectionInfo &, const unsigned int &)),
                         this, SLOT   (connectionChanged (QCaConnectionInfo &, const unsigned int &)));
    }
@@ -614,17 +611,6 @@ void QESimpleShape::setTextImage ()
 //
 QString QESimpleShape::getTextImage () {
    return this->textImage;
-}
-
-//------------------------------------------------------------------------------
-// Extract first element (0 index) and use this value.
-//
-void QESimpleShape::setShapeValues (const QVector<long> & values,
-                                    QCaAlarmInfo & alarmInfo, QCaDateTime & dateTime,
-                                    const unsigned int &variableIndex)
-{
-   int slot = 0;
-   this->setShapeValue (values.value (slot), alarmInfo, dateTime, variableIndex);
 }
 
 //------------------------------------------------------------------------------
