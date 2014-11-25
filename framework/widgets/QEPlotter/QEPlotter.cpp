@@ -1611,13 +1611,21 @@ QStringList QEPlotter::getDataPvNameSet () const
    QStringList result;
 
    for (int slot = 0; slot < ARRAY_LENGTH (this->xy); slot++) {
-      QString pvName = this->getXYExpandedDataPV (slot);
+      QString pvName;
+
+      if (this->xy [slot].dataKind == DataPVPlot) {
+      pvName = this->getXYExpandedDataPV (slot);
+      } else {
+         // Either not in use or more importantly CalculationPlot which is
+         // not a PV per se.
+         //
+         pvName = "";
+      }
       result.append (pvName);
    }
 
    return result;
 }
-
 
 //------------------------------------------------------------------------------
 // slot
