@@ -110,6 +110,9 @@ namespace qcaobject {
       QString getFieldType();
       unsigned long getElementCount();  // num elements available on server as oppsoed to num elements actually subscribed for.
 
+      void setArrayIndex( const int index );
+      int getArrayIndex() const;
+
       // Essentially provides same data as the dataChanged signal. The parameter isDefined indicates whether
       // the data is valid, i.e. has been received since the channel last connected.
       void getLastData( bool& isDefined, QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
@@ -123,6 +126,7 @@ namespace qcaobject {
     public slots:
       bool writeData( const QVariant& value );
       void resendLastData();
+
 
     private:
       void initialise( const QString& newRecordName, QObject *newEventHandler, const unsigned int variableIndex,
@@ -166,6 +170,10 @@ namespace qcaobject {
       QByteArray   lastByteArrayValue;
       void*        lastNewData; // Record containing data directly refernced by lastByteArrayValue (actually of type carecord::CaRecord*)
       unsigned long lastDataSize;
+
+      // Index to be used to extact scalar value fron an array.
+      // (Only used by QEInteger/QEFloating so far)
+      int arrayIndex;
 
       // Database information relating to the variable
       QString egu;

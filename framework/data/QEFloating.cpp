@@ -81,6 +81,12 @@ void QEFloating::convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo,
     if( value.type() == QVariant::List )
     {
         emit floatingArrayChanged( floatingFormat->formatFloatingArray( value ), alarmInfo, timeStamp, variableIndex );
+
+        int ai = getArrayIndex();
+        if( ai >= 0 && ai < value.toList().count() ) {
+           // Convert this array element as a scalar update.
+           emit floatingChanged( floatingFormat->formatFloating( value.toList().value( ai ) ), alarmInfo, timeStamp, variableIndex );
+        }
     }
     else
     {
