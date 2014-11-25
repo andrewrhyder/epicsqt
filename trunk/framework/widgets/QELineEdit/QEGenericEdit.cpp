@@ -132,9 +132,12 @@ void QEGenericEdit::setDataIfNoFocus( const QVariant& value, QCaAlarmInfo& alarm
     // This last value is also used to manage notifying user changes (save what the user will be changing from)
     lastValue = value;
 
-    // Update the text if appropriate
-    // If the user is editing the object then updates will be inapropriate
-    if( hasFocus() == false && !messageDialogPresent )
+    // Update the text if appropriate.
+    // If the user is editing the object then updates will be
+    // inapropriate, unless it is the first update and the
+    // user has not started changing the text.
+    if(( !hasFocus() && !messageDialogPresent ) ||
+       (  hasFocus() && !isModified() && isFirstUpdate ))
     {
         setValue( value );
         lastUserValue = value;
@@ -142,6 +145,9 @@ void QEGenericEdit::setDataIfNoFocus( const QVariant& value, QCaAlarmInfo& alarm
 
     // Invoke common alarm handling processing.
     processAlarmInfo( alarmInfo );
+
+    // First (and subsequent) update is now over
+    isFirstUpdate = false;
 }
 
 //------------------------------------------------------------------------------
@@ -369,15 +375,12 @@ bool QEGenericEdit::getIsConnected ()
 }
 
 //------------------------------------------------------------------------------
-// Interrogate if this is first update and clear flag.
+// Return if this is first update.
 //
-bool QEGenericEdit::testAndClearIsFirstUpdate ()
+bool QEGenericEdit::getIsFirstUpdate ()
 {
-    bool result = isFirstUpdate;
-    isFirstUpdate = false;
-    return result;
+    return isFirstUpdate;
 }
-
 
 //==============================================================================
 // Drag drop

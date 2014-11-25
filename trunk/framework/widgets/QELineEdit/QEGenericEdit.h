@@ -283,7 +283,7 @@ protected:
     void setDataIfNoFocus( const QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& dateTime );
 
     bool getIsConnected();
-    bool testAndClearIsFirstUpdate();
+    bool getIsFirstUpdate();
 
     // These abstract functions must provided by derived sub-classes.
     //

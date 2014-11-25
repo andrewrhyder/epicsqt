@@ -210,7 +210,7 @@ void QENumericEdit::setDoubleValue (const double& valueIn, QCaAlarmInfo& alarmIn
 
    // Check first update.
    //
-   this->firstNumericUpdate = this->testAndClearIsFirstUpdate ();
+   this->firstNumericUpdate = this->getIsFirstUpdate ();
    if (this->firstNumericUpdate) {
 
       // Check for auto scale and avoid the segment fault.

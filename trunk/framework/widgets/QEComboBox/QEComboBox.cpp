@@ -167,13 +167,12 @@ void QEComboBox::connectionChanged( QCaConnectionInfo& connectionInfo )
 
 void QEComboBox::setValueIfNoFocus( const long& value,QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
 
-    // If and only iff first update (for this connection) then use enumeration
+    // If and only if first update (for this connection) then use enumeration
     // values to populate the combo box.
     // If not subscribing, there will still be an initial update to get enumeration values.
     //
     if( isFirstUpdate )
     {
-       isFirstUpdate = false;
        setComboBoxText ();
     }
 
@@ -190,9 +189,11 @@ void QEComboBox::setValueIfNoFocus( const long& value,QCaAlarmInfo& alarmInfo, Q
     // Save the last database value
     lastValue = value;
 
-    // Update the text if appropriate
-    // If the user is editing the object then updates will be inapropriate
-    if( hasFocus() == false )
+    // Update the text if appropriate.
+    // If the user is editing the object then updates will be
+    // inapropriate, unless it is the first update.
+// !!It would be best to not update if the user has started interacting with the combo box in a similar way to QELine edit where isModified() is used to restrict updates
+    if( !hasFocus() || isFirstUpdate )
     {
         int index;
 
@@ -215,6 +216,9 @@ void QEComboBox::setValueIfNoFocus( const long& value,QCaAlarmInfo& alarmInfo, Q
 
     // Invoke common alarm handling processing.
     processAlarmInfo( alarmInfo );
+
+    // First (and subsequent) update is now over
+    isFirstUpdate = false;
 }
 
 /*
