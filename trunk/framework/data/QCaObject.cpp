@@ -27,6 +27,7 @@
 #include <QtDebug>
 #include <QByteArray>
 
+#include <QECommon.h>
 #include <CaObjectPrivate.h>
 #include <CaObject.h>
 #include <QCaObject.h>
@@ -68,6 +69,7 @@ void QCaObject::initialise( const QString& newRecordName, QObject *newEventHandl
                             unsigned char signalsToSendIn, priorities priorityIn ) {
 
     // Initialise variables
+    arrayIndex = 0;
     precision = 0;
 
     displayLimitUpper = 0;
@@ -1229,6 +1231,23 @@ QString QCaObject::getFieldType()
 unsigned long QCaObject::getElementCount()
 {
     return caobject::CaObject::getElementCount ();
+}
+
+/*
+  Set nominated array index used to extract a scalar from an array data set.
+  Defaults to zero, i.e. first element.
+ */
+void QCaObject::setArrayIndex( const int indexIn )
+{
+   arrayIndex = MAX( 0, indexIn );
+}
+
+/*
+  Return nominated array index used to extract a scalar from an array data set.
+ */
+int QCaObject::getArrayIndex() const
+{
+    return arrayIndex;
 }
 
 /*
