@@ -45,9 +45,9 @@ QEPvLoadSaveModel::QEPvLoadSaveModel (QTreeView* treeViewIn, QEPvLoadSave* paren
    this->requestedInsertItem = NULL;
 
    // The core item is a QTreeView/QAbstractItemModel artefact
-   // Note this item does not/must not have a parent.
+   // Note: this item does not/must not have a parent.
    // It is a place holder - not visible per se.
-   // Note to be confused withe the user ROOT item.
+   // Note to be confused with the user ROOT item.
    //
    this->coreItem = new QEPvLoadSaveItem ("Core", false, QVariant (QVariant::Invalid), NULL);
    this->heading = "";
