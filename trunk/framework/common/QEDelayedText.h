@@ -63,4 +63,3 @@ private slots:
 };
 
 #endif   // QE_DELAYED_TEXT_H
-

@@ -14,7 +14,7 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2014
+ *  Copyright (c) 2014 Australian Synchrotron
  *
  *  Author:
  *    Andrew Rhyder
@@ -303,4 +303,3 @@ void recording::nextFrameDue()
     // Set the due time for the next frame
     timer->setInterval( ui->doubleSpinBoxPlaybackRate->value() * 1000 );
 }
-

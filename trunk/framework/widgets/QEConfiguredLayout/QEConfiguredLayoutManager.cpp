@@ -14,7 +14,7 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2012
+ *  Copyright (c) 2012 Australian Synchrotron
  *
  *  Author:
  *    Ricardo Fernandes
@@ -148,5 +148,4 @@ QString QEConfiguredLayoutManager::includeFile() const
            " </property>\n"
            "</widget>\n";
 }*/
-
 

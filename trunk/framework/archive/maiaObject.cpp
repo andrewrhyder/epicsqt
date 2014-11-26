@@ -290,4 +290,3 @@ void MaiaObject::parseResponse(QString response, QNetworkReply* reply) {
 	delete this;
 	return;
 }
-

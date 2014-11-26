@@ -14,7 +14,7 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2012
+ *  Copyright (c) 2012 Australian Synchrotron
  *
  *  Author:
  *    Ricardo Fernandes
@@ -319,5 +319,4 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEFileBrowser:public QWidget, public QEWidget
 
 
 #endif // QEFILEBROWSER_H
-
 

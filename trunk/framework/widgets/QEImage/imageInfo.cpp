@@ -14,7 +14,7 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2013
+ *  Copyright (c) 2013 Australian Synchrotron
  *
  *  Author:
  *    Andrew Rhyder
@@ -360,4 +360,3 @@ void imageUpdateIndicator::freshImage()
     // Redraw with new indicator line
     update();
 }
-

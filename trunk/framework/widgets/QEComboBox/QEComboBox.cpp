@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2009, 2010, 2013, 2014
+ *  Copyright (c) 2009, 2010, 2013, 2014 Australian Synchrotron
  *
  *  Author:
  *    Andrew Rhyder

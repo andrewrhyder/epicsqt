@@ -120,4 +120,3 @@ QStringList QEPvNameSearch::getMatchingPvNames (const QString& str,
 }
 
 // end
-

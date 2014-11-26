@@ -1,6 +1,6 @@
 /*  rad_control.cpp
  *
- *  Copyright (c) 2013
+ *  Copyright (c) 2013 Australian Synchrotron
  *
  *  Author:
  *    Andrew Starritt
