@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+ *  Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies). Australian Synchrotron
  *  Contact: http://www.qt-project.org/legal
  *
  *  Copyright (c) Australian Synchrotron 2013

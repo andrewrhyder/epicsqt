@@ -224,4 +224,3 @@ bool QEStripChartStateList::nextAvailable ()
 }
 
 // end
-

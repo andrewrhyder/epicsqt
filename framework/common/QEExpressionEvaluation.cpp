@@ -230,4 +230,3 @@ bool QEExpressionEvaluation::buildMaps (const QString& expression, QString& tran
 }
 
 // end
-

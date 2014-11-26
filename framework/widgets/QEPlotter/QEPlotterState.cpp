@@ -212,4 +212,3 @@ bool QEPlotterStateList::nextAvailable ()
 }
 
 // end
-

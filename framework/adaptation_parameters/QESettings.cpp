@@ -292,4 +292,3 @@ QESettings* QESettings::getConfigurationParameters (const QString & section)
 }
 
 // end
-

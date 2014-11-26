@@ -79,4 +79,3 @@ private:
 };
 
 #endif  // QE_DISPLAY_RANGES_H
-
