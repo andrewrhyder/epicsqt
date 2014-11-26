@@ -82,6 +82,13 @@ public:
     // QESimpleShape specific properties ==============================================
     //
 public:
+    /// Array Index element to display if variable is a waveform. Defaults to 0.
+    ///
+    Q_PROPERTY (int arrayIndex   READ getArrayIndex   WRITE setArrayIndex )
+
+    void setArrayIndex (const int arrayIndexIn);
+    int getArrayIndex () const;
+
     //----------------------------------------------------------------------------------
     //
     enum Shapes { circle, ellipse, rectangle, roundRectangle, roundSquare, square,
@@ -306,6 +313,7 @@ private:
     QColor colourList [16];
     bool   flashList [16];
     bool isStaticValue;   // as opposed to is PV value.
+    int arrayIndex;
     int value;
     bool isConnected;
     bool isFirstUpdate;
@@ -352,8 +360,7 @@ protected:
     void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
     void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
     void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
-    void setDrop( QVariant drop );
-    QVariant getDrop();
+    // Use default QEWidget drag/drop actions.
 
     // Copy paste
     QString copyVariable();

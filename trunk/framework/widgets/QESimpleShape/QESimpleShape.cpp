@@ -69,6 +69,7 @@ void QESimpleShape::setup ()
 
    // This class properties.
    //
+   this->arrayIndex = 0;
    this->value = 0;
    this->shape = rectangle;
    this->textFormat = FixedText;
@@ -482,6 +483,10 @@ qcaobject::QCaObject* QESimpleShape::createQcaItem (unsigned int variableIndex)
          // Assume it is a PV.
          //
          result = new QEInteger (pvName, this, &this->integerFormatting, variableIndex);
+
+         // Apply currently defined array index.
+         //
+         result->setArrayIndex (this->arrayIndex);
       }
 
    } else {
@@ -625,6 +630,27 @@ int QESimpleShape::getValue () const
 int QESimpleShape::getModuloValue () const
 {
    return this->value & 0x0F;
+}
+
+//------------------------------------------------------------------------------
+//
+void QESimpleShape::setArrayIndex (const int arrayIndexIn)
+{
+   this->arrayIndex = MAX (0, arrayIndexIn);
+
+   qcaobject::QCaObject* qca = getQcaItem (0);
+   if (qca) {
+      // Apply to qca object and force update
+      qca->setArrayIndex (this->arrayIndex);
+      qca->resendLastData ();
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+int QESimpleShape::getArrayIndex () const
+{
+   return this->arrayIndex;
 }
 
 //------------------------------------------------------------------------------
@@ -790,25 +816,6 @@ bool QESimpleShape::getFlashProperty (int slot) const
 }
 
 //==============================================================================
-// Drag drop
-//
-void QESimpleShape::setDrop (QVariant drop)
-{
-   this->setVariableName (drop.toString (), 0);
-   this->establishConnection (0);
-}
-
-//------------------------------------------------------------------------------
-//
-QVariant QESimpleShape::getDrop ()
-{
-   if( isDraggingVariable() )
-      return QVariant( this->copyVariable() );
-   else
-      return this->copyData();
-}
-
-//==============================================================================
 // Copy / paste
 //
 QString QESimpleShape::copyVariable ()
@@ -825,10 +832,8 @@ QVariant QESimpleShape::copyData ()
 
 void QESimpleShape::paste (QVariant v)
 {
-   if( getAllowDrop() )
-   {
-      this->setDrop (v);
-   }
+   this->setVariableName (v.toString (), 0);
+   this->establishConnection (0);
 }
 
 // end
