@@ -28,7 +28,7 @@
 #include <QWidget>
 #include <ContainerProfile.h>
 
-class standardProperties
+class  QEPLUGINLIBRARYSHARED_EXPORT standardProperties
 {
 
 public:
