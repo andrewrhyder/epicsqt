@@ -1,7 +1,6 @@
 /*  QSimpleShape.cpp
  *
- *  This file is part of the EPICS QT Framework, initially developed at the
- *  Australian Synchrotron.
+ *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
@@ -42,20 +41,21 @@ QSimpleShape::QSimpleShape (QWidget * parent) : QWidget (parent)
    this->shape = rectangle;
    this->textFormat = FixedText;
    this->fixedText = "";
-   this->isValid = true;
+   this->isActive = true;
    this->edgeWidth = 1;
    this->flashStateIsOn = false;
 
    this->edgeColour     = QColor (0,   0,   0);        // black
    this->flashOffColour = QColor (200, 200, 200,  0);  // clear, alpha = 0
-   this->invalidColour  = QColor (255, 182, 128);      // orangey
 
    this->flashRate = QEScanTimers::Medium;
    QEScanTimers::attach (this, SLOT (flashTimeout (const bool)), this->flashRate);
 
+   this->stateSet.clear ();
    for (int j = 0; j < 16; j++) {
       this->colourList[j] = QColor (200, 200, 200, 255);
       this->flashList [j] = false;
+      this->stateSet.append ("");
    }
 }
 
@@ -116,30 +116,23 @@ void QSimpleShape::paintEvent (QPaintEvent*)
    int x0, x1, x2;
    int y0, y1, y2;
 
-   // Are we in a valid state?
+   // Get basic colour property.
+   // NOTE: This is a dispatching call.
    //
-   if (this->getIsValid ()) {
-      // Yes - get current value -  constrained 0 .. 15
-      //
-      const int mv = this->getValue ();
+   colour = this->getItemColour ();
 
-      colour = this->getColourProperty (mv);
-
-      // flash the colour, but not the boarder.
-      //
-      if (this->flashList [mv] && !this->flashStateIsOn) {
-         colour = this->flashOffColour;
-      }
-
-   } else {
-      // No - go with the invalid colour.
-      //
-      colour = this->getInvalidColour ();
+   // flash the colour, but not the boarder.
+   //
+   const int mv = this->getValue ();
+   if (this->flashList [mv] && !this->flashStateIsOn) {
+      colour = this->flashOffColour;
    }
 
    boarderColour = this->getEdgeColour ();
 
-   washedOut = !this->isEnabled ();
+   // Draw as grayed out if disabled or inactive.
+   //
+   washedOut = !(this->isEnabled () && this->getIsActive());
    if (washedOut) {
       // Disconnected or disabled - grey out colours.
       //
@@ -284,7 +277,7 @@ void QSimpleShape::paintEvent (QPaintEvent*)
          polygon[5] = QPoint (x1, y0);
          polygon[6] = QPoint (rect.left (), y0);
          polygon[7] = polygon[0];       // close loop
-         painter.drawPolygon (polygon, 7);
+         painter.drawPolygon (polygon, 8);
          break;
 
       case arrowDown:
@@ -303,7 +296,7 @@ void QSimpleShape::paintEvent (QPaintEvent*)
          polygon[5] = QPoint (x1, y0);
          polygon[6] = QPoint (rect.left (), y0);
          polygon[7] = polygon[0];       // close loop
-         painter.drawPolygon (polygon, 7);
+         painter.drawPolygon (polygon, 8);
          break;
 
       case arrowLeft:
@@ -322,7 +315,7 @@ void QSimpleShape::paintEvent (QPaintEvent*)
          polygon[5] = QPoint (x0, y2);
          polygon[6] = QPoint (x0, rect.bottom ());
          polygon[7] = polygon[0];       // close loop
-         painter.drawPolygon (polygon, 7);
+         painter.drawPolygon (polygon, 8);
          break;
 
       case arrowRight:
@@ -341,14 +334,32 @@ void QSimpleShape::paintEvent (QPaintEvent*)
          polygon[5] = QPoint (x0, y2);
          polygon[6] = QPoint (x0, rect.bottom ());
          polygon[7] = polygon[0];       // close loop
-         painter.drawPolygon (polygon, 7);
+         painter.drawPolygon (polygon, 8);
+         break;
+
+      case crossHorozontal:
+         polygon[0] = QPoint (rect.left (), rect.top ());
+         polygon[1] = QPoint (rect.right (), rect.top ());
+         polygon[2] = QPoint (rect.left (), rect.bottom ());
+         polygon[3] = QPoint (rect.right (), rect.bottom ());
+         polygon[4] = polygon[0];       // close loop
+         painter.drawPolygon (polygon, 4);
+         break;
+
+      case crossVertical:
+         polygon[0] = QPoint (rect.left (), rect.top ());
+         polygon[1] = QPoint (rect.left (), rect.bottom ());
+         polygon[2] = QPoint (rect.right (), rect.top ());
+         polygon[3] = QPoint (rect.right (), rect.bottom ());
+         polygon[4] = polygon[0];       // close loop
+         painter.drawPolygon (polygon, 4);
          break;
 
       default:
          break;
    }
 
-   // Get the rquired text -f any.
+   // Get the rquired text (if any).
    //
    text = this->calcTextImage ();
    if (!text.isEmpty ()) {
@@ -386,8 +397,13 @@ QString QSimpleShape::calcTextImage ()
          result = this->getFixedText ();
          break;
 
-      case QSimpleShape::UseStrings:
-         result = this->strings.value (this->getValue (), "");
+      case QSimpleShape::StateSet:
+         result = this->stateSet.value (this->getValue (), "");
+         break;
+
+      case QSimpleShape::PvText:
+      case QSimpleShape::LocalEnumeration:
+         result = this->getItemText ();   // NOTE: This is a dispatching call.
          break;
 
       default:
@@ -395,6 +411,21 @@ QString QSimpleShape::calcTextImage ()
    }
 
    return result;
+}
+
+//------------------------------------------------------------------------------
+//
+QString QSimpleShape::getItemText ()
+{
+   return "";
+}
+
+//------------------------------------------------------------------------------
+//
+QColor QSimpleShape::getItemColour ()
+{
+   const int mv = this->getValue ();
+   return this->getColourProperty (mv);
 }
 
 //------------------------------------------------------------------------------
@@ -447,29 +478,29 @@ QColor QSimpleShape::getEdgeColour () const
 
 //------------------------------------------------------------------------------
 //
-void QSimpleShape::setStrings (const QStringList& stringsIn)
+void QSimpleShape::setStateSet (const QStringList& stateSetIn)
 {
-   this->strings = stringsIn;
+   this->stateSet = stateSetIn;
 
    // Pad/truncate as required.
    //
-   while (this->strings.count() > 16) {
-      this->strings.removeLast ();
+   while (this->stateSet.count () > 16) {
+      this->stateSet.removeLast ();
    }
-   while (this->strings.count() < 16) {
-      this->strings.append ("");
+   while (this->stateSet.count () < 16) {
+      this->stateSet.append ("");
    }
 
-   if (this->getTextFormat () == UseStrings) {
+   if (this->getTextFormat () == StateSet) {
       this->update ();
    }
 }
 
 //------------------------------------------------------------------------------
 //
-QStringList QSimpleShape::getStrings () const
+QStringList QSimpleShape::getStateSet () const
 {
-   return this->strings;
+   return this->stateSet;
 }
 
 
@@ -563,32 +594,17 @@ QColor QSimpleShape::getFlashOffColour () const
 
 //------------------------------------------------------------------------------
 //
-void QSimpleShape::setIsValid (const bool isValidIn)
+void QSimpleShape::setIsActive (const bool isActiveIn)
 {
-   this->isValid = isValidIn;
+   this->isActive = isActiveIn;
    this->update ();
 }
 
 //------------------------------------------------------------------------------
 //
-bool QSimpleShape::getIsValid () const
+bool QSimpleShape::getIsActive () const
 {
-   return this->isValid;
-}
-
-//------------------------------------------------------------------------------
-//
-void QSimpleShape::setInvalidColour (const QColor invalidColourIn)
-{
-   this->invalidColour = invalidColourIn;
-   this->update ();
-}
-
-//------------------------------------------------------------------------------
-//
-QColor QSimpleShape::getInvalidColour () const
-{
-   return this->invalidColour;
+   return this->isActive;
 }
 
 //------------------------------------------------------------------------------
