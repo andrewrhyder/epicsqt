@@ -1,4 +1,5 @@
-/*
+/*  styleManager.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -51,7 +52,7 @@ void styleManager::setStyleUser( QString style )
 }
 
 // Get the Style Sheet string to be applied when the widget is displayed in 'User' mode.
-QString styleManager::getStyleUser()
+QString styleManager::getStyleUser() const
 {
     return userUserStyle;
 }
@@ -64,7 +65,7 @@ void styleManager::setStyleScientist( QString style )
 }
 
 // Get the Style Sheet string to be applied when the widget is displayed in 'Scientist' mode.
-QString styleManager::getStyleScientist()
+QString styleManager::getStyleScientist() const
 {
     return userScientistStyle;
 }
@@ -77,7 +78,7 @@ void styleManager::setStyleEngineer( QString style )
 }
 
 // Get the Style Sheet string to be applied when the widget is displayed in 'Engineer' mode.
-QString styleManager::getStyleEngineer()
+QString styleManager::getStyleEngineer() const
 {
     return userEngineerStyle;
 }
