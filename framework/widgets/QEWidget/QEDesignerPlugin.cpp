@@ -62,6 +62,7 @@
 #include <QEGeneralEditManager.h>
 #include <QEGroupBoxManager.h>
 #include <QEFileImageManager.h>
+#include <QSimpleShapeManager.h>
 #include <QESimpleShapeManager.h>
 #include <QEArchiveNameSearchManager.h>
 #include <QEArchiveStatusManager.h>
@@ -126,14 +127,19 @@ QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QELinkManager(this));
     widgets.append(new QNumericEditManager(this));
     widgets.append(new QRadioGroupManager(this));
+    widgets.append(new QSimpleShapeManager(this));
 }
+
 /*
     Multiplugin interface.
 */
 QList<QDesignerCustomWidgetInterface*> QEWidgets::customWidgets() const {
     return widgets;
 }
+
 #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
 // Publish plugins through to QT designer.
 Q_EXPORT_PLUGIN2(QEWidgetsPlugin, QEWidgets)
 #endif
+
+// end
