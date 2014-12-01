@@ -1,4 +1,5 @@
-/*
+/*  styleManager.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -72,24 +73,22 @@ public:
     styleManager( QWidget* ownerIn );
     virtual ~styleManager(){}
 
-protected:
-
     void setStyleUser( QString style );     //!< Set the Style Sheet string to be applied when the widget is displayed in 'User' mode.
                                             //!< The syntax is the standard Qt Style Sheet syntax. For example, 'background-color: red'.
 
-    QString getStyleUser();                 //!< Get the Style Sheet string to be applied when the widget is displayed in 'User' mode.
+    QString getStyleUser() const;           //!< Get the Style Sheet string to be applied when the widget is displayed in 'User' mode.
                                             //!<
 
     void setStyleScientist( QString style );//!< Set the Style Sheet string to be applied when the widget is displayed in 'Scientist' mode.
                                             //!< The syntax is the standard Qt Style Sheet syntax. For example, 'background-color: red'
 
-    QString getStyleScientist();            //!< Get the Style Sheet string to be applied when the widget is displayed in 'Scientist' mode.
+    QString getStyleScientist() const;      //!< Get the Style Sheet string to be applied when the widget is displayed in 'Scientist' mode.
                                             //!<
 
     void setStyleEngineer( QString style ); //!< Set the Style Sheet string to be applied when the widget is displayed in 'Engineer' mode.
                                             //!< The syntax is the standard Qt Style Sheet syntax. For example, 'background-color: red'
 
-    QString getStyleEngineer();             //!< Get the Style Sheet string to be applied when the widget is displayed in 'Engineer' mode.
+    QString getStyleEngineer() const;       //!< Get the Style Sheet string to be applied when the widget is displayed in 'Engineer' mode.
                                             //!<
 
     void updateDataStyle( QString style );  //!< Set the Style Sheet string to be applied to reflect an aspect of the current data.
