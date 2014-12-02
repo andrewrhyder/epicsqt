@@ -167,6 +167,8 @@ public:
     /// This variable is used to provide a readback value when different to the variable written to by a button press.
     Q_PROPERTY(QString altReadbackVariable READ getVariableName1Property WRITE setVariableName1Property)
 
+#undef VARIABLE_PROPERTY_ACCESS
+
     /// Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1[,] NAME2=VALUE2... Values may be quoted strings. For example, 'PUMP=PMP3, NAME = "My Pump"'
     /// These substitutions are applied to variable names for all QE widgets. In some widgets are are also used for other purposes.
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
