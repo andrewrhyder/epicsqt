@@ -252,6 +252,8 @@ protected:
     /// This variable is used to read the value to the second of two positioners to determine which (if any) element is currently selected.
     Q_PROPERTY(QString readbackLabelVariable2 READ getVariableName3Property WRITE setVariableName3Property)
 
+#undef VARIABLE_PROPERTY_ACCESS
+
     /// Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1[,] NAME2=VALUE2... Values may be quoted strings. For example, 'SAMPLE=SAM1, NAME = "Ref foil"'
     /// These substitutions are applied to all the variable names.
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)

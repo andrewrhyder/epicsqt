@@ -314,6 +314,8 @@ public:
     /// The value read is first scaled and offset by properties scale6 and offset6 then the attribute selected for animation is selected by the property animation6.
     Q_PROPERTY(QString variable6 READ getVariableName5Property WRITE setVariableName5Property)
 
+#undef VARIABLE_PROPERTY_ACCESS
+
     /// Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1[,] NAME2=VALUE2... Values may be quoted strings. For example, 'SAMPLE=SAM1, NAME = "Ref foil"'
     /// These substitutions are applied to all the variable names.
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
