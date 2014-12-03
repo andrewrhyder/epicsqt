@@ -140,6 +140,12 @@ void QEScalarHistogram::establishConnection (unsigned int variableIndex)
 
       QObject::connect (qca,  SIGNAL (connectionChanged (QCaConnectionInfo &, const unsigned int &)),
                         this, SLOT   (connectionChanged (QCaConnectionInfo &, const unsigned int &)));
+
+      // Also set/reset value.
+      // Note: this also creates the underlying entry with the histogram widget.
+      // Usefull for indexOfPosition calls before first PV update or missing PVs.
+      //
+      this->histogram->setValue ((int) variableIndex, 0.0);
    }
 }
 
