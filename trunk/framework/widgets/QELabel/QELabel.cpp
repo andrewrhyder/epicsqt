@@ -78,6 +78,14 @@ void QELabel::setup() {
 }
 
 /*
+   Allows the default style to be set at run time.
+ */
+void QELabel::setDefaultStyle( const QString& style )
+{
+    setStyleDefault( style );
+}
+
+/*
     Implementation of QEWidget's virtual funtion to create the specific type of QCaObject required.
     For a label a QCaObject that streams strings is required.
 */
