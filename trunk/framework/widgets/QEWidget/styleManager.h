@@ -73,6 +73,12 @@ public:
     styleManager( QWidget* ownerIn );
     virtual ~styleManager(){}
 
+    void setStyleDefault( QString style );  //!< Set the default Style Sheet string.
+                                            //!< The syntax is the standard Qt Style Sheet syntax. For example, 'background-color: red'.
+
+    QString getStyleDefault() const;        //!< Get the default Style Sheet string.
+                                            //!<
+
     void setStyleUser( QString style );     //!< Set the Style Sheet string to be applied when the widget is displayed in 'User' mode.
                                             //!< The syntax is the standard Qt Style Sheet syntax. For example, 'background-color: red'.
 
@@ -106,7 +112,9 @@ public:
     void styleUserLevelChanged( userLevelTypes::userLevels levelIn );/**< Set the current user level.*/
 
 private:
+    void firstUseProcessing (); // On first call only, grab widget's current style sheet as save as default.
     QWidget* owner;             // Widget to which style sheet strings will be applied
+    bool firstUse;
 
     QString userUserStyle;      // Style to apply to widget when current user is a 'user'
     QString userScientistStyle; // Style to apply to widget when current user is a 'scientist'

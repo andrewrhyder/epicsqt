@@ -39,10 +39,36 @@ styleManager::styleManager( QWidget* ownerIn )
 
     // Keep a handle on the underlying QWidget of the QE widgets
     owner = ownerIn;
-    defaultStyleSheet = owner->styleSheet();
-
+    firstUse = true;
     level = userLevelTypes::USERLEVEL_USER;
 }
+
+// We can't setup defaultStyleSheet during construction as it has not been
+// set up yet, so we grab it as the first opertunity.
+// Note: this function is idempotant.
+void styleManager::firstUseProcessing ()
+{
+    if( firstUse ) {
+        firstUse = false;
+        defaultStyleSheet = owner->styleSheet();
+    }
+}
+
+// Allow the default style sheet to be programatically set.
+void styleManager::setStyleDefault( QString styleIn )
+{
+    defaultStyleSheet = styleIn;
+    firstUse = false;
+    updateStyleSheet();
+}
+
+// Get the current default Style string
+// If not set we return the style out of the widget sttyle sheet.
+QString styleManager::getStyleDefault() const
+{
+   return firstUse ? owner->styleSheet() : defaultStyleSheet;
+}
+
 
 // Set the Style Sheet string to be applied when the widget is displayed in 'User' mode.
 // The syntax is the standard Qt Style Sheet syntax. For example, 'background-color: red'
@@ -82,6 +108,7 @@ QString styleManager::getStyleEngineer() const
 {
     return userEngineerStyle;
 }
+
 
 // Set the Style Sheet string to be applied to reflect an aspect of the current data.
 // For example, a value over a high limit may be displayed in red.
@@ -137,6 +164,8 @@ void styleManager::updateStyleSheet()
     {
         return;
     }
+
+    firstUseProcessing ();   // only does anything first time.
 
     // Select the appropriate user level style
     QString levelStyle;
@@ -201,3 +230,5 @@ void styleManager::styleUserLevelChanged( userLevelTypes::userLevels levelIn )
         updateStyleSheet();
     }
 }
+
+// end
