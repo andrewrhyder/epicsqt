@@ -58,6 +58,11 @@ class QEPLUGINLIBRARYSHARED_EXPORT QELabel : public QLabel, public QEWidget, pri
     /// If macro substitutions are required, create without a variable and set the variable and macro substitutions after creation.
     QELabel( const QString &variableName, QWidget *parent = 0 );
 
+
+  public slots:
+    /// Update the default style applied to this widget.
+    void setDefaultStyle( const QString& style );
+
   private:
     void establishConnection( unsigned int variableIndex );
 
