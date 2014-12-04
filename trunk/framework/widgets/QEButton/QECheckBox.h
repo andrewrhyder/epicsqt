@@ -69,6 +69,9 @@ public slots:
     /// For example, the QEGui application does provide a slot for creating new GUIs in the ContainerProfile class which respects the creation options, knows how to add tabs in the application, and extend the application's window menu in the menu bar.
     void requestAction( const QEActionRequests& request ){ startGui( request ); }
 
+    /// Update the default style applied to this widget.
+    void setDefaultStyle( const QString& style ) { setStyleDefault( style ); }
+
 private slots:
     // Note, keep in sync. The text below is repeated in QEPushButton.h, QERadioButton.h and QECheckBox.h
     /// Slot to receiver a 'process completed' signal from the application launcher
