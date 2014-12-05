@@ -642,7 +642,7 @@ void QEPlotter::updateLabel (const int slot)
       case DataPVPlot:
          // If an alias name is defined - use it.
          //
-         if (!ds->aliasName.isEmpty()) {
+         if (!ds->aliasName.isEmpty() && ds->aliasName != "<>") {
             text.append (ds->aliasName);
          } else {
             text.append (ds->pvName);
