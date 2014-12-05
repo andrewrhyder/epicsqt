@@ -58,6 +58,9 @@ class QEPLUGINLIBRARYSHARED_EXPORT QESpinBox : public QDoubleSpinBox, public QEW
     void setUseDbPrecisionForDecimals( bool useDbPrecisionForDecimalIn );
     bool getUseDbPrecisionForDecimals();
 
+  public slots:
+    /// Update the default style applied to this widget.
+    void setDefaultStyle( const QString& style ) { setStyleDefault( style ); }
 
   protected:
     QEFloatingFormatting floatingFormatting;

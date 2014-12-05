@@ -60,6 +60,11 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEComboBox : public QComboBox, public QEWidge
     void setLocalEnumerations( const QString & localEnumerations );
     QString getLocalEnumerations();
 
+  public slots:
+    /// Update the default style applied to this widget.
+    void setDefaultStyle( const QString& style ) { setStyleDefault( style ); }
+
+
   protected:
     QEIntegerFormatting integerFormatting;
     QELocalEnumeration localEnumerations;
