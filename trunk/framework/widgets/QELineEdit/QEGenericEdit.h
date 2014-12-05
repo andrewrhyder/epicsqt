@@ -240,6 +240,10 @@ public:
 
     void writeValue (qcaobject::QCaObject *qca, QVariant newValue );
 
+public slots:
+    /// Update the default style applied to this widget.
+    void setDefaultStyle( const QString& style ) { setStyleDefault( style ); }
+
 private:
     bool writeOnLoseFocus;        // Write changed value to database when widget object loses focus (user moves from widget)
     bool writeOnEnter;            // Write changed value to database when enter is pressed with focus on the widget

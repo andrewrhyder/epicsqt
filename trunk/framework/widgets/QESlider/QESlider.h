@@ -55,6 +55,10 @@ class QEPLUGINLIBRARYSHARED_EXPORT QESlider : public QSlider, public QEWidget {
     void setOffset( double offsetIn );
     double getOffset();
 
+  public slots:
+    /// Update the default style applied to this widget.
+    void setDefaultStyle( const QString& style ) { setStyleDefault( style ); }
+
   protected:
     QEFloatingFormatting floatingFormatting; // Floating formatting options.
     bool writeOnChange;             // Write changed value to database when ever the position changes.

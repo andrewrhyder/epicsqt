@@ -149,6 +149,11 @@ signals:
    /// Note: this widget emits the numeric enumeration value as opposed to the associated text.
    void dbValueChanged (const long& out);
 
+
+public slots:
+   /// Update the default style applied to this widget.
+   void setDefaultStyle (const QString& style) { this->setStyleDefault (style); }
+
 protected:
    QSize sizeHint () const;
    void fontChange (const QFont& font);
