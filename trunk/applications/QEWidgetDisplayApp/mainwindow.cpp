@@ -105,7 +105,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //=============================================================================================
     // Alternative 4.
-    // In this simplistic example this alternative is cumbersome.
+    // In this simplistic example this alternative appears cumbersome.
     // This alternative is used when setting the properties is out of the control of the programmer.
     // For example, when loading a .ui file using Qt's UI loader.
     // When using the UI loader, the caller has no clue what widgets are being created,
@@ -143,7 +143,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Set the variable name using the access function for the variable name property.
     // This will activate the widget using the variable name and the current macro substitutions.
     // (See the creation of the QELabel above to see alternative ways of setting the
-    // variable name and macro substitutions
+    // variable name and macro substitutions).
     qeqb->setVariableNameProperty( "OOE:mbbi" );
 }
 
