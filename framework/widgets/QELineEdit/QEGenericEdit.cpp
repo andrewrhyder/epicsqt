@@ -46,6 +46,7 @@ QEGenericEdit::QEGenericEdit( const QString &variableNameIn, QWidget *parent) : 
 {
     setup ();
     setVariableName( variableNameIn, 0 );
+    activate();
 }
 
 //------------------------------------------------------------------------------

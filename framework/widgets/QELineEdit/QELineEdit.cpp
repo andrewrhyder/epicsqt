@@ -46,6 +46,8 @@ QELineEdit::QELineEdit( QWidget *parent ) : QEGenericEdit( parent )
 QELineEdit::QELineEdit( const QString& variableNameIn, QWidget *parent ) : QEGenericEdit( variableNameIn, parent )
 {
     setup();
+    setVariableName( variableNameIn, 0 );
+    activate();
 }
 
 void QELineEdit::setup()

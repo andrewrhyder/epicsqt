@@ -47,6 +47,7 @@ QEComboBox::QEComboBox( const QString &variableNameIn, QWidget *parent ) : QComb
 
     setup();
 
+    activate();
 }
 
 /*

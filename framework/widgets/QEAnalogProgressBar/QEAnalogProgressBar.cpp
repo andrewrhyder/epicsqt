@@ -59,6 +59,8 @@ QEAnalogProgressBar::QEAnalogProgressBar (const QString & variableNameIn,
 
    this->setup ();
    this->setVariableName (variableNameIn, 0);
+   activate();
+
 }
 
 

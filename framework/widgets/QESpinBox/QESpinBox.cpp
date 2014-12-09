@@ -45,6 +45,7 @@ QESpinBox::QESpinBox( const QString &variableNameIn, QWidget *parent ) : QDouble
     setVariableName( variableNameIn, 0 );
 
     setup();
+    activate();
 
 }
 

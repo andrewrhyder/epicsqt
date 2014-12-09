@@ -43,6 +43,7 @@ QELabel::QELabel( QWidget *parent ) : QLabel( parent ), QEWidget( this ) {
 QELabel::QELabel( const QString &variableNameIn, QWidget *parent ) : QLabel( parent ), QEWidget( this )  {
     setup();
     setVariableName( variableNameIn, 0 );
+    activate();
 }
 
 /*

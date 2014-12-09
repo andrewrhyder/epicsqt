@@ -43,6 +43,7 @@ QESlider::QESlider( const QString &variableNameIn, QWidget *parent ) : QSlider( 
 
     setup();
     setVariableName( variableNameIn, 0 );
+    activate();
 
 }
 

@@ -248,6 +248,7 @@ QEPvProperties::QEPvProperties (const QString & variableName, QWidget * parent) 
    this->common_setup ();
    setVariableName (variableName, 0);
    this->valueLabel->setVariableName (variableName, 0);
+   activate();
 }
 
 //------------------------------------------------------------------------------

@@ -44,6 +44,7 @@ QEPlot::QEPlot( QWidget *parent ) : QwtPlot( parent ), QEWidget( this ) {
 QEPlot::QEPlot( const QString &variableNameIn, QWidget *parent ) : QwtPlot( parent ), QEWidget( this ) {
     setup();
     setVariableName( variableNameIn, 0 );
+    activate();
 }
 
 /*

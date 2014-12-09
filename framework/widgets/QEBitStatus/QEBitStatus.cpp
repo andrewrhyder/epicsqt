@@ -56,6 +56,7 @@ QEBitStatus::QEBitStatus (const QString & variableNameIn,
 {
    setup ();
    setVariableName (variableNameIn, 0);
+   activate();
 }
 
 

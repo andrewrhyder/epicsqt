@@ -47,6 +47,7 @@ QESimpleShape::QESimpleShape (const QString & variableNameIn, QWidget * parent)
 {
    this->setup ();
    this->setVariableName (variableNameIn, 0);
+   activate();
 }
 
 //-----------------------------------------------------------------------------

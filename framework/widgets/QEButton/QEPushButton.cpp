@@ -50,6 +50,7 @@ QEPushButton::QEPushButton( const QString &variableNameIn, QWidget *parent ) : Q
     QEGenericButton::setup();
     setup();
 
+    activate();
 }
 
 /*

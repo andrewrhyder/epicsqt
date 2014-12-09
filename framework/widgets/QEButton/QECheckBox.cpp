@@ -50,6 +50,7 @@ QECheckBox::QECheckBox( const QString &variableNameIn, QWidget *parent ) : QChec
     QEGenericButton::setup();
     setup();
 
+    activate();
 }
 
 /*

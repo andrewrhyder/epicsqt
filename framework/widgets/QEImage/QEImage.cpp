@@ -65,6 +65,7 @@ QEImage::QEImage( QWidget *parent ) : QFrame( parent ), QEWidget( this ) {
 QEImage::QEImage( const QString &variableNameIn, QWidget *parent ) : QFrame( parent ), QEWidget( this )  {
     setup();
     setVariableName( variableNameIn, 0 );
+    activate();
 }
 
 /*

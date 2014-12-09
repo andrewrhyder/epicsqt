@@ -42,6 +42,7 @@ QEFileImage::QEFileImage( QWidget *parent ) : QLabel( parent ), QEWidget( this )
 QEFileImage::QEFileImage( const QString &variableNameIn, QWidget *parent ) : QLabel( parent ), QEWidget( this )  {
     setup();
     setVariableName( variableNameIn, 0 );
+    activate();
 }
 
 /*

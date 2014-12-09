@@ -46,6 +46,7 @@ INCLUDEPATH += . \
     ./include \
     ../../framework/widgets/QEWidget \
     ../../framework/widgets/QELabel \
+    ../../framework/widgets/QELineEdit \
     ../../framework/widgets/QEComboBox \
     ../../framework/data \
     ../../framework/api \
