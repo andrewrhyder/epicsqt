@@ -70,6 +70,7 @@
 #include <QEScalarHistogramManager.h>
 #include <QEWaveformHistogramManager.h>
 #include <QETableManager.h>
+#include <QEResizeableFrameManager.h>
 
 #include <QEDesignerPlugin.h>
 
@@ -127,6 +128,7 @@ QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QELinkManager(this));
     widgets.append(new QNumericEditManager(this));
     widgets.append(new QRadioGroupManager(this));
+    widgets.append(new QEResizeableFrameManager(this));
     widgets.append(new QSimpleShapeManager(this));
 }
 
