@@ -50,6 +50,7 @@ QERadioButton::QERadioButton( const QString &variableNameIn, QWidget *parent ) :
     QEGenericButton::setup();
     setup();
 
+    activate();
 }
 
 /*

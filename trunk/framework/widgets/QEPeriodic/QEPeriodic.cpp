@@ -188,6 +188,7 @@ QEPeriodic::QEPeriodic( const QString &variableNameIn, QWidget *parent ) : QFram
 
     setup();
 
+    activate();
 }
 
 /*

@@ -47,6 +47,7 @@ QEGeneralEdit::QEGeneralEdit (const QString & variableNameIn,
 {
    this->commonSetup ();
    this->setVariableName (variableNameIn, 0);
+   activate();
 }
 
 //---------------------------------------------------------------------------------

@@ -32,6 +32,7 @@
 #include "QELabel.h"
 #include "QEComboBox.h"
 #include <QPalette>
+#include "QELineEdit.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -40,8 +41,11 @@ MainWindow::MainWindow(QWidget *parent) :
     // Read the UI
     ui->setupUi(this);
 
-    // Create a QELabel and set its position and size
+    // Create a QELabel
     QELabel* qel = new QELabel( centralWidget() );
+//    QELabel* qel = new QELabel( "OOE:ai", centralWidget() );  // See below for all the alternatives for setting a variable name
+
+    // Set its position and size
     qel->setGeometry( 100, 50, 200, 50 );
 
     // Don't display the alarm state. This is done by setting the background colour and
@@ -74,9 +78,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // Calling setVariableNameSubstitutionsProperty() later works but an inapropriate connection
     // without macro substitutions will be attempted first.
 
-//    qel->setVariableNameSubstitutionsProperty( "P=OOE" );
-//    qel->setVariableNameProperty( "$(P):ai" );
-
+/*
+    qel->setVariableNameSubstitutionsProperty( "P=OOE" );
+    qel->setVariableNameProperty( "$(P):ai" );
+*/
 
 
     //=============================================================================================
@@ -86,25 +91,55 @@ MainWindow::MainWindow(QWidget *parent) :
     // Using this alternative has the advantage of setting the variable name and macro substitutions,
     // and establishing a CA connection, in a single call.
 
-//    qel->setVariableNameAndSubstitutions( "$(P):ai", "P=OOE", 0 );
+    qel->setVariableNameAndSubstitutions( "$(P):ai", "P=OOE", 0 );
 
 
 
     //=============================================================================================
     // Alternative 3.
     // Set the variable name and substitutions seperately, then once variable names are resolved
-    // establish a CA connection.
+    // establish a CA connection using activate().
     // Note, the calls to setVariableNameSubstitutions() and setVariableName() can occur in any order and
     // setVariableNameSubstitutions() is optional.
     // Using this alternative has the advantage of seperating the tasks of dealing with macro substitutions, variable names, and establisghing CA connections.
+    // Note, calling activate() does more than just establish a CA connection, it also asks the widget
+    // to perform any tasks which should only be done once all other widgets have been created. For example,
+    // calling activate() may notify other widgets about itself so activate() should only be called once all other widgets this widget may relate to are constructed.
 
-//    qel->setVariableNameSubstitutions( "P=OOE" );
-//    qel->setVariableName( "$(P):ai", 0 );
-//    qel->activate();
-
+/*
+    qel->setVariableNameSubstitutions( "P=OOE" );
+    qel->setVariableName( "$(P):ai", 0 );
+    qel->activate();
+*/
 
     //=============================================================================================
     // Alternative 4.
+    // !!!!! CURRENTLY this alternative is unavailable as establishConnection() is not public. Should this change?
+    // Set the variable name and substitutions seperately, then once variable names are resolved
+    // establish a CA connection using establishConnection().
+    // Note, the calls to setVariableNameSubstitutions() and setVariableName() can occur in any order and
+    // setVariableNameSubstitutions() is optional.
+    // Using this alternative has the advantage of seperating the tasks of dealing with macro substitutions, variable names, and establisghing CA connections.
+    // Note, unlike activate() in alternative 3 calling establishConnection() only updates the
+    // CA connection.
+
+/*
+    qel->setVariableNameSubstitutions( "P=OOE" );
+    qel->setVariableName( "$(P):ai", 0 );
+    qel->establishConnection( 0 );
+*/
+
+    //=============================================================================================
+    // Alternative 4.
+    // Don't uncomment this here! If you want tp try it out, uncomment it above.
+    // It is a different way to construct the label and is duplicated here for the sake of the narative.
+    // When this constructor is used, the variable name is set and the widget is activated immedietly.
+
+//    QELabel* qel = new QELabel( "OOE:ai", centralWidget() );
+
+
+    //=============================================================================================
+    // Alternative 5.
     // In this simplistic example this alternative appears cumbersome.
     // This alternative is used when setting the properties is out of the control of the programmer.
     // For example, when loading a .ui file using Qt's UI loader.
@@ -115,6 +150,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // QEForm uses this alternative when loading .ui files.
 
     // Flag we don't want immediate activation...
+/*
     ContainerProfile profile;
     bool oldDontActivateYet = profile.setDontActivateYet( true );
 
@@ -126,7 +162,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Remove the flag and establish a CA connection...
     profile.setDontActivateYet( oldDontActivateYet );
     qel->activate();
-
+*/
 
     //=============================================================================================
 
@@ -145,6 +181,12 @@ MainWindow::MainWindow(QWidget *parent) :
     // (See the creation of the QELabel above to see alternative ways of setting the
     // variable name and macro substitutions).
     qeqb->setVariableNameProperty( "OOE:mbbi" );
+
+    // Create a QELineEdit with an active variable
+    // and set its position and size
+    QELineEdit* qew = new QELineEdit( "OOE:ai", centralWidget() );
+    qew->setGeometry( 100, 250, 200, 50 );
+
 }
 
 MainWindow::~MainWindow()

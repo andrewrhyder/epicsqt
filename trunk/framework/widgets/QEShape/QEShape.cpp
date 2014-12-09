@@ -50,6 +50,7 @@ QEShape::QEShape( const QString &variableNameIn, QWidget *parent ) : QWidget( pa
 
     // Use the variable name as the first variable
     setVariableName( variableNameIn, 0 );
+    activate();
 }
 
 /*
