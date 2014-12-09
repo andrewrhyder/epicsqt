@@ -27,20 +27,24 @@
 #include <QECommon.h>
 #include "QEResizeableFrame.h"
 
+#define DEBUG qDebug () << "QEResizeableFrame" << __FUNCTION__ << __LINE__
 
 static const QString passive ("QWidget { background-color: #a0c0e0; }");
 static const QString active  ("QWidget { background-color: #f0f0f0; }");
 
 //------------------------------------------------------------------------------
 //
-QEResizeableFrame::QEResizeableFrame (GrabbingEdges grabbingEdge, QWidget *parent) : QFrame (parent)
+QEResizeableFrame::QEResizeableFrame (QWidget *parent) : QEFrame (parent)
 {
-   this->setup (grabbingEdge, 10, 100);
+   this->setup (BottomEdge, 10, 100);
 }
 
 //------------------------------------------------------------------------------
 //
-QEResizeableFrame::QEResizeableFrame (GrabbingEdges grabbingEdge, int minimumIn, int maximumIn, QWidget *parent) : QFrame (parent)
+QEResizeableFrame::QEResizeableFrame (GrabbingEdges grabbingEdge,
+                                      int minimumIn,
+                                      int maximumIn,
+                                      QWidget *parent) : QEFrame (parent)
 {
    this->setup (grabbingEdge, minimumIn, maximumIn);
 }
@@ -57,14 +61,35 @@ QEResizeableFrame::~QEResizeableFrame ()
 //
 void QEResizeableFrame::setup (GrabbingEdges grabbingEdgeIn, int minimumIn, int maximumIn)
 {
+   // Set super class pro[ertioes.
+   //
+   this->setMinimumSize (16, 16);
+   this->setFrameShape (QFrame::Box);
+   this->setFrameShadow (QFrame::Plain);
+
+   this->userWidget = NULL;
+   this->grabber = NULL;
+   this->layout = NULL;
+   this->defaultWidget = new QWidget (NULL);
+
    this->grabbingEdge = grabbingEdgeIn;
    this->allowedMin = MAX (minimumIn, 8);
    this->allowedMax = MAX (maximumIn, this->allowedMin);
    this->isActive = false;
    this->noMoreDebug = false;
 
-   this->defaultWidget = new QWidget (NULL);
-   this->userWidget = NULL;
+   this->resetEgde ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QEResizeableFrame::resetEgde ()
+{
+   if (this->layout) delete this->layout;
+   this->layout = NULL;
+
+   if (this->grabber) delete this->grabber;
+   this->grabber = NULL;
 
    this->grabber = new QWidget (this);
    if (this->isVertical()) {
@@ -84,7 +109,24 @@ void QEResizeableFrame::setup (GrabbingEdges grabbingEdgeIn, int minimumIn, int 
    this->layout->setMargin (1);
    this->layout->setSpacing (1);
 
-   this->setWidget (NULL);
+   this->setWidget (this->userWidget);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEResizeableFrame::setGrabbingEdge (const GrabbingEdges edge)
+{
+   if (this->grabbingEdge != edge) {
+      this->grabbingEdge = edge;
+      this->resetEgde ();
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+QEResizeableFrame::GrabbingEdges QEResizeableFrame::getGrabbingEdge () const
+{
+   return this->grabbingEdge;
 }
 
 //------------------------------------------------------------------------------
