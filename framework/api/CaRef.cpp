@@ -114,6 +114,7 @@ void CaRef::init( void* ownerIn, bool ownerIsCaObjectIn )
 // This should never be called. Present just to log an error
 CaRef::~CaRef()
 {
+    magic = 0;
     printf( "CaRef destructor called. This should never occur.");
 }
 
