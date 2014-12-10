@@ -55,15 +55,14 @@ CaConnection::CaConnection( void* newParent )
 */
 CaConnection::~CaConnection() {
 
-    // Ensure we are not in CA callback code with a risk of accessing this object
-    // (Callback code will check the discard flag only while holding the lock)
-    CaRef::accessLock();
-
     myRef->discard();
-
     shutdown();
-    reset();
 
+    // Reset this connection whilset ensuring we are not in CA callback code with
+    // a risk of accessing this object (Callback code will check the discard flag
+    // only while holding the lock)
+    CaRef::accessLock();
+    reset();
     CaRef::accessUnlock();
 }
 
@@ -221,6 +220,8 @@ void CaConnection::subscriptionInitialHandler( struct event_handler_args args )
 //    printf( "CaConnection::subscriptionInitialHandler\n" ); fflush(stdout);
     // As this is a static function, recover the CaConnection class instance
     CaConnection* me = (CaConnection*)(((CaRef*)(args.usr))->getRef( args.chid ));
+    CaRef::accessUnlock();
+
     if( !me )
     {
         return;
@@ -245,7 +246,6 @@ void CaConnection::subscriptionInitialHandler( struct event_handler_args args )
 //    printf( "CaConnection::subscriptionInitialHandler setting real subscription: chid: %ld (%ld) eventId: %ld\n", (long)(me->channel.id), (long)(args.chid), (long)me->eventId ); fflush(stdout);
     ca_flush_io();
 
-    CaRef::accessUnlock();
 }
 
 /*
@@ -255,7 +255,7 @@ void CaConnection::subscriptionInitialHandler( struct event_handler_args args )
 void CaConnection::removeChannel() {
 //    printf(  "CaConnection::removeChannel() %ld   chid %ld\n", (long)(&channel), (long)(channel.id) ); fflush(stdout);
     // Ensure we are not in a CA callback
-    CaRef::accessLock();
+    // ***  CaRef::accessLock();
 
     if( channel.activated == true ) {
         if( eventId )
@@ -270,7 +270,7 @@ void CaConnection::removeChannel() {
         ca_flush_io();
     }
 
-    CaRef::accessUnlock();
+    // *** CaRef::accessUnlock();
 }
 
 /*

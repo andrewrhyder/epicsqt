@@ -26,46 +26,40 @@
 #include <stdlib.h>
 #include <CaRef.h>
 #include <stdio.h>
-#include <epicsMutex.h>
+#include <QMutex>
 
 
 #define CAREF_MAGIC 123456789
 
-// Wrapper function around epicsMutexCreate so that we can catch and
-// handle error cases.
-//
-static epicsMutexId createMutex() {
-    epicsMutexId result;
-    result = epicsMutexCreate ();
-    if (!result) {
-        fprintf (stderr, "%s:%s - failed to create mutux object.\n", __FILE__, __FUNCTION__);
-        exit (1);
-    }
-    return result;
-}
-
-static epicsMutexId accessMutex = createMutex();
-
+// This mutex controls access to the carefListHead/carefListTail structure.
+static QMutex *carefListMutex = new QMutex();
 static CaRef* carefListHead = NULL;
 static CaRef* carefListTail = NULL;
 
 unsigned int CaRef::nextSequence = 0;
 
+// This is a more general access lock.
+//
+static QMutex *accessLockMutex = new QMutex();
+
+
 // Get exclusive access
 void CaRef::accessLock()
 {
-    epicsMutexLock (accessMutex);
+   accessLockMutex->lock();
 }
 
 // Release exclusive access.
 void CaRef::accessUnlock()
 {
-    epicsMutexUnlock (accessMutex);
+    accessLockMutex->unlock();
 }
 
 // Provide a new or reused instance. Call instead of constructor.
 CaRef* CaRef::getCaRef( void* ownerIn, bool ownerIsCaObjectIn )
 {
+    QMutexLocker locker( carefListMutex );
+
     // If there is any previous CaRef  instances discarded over 5 seconds ago, return the first.
     if( carefListHead )
     {
@@ -133,6 +127,8 @@ void CaRef::discard()
     idleTime = time( NULL );
 
     // Place the disused item on the discarded queue
+    QMutexLocker locker( carefListMutex );
+
     if( !carefListHead )
     {
         carefListHead = this;
@@ -218,3 +214,5 @@ void CaRef::setChannelId ( void* channelIn )
 //    printf( "tail: %lu\n", (unsigned long)carefListTail );
 //    fflush(stdout);
 //}
+
+// end

@@ -71,7 +71,7 @@ CaObject::~CaObject() {
 
     // Ensure we are not in CA callback code with a risk of accessing this object
     // (Callback code will check the discard flag only while holding the lock)
-    CaRef::accessLock();
+    // *** CaRef::accessLock();
 
     // Flag in the durable object reference that this object has been deleted
     myRef->discard();
@@ -80,7 +80,7 @@ CaObject::~CaObject() {
     // Get the parts not shared with the non CA world
     CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
 
-    CaRef::accessUnlock();
+    // *** CaRef::accessUnlock();
 
     shutdown();
 
@@ -145,6 +145,8 @@ caconnection::ca_responses CaObjectPrivate::setChannel( std::string channelName,
     owner->myRef->setPV( channelName );
     caRecord.setName( channelName );
     caRecord.setValid( false );
+    CaRef::accessUnlock();
+
     caconnection::ca_responses ret = caConnection->establishChannel( connectionHandler, channelName, priority );
     if( ret == caconnection::REQUEST_SUCCESSFUL )
     {
@@ -154,7 +156,6 @@ caconnection::ca_responses CaObjectPrivate::setChannel( std::string channelName,
     {
         owner->myRef->setChannelId( 0 );
     }
-    CaRef::accessUnlock();
     return ret;
 }
 
@@ -923,19 +924,21 @@ bool CaObjectPrivate::processChannel( struct event_handler_args args ) {
 
 CaObject* CaObjectPrivate::contextFromCaUsr( void* usr, void* id )
 {
+    CaRef::accessLock();
     CaRef* ref = (CaRef*)(usr);
-    return (CaObject*)(ref->getRef( id ));
+    CaObject* caObject = (CaObject*)(ref->getRef( id ));
+    CaRef::accessUnlock();
+    return caObject;
 }
 
 /*
     Subscription handler callback.
 */
 void CaObjectPrivate::subscriptionHandler( struct event_handler_args args ) {
-    CaRef::accessLock();
     CaObject* context = contextFromCaUsr( args.usr, args.chid );
+
     if( !context )
     {
-        CaRef::accessUnlock();
         return;
     }
 
@@ -966,18 +969,15 @@ void CaObjectPrivate::subscriptionHandler( struct event_handler_args args ) {
         break;
     }
     epicsEventSignal( monitorEvent );
-    CaRef::accessUnlock();
 }
 
 /*
     Read data handler callback.
 */
 void CaObjectPrivate::readHandler( struct event_handler_args args ) {
-    CaRef::accessLock();
     CaObject* context = contextFromCaUsr( args.usr, args.chid );
     if( !context )
     {
-        CaRef::accessUnlock();
         return;
     }
 
@@ -994,18 +994,15 @@ void CaObjectPrivate::readHandler( struct event_handler_args args ) {
         break;
     }
     epicsEventSignal( monitorEvent );
-    CaRef::accessUnlock();
 }
 
 /*
     Write data handler callback.
 */
 void CaObjectPrivate::writeHandler( struct event_handler_args args ) {
-    CaRef::accessLock();
     CaObject* context = contextFromCaUsr( args.usr, args.chid );
     if( !context )
     {
-        CaRef::accessUnlock();
         return;
     }
 
@@ -1017,18 +1014,15 @@ void CaObjectPrivate::writeHandler( struct event_handler_args args ) {
             context->signalCallback( WRITE_FAIL );
         break;
     }
-    CaRef::accessUnlock();
 }
 
 /*
     EPICS Exception handler callback.
 */
 void CaObjectPrivate::exceptionHandler( struct exception_handler_args args ) {
-    CaRef::accessLock();
     CaObject* context = contextFromCaUsr( args.usr, args.chid );
     if( !context )
     {
-        CaRef::accessUnlock();
         return;
     }
 
@@ -1040,7 +1034,6 @@ void CaObjectPrivate::exceptionHandler( struct exception_handler_args args ) {
             context->signalCallback( EXCEPTION );
         break;
     }
-    CaRef::accessUnlock();
 }
 
 /*
@@ -1050,16 +1043,15 @@ void CaObjectPrivate::exceptionHandler( struct exception_handler_args args ) {
 */
 void CaObjectPrivate::connectionHandler( struct connection_handler_args args ) {
 
-    CaRef::accessLock();
 
     // Sanity check. The CaRef extracted from args.chid will be checked later, but can we even get to extracting the CaRef safley?
     if( args.chid == 0 )
     {
         printf( "CaObjectPrivate::connectionHandler() args.chid in connection_handler_args is zero" );
-        CaRef::accessUnlock();
         return;
     }
 
+    CaRef::accessLock();
     CaRef* ref = (CaRef*)(ca_puser( args.chid ));
 
     // Sanity check. Did ca_puser() extract the CaRef extracted from args.chid?
@@ -1096,6 +1088,7 @@ void CaObjectPrivate::connectionHandler( struct connection_handler_args args ) {
         CaRef::accessUnlock();
         return;
     }
+    CaRef::accessUnlock();
 
     switch( args.op ) {
         case CA_OP_CONN_UP :
@@ -1116,7 +1109,6 @@ void CaObjectPrivate::connectionHandler( struct connection_handler_args args ) {
             grandParent->signalCallback( CONNECTION_UNKNOWN );
         break;
     }
-    CaRef::accessUnlock();
 }
 
 /*
