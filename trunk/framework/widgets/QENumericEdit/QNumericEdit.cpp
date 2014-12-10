@@ -77,7 +77,7 @@ void QNumericEdit::commonConstructor ()
    this->mSuffix = "";
    this->mLeadingZeros = 3;
    this->mPrecision = 4;
-   this->minimumMin  = this->calcLower ();
+   this->minimumMin = this->calcLower ();
    this->maximumMax = this->calcUpper ();
    this->mMinimum = this->minimumMin;
    this->mMaximum = this->maximumMax;
@@ -286,7 +286,7 @@ bool QNumericEdit::lineEditFocusInEvent (QFocusEvent * event)
        result = false;    // sort of handled, but not totally.
 
    } else {
-      DEBUG << "Unexpected (not handled)";
+      DEBUG << "Unexpected focus event state (not handled)";
    }
 
    return result;
