@@ -25,9 +25,14 @@
 #ifndef MONITOR_H
 #define MONITOR_H
 
+#define MONITOR_STRINGS
+//#define MONITOR_INTEGERS
+//#define MONITOR_FLOATING
+
 #include <QObject>
 #include <QEString.h>   // Normal
-//#include <QEInteger.h>  // Integer only output
+#include <QEInteger.h>  // Integer only output
+#include <QEFloating.h>  // Floating only output
 #include <UserMessage.h>
 
 /*
@@ -41,21 +46,32 @@ public:
     monitor( QString pvIn );
 
 private:
+#ifdef MONITOR_STRINGS
     QEString* source;    // Normal
-//    QEInteger* source;   // Integer only output
+#endif
+
+#ifdef MONITOR_INTEGERS
+    QEInteger* source;   // Integer only output
+#endif
+
+#ifdef MONITOR_FLOATING
+    QEFloating* source;    // Floating only output
+#endif
+
     UserMessage messages;
-    QEStringFormatting formatting;    // Normal
-//    QEIntegerFormatting formatting;   // Integer only output
+    QEStringFormatting stringFormatting;       // Normal
+    QEIntegerFormatting integarFormatting;     // Integer only output
+    QEFloatingFormatting floatingFormatting;   // Floating only output
     QString pv;
     QTextStream* stream;
     void newMessage( QString msg, message_types type );
 
 private slots:
     void connectionChanged( QCaConnectionInfo& );
-// Normal
     void log( const QString& data, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int & );
-// Integer only output
-//    void log( const long& data, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int & );
+    void log( const long& data, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int & );
+    void log( const double& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int & );
+    void log( const QVector<double>& values, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int & );
 };
 
 #endif // MONITOR_H
