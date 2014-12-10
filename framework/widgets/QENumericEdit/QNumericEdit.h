@@ -139,10 +139,11 @@ signals:
 protected:
    bool eventFilter (QObject *obj, QEvent *event);
 
+   QEFixedPointRadix fpr;   // holds radix and separator
+
 private:
    QLineEdit* lineEdit;     // internal widget
    QHBoxLayout* layout;     // holds the QLineEdit - any layout type will do
-   QEFixedPointRadix fpr;   // holds radix and separator
 
    // Property values
    //
