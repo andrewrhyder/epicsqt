@@ -44,21 +44,21 @@ monitor::monitor( QString pvIn )
 
 #ifdef MONITOR_STRINGS
     // Normal
-    source = new QEString( pv, this, &stringFormatting, 1, &messages );
+    source = new QEString( pv, this, &stringFormatting, 0, &messages );
     QObject::connect( source, SIGNAL( stringChanged( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int & ) ),
                       this, SLOT( log( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int & ) ) );
 #endif
 
 #ifdef MONITOR_INTEGERS
     // Integer only output
-    source = new QEInteger( pv, this, &integerFormatting, 1, &messages );
+    source = new QEInteger( pv, this, &integerFormatting, 0, &messages );
     QObject::connect( source, SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int & ) ),
                       this, SLOT( log( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int & ) ) );
 #endif
 
 #ifdef MONITOR_FLOATING
     // Floating only output
-    source = new QEFloating( pv, this, &floatingFormatting, 1, &messages );
+    source = new QEFloating( pv, this, &floatingFormatting, 0, &messages );
     QObject::connect( source, SIGNAL( floatingChanged( const double&, QCaAlarmInfo&, QCaDateTime&, const unsigned int & ) ),
                       this, SLOT( log( const double&, QCaAlarmInfo&, QCaDateTime&, const unsigned int & ) ) );
     QObject::connect( source, SIGNAL( floatingArrayChanged( const QVector<double>&, QCaAlarmInfo&, QCaDateTime&, const unsigned int & ) ),
