@@ -536,6 +536,18 @@ QPointF QEGraphic::pointToReal (const QPoint& pos) const
 
 //------------------------------------------------------------------------------
 //
+QPointF QEGraphic::pointToReal (const QPointF& pos) const
+{
+   double x, y;
+
+   x = this->xAxis->pointToReal ((int) pos.x ());
+   y = this->yAxis->pointToReal ((int) pos.y ());
+
+   return QPointF (x, y);
+}
+
+//------------------------------------------------------------------------------
+//
 QPoint QEGraphic::realToPoint (const QPointF& pos) const
 {
    int x, y;

@@ -132,7 +132,7 @@ public:
    void setAxisEnableY (const bool enable) { this->xAxis->setAxisEnable (enable);  }
    bool getAxisEnableY () const            { return this->yAxis->getAxisEnable (); }
 
-   // Scale and offset scale the x and y data beffor ploting, i.e. allows different
+   // Scale and offset scale the x and y data before ploting, i.e. allows different
    // axis and data coordinates. For example, with X scale set to 1/60, data could be
    // expressed in seconds, but (more conviently) have time axis is minutes.
    //
@@ -175,6 +175,7 @@ public:
    // account any scaling and/or logarithic scaling.
    //
    QPointF pointToReal (const QPoint& pos) const;
+   QPointF pointToReal (const QPointF& pos) const;   // overloaded form
    QPoint realToPoint (const QPointF& pos) const;
 
 signals:
