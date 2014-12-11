@@ -113,6 +113,8 @@ INCLUDEPATH += . \
 #
 DEPENDPATH += ../../framework/common
 
+LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) -lca -lCom
+
 LIBS += -L../../framework/designer -lQEPlugin
 
 FORMS += ./src/MainWindow.ui \
