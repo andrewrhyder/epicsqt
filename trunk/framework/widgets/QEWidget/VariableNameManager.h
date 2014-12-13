@@ -38,6 +38,7 @@ public:
 
     void variableNameManagerInitialise( unsigned int numVariables ) ;       // Used to set up the number of variables required (defaults to 1 if this is not called)
 
+    int getNumberVariables() const;                                         // Returns number of variables that can be set up for this object.
     QString getOriginalVariableName( unsigned int variableIndex ) const;    // Return variable name prior to any macro substitutions. (eg, SR$SECTOR$V )
     QString getVariableNameSubstitutions() const;                           // Return macro substitutions used for variable names (eg, SECTOR=01,V=PRESURE)
     QString getSubstitutedVariableName(unsigned int variableIndex ) const;  // Return variable name after macro substitutions
