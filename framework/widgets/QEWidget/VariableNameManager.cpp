@@ -67,6 +67,13 @@ void VariableNameManager::variableNameManagerInitialise( unsigned int numVariabl
 }
 
 /*
+    Get the number of variables that can be set up for this object.
+ */
+int VariableNameManager::getNumberVariables () const {
+    return variableNames.size();
+}
+
+/*
     Get the current variable name.
     Supply a variable index if this class is managing more than one variable
     name.
