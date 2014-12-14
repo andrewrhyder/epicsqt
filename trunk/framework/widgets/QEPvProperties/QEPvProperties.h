@@ -90,6 +90,42 @@ private:
 public:
     // END-SINGLE-VARIABLE-PROPERTIES =================================================
 
+public:
+   // Constructors
+   //
+   QEPvProperties (QWidget*  parent = 0);
+   QEPvProperties (const QString& variableName, QWidget* parent = 0);
+   ~QEPvProperties ();
+
+   QSize sizeHint () const;
+
+
+protected:
+   void resizeEvent ( QResizeEvent*  event );
+   void establishConnection (unsigned int variableIndex);
+
+   // Override QCaObject/QEWidget functions.
+   //
+   qcaobject::QCaObject* createQcaItem (unsigned int variableIndex);
+
+   // Drop only. Dragging is from individual embedded QEWidgets.
+   //
+   // Override QEDragDrop functions.
+   //
+   void mousePressEvent (QMouseEvent* event)    { qcaMousePressEvent (event); }
+   void dragEnterEvent (QDragEnterEvent* event) { qcaDragEnterEvent (event, false); }
+   void dropEvent (QDropEvent* event)           { qcaDropEvent(event, true); }
+   // This widget uses the setDrop/getDrop defined in QEWidget.
+
+   void saveConfiguration (PersistanceManager* pm);
+   void restoreConfiguration (PersistanceManager* pm, restorePhases restorePhase);
+
+   // Copy paste
+   //
+   QString copyVariable();
+   QVariant copyData();
+   void paste (QVariant s);
+
 
 private:
    enum PVReadModes {
@@ -169,7 +205,7 @@ private slots:
    // The value item slots.
    //
    void setValueConnection (QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex);
-   void setValueValue (const QString & rtypeValue, QCaAlarmInfo&, QCaDateTime&, const unsigned int& variableIndex);
+   void setValueValue (const QVariant& valueValue, QCaAlarmInfo&, QCaDateTime&, const unsigned int& variableIndex);
 
    // Field related slots
    //
@@ -193,40 +229,6 @@ private slots:
 signals:
    void setCurrentBoxIndex (int index);
 
-protected:
-   void resizeEvent ( QResizeEvent*  event );
-   void establishConnection (unsigned int variableIndex);
-
-   // Override QCaObject/QEWidget functions.
-   //
-   qcaobject::QCaObject* createQcaItem (unsigned int variableIndex);
-
-   // Drop only. Dragging is from individual embedded QEWidgets.
-   //
-   // Override QEDragDrop functions.
-   //
-   void mousePressEvent (QMouseEvent* event)    { qcaMousePressEvent (event); }
-   void dragEnterEvent (QDragEnterEvent* event) { qcaDragEnterEvent (event, false); }
-   void dropEvent (QDropEvent* event)           { qcaDropEvent(event, true); }
-   // This widget uses the setDrop/getDrop defined in QEWidget.
-
-   void saveConfiguration (PersistanceManager* pm);
-   void restoreConfiguration (PersistanceManager* pm, restorePhases restorePhase);
-
-   // Copy paste
-   //
-   QString copyVariable();
-   QVariant copyData();
-   void paste (QVariant s);
-
-public:
-   // Constructors
-   //
-   QEPvProperties (QWidget*  parent = 0);
-   QEPvProperties (const QString & variableName, QWidget*  parent = 0);
-   ~QEPvProperties ();
-
-   QSize sizeHint () const;
 };
 
 # endif  // QEPVPROPERTIES_H
