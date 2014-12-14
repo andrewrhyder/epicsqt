@@ -1195,6 +1195,46 @@ void QCaObject::getLastData( bool& isDefinedOut, QVariant& valueOut, QCaAlarmInf
 }
 
 /*
+  Indicates if last data is defined/meaningful.
+  */
+bool QCaObject::getDataIsAvailable() const
+{
+   return lastValueIsDefined;
+}
+
+/*
+  Return the current value as string
+  */
+QString QCaObject::getStringValue() const
+{
+    return lastVariantValue.toString();
+}
+
+/*
+  Return the current value as integer
+  */
+long QCaObject::getIntegerValue() const
+{
+    bool okay;
+    long result;
+    result = lastVariantValue.toInt( &okay );
+    if( !okay ) result = 0;
+    return result;
+}
+
+/*
+  Return the current value as floating
+  */
+double QCaObject::getFloatingValue() const
+{
+    bool okay;
+    double result;
+    result = lastVariantValue.toDouble( &okay );
+    if( !okay ) result = 0.0;
+    return result;
+}
+
+/*
   Return the record name (technically the process variable name).
   */
 QString QCaObject::getRecordName()
