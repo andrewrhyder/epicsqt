@@ -110,12 +110,21 @@ namespace qcaobject {
       QString getFieldType();
       unsigned long getElementCount();  // num elements available on server as oppsoed to num elements actually subscribed for.
 
+      // Set/get the array index use to extract scaler value form an array.
+      // Default to 0, i.e. first element of the array.
       void setArrayIndex( const int index );
       int getArrayIndex() const;
 
       // Essentially provides same data as the dataChanged signal. The parameter isDefined indicates whether
       // the data is valid, i.e. has been received since the channel last connected.
       void getLastData( bool& isDefined, QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
+
+      // Conveniance functions for getLastData for scaler values
+      //
+      bool getDataIsAvailable () const;
+      QString getStringValue () const;   // note: raw string conversion, no units, precision or other QEString formatting
+      long getIntegerValue () const;
+      double getFloatingValue () const;
 
     signals:
       void dataChanged( const QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
