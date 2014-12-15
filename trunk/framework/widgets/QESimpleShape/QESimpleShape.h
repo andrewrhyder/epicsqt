@@ -155,11 +155,31 @@ public:
    UserLevels getUserLevelEnabledProperty() { return (UserLevels)getUserLevelEnabled(); }                  ///< Access function for #userLevelEnabled property - refer to #userLevelEnabled property for details
    void setUserLevelEnabledProperty( UserLevels level ) { setUserLevelEnabled( (userLevelTypes::userLevels)level ); }      ///< Access function for #userLevelEnabled property - refer to #userLevelEnabled property for details
 
-   /// If set (default) widget will indicate the alarm state of any variable data is displaying.
+   /// DEPRECATED. USE displayAlarmStateOption INSTEAD.
+   /// If set (default) widget will indicate the alarm state of any variable data it is displaying.
+   /// If clear widget will never indicate the alarm state of any variable data it is displaying.
    /// Typically the background colour is set to indicate the alarm state.
    /// Note, this property is included in the set of standard properties as it applies to most widgets. It
    /// will do nothing for widgets that don't display data.
-   Q_PROPERTY(bool displayAlarmState READ getDisplayAlarmState WRITE setDisplayAlarmState)
+   Q_PROPERTY(bool displayAlarmState READ getDisplayAlarmState WRITE setDisplayAlarmState DESIGNABLE false)
+
+   /// \enum DisplayAlarmStateOptions
+   /// User friendly enumerations for #displayAlarmStateOption property - refer to #displayAlarmStateOption property and displayAlarmStateOptions enumeration for details.
+   enum DisplayAlarmStateOptions { Never       = displayAlarmStateOptions::DISPLAY_ALARM_STATE_NEVER,          ///< Refer to DISPLAY_ALARM_STATE_NEVER for details
+                                   Always      = displayAlarmStateOptions::DISPLAY_ALARM_STATE_ALWAYS,         ///< Refer to DISPLAY_ALARM_STATE_ALWAYS for details
+                                   WhenInAlarm = displayAlarmStateOptions::DISPLAY_ALARM_STATE_WHEN_IN_ALARM   ///< Refer to DISPLAY_ALARM_STATE_WHEN_IN_ALARM for details
+                             };
+   Q_ENUMS(DisplayAlarmStateOptions)
+   /// If 'Always' (default) widget will indicate the alarm state of any variable data it is displaying, including 'No Alarm'
+   /// If 'Never' widget will never indicate the alarm state of any variable data it is displaying.
+   /// If 'WhenInAlarm' widget only indicate the alarm state of any variable data it is displaying if it is 'in alarm'.
+   /// Typically the background colour is set to indicate the alarm state.
+   /// Note, this property is included in the set of standard properties as it applies to most widgets. It
+   /// will do nothing for widgets that don't display data.
+   Q_PROPERTY(DisplayAlarmStateOptions displayAlarmStateOption READ getDisplayAlarmStateOptionProperty WRITE setDisplayAlarmStateOptionProperty)
+
+   DisplayAlarmStateOptions getDisplayAlarmStateOptionProperty() { return (DisplayAlarmStateOptions)getDisplayAlarmStateOption(); }            ///< Access function for #displayAlarmStateOption property - refer to #displayAlarmStateOption property for details
+   void setDisplayAlarmStateOptionProperty( DisplayAlarmStateOptions option ) { setDisplayAlarmStateOption( (displayAlarmStateOptions)option ); }///< Access function for #displayAlarmStateOption property - refer to #displayAlarmStateOption property for details
 
 public:
    // END-STANDARD-PROPERTIES ========================================================

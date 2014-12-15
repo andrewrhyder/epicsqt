@@ -55,7 +55,7 @@ standardProperties::standardProperties( QWidget* ownerIn )
     userLevelDisabled = false;
     applicationVisibility = true;
 
-    displayAlarmState = true;
+    displayAlarmState = DISPLAY_ALARM_STATE_ALWAYS;
 }
 
 // !!
@@ -155,13 +155,26 @@ bool standardProperties::getRunVisible()
     return applicationVisibility;
 }
 
+// DEPRECATED. USE setDisplayAlarmStateOption(displayAlarmStateOptions) INSTEAD
 // displayAlarmState. If set (default) widget will indicate the alarm state of any variable data is displaying.
 void standardProperties::setDisplayAlarmState( bool displayAlarmStateIn )
+{
+    displayAlarmState = displayAlarmStateIn?DISPLAY_ALARM_STATE_ALWAYS:DISPLAY_ALARM_STATE_NEVER;
+}
+
+// DEPRECATED. USE displayAlarmStateOptions getDisplayAlarmStateOption() INSTEAD
+bool standardProperties::getDisplayAlarmState()
+{
+    return displayAlarmState != DISPLAY_ALARM_STATE_NEVER;
+}
+
+// displayAlarmState. If set (default) widget will indicate the alarm state of any variable data is displaying.
+void standardProperties::setDisplayAlarmStateOption( displayAlarmStateOptions displayAlarmStateIn )
 {
     displayAlarmState = displayAlarmStateIn;
 }
 
-bool standardProperties::getDisplayAlarmState()
+standardProperties::displayAlarmStateOptions standardProperties::getDisplayAlarmStateOption()
 {
     return displayAlarmState;
 }

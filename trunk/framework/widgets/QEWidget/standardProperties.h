@@ -36,6 +36,8 @@ public:
     virtual ~standardProperties(){}
 
 public:
+    enum displayAlarmStateOptions { DISPLAY_ALARM_STATE_NEVER, DISPLAY_ALARM_STATE_ALWAYS, DISPLAY_ALARM_STATE_WHEN_IN_ALARM };     // Options regarding when the widget should display alarm state
+
     userLevelTypes::userLevels getUserLevelVisibility();
     void setUserLevelVisibility( userLevelTypes::userLevels level );
 
@@ -49,8 +51,11 @@ public:
     void setRunVisible( bool visibleIn );
     bool getRunVisible();
 
-    void setDisplayAlarmState( bool displayAlarmStateIn );
-    bool getDisplayAlarmState();
+    void setDisplayAlarmState( bool displayAlarmStateIn ); // DEPRECATED. USE setDisplayAlarmStateOption(displayAlarmStateOptions) INSTEAD
+    bool getDisplayAlarmState();  // DEPRECATED. USE displayAlarmStateOptions getDisplayAlarmStateOption() INSTEAD
+
+    void setDisplayAlarmStateOption( displayAlarmStateOptions displayAlarmStateIn );
+    displayAlarmStateOptions getDisplayAlarmStateOption();
 
 protected:
 
@@ -69,7 +74,7 @@ private:
 
     bool userLevelDisabled;         // Flag indicating the widget has been disabled due to inapropriate user level
     bool applicationVisibility; // The 'visibility' state of the widget unless held invisible due to inapropriate user level
-    bool displayAlarmState;     // Flag the widget should display alarm state
+    displayAlarmStateOptions displayAlarmState;     // Flag when the widget should display alarm state
 };
 
 #endif // STANDARDPROPERTIES_H
