@@ -33,11 +33,12 @@
 #include <alarm.h>
 
 #include <QDebug>
-
 #include <QEBitStatus.h>
 #include <QCaObject.h>
 
 #define DEBUG  qDebug () << "QEBitStatus" << __FUNCTION__ << __LINE__
+
+#define PV_VARIABLE_INDEX      0
 
 /* ----------------------------------------------------------------------------
     Constructor with no initialisation
@@ -80,8 +81,7 @@ void QEBitStatus::setup ()
    // Set the initial state
    // Widget is inactive until connected.
    //
-   this->isConnected = false;
-   this->setIsActive (this->isConnected);
+   this->setIsActive (false);
 
    setInvalidColour (this->getColor( invalid, 128));
 
@@ -99,25 +99,22 @@ void QEBitStatus::setup ()
 }
 
 
-
 /* ----------------------------------------------------------------------------
     Implementation of QEWidget's virtual funtion to create the specific type
     of QCaObject required. For a Bit Status widget a QCaObject that streams
     integers is required.
 */
-qcaobject::QCaObject *
-    QEBitStatus::createQcaItem (unsigned int variableIndex)
+qcaobject::QCaObject* QEBitStatus::createQcaItem (unsigned int variableIndex)
 {
-   qcaobject::QCaObject * result;
+   qcaobject::QCaObject* result;
 
-   // assert variableIndex == 0 ??
+   if (variableIndex != PV_VARIABLE_INDEX) {
+      DEBUG << "unexpected variableIndex" << variableIndex;
+      return NULL;
+   }
 
    result = new QEInteger (getSubstitutedVariableName (variableIndex),
                            this, &integerFormatting, variableIndex);
-
-   // We only need/want the first element.
-   //
-   result->setRequestedElementCount (1);
 
    return result;
 }
@@ -131,6 +128,11 @@ qcaobject::QCaObject *
 */
 void QEBitStatus::establishConnection (unsigned int variableIndex)
 {
+   if (variableIndex != PV_VARIABLE_INDEX) {
+      DEBUG << "unexpected variableIndex" << variableIndex;
+      return;
+   }
+
    // Create a connection.
    // If successfull, the QCaObject object that will supply data update signals will be returned
    // Note createConnection creates the connection and returns reference to existing QCaObject.
@@ -140,12 +142,12 @@ void QEBitStatus::establishConnection (unsigned int variableIndex)
    // If a QCaObject object is now available to supply data update signals,
    // connect it to the appropriate slots.
    //
-   if ((qca) && (variableIndex == 0)) {
+   if (qca) {
       QObject::connect (qca,  SIGNAL (integerChanged  (const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int &)),
                         this, SLOT (setBitStatusValue (const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int &)));
 
-      QObject::connect (qca,  SIGNAL (connectionChanged (QCaConnectionInfo&)),
-                        this, SLOT (connectionChanged   (QCaConnectionInfo&)));
+      QObject::connect (qca,  SIGNAL (connectionChanged (QCaConnectionInfo&, const unsigned int &)),
+                        this, SLOT   (connectionChanged (QCaConnectionInfo&, const unsigned int &)));
    }
 }
 
@@ -155,16 +157,16 @@ void QEBitStatus::establishConnection (unsigned int variableIndex)
     Change how the progress bar looks and change the tool tip
     This is the slot used to recieve connection updates from a QCaObject based class.
  */
-void QEBitStatus::connectionChanged (QCaConnectionInfo & connectionInfo)
+void QEBitStatus::connectionChanged (QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex)
 {
     // Note the connected state
-    this->isConnected = connectionInfo.isChannelConnected();
+    bool isConnected = connectionInfo.isChannelConnected();
 
     // Display the connected state
-    updateToolTipConnection (this->isConnected);
-    updateConnectionStyle (this->isConnected);
+    updateToolTipConnection (isConnected, variableIndex);
+    updateConnectionStyle (isConnected);
 
-    this->setIsActive (this->isConnected);
+    this->setIsActive (isConnected);
 }
 
 
@@ -174,11 +176,11 @@ void QEBitStatus::connectionChanged (QCaConnectionInfo & connectionInfo)
  */
 void QEBitStatus::setBitStatusValue (const long &value,
                                      QCaAlarmInfo & alarmInfo,
-                                     QCaDateTime &, const unsigned int &)
+                                     QCaDateTime &, const unsigned int &variableIndex)
 {
    // Update the Bit Status
    //
-   setValue (int (value));
+   this->setValue (int (value));
 
    // Set validity status.
    //
@@ -187,7 +189,7 @@ void QEBitStatus::setBitStatusValue (const long &value,
    // Invoke common alarm handling processing.
    // Although this sets widget style, we invoke for tool tip processing only.
    //
-   this->processAlarmInfo (alarmInfo);
+   this->processAlarmInfo (alarmInfo, variableIndex);
 
    // Signal a database value change to any Link widgets
    //
@@ -205,22 +207,6 @@ void QEBitStatus::useNewVariableNameProperty( QString variableNameIn,
    this->setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
 }
 
-//==============================================================================
-// Drag drop
-//
-void QEBitStatus::setDrop( QVariant drop )
-{
-    setVariableName( drop.toString(), 0 );
-    establishConnection( 0 );
-}
-
-QVariant QEBitStatus::getDrop()
-{
-    if( isDraggingVariable() )
-        return QVariant( copyVariable() );
-    else
-        return copyData();
-}
 
 //==============================================================================
 // Copy (no paste)
@@ -235,22 +221,4 @@ QVariant QEBitStatus::copyData()
    return QVariant( this->getValue () );
 }
 
-//------------------------------------------------------------------------------
-// Access functions for variableName and variableNameSubstitutions
-// variable substitutions Example: SECTOR=01 will result in any occurance
-// of $(SECTOR) in variable name being replaced with 01.
-//
-void QEBitStatus::setVariableNameAndSubstitutions (QString variableNameIn,
-                                                    QString variableNameSubstitutionsIn,
-                                                    unsigned int variableIndex)
-{
-   setVariableNameSubstitutions (variableNameSubstitutionsIn);
-
-   // TODO a WTF comment
-   setVariableName (variableNameIn, variableIndex);
-   establishConnection (variableIndex);
-
-   setVariableName (variableNameIn, variableIndex + 1);
-   establishConnection (variableIndex + 1);
-}
 // end

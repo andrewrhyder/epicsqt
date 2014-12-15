@@ -22,8 +22,8 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-#ifndef QEBITSTATUS_H
-#define QEBITSTATUS_H
+#ifndef QE_BIT_STATUS_H
+#define QE_BIT_STATUS_H
 
 #include <QString>
 #include <QVector>
@@ -155,23 +155,18 @@ public:
 
     // QEBitStatus specific properties ================================================
     //
-    // Make the value and isActive proerties non-designable. This both hides the properties
-    // within designer and stops the values from being written to the .ui file.
+    // Make the value, isActive and isvalid properties non-designable. This both hides the
+    // properties within designer and stops the values from being written to the .ui file.
     //
     Q_PROPERTY (double value    READ getValue     WRITE setValue    DESIGNABLE false)
     Q_PROPERTY (bool   isActive READ getIsActive  WRITE setIsActive DESIGNABLE false)
+    Q_PROPERTY (bool   isValid  READ getIsValid   WRITE setIsValid DESIGNABLE false)
     //
     // End QEBitStatus specific properties ============================================
 
 public:
    QEBitStatus (QWidget * parent = 0);
    QEBitStatus (const QString & variableName, QWidget * parent = 0);
-
-   // Variable Name and substitution
-   //
-   void setVariableNameAndSubstitutions (QString variableNameIn,
-                                         QString variableNameSubstitutionsIn,
-                                         unsigned int variableIndex);
 
 protected:
    QEIntegerFormatting integerFormatting;
@@ -181,13 +176,10 @@ protected:
 private:
    void setup ();
 
-   qcaobject::QCaObject * createQcaItem (unsigned int variableIndex);
-
-   bool isConnected;
+   qcaobject::QCaObject* createQcaItem (unsigned int variableIndex);
 
 private slots:
-   void connectionChanged (QCaConnectionInfo &
-                           connectionInfo);
+   void connectionChanged (QCaConnectionInfo&  connectionInfo, const unsigned int &);
 
    void setBitStatusValue (const long &value, QCaAlarmInfo &,
                            QCaDateTime &, const unsigned int &);
@@ -209,13 +201,12 @@ protected:
    void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
    void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
    void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
-   void setDrop( QVariant drop );
-   QVariant getDrop();
+   // Use default setDrop and getDrop.
 
    // Copy paste
    QString copyVariable();
    QVariant copyData();
-
 };
 
-#endif                          // QEBITSTATUS_H
+#endif                          // QE_BIT_STATUS_H
+
