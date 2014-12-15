@@ -380,7 +380,7 @@ private:
     void buildPersistantName( QWidget* w, QString& name );
 
     QCAALARMINFO_SEVERITY lastSeverity;                     // Used as low pass tool tip filter.
-    bool lastDisplayAlarmState;
+    standardProperties::displayAlarmStateOptions lastDisplayAlarmState;
 
     static void addPathToSearchList( QString path, QString name, QStringList& searchList ); // Add a path and filename to a search list. (add sub dirs if path ends with '...')
 

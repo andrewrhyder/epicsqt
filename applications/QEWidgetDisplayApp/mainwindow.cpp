@@ -46,11 +46,24 @@ MainWindow::MainWindow(QWidget *parent) :
 //    QELabel* qel = new QELabel( "OOE:ai", centralWidget() );  // See below for all the alternatives for setting a variable name
 
     // Set its position and size
-    qel->setGeometry( 100, 50, 200, 50 );
+    qel->setGeometry( 100, 30, 200, 30 );
 
+    // Display alarm state option 1.
     // Don't display the alarm state. This is done by setting the background colour and
     // we will be setting the background ourselves and don't want it overwritten
-    qel->setDisplayAlarmState( false );
+//    qel->setDisplayAlarmStateOption( standardProperties::DISPLAY_ALARM_STATE_NEVER );
+
+    // Display alarm state option 2.
+    // Don't display the alarm state unless it is actually in alarm.
+    // This is done by setting the background colour and
+    // we will be setting the background ourselves and don't want it overwritten unless nessesary
+    qel->setDisplayAlarmStateOption( standardProperties::DISPLAY_ALARM_STATE_WHEN_IN_ALARM );
+
+    // Display alarm state option 3.
+    // Always display display the alarm state even when the current alarm state is 'No Alarm'.
+    // This is done by setting the background colour which will make setting the background ourselves
+    // (below) redundant.
+//    qel->setDisplayAlarmStateOption( standardProperties::DISPLAY_ALARM_STATE_ALWAYS );
 
     // Set the background to blue
     QPalette Pal(palette());
@@ -170,10 +183,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Create a QEComboBox and set its position and size
     QEComboBox* qeqb = new QEComboBox( centralWidget() );
-    qeqb->setGeometry( 100, 150, 200, 50 );
+    qeqb->setGeometry( 100, 90, 200, 30 );
 
     // Don't display the alarm state. This is done by setting the background colour and
     // we will be setting the background ourselves and don't want it overwritten
+    // USE OF setDisplayAlarmState() is deprecated. USE setDisplayAlarmStateOption() instead
     qeqb->setDisplayAlarmState( false );
 
     // Set the variable name using the access function for the variable name property.
@@ -185,7 +199,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Create a QELineEdit with an active variable
     // and set its position and size
     QELineEdit* qew = new QELineEdit( "OOE:ai", centralWidget() );
-    qew->setGeometry( 100, 250, 200, 50 );
+    qew->setGeometry( 100, 150, 200, 30 );
 
 }
 
