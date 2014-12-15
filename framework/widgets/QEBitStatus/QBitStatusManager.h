@@ -25,39 +25,20 @@
 
 // Bit status Widget Plugin Manager for designer.
 
-#ifndef QBITSTATUSMANAGER_H
-#define QBITSTATUSMANAGER_H
+#ifndef Q_BIT_STATUS_MANAGER_H
+#define Q_BIT_STATUS_MANAGER_H
 
 #include <QDesignerCustomWidgetInterface>
 #include <QEPluginLibrary_global.h>
+#include <QEDesignerPluginCommon.h>
 
-/*
-    ???
-*/
-class QEPLUGINLIBRARYSHARED_EXPORT
-      QBitStatusManager : public QObject,
-                                public QDesignerCustomWidgetInterface {
+class QEPLUGINLIBRARYSHARED_EXPORT QBitStatusManager :
+      public QObject, public QDesignerCustomWidgetInterface {
 
-      Q_OBJECT
-      Q_INTERFACES (QDesignerCustomWidgetInterface)
+   Q_OBJECT
+   Q_INTERFACES (QDesignerCustomWidgetInterface)
 
-   public:
-      QBitStatusManager (QObject *parent = 0);
-
-      bool isContainer () const;
-      bool isInitialized () const;
-      QIcon icon () const;
-      //QString domXml  () const;
-      QString group () const;
-      QString includeFile () const;
-      QString name () const;
-      QString toolTip () const;
-      QString whatsThis () const;
-      QWidget *createWidget (QWidget *parent);
-      void initialize (QDesignerFormEditorInterface *core);
-
-   private:
-      bool initialized;
+   QE_DECLARE_PLUGIN_MANAGER (QBitStatus)
 };
 
-#endif // QBITSTATUSMANAGER_H
+#endif // Q_BIT_STATUS_MANAGER_H

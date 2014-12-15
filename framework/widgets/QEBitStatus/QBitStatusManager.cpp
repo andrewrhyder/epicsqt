@@ -27,9 +27,8 @@
 
 #include <QBitStatusManager.h>
 #include <QBitStatus.h>
-#include <QtPlugin>
-#include <QEDesignerPluginCommon.h>
 
-QE_IMPLEMENT_PLUGIN_MANAGER (QBitStatus, "EPICSQt Tools", ":/qe/bitstatus/QBitStatus.png", false)
+QE_IMPLEMENT_PLUGIN_MANAGER
+   (QBitStatus, "EPICSQt Tools", ":/qe/bitstatus/QBitStatus.png", false)
 
 // end

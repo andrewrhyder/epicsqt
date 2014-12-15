@@ -25,37 +25,20 @@
 
 // CA ProgressBar Widget Plugin Manager for designer.
 
-#ifndef QEBITSTATUSMANAGER_H
-#define QEBITSTATUSMANAGER_H
+#ifndef QE_BIT_STATUS_MANAGER_H
+#define QE_BIT_STATUS_MANAGER_H
 
 #include <QDesignerCustomWidgetInterface>
 #include <QEPluginLibrary_global.h>
+#include <QEDesignerPluginCommon.h>
 
-/*
-    ???
-*/
 class QEPLUGINLIBRARYSHARED_EXPORT QEBitStatusManager :
    public QObject, public QDesignerCustomWidgetInterface {
+
    Q_OBJECT
    Q_INTERFACES (QDesignerCustomWidgetInterface)
 
- public:
-   QEBitStatusManager (QObject * parent = 0);
-
-   bool isContainer () const;
-   bool isInitialized () const;
-   QIcon icon () const;
-   //QString domXml() const;
-   QString group () const;
-   QString includeFile () const;
-   QString name () const;
-   QString toolTip () const;
-   QString whatsThis () const;
-   QWidget *createWidget (QWidget * parent);
-   void initialize (QDesignerFormEditorInterface * core);
-
- private:
-    bool initialized;
+   QE_DECLARE_PLUGIN_MANAGER (QEBitStatus)
 };
 
-#endif                          // QEBITSTATUSMANAGER_H
+#endif                          // QE_BIT_STATUS_MANAGER_H
