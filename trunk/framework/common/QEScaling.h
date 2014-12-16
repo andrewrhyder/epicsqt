@@ -29,6 +29,9 @@
 
 #include <QObject>
 #include <QPoint>
+#include <QRect>
+#include <QSize>
+
 #include <QEPluginLibrary_global.h>
 
 /// The scaling is defined using a rational number specifed by two integers (m, d).
@@ -57,9 +60,9 @@ public:
     /// Adjust the geometry and font scaling of the widget and all child widgets
     /// by the defined scaling parameters (m, d). Unless m and d different, no scaling occurs.
     /// The function tree walks the hiearchy of widgets paranted by the specified widget.
-    /// The maxDepth can be used to limit any possibility of infinite recursion.
-    ///
-    static void applyToWidget (QWidget* widget, const int maxDepth = 60);
+    /// This function is idempotent.
+    //
+    static void applyToWidget (QWidget* widget);
 
     /// Conveniance functions for widget specific 'scaleBy' functions.
     ///
@@ -77,16 +80,69 @@ private:
     static int currentScaleM;
     static int currentScaleD;
 
-    /// Tree walks the QWidget hierarchy in order to apply scaling.
+    /// Tree walks the QWidget hierarchy in order to apply supplied scaling finction.
     ///
-    static void widgetTreeWalk (QWidget* widget, const int maxDepth);
+    typedef void (*ScalingFunction) (QWidget* widget);
+    static void widgetTreeWalk (QWidget* widget, ScalingFunction sf);
+
+    /// Captures scaling info as property, if not already done so.
+    ///
+    static void widgetCapture (QWidget* widget);
 
     /// Scales a single widget
     /// Applies some special processing above and beyond size, min size, max size and font
     /// depending on the type of widget. Also if is a QEWidget then calls QEWidget's scaleBy
     /// method.
     ///
-    static void widgetScale (QWidget * widget);
+    static void widgetScale (QWidget* widget);
+
+    /// Static functions create an instance of this object. This object use to
+    /// hold base line widget sizing data. The data is encoded and store in a
+    /// property associated with the widget.
+    ///
+private:
+   int firstMember;    // used in conjection with lastMember to define size.
+
+   explicit QEScaling (QWidget* widget);
+   ~QEScaling ();
+
+   void   extractFromWidget (const QWidget* widget);
+   bool     decodeProperty (const QVariant& property);
+   QVariant encodeProperty () const;
+
+   bool isDefined;
+
+   // basic geomertry and size constraints.
+   //
+   QRect geometry;
+   QSize minimumSize;
+   QSize maximumSize;
+
+   // Font size inofrmation.
+   //
+   int pointSize;
+   int pixelSize;
+
+   // Layouts
+   //
+   bool layoutIsDefined;
+   int layoutMarginLeft;
+   int layoutMarginTop;
+   int layoutMarginRight;
+   int layoutMarginBottom;
+   int layoutSpacing;
+
+   // Specials - for particular widget types.
+   //
+   int labelIndent;
+   int resizeFrameAllowedMin;
+   int resizeFrameAllowedMax;
+   int tableDefaultHorizontalSectionSize;
+   int tableDefaultVerticalSectionSize;
+   int treeViewIndentation;
+
+private:
+   int lastMember;
 };
 
 # endif // QE_SCALING_H

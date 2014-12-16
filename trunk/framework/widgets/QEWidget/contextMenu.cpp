@@ -110,7 +110,7 @@ QMenu* contextMenu::buildContextMenu()
 
         // Apply current scaling if any to new default menu.
         //
-        QEScaling::applyToWidget( defaultMenu, 10 );
+        QEScaling::applyToWidget( defaultMenu );
         menu->addMenu( defaultMenu );
         menu->addSeparator();
     }
@@ -206,7 +206,7 @@ QMenu* contextMenu::buildContextMenu()
 
     // This object is created dynamically as opposed to at overall contruction time,
     // so need to apply current scalling, if any to the new menu.
-    QEScaling::applyToWidget( menu, 10 );
+    QEScaling::applyToWidget( menu );
 
     return menu;
 }
