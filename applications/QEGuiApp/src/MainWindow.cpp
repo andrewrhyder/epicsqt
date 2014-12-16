@@ -1891,12 +1891,8 @@ QEForm* MainWindow::createGui( QString fileName, QString title, QString customis
         // requests to do things such as display errors.
         profile.updateConsumers( this );
 
-        // Load the .ui file into the GUI
+        // Load the .ui file into the GUI. The QEForm object applies any scaling.
         gui->readUiFile();
-
-        // Apply any adjustments to the scaling of the loaded widget.
-        //
-        QEScaling::applyToWidget( gui );
 
         // Save the version of the QE framework used by the ui loader. (can be different to the one this application is linked against)
         UILoaderFrameworkVersion = gui->getContainedFrameworkVersion();

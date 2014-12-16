@@ -189,10 +189,6 @@ void QEForm::reloadLater()
     // Load the form
     readUiFile();
 
-    // The ui file has been loaded post construction, so this widget missed out on any applied scaling.
-    // Therefore apply the current scaling now.
-    QEScaling::applyToWidget( ui );
-
     // And propogate fileMonitoringIsEnabled state to any sub QEForms.
     //
     setEmbeddedFileMonitoringIsEnabled( this, fileMonitoringIsEnabled );
@@ -355,6 +351,13 @@ bool QEForm::readUiFile()
                 // Load a placeholder as the ui file could not be loaded
                 displayPlaceholder( true, QString( "Could not load " ).append( fullUiFileName ) );
             }
+
+            // Apply scaling. This may be re-applied if this is an embedded QEForm, but
+            // function is idempotent as can be applied one or more times. However on
+            // the first call it also captures baseline scaling info and we need to do
+            // this as soon as possble post construction prior to any other manipulation.
+            //
+            QEScaling::applyToWidget( ui );
 
             // Set the window title (performing macro substitutions if required)
             setWindowTitle( uiFile->fileName() );
@@ -611,10 +614,6 @@ void QEForm::reloadFile()
         ui->close();
     }
     readUiFile();
-    
-    // The ui file has been loaded post construction, so this widget missed out on any applied scaling.
-    // Therefore apply the current scaling now.
-    QEScaling::applyToWidget( ui );
 }
 
 // Slot for reloading the file if it has changed.
