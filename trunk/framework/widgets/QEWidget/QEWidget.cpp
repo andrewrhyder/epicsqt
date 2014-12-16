@@ -65,7 +65,7 @@ QEWidget::QEWidget( QWidget *ownerIn ) : QEToolTip( ownerIn ), QEDragDrop( owner
 
     //
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
-    lastDisplayAlarmState = displayAlarmStateOptions::DISPLAY_ALARM_STATE_NEVER;
+    lastDisplayAlarmState = standardProperties::DISPLAY_ALARM_STATE_NEVER;
 
     // Default properties
     subscribe = true;
@@ -330,9 +330,9 @@ void QEWidget::processAlarmInfo( QCaAlarmInfo& alarmInfo, const unsigned int var
     if( severity != lastSeverity || displayAlarmState != lastDisplayAlarmState )
     {
         // If displaying the alarm state, apply the current alarm style
-        if (( displayAlarmState == displayAlarmStateOptions::DISPLAY_ALARM_STATE_ALWAYS )
+        if (( displayAlarmState == standardProperties::DISPLAY_ALARM_STATE_ALWAYS )
             ||
-            (( displayAlarmState == displayAlarmStateOptions::DISPLAY_ALARM_STATE_WHEN_IN_ALARM )
+            (( displayAlarmState == standardProperties::DISPLAY_ALARM_STATE_WHEN_IN_ALARM )
                &&
               alarmInfo.isInAlarm()
              ))
