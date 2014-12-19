@@ -154,13 +154,24 @@ qcaobject::QCaObject* QERadioGroup::createQcaItem (unsigned int variableIndex)
 {
    qcaobject::QCaObject* result = NULL;
 
-   if (variableIndex != PV_VARIABLE_INDEX) {
-      DEBUG << "unexpected variableIndex" << variableIndex;
-      return NULL;
+   switch (variableIndex) {
+
+      case PV_VARIABLE_INDEX:
+         result = new QEInteger (this->getSubstitutedVariableName (variableIndex),
+                                 this, &this->integerFormatting, variableIndex);
+         break;
+
+      case TITLE_VARIABLE_INDEX:
+         // do nothing
+         result = NULL;
+         break;
+
+      default:
+         DEBUG << "unexpected variableIndex" << variableIndex;
+         result = NULL;
+         break;
    }
 
-   result = new QEInteger (this->getSubstitutedVariableName (variableIndex),
-                           this, &this->integerFormatting, variableIndex);
    return result;
 }
 
@@ -172,25 +183,35 @@ qcaobject::QCaObject* QERadioGroup::createQcaItem (unsigned int variableIndex)
 //
 void QERadioGroup::establishConnection (unsigned int variableIndex)
 {
-   if (variableIndex != PV_VARIABLE_INDEX) {
-      DEBUG << "unexpected variableIndex" << variableIndex;
-      return;
-   }
+   qcaobject::QCaObject* qca = NULL;
 
-   // Create a connection.
-   // If successfull, the QCaObject object that will supply data update signals will be returned
-   // Note createConnection creates the connection and returns reference to existing QCaObject.
-   //
-   qcaobject::QCaObject* qca = createConnection (variableIndex);
+   switch (variableIndex) {
 
-   // If a QCaObject object is now available to supply data update signals, connect it to the appropriate slots.
-   //
-   if (qca) {
-      QObject::connect (qca,  SIGNAL (connectionChanged (QCaConnectionInfo&, const unsigned int&)),
-                        this, SLOT   (connectionChanged (QCaConnectionInfo&, const unsigned int&)));
+      case PV_VARIABLE_INDEX:
+         // Create a connection.
+         // If successfull, the QCaObject object that will supply data update signals will be returned
+         // Note createConnection creates the connection and returns reference to existing QCaObject.
+         //
+         qca = createConnection (variableIndex);
 
-      QObject::connect (qca,  SIGNAL (integerChanged (const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int&)),
-                        this, SLOT   (valueUpdate    (const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int&)));
+         // If a QCaObject object is now available to supply data update signals, connect it to the appropriate slots.
+         //
+         if (qca) {
+            QObject::connect (qca,  SIGNAL (connectionChanged (QCaConnectionInfo&, const unsigned int&)),
+                              this, SLOT   (connectionChanged (QCaConnectionInfo&, const unsigned int&)));
+
+            QObject::connect (qca,  SIGNAL (integerChanged (const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int&)),
+                              this, SLOT   (valueUpdate    (const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int&)));
+         }
+         break;
+
+      case TITLE_VARIABLE_INDEX:
+         // do nothing
+         break;
+
+      default:
+         DEBUG << "unexpected variableIndex" << variableIndex;
+         break;
    }
 }
 
