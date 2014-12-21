@@ -1,4 +1,486 @@
 ==================================================================================================
+Changes between 3.0.0 and 2.9.0 (this includes changes to all branches and tags and may include changes no related to this release)
+
+SUMMARY:
+Change licencing to GNU LGPL to better conform to Australian Synchrotron intellectual property policy: ...rights should be granted to ‘maximises impact, value, accessibility and benefit with the public interest, while upholding the law and managing risk appropriately’.
+.
+Enhancements and bug fixes to the data sub-system and the following widgets:
+ScratchPad, Form, ArchiveNameSearch, PvProperties, Histogram, ScalarHistogram, Image, StripChart, Plotter, Table, SimpleShape, Label, Buttons, ResizeableFrame, NumericEdit, BitStatus, RadioGroup, BitStatus
+.
+Improve saving and restoring configurations.
+Performance improvements (file monitoring, threading, array processing).
+Improve use of framework within custom applications, including new demo application - QEWidgetDisplayApp.
+Variable name searching using archiver.
+
+DETAIL:
+------------------------------------------------------------------------
+r1692 | rhyder | 2014-09-10 16:04:45 +1000 (Wed, 10 Sep 2014) | 2 lines
+
+Revert trunk version to 'development' following release of 2.9.0
+
+------------------------------------------------------------------------
+r1693 | rhyder | 2014-09-12 08:42:02 +1000 (Fri, 12 Sep 2014) | 2 lines
+
+Save dock titles when saving configuration
+
+------------------------------------------------------------------------
+r1694 | rhyder | 2014-09-12 14:28:58 +1000 (Fri, 12 Sep 2014) | 7 lines
+
+Improve loading docks that were saved when the user saved the current
+configuration.
+Avoid re-loading a customisation set if it is already the current
+customisation set.
+Use default customisations when opening a new window using the standard
+'File' 'Open...'
+
+------------------------------------------------------------------------
+r1695 | rhyder | 2014-09-12 16:05:42 +1000 (Fri, 12 Sep 2014) | 4 lines
+
+Save and restore Mainwindow titles. Don't just rely on the title to be
+correctly set by the GUI in the main window, and somethines there isn't
+one - such as when the GUI consists only of docks.
+
+------------------------------------------------------------------------
+r1696 | rhyder | 2014-09-12 16:29:48 +1000 (Fri, 12 Sep 2014) | 7 lines
+
+when looking for an existing GUI to present - when asked to launch a GUI
+such as from a customised menu item, or QEPush button, attempt to match
+the main window title, if a Main window displaying the correct GUI is
+not found. this is required since a main window may not be displaying
+any central GUIs. For example, when it contains nothing (perhaps used
+only for it's menus) or contains only docks.
+
+------------------------------------------------------------------------
+r1697 | andrewstarritt | 2014-09-12 20:36:58 +1000 (Fri, 12 Sep 2014) | 1 line
+
+QEScratchPad: re emit pv name set when widget activated, use up/down key to control selection
+------------------------------------------------------------------------
+r1698 | andrewstarritt | 2014-09-14 11:47:45 +1000 (Sun, 14 Sep 2014) | 1 line
+
+QETable: add saveConfiguration/restoreConfiguration capability
+------------------------------------------------------------------------
+r1699 | andrewstarritt | 2014-09-18 10:03:26 +1000 (Thu, 18 Sep 2014) | 1 line
+
+Introduce shared file monitoring capability - only uses one thread as opposed to a thread per QFileSystemWatcher instance
+------------------------------------------------------------------------
+r1700 | andrewstarritt | 2014-09-18 10:18:22 +1000 (Thu, 18 Sep 2014) | 1 line
+
+QEForm: Use QEFileMonitor instead of QFileSystemWatcher, only monitor when enabled as opposed to monitor and ignore when disabled; and propogate file monitoring enabled state to embedded/nested QEForms
+------------------------------------------------------------------------
+r1701 | andrewstarritt | 2014-09-29 21:53:50 +1000 (Mon, 29 Sep 2014) | 1 line
+
+QRadioGroup QNumericEdit - add guard to inhibit emitting changed value signal when change originates from external setValue call, i.e. only emit signal on user input
+------------------------------------------------------------------------
+r1702 | andrewstarritt | 2014-10-31 12:15:40 +1100 (Fri, 31 Oct 2014) | 1 line
+
+Add a delayed text class - similar to that used for PV names etc. when within designer
+------------------------------------------------------------------------
+r1703 | andrewstarritt | 2014-10-31 12:20:49 +1100 (Fri, 31 Oct 2014) | 1 line
+
+QEArchiveNameSearch - add drag icon with used friendly tool tip; also use delayed text input together with auto search if/when user stops typing.
+------------------------------------------------------------------------
+r1704 | andrewstarritt | 2014-10-31 12:44:02 +1100 (Fri, 31 Oct 2014) | 1 line
+
+QEDelayedText: fix function name typo
+------------------------------------------------------------------------
+r1705 | andrewstarritt | 2014-10-31 12:45:21 +1100 (Fri, 31 Oct 2014) | 1 line
+
+QEArchiveNameSearch: Enable/disable drag icon depending on if any items selected
+------------------------------------------------------------------------
+r1706 | rhyder | 2014-10-31 13:56:40 +1100 (Fri, 31 Oct 2014) | 4 lines
+
+Fix cross reference error (word occasionaly messes up a reference and
+places a large slab or nearby text into a cross reference, instead of
+the expected heading.)
+
+------------------------------------------------------------------------
+r1707 | andrewstarritt | 2014-10-31 14:36:40 +1100 (Fri, 31 Oct 2014) | 1 line
+
+macroSubstitution - modify functions to be const or static where appropriate
+------------------------------------------------------------------------
+r1708 | andrewstarritt | 2014-10-31 15:42:11 +1100 (Fri, 31 Oct 2014) | 1 line
+
+QEPvLoadSave - provide basic substitutions capability - applies to PV names,group names and values when loaded from a file.
+------------------------------------------------------------------------
+r1709 | rhyder | 2014-10-31 16:06:34 +1100 (Fri, 31 Oct 2014) | 6 lines
+
+Modify qegui -n parameter to be the customisation set name for those
+GUIs specified on the command line (the original intention) and add a -d
+parameter to override the default customisation set name (QEGui_Default)
+for any GUIs opened where a customisation set name has not been
+specified.
+
+------------------------------------------------------------------------
+r1710 | andrewstarritt | 2014-10-31 16:59:46 +1100 (Fri, 31 Oct 2014) | 1 line
+
+contextMenu - provide a means to select which menu items are created
+------------------------------------------------------------------------
+r1711 | andrewstarritt | 2014-10-31 17:01:12 +1100 (Fri, 31 Oct 2014) | 1 line
+
+QEArchiveNameSearch - inhibit CM_COPY_DATA and CM_DRAG_DATA from standard context menu
+------------------------------------------------------------------------
+r1712 | andrewstarritt | 2014-11-02 14:12:41 +1100 (Sun, 02 Nov 2014) | 1 line
+
+contextMenu - allow for context menu caption pluralisation if/when multiple PV items
+------------------------------------------------------------------------
+r1713 | andrewstarritt | 2014-11-02 14:17:21 +1100 (Sun, 02 Nov 2014) | 1 line
+
+QEArchiveNameSearch - remove context menu PV name paste option, set pluralisation and provide dynamic tool tip; update drag icon
+------------------------------------------------------------------------
+r1714 | andrewstarritt | 2014-11-02 15:10:03 +1100 (Sun, 02 Nov 2014) | 1 line
+
+QEPvProperties - be consistant with menu slot names, fix typo
+------------------------------------------------------------------------
+r1715 | andrewstarritt | 2014-11-03 11:21:24 +1100 (Mon, 03 Nov 2014) | 1 line
+
+QEHistogram - cope with log scaling; allow wider range of values
+------------------------------------------------------------------------
+r1716 | andrewstarritt | 2014-11-03 11:22:58 +1100 (Mon, 03 Nov 2014) | 1 line
+
+QEScalarHistogram - allow more PVs to be specified (still somewhat arbitary) and remove spurious debug statement
+------------------------------------------------------------------------
+r1717 | andrewstarritt | 2014-11-03 15:51:44 +1100 (Mon, 03 Nov 2014) | 1 line
+
+QEPvNameSearch - refactor out from QEArchiveManager to provide a more general PV name search/select capability
+------------------------------------------------------------------------
+r1718 | andrewstarritt | 2014-11-03 15:53:02 +1100 (Mon, 03 Nov 2014) | 1 line
+
+Update QEArchiveNameSearch and QEPVNameSelectDialog to use new QEPvNameSearch class
+------------------------------------------------------------------------
+r1719 | rhyder | 2014-11-05 12:55:46 +1100 (Wed, 05 Nov 2014) | 2 lines
+
+Avoid Windows compilation warnings.
+
+------------------------------------------------------------------------
+r1720 | zaiwang | 2014-11-10 17:30:48 +1100 (Mon, 10 Nov 2014) | 1 line
+
+add name property for object display and idetification purpose
+------------------------------------------------------------------------
+r1721 | rhyder | 2014-11-11 09:14:12 +1100 (Tue, 11 Nov 2014) | 4 lines
+
+Document QEImage 'name' property and move 'name' property out of
+standard properties for widgets with multiple variables to QEImage
+specific properties.
+
+------------------------------------------------------------------------
+r1722 | andrewstarritt | 2014-11-12 11:07:48 +1100 (Wed, 12 Nov 2014) | 1 line
+
+QEPvLoadSave - make the default directory used to load/save files a property (as opposed to being hard coded)
+------------------------------------------------------------------------
+r1723 | andrewstarritt | 2014-11-13 17:42:46 +1100 (Thu, 13 Nov 2014) | 1 line
+
+QEStripChart - use standard context menu
+------------------------------------------------------------------------
+r1724 | andrewstarritt | 2014-11-13 17:46:20 +1100 (Thu, 13 Nov 2014) | 1 line
+
+QEGraphic/QEGraphicMarkup - allow access to cross hairs visibility, current real world mouse coordinates, and if gobal position is over the canvas
+------------------------------------------------------------------------
+r1725 | andrewstarritt | 2014-11-13 20:05:24 +1100 (Thu, 13 Nov 2014) | 1 line
+
+contextMenu.h - align comments - cosmetic
+------------------------------------------------------------------------
+r1726 | rhyder | 2014-11-13 22:14:47 +1100 (Thu, 13 Nov 2014) | 4 lines
+
+Fix connection/disconnection counts. Counts did not decrement when QCa
+objects were deleted as .ui files were closed in qegui. Minor memory
+leak fixed as a consquence.
+
+------------------------------------------------------------------------
+r1727 | rhyder | 2014-11-13 23:05:35 +1100 (Thu, 13 Nov 2014) | 3 lines
+
+Fix build on qt4.6.2 (Qt::MiddleButton was not defined back then. Use
+MidButton before 4.7.0)
+
+------------------------------------------------------------------------
+r1728 | rhyder | 2014-11-13 23:20:55 +1100 (Thu, 13 Nov 2014) | 3 lines
+
+Fix build on qt4.6.2 (Qt::MiddleButton was not defined back then. Use
+MidButton before 4.7.0)
+
+------------------------------------------------------------------------
+r1729 | andrewstarritt | 2014-11-14 12:21:26 +1100 (Fri, 14 Nov 2014) | 1 line
+
+QEPlotter - allow X and/or Y coordinated to be emitted from the plotter (together with conext menu text set from a plotter property).
+------------------------------------------------------------------------
+r1730 | andrewstarritt | 2014-11-14 12:42:28 +1100 (Fri, 14 Nov 2014) | 1 line
+
+bug 4402 - hide value properties derived from PV values at design time from being captured in the saved ui file
+------------------------------------------------------------------------
+r1731 | andrewstarritt | 2014-11-16 15:22:28 +1100 (Sun, 16 Nov 2014) | 1 line
+
+QNumericEditManager.h - make guard ifdef/define name match class name
+------------------------------------------------------------------------
+r1732 | andrewstarritt | 2014-11-16 17:39:10 +1100 (Sun, 16 Nov 2014) | 1 line
+
+QEGraphic/QEGraphicMarkup - allow means to define cross hairs position when set visible
+------------------------------------------------------------------------
+r1733 | andrewstarritt | 2014-11-16 17:43:03 +1100 (Sun, 16 Nov 2014) | 1 line
+
+QEPlotter - use cursor postion to set initial cross hairs posn if/when turned on over graphic canvas area
+------------------------------------------------------------------------
+r1734 | andrewstarritt | 2014-11-17 12:32:43 +1100 (Mon, 17 Nov 2014) | 1 line
+
+QEGraphicMarkup - use the version dependent MIDDLE_BUTTON macro that has been defined.
+------------------------------------------------------------------------
+r1735 | rhyder | 2014-11-17 22:41:57 +1100 (Mon, 17 Nov 2014) | 7 lines
+
+Make variable name property set/get methods public for all widgets.
+While this is consistant with other property get/set functions, their
+use is not recommended unless the special functionality required for
+these properties is required. These functions behave differently when
+used within designer and complete the change via a signal/slot. Use
+QEWidget::setVariableNameAndSubstitutions() instead.
+
+------------------------------------------------------------------------
+r1736 | andrewstarritt | 2014-11-20 12:46:56 +1100 (Thu, 20 Nov 2014) | 1 line
+
+QETable - add a table titles property and slot to facilitate the setting of row/col headings
+------------------------------------------------------------------------
+r1737 | andrewstarritt | 2014-11-20 12:51:07 +1100 (Thu, 20 Nov 2014) | 1 line
+
+QETable - add +1 as heading go from 1; also interprest <> as PV name
+------------------------------------------------------------------------
+r1738 | andrewstarritt | 2014-11-20 12:52:04 +1100 (Thu, 20 Nov 2014) | 1 line
+
+QETable ... and remove debug statements
+------------------------------------------------------------------------
+r1739 | andrewstarritt | 2014-11-20 12:58:53 +1100 (Thu, 20 Nov 2014) | 1 line
+
+QETable ... and lastly document the titles property
+------------------------------------------------------------------------
+r1740 | andrewstarritt | 2014-11-23 17:55:22 +1100 (Sun, 23 Nov 2014) | 1 line
+
+QSimpleShape - created non epics aware version of QESimpleShape
+------------------------------------------------------------------------
+r1741 | andrewstarritt | 2014-11-24 10:40:01 +1100 (Mon, 24 Nov 2014) | 1 line
+
+QETable - Add slot function to set both pv name and title for a specified slot, and make setVariableName a slot as well
+------------------------------------------------------------------------
+r1742 | andrewstarritt | 2014-11-24 10:41:43 +1100 (Mon, 24 Nov 2014) | 1 line
+
+QEPlotter - Add slot function to set both pv data name and alias for a specified slot, and make setXYDataPV, setXYAlias  slots as well
+------------------------------------------------------------------------
+r1743 | andrewstarritt | 2014-11-24 10:44:49 +1100 (Mon, 24 Nov 2014) | 1 line
+
+QSimpleShape.cpp - use getIsValid () check the correct way round
+------------------------------------------------------------------------
+r1744 | andrewstarritt | 2014-11-24 13:16:52 +1100 (Mon, 24 Nov 2014) | 1 line
+
+QETable - keep each title as memebr of DataSets class (as ooposed to a separate QStringList) - avoids inconsistancies and access issues
+------------------------------------------------------------------------
+r1745 | andrewstarritt | 2014-11-24 13:32:23 +1100 (Mon, 24 Nov 2014) | 1 line
+
+QETable.cpp - fix code error (that g++ missed)
+------------------------------------------------------------------------
+r1746 | andrewstarritt | 2014-11-24 13:34:06 +1100 (Mon, 24 Nov 2014) | 1 line
+
+QEInteger/QEFloating - emit scalar data as an array of 1
+------------------------------------------------------------------------
+r1747 | andrewstarritt | 2014-11-24 16:54:14 +1100 (Mon, 24 Nov 2014) | 1 line
+
+QEPvLoadSave - split tree node types (group and leaf), allow read PV name to be seprate from write PV name - still work in progress
+------------------------------------------------------------------------
+r1748 | andrewstarritt | 2014-11-24 16:57:31 +1100 (Mon, 24 Nov 2014) | 1 line
+
+QEPlotter.cpp - validte slot number in setPlotterEntry() function
+------------------------------------------------------------------------
+r1749 | andrewstarritt | 2014-11-25 11:34:05 +1100 (Tue, 25 Nov 2014) | 1 line
+
+QEInteger/QEFloating: also emit value of single element of an array data set as a scalar update
+------------------------------------------------------------------------
+r1750 | andrewstarritt | 2014-11-25 11:36:43 +1100 (Tue, 25 Nov 2014) | 1 line
+
+QESimpleShape - remove obsolete array update processing
+------------------------------------------------------------------------
+r1751 | andrewstarritt | 2014-11-25 11:46:32 +1100 (Tue, 25 Nov 2014) | 1 line
+
+QEPlotter - check for CalculationPlot entries when extrating PV names
+------------------------------------------------------------------------
+r1752 | rhyder | 2014-11-25 20:51:59 +1100 (Tue, 25 Nov 2014) | 3 lines
+
+Allow an initial update for QELineEdit, QENumericEdit and QEComboBox
+even if the widget has focus.
+
+------------------------------------------------------------------------
+r1753 | rhyder | 2014-11-26 12:58:11 +1100 (Wed, 26 Nov 2014) | 5 lines
+
+Change licencing to GNU LGPL to better conform to Australian Synchrotron
+intellectual property policy: ...rights should be granted to ‘maximises
+impact, value, accessibility and benefit with the public interest, while
+upholding the law and managing risk appropriately’.
+
+------------------------------------------------------------------------
+r1754 | andrewstarritt | 2014-11-26 16:36:21 +1100 (Wed, 26 Nov 2014) | 1 line
+
+Append Australian Synchrotron to Copyright line if missing
+------------------------------------------------------------------------
+r1755 | andrewstarritt | 2014-11-26 16:57:03 +1100 (Wed, 26 Nov 2014) | 1 line
+
+QESimpleShape allow specification of an array index (for when variable is an array variable)
+------------------------------------------------------------------------
+r1756 | andrewstarritt | 2014-11-26 16:59:02 +1100 (Wed, 26 Nov 2014) | 1 line
+
+QEPvLoadSaveModel.cpp - type up some comment typos
+------------------------------------------------------------------------
+r1757 | andrewstarritt | 2014-11-30 11:13:40 +1100 (Sun, 30 Nov 2014) | 1 line
+
+QSimpleShape - add cross shapes and general prep tp be a parent of revamped QESimpleShape
+------------------------------------------------------------------------
+r1758 | rhyder | 2014-11-30 22:29:21 +1100 (Sun, 30 Nov 2014) | 2 lines
+
+Add demo program to programatically add a QE widget to a user interface
+
+------------------------------------------------------------------------
+r1759 | andrewstarritt | 2014-12-01 12:05:18 +1100 (Mon, 01 Dec 2014) | 1 line
+
+styleManager - make style functions public and value functions const
+------------------------------------------------------------------------
+r1760 | andrewstarritt | 2014-12-01 12:08:23 +1100 (Mon, 01 Dec 2014) | 1 line
+
+QESimpleShape: add QSimpleShape to plugin, modified  QESimpleShape to inherit from QSimpleShape
+------------------------------------------------------------------------
+r1761 | andrewstarritt | 2014-12-02 11:58:22 +1100 (Tue, 02 Dec 2014) | 1 line
+
+undef VARIABLE_PROPERTY_ACCESS macro in header files after use - avoids warnings
+------------------------------------------------------------------------
+r1762 | andrewstarritt | 2014-12-03 17:19:31 +1100 (Wed, 03 Dec 2014) | 1 line
+
+QEScalarHistogram - ensure value 'exists' within histogram
+------------------------------------------------------------------------
+r1763 | andrewstarritt | 2014-12-04 17:16:18 +1100 (Thu, 04 Dec 2014) | 1 line
+
+styleManager - do delayed setup of default style sheet and provide default style access functions
+------------------------------------------------------------------------
+r1764 | andrewstarritt | 2014-12-04 17:26:46 +1100 (Thu, 04 Dec 2014) | 1 line
+
+QELabel - add setDefaultStyle slot function
+------------------------------------------------------------------------
+r1765 | andrewstarritt | 2014-12-04 17:27:23 +1100 (Thu, 04 Dec 2014) | 1 line
+
+QEButtons - add setDefaultStyle slot functions
+------------------------------------------------------------------------
+r1766 | andrewstarritt | 2014-12-05 11:37:11 +1100 (Fri, 05 Dec 2014) | 1 line
+
+QEPlotter.cpp - bring in line with QETable re alias/header
+------------------------------------------------------------------------
+r1767 | andrewstarritt | 2014-12-05 11:57:38 +1100 (Fri, 05 Dec 2014) | 1 line
+
+Add slot function setDefaultStyle to other QE Widgets
+------------------------------------------------------------------------
+r1768 | rhyder | 2014-12-08 21:20:56 +1100 (Mon, 08 Dec 2014) | 4 lines
+
+Add examples of all alternatives (with extensive comments) for setting
+variable names, macro substitutions, and for establishing CA connections
+to the test/demo application QEWidgetDisplayApp.
+
+------------------------------------------------------------------------
+r1769 | rhyder | 2014-12-08 21:31:21 +1100 (Mon, 08 Dec 2014) | 2 lines
+
+Trivial comment changes
+
+------------------------------------------------------------------------
+r1770 | andrewstarritt | 2014-12-09 11:23:02 +1100 (Tue, 09 Dec 2014) | 1 line
+
+Upgrade QEResizeableFrame to a plugin widget, and inherit from QEFrame
+------------------------------------------------------------------------
+r1771 | andrewstarritt | 2014-12-09 11:24:56 +1100 (Tue, 09 Dec 2014) | 1 line
+
+QEDesignerPlugin.cpp - call up QEResizeableFrameManager
+------------------------------------------------------------------------
+r1772 | rhyder | 2014-12-09 23:37:22 +1100 (Tue, 09 Dec 2014) | 3 lines
+
+Fix QE widget constructors that include a variable name to activate
+automatically.
+
+------------------------------------------------------------------------
+r1773 | andrewstarritt | 2014-12-10 11:12:40 +1100 (Wed, 10 Dec 2014) | 1 line
+
+api - reexamined use to mutex locking to avoid deadly embrace
+------------------------------------------------------------------------
+r1774 | andrewstarritt | 2014-12-10 11:18:45 +1100 (Wed, 10 Dec 2014) | 1 line
+
+QNumericEdit make 'QEFixedPointRadix fpr'  protected
+------------------------------------------------------------------------
+r1775 | rhyder | 2014-12-10 13:18:50 +1100 (Wed, 10 Dec 2014) | 2 lines
+
+Minor safety addition to mechanism that monitors late callbacks from CA
+
+------------------------------------------------------------------------
+r1776 | rhyder | 2014-12-10 23:11:14 +1100 (Wed, 10 Dec 2014) | 3 lines
+
+Update QEMonitorApp to be able to use a QEFloating data source to
+demonstrate the use of this class.
+
+------------------------------------------------------------------------
+r1777 | rhyder | 2014-12-10 23:21:44 +1100 (Wed, 10 Dec 2014) | 2 lines
+
+Minor clarity change to QEMonitorApp
+
+------------------------------------------------------------------------
+r1778 | andrewstarritt | 2014-12-11 11:40:02 +1100 (Thu, 11 Dec 2014) | 1 line
+
+QEGuiApp.pro - explicitly call up EPICS libraries.
+------------------------------------------------------------------------
+r1779 | andrewstarritt | 2014-12-11 19:09:19 +1100 (Thu, 11 Dec 2014) | 1 line
+
+QEGraphic: provide overloaded pointToReal that takes a QPointF position
+------------------------------------------------------------------------
+r1780 | andrewstarritt | 2014-12-13 15:55:38 +1100 (Sat, 13 Dec 2014) | 1 line
+
+VariableNameManager - allow access to number of variables
+------------------------------------------------------------------------
+r1781 | andrewstarritt | 2014-12-14 15:36:44 +1100 (Sun, 14 Dec 2014) | 1 line
+
+QEPvProperties - tidy up header - do stadard public/protected/private order; for internals create aown channel to get meta data rather than extracting from internal QELabel
+------------------------------------------------------------------------
+r1782 | andrewstarritt | 2014-12-14 15:40:52 +1100 (Sun, 14 Dec 2014) | 1 line
+
+QCaObject - add utility functions to extact current values form QCaObject
+------------------------------------------------------------------------
+r1783 | andrewstarritt | 2014-12-15 17:46:21 +1100 (Mon, 15 Dec 2014) | 1 line
+
+QEBitStatus - tidy up - don't overide setVariableNameAndSubstitutions as no need; verify variable index; update managers to use standard manager defn macro
+------------------------------------------------------------------------
+r1784 | rhyder | 2014-12-16 02:19:49 +1100 (Tue, 16 Dec 2014) | 9 lines
+
+Replace 'display alarm state' boolean with 'display alarm state option'
+enumeration. 'Display alarm state' property is still present, but
+documented as deprecated, and is not 'designable' so while honoured when
+read in a .ui file, is no longer available when creating .ui files.
+'Display alarm state options' include 'Always' (same as 'display alarm
+state' = true), 'Never' (same as 'display alarm state' = false) and
+'WhenInAlarm' (which could not be represented with the original
+boolean).
+
+------------------------------------------------------------------------
+r1785 | andrewstarritt | 2014-12-16 16:46:56 +1100 (Tue, 16 Dec 2014) | 1 line
+
+Scaling - make idempotant to avoild multiple re-applications of scaling of nested forms
+------------------------------------------------------------------------
+r1786 | rhyder | 2014-12-16 22:30:48 +1100 (Tue, 16 Dec 2014) | 2 lines
+
+Correct displayAlarmStateOptions definitions
+
+------------------------------------------------------------------------
+r1787 | andrewstarritt | 2014-12-19 17:19:41 +1100 (Fri, 19 Dec 2014) | 1 line
+
+QERadioGroup.cpp - spot spurious debug report for unexpected title "variable".
+------------------------------------------------------------------------
+r1788 | andrewstarritt | 2014-12-20 14:23:40 +1100 (Sat, 20 Dec 2014) | 1 line
+
+QBitStatus: remove executable property from two files
+------------------------------------------------------------------------
+r1789 | andrewstarritt | 2014-12-21 14:08:18 +1100 (Sun, 21 Dec 2014) | 1 line
+
+Make pv realed property (support) functions public
+------------------------------------------------------------------------
+r1790 | rhyder | 2014-12-22 09:32:53 +1100 (Mon, 22 Dec 2014) | 3 lines
+
+Document recent change to general property 'displayAlarmStateOption'.
+Fix copyright statements.
+
+------------------------------------------------------------------------
+==================================================================================================
 Changes between 2.9.0 and 2.8.1 (this includes changes to all branches and tags and may include changes no related to this release)
 
 SUMMARY:

@@ -43,8 +43,8 @@
 // be marked with a higher version than the current release.
 // (Also, after tagging QE_VERSION_STAGE should be set to QE_VERSION_STAGE_DEVELOPMENT)
 //
-#define QE_VERSION_MAJOR      2     // Public releases that include interface or paradigm changes that may require changes to the way the framework is used.
-#define QE_VERSION_MINOR      9     // Public releases containing new functionality (may include fixes as well)
+#define QE_VERSION_MAJOR      3     // Public releases that include interface or paradigm changes that may require changes to the way the framework is used.
+#define QE_VERSION_MINOR      0     // Public releases containing new functionality (may include fixes as well)
 #define QE_VERSION_RELEASE    0     // Public releases containing fixes only.
 
 // During tagging the version stage should be set to production
@@ -52,7 +52,7 @@
 //
 #define QE_VERSION_STAGE_DEVELOPMENT "Development"
 #define QE_VERSION_STAGE_PRODUCTION  "Production"
-#define QE_VERSION_STAGE             QE_VERSION_STAGE_DEVELOPMENT
+#define QE_VERSION_STAGE             QE_VERSION_STAGE_PRODUCTION
 
 #define QE_VERSION_STRING     STRINGIFY(QE_VERSION_MAJOR) "." \
                               STRINGIFY(QE_VERSION_MINOR) "." \
