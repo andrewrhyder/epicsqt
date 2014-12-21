@@ -148,6 +148,17 @@ public:
    //
    void setYRange (const double yMinimumIn, const double yMaximumIn);
 
+   // Property support functions.
+   //
+   void    setVariableNameProperty (unsigned int slot, QString pvName);
+   QString getVariableNameProperty (unsigned int slot);
+
+   void    setVariableNameSubstitutionsProperty (QString variableNameSubstitutions);
+   QString getVariableNameSubstitutionsProperty();
+
+   void   setColourProperty (unsigned int slot, QColor color);
+   QColor getColourProperty (unsigned int slot);
+
 protected:
    // Override QWidget functions - call up standard handlers defined in QEDragDrop.
    // Drag and Drop
@@ -260,21 +271,10 @@ private:
 
    void addPvName (const QString& pvName);
 
-   // Property access support functions.
-   //
-   void    setVariableNameProperty (unsigned int slot, QString pvName);
-   QString getVariableNameProperty (unsigned int slot);
-
    // The actual subsitutions are handled by embedded chart items and associated QELabels,
    // this String used just supports the property.
    //
    QString variableNameSubstitutions;
-
-   void    setVariableNameSubstitutionsProperty (QString variableNameSubstitutions);
-   QString getVariableNameSubstitutionsProperty();
-
-   void   setColourProperty (unsigned int slot, QColor color);
-   QColor getColourProperty (unsigned int slot);
 
    // Property access READ and WRITE functions.
    // We can define the access functions using a macro.
