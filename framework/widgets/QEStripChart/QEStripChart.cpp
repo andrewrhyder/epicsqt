@@ -322,7 +322,7 @@ void QEStripChart::createInternalWidgets ()
 
 //------------------------------------------------------------------------------
 //
-QEStripChartItem* QEStripChart::getItem (unsigned int slot)
+QEStripChartItem* QEStripChart::getItem (unsigned int slot) const
 {
    return (slot < NUMBER_OF_PVS) ? this->items [slot] : NULL;
 }
@@ -757,7 +757,7 @@ QSize QEStripChart::sizeHint () const
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::setVariableNameProperty (unsigned int slot, QString pvName)
+void QEStripChart::setVariableNameProperty (unsigned int slot, const QString& pvName)
 {
    if (slot < NUMBER_OF_PVS) {
       QEStripChartItem * item = this->getItem (slot);
@@ -769,7 +769,7 @@ void QEStripChart::setVariableNameProperty (unsigned int slot, QString pvName)
 
 //------------------------------------------------------------------------------
 //
-QString QEStripChart::getVariableNameProperty (unsigned int slot)
+QString QEStripChart::getVariableNameProperty (unsigned int slot) const
 {
    if (slot < NUMBER_OF_PVS) {
       QEStripChartItem * item = this->getItem (slot);
@@ -782,7 +782,7 @@ QString QEStripChart::getVariableNameProperty (unsigned int slot)
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::setVariableNameSubstitutionsProperty (QString variableNameSubstitutionsIn)
+void QEStripChart::setVariableNameSubstitutionsProperty (const QString& variableNameSubstitutionsIn)
 {
    int j;
 
@@ -800,14 +800,14 @@ void QEStripChart::setVariableNameSubstitutionsProperty (QString variableNameSub
 
 //------------------------------------------------------------------------------
 //
-QString QEStripChart::getVariableNameSubstitutionsProperty ()
+QString QEStripChart::getVariableNameSubstitutionsProperty () const
 {
    return this->variableNameSubstitutions;
 }
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::setColourProperty (unsigned int slot, QColor colour)
+void QEStripChart::setColourProperty (unsigned int slot, const QColor& colour)
 {
    if (slot < NUMBER_OF_PVS) {
       QEStripChartItem * item = this->getItem (slot);
@@ -819,7 +819,7 @@ void QEStripChart::setColourProperty (unsigned int slot, QColor colour)
 
 //------------------------------------------------------------------------------
 //
-QColor QEStripChart::getColourProperty (unsigned int slot)
+QColor QEStripChart::getColourProperty (unsigned int slot) const
 {
    if (slot < NUMBER_OF_PVS) {
       QEStripChartItem * item = this->getItem (slot);
@@ -828,6 +828,29 @@ QColor QEStripChart::getColourProperty (unsigned int slot)
       DEBUG << "slot out of range " << slot;
       return QColor (0x00, 0x00, 0x00, 0xFF);
    }
+}
+
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::setPvName (unsigned int slot, const QString& pvName)
+{
+   QEStripChartItem* item = this->getItem (slot);
+   if (item) {
+      item->setPvName (pvName, "");
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+QString QEStripChart::getPvName (unsigned int slot) const
+{
+   QString result = "";
+   QEStripChartItem* item = this->getItem (slot);
+   if (item) {
+      result = item->getPvName ();
+   }
+   return result;
 }
 
 //------------------------------------------------------------------------------
@@ -1079,14 +1102,14 @@ void QEStripChart::addToPredefinedList (const QString & pvName)
 
 //------------------------------------------------------------------------------
 //
-QStringList QEStripChart::getPredefinedPVNameList ()
+QStringList QEStripChart::getPredefinedPVNameList () const
 {
    return QStringList (predefinedPVNameList);
 }
 
 //------------------------------------------------------------------------------
 //
-QString QEStripChart::getPredefinedItem (int i)
+QString QEStripChart::getPredefinedItem (int i) const
 {
    return predefinedPVNameList.value (i, "");
 }
@@ -1094,14 +1117,14 @@ QString QEStripChart::getPredefinedItem (int i)
 //------------------------------------------------------------------------------
 // Start/end time
 //
-QDateTime QEStripChart::getStartDateTime ()
+QDateTime QEStripChart::getStartDateTime () const
 {
    return this->getEndDateTime().addSecs (-this->duration);
 }
 
 //------------------------------------------------------------------------------
 //
-QDateTime QEStripChart::getEndDateTime ()
+QDateTime QEStripChart::getEndDateTime () const
 {
    return this->endDateTime;
 }
@@ -1127,7 +1150,7 @@ void QEStripChart::setEndDateTime (QDateTime endDateTimeIn)
 
 //------------------------------------------------------------------------------
 //
-int QEStripChart::getDuration ()
+int QEStripChart::getDuration () const
 {
    return this->duration;
 }
@@ -1150,7 +1173,7 @@ void QEStripChart::setDuration (int durationIn)
 
 //----------------------------------------------------------------------------
 //
-double QEStripChart::getYMinimum ()
+double QEStripChart::getYMinimum () const
 {
    return this->yMinimum;
 }
@@ -1167,7 +1190,7 @@ void QEStripChart::setYMinimum (const double yMinimumIn)
 
 //----------------------------------------------------------------------------
 //
-double QEStripChart::getYMaximum ()
+double QEStripChart::getYMaximum () const
 {
    return this->yMaximum;
 }
@@ -1256,13 +1279,6 @@ void QEStripChart::evaluateAllowDrop ()
    }
 
    this->setAllowDrop (allowDrop);
-}
-
-//------------------------------------------------------------------------------
-//
-void QEStripChart::setup ()
-{
-   DEBUG << "unexpected call";
 }
 
 //------------------------------------------------------------------------------

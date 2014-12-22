@@ -130,34 +130,28 @@ public:
    // Setting duration keeps end time fixed and adjusts start time.
    // Setting a duration value < 1 limited to 1 second.
    //
-   QDateTime getStartDateTime ();
+   QDateTime getStartDateTime () const;
 
-   QDateTime getEndDateTime ();
+   QDateTime getEndDateTime () const;
    void setEndDateTime (QDateTime endDateTimeIn);
 
-   int getDuration ();
+   int getDuration () const;
    void setDuration (int durationIn);
 
-   double getYMinimum ();
+   double getYMinimum () const;
    void setYMinimum (const double yMinimumIn);
 
-   double getYMaximum ();
+   double getYMaximum () const;
    void setYMaximum (const double yMaximumIn);
 
    // Combine setYMinimum and setYMaximum.
    //
    void setYRange (const double yMinimumIn, const double yMaximumIn);
 
-   // Property support functions.
-   //
-   void    setVariableNameProperty (unsigned int slot, QString pvName);
-   QString getVariableNameProperty (unsigned int slot);
+   void setPvName (unsigned int slot, const QString& pvName);
+   QString getPvName (unsigned int slot) const;
 
-   void    setVariableNameSubstitutionsProperty (QString variableNameSubstitutions);
-   QString getVariableNameSubstitutionsProperty();
-
-   void   setColourProperty (unsigned int slot, QColor color);
-   QColor getColourProperty (unsigned int slot);
+   void addPvName (const QString& pvName);
 
 protected:
    // Override QWidget functions - call up standard handlers defined in QEDragDrop.
@@ -176,7 +170,6 @@ protected:
 
    // override pure virtual functions
    //
-   void setup ();
    qcaobject::QCaObject* createQcaItem (unsigned int variableIndex);
    void establishConnection (unsigned int variableIndex);
    void saveConfiguration (PersistanceManager* pm);
@@ -187,8 +180,8 @@ protected:
    friend class QEStripChartItem;
 
    void addToPredefinedList (const QString & pvName);
-   QStringList getPredefinedPVNameList ();
-   QString getPredefinedItem (int i);
+   QStringList getPredefinedPVNameList () const;
+   QString getPredefinedItem (int i) const;
    void setRecalcIsRequired () { this->recalcIsRequired = true; }
    void setReplotIsRequired () { this->replotIsRequired = true; }
    void evaluateAllowDrop ();
@@ -257,7 +250,7 @@ private:
    //
    void createInternalWidgets ();
 
-   QEStripChartItem* getItem (unsigned int slot);
+   QEStripChartItem* getItem (unsigned int slot) const;
    void calcDisplayMinMax ();
    void setReadOut (const QString& text);
    void setNormalBackground (bool isNormalVideo);
@@ -269,7 +262,16 @@ private:
    void captureState (QEStripChartState& chartState);
    void applyState (const QEStripChartState& chartState);
 
-   void addPvName (const QString& pvName);
+   // Property support functions.
+   //
+   void    setVariableNameProperty (unsigned int slot, const QString& pvName);
+   QString getVariableNameProperty (unsigned int slot) const;
+
+   void    setVariableNameSubstitutionsProperty (const QString& variableNameSubstitutions);
+   QString getVariableNameSubstitutionsProperty() const;
+
+   void   setColourProperty (unsigned int slot, const QColor& color);
+   QColor getColourProperty (unsigned int slot) const;
 
    // The actual subsitutions are handled by embedded chart items and associated QELabels,
    // this String used just supports the property.
