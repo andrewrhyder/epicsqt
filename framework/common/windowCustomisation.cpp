@@ -52,7 +52,7 @@
 // Construct instance of class defining an individual item when none exists (for example, a menu placeholder)
 windowCustomisationItem::windowCustomisationItem() : QAction( 0 )
 {
-    profile.takeLocalCopy();
+    commonInit();
 
 //    creationOption = QEActionRequests::OptionNewWindow;
 }
@@ -61,7 +61,7 @@ windowCustomisationItem::windowCustomisationItem() : QAction( 0 )
 windowCustomisationItem::windowCustomisationItem( const QString builtInActionIn )
                                                   : QAction( 0 )
 {
-    profile.takeLocalCopy();
+    commonInit();
 
     builtInAction = builtInActionIn;
 }
@@ -70,7 +70,7 @@ windowCustomisationItem::windowCustomisationItem( const QString builtInActionIn,
                                                   const QString widgetNameIn )                           // widget name if built in function is for a widget, not the application
                                                   : QAction( 0 )
 {
-    profile.takeLocalCopy();
+    commonInit();
 
     builtInAction = builtInActionIn;
     widgetName = widgetNameIn;
@@ -84,7 +84,7 @@ windowCustomisationItem::windowCustomisationItem(
     const QStringList argumentsIn )                      // Arguments for 'program'
          : QAction( 0 )
 {
-    profile.takeLocalCopy();
+    commonInit();
 
     // Save the item details
     for( int i = 0; i < windowsIn.count(); i++ )
@@ -100,7 +100,7 @@ windowCustomisationItem::windowCustomisationItem(
 // Construct instance of class defining an individual item (base class for button) or menu item
 windowCustomisationItem::windowCustomisationItem(windowCustomisationItem* item): QAction( 0 )
 {
-    profile.takeLocalCopy();
+    commonInit();
 
     // Save the item details
     for( int i = 0; i < item->windows.count(); i++ )
@@ -122,10 +122,20 @@ windowCustomisationItem::windowCustomisationItem(windowCustomisationItem* item):
 // Construct instance of class defining a link to an existing dock
 windowCustomisationItem::windowCustomisationItem( const QString dockTitleIn, bool /*unused*/ ): QAction( 0 )
 {
-    profile.takeLocalCopy();
+    commonInit();
 
     dockTitle = dockTitleIn;
 }
+
+// Initialisation common to all constructors
+void windowCustomisationItem::commonInit()
+{
+    profile.takeLocalCopy();
+
+    userLevelVisible = userLevelTypes::USERLEVEL_USER;
+    userLevelEnabled = userLevelTypes::USERLEVEL_USER;
+}
+
 
 // A menu item or button has been created, let the application or widget know about it
 void windowCustomisationItem::initialise()

@@ -208,6 +208,8 @@ public:
                              const QString widgetNameIn );                  // widget name if built in function is for a widget, not the application
     windowCustomisationItem( const QString dockTitleIn, bool unused );      // Construct instance of class defining a link to an existing dock
 
+    void commonInit();
+
     QString getProgram(){return programLauncher.getProgram();}
     QStringList getArguments(){return programLauncher.getArguments();}
 
@@ -220,7 +222,8 @@ public:
     void initialise();
     void logItem( customisationLog& log );
 
-//    QMenu* menu;                                                            // Temporary reference to a menu (updated with 'toggle view' action from dock when dock is created)
+    userLevelTypes::userLevels userLevelVisible;                                        // User level at which the item will be visible
+    userLevelTypes::userLevels userLevelEnabled;                                        // User level at which the item will be enabled
 
 private:
     // Item action
@@ -237,8 +240,7 @@ private:
 
 public slots:
     void itemAction();                              // Slot to call when action is triggered
-//    void itemActionDock( QMainWindow* mw );
-//    void useDock( QDockWidget* );                   // Slot to call when a dock has been created that needs to be linked to a menu item
+
 signals:
     void newGui( const QEActionRequests& request );
 
