@@ -117,6 +117,11 @@ windowCustomisationItem::windowCustomisationItem(windowCustomisationItem* item):
     widgetName = item->widgetName;
 
     dockTitle = item->dockTitle;
+
+    userLevelVisible = item->userLevelVisible;
+    userLevelEnabled = item->userLevelEnabled;
+
+    setUserLevelState( profile.getUserLevel() );
 }
 
 // Construct instance of class defining a link to an existing dock
@@ -135,7 +140,6 @@ void windowCustomisationItem::commonInit()
     userLevelVisible = userLevelTypes::USERLEVEL_USER;
     userLevelEnabled = userLevelTypes::USERLEVEL_USER;
 }
-
 
 // A menu item or button has been created, let the application or widget know about it
 void windowCustomisationItem::initialise()
@@ -187,6 +191,42 @@ void windowCustomisationItem::itemAction()
 
     // If the action is associated with a program, launch it
     programLauncher.launch( NULL, NULL );
+}
+
+// Note user level access restriction if any
+void windowCustomisationItem::addUserLevelAccess( QDomElement element, customisationLog& log )
+{
+    log.startLevel();
+
+    QString userLevelName;
+
+    // Note the user level at which the menu is enabled
+    userLevelName = element.attribute( "UserLevelEnabled" );
+    if( !userLevelName.isEmpty() )
+    {
+        userLevelEnabled = ContainerProfile::getUserLevelValue( userLevelName );
+        log.add( "Item will be enabled at user level ", ContainerProfile::getUserLevelName( userLevelEnabled ) );
+    }
+
+    // Note the user level at which the menu is visible
+    userLevelName = element.attribute( "UserLevelVisible" );
+    if( !userLevelName.isEmpty() )
+    {
+        userLevelVisible = ContainerProfile::getUserLevelValue( userLevelName );
+        log.add( "Item will be visible at user level ", ContainerProfile::getUserLevelName( userLevelVisible ) );
+    }
+
+    log.endLevel();
+}
+
+// Set the visibility and enabled state of the item according to the user level
+void windowCustomisationItem::setUserLevelState( userLevelTypes::userLevels currentUserLevel )
+{
+    // Set the menu visibility according to user level
+    setVisible( userLevelVisible <= currentUserLevel );
+
+    // Set the menu enabled state according to user level
+    setEnabled( userLevelEnabled <= currentUserLevel );
 }
 
 //==============================================================================================
@@ -626,8 +666,15 @@ bool windowCustomisationList::loadCustomisation( QString xmlFile )
                 // Add a tool bar button
                 else if (element.tagName() == "Button")
                 {
+                    log.startLevel();
+
                     // create and add a button item
-                    customisation->addItem( createButtonItem( element ));
+                    windowCustomisationButtonItem* button = createButtonItem( element );
+                    log.add( "Adding toolbar button: ",  button->getButtonText() );
+                    button->addUserLevelAccess( element, log );
+                    customisation->addItem( button );
+
+                    log.endLevel();
                 }
 
                 // Add an include file
@@ -646,9 +693,11 @@ bool windowCustomisationList::loadCustomisation( QString xmlFile )
     log.endLevel();
     return true;
 }
+
 // Parse menu customisation data
 void windowCustomisationList::parseMenuElement( QDomElement element, windowCustomisation* customisation, QStringList menuHierarchy)
 {
+    // Parse the menu's children elements
     QDomElement childElement = element.firstChildElement();
     while (!childElement.isNull())
     {
@@ -695,6 +744,7 @@ void windowCustomisationList::parseMenuElement( QDomElement element, windowCusto
             // If an item was created, add it
             if( item )
             {
+                item->addUserLevelAccess( childElement, log );
                 customisation->addItem( item );
             }
         }
@@ -1196,6 +1246,27 @@ void windowCustomisationList::initialise( windowCustomisationInfo* customisation
     }
 }
 
+// Repond to a user level change (this is an implementation for the base ContainerProfile class
+void windowCustomisationList::userLevelChangedGeneral( userLevelTypes::userLevels currentUserLevel )
+{
+    // Update the visibility and enabled state of all items in all customisation sets
+    for( int i = 0; i < customisationList.count(); i++ )
+    {
+        windowCustomisation* customisation = customisationList.at( i );
+
+        QList<windowCustomisationMenuItem*> menuItems = customisation->getMenuItems();
+        for (int j = 0; j < menuItems.count(); j++)
+        {
+            menuItems.at(i)->setUserLevelState( currentUserLevel );
+        }
+
+        QList<windowCustomisationButtonItem*> buttons = customisation->getButtons();
+        for (int j = 0; j < buttons.count(); j++)
+        {
+            buttons.at(i)->setUserLevelState( currentUserLevel );
+        }
+    }
+}
 
 // Add the named customisation to a main window.
 // Return true if named customisation found and loaded.
@@ -1217,9 +1288,11 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw,              
     // Clear the existing customisation (but only if we have a customisation name to replace it with)
     if( !customisationName.isEmpty() )
     {
+        // Clear references to all menu bar items and tool bar items
+        customisationInfo->items.clear();
+
         // Remove all current menus
         mw->menuBar()->clear();
-        customisationInfo->items.clear();
         mw->menuBar()->setVisible( false );
         customisationInfo->menus.clear();
 
@@ -1304,16 +1377,19 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw,              
         // Set up an action to respond to the user
         QObject::connect( item, SIGNAL( newGui( const QEActionRequests& ) ),
                           mw, SLOT( requestAction( const QEActionRequests& ) ) );
+
+        customisationInfo->items.append( item );
+
     }
 
     // Get the menu item customisations required
-    QList<windowCustomisationMenuItem*> mList = customisation->getMenuItems();
+    QList<windowCustomisationMenuItem*> menuItems = customisation->getMenuItems();
 
     // Apply all the menu customisations
-    for (int i = 0; i < mList.length(); i++)
+    for (int i = 0; i < menuItems.length(); i++)
     {
         // Get the next customisation required
-        windowCustomisationMenuItem* menuItem = new windowCustomisationMenuItem( mList.at(i) );
+        windowCustomisationMenuItem* menuItem = new windowCustomisationMenuItem( menuItems.at(i) );
 
         // Ensure the menu hierarchy is present.
         // For example if the hierarchy required is 'File' -> 'Recent' is required and a 'File' menu is
@@ -1334,8 +1410,7 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw,              
                     {
                         menuItem->setCheckable( true );
 
-                        ContainerProfile profile;
-                        macroSubstitutionList parts = macroSubstitutionList( profile.getMacroSubstitutions() );
+                        macroSubstitutionList parts = macroSubstitutionList( getMacroSubstitutions() );
                         menuItem->setChecked( parts.getValue( checkInfo.getKey() ) == checkInfo.getValue() );
                     }
 
@@ -1550,6 +1625,10 @@ void windowCustomisationList::useDock( QDockWidget* dock )
     }
 }
 
+//==============================================================================================
+// itemCheckInfo
+//==============================================================================================
+
 // Constructor
 itemCheckInfo::itemCheckInfo()
 {
@@ -1587,4 +1666,18 @@ itemCheckInfo::itemCheckInfo( const itemCheckInfo &other )
     key = other.key;
     value = other.value;
     checkable = other.checkable;
+}
+
+//==============================================================================================
+// windowCustomisationInfo
+//==============================================================================================
+
+// Respond to a user level change (this is an implementation for the base ContainerProfile class)
+// Update all the items used to customise a window.
+void windowCustomisationInfo::userLevelChangedGeneral( userLevelTypes::userLevels userLevel )
+{
+    for( int i = 0; i < items.count(); i++ )
+    {
+        items.at( i )->setUserLevelState( userLevel );
+    }
 }

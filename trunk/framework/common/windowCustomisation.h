@@ -88,7 +88,7 @@
                     </Item>
 
 
-                    <Item Name="Status">
+                    <Item Name="Status" UserLevelEnabled="Scientist">
                         <Separator/>
                         <UiFile>status.ui</UiFile>
                     </Item>
@@ -201,7 +201,7 @@ public:
                       const QString programIn,                             // Program to run
                       const QStringList argumentsIn );                     // Arguments for 'program'
 
-    windowCustomisationItem(windowCustomisationItem* item);
+    windowCustomisationItem(windowCustomisationItem* item);                 // Copy constructor
     windowCustomisationItem();                                              // Construct instance of class defining an individual item when none exists (for example, a menu placeholder)
     windowCustomisationItem( const QString builtInActionIn );               // Construct instance of class defining a built in application action
     windowCustomisationItem( const QString builtInActionIn,                 // Construct instance of class defining a built in application action
@@ -221,9 +221,8 @@ public:
 
     void initialise();
     void logItem( customisationLog& log );
-
-    userLevelTypes::userLevels userLevelVisible;                                        // User level at which the item will be visible
-    userLevelTypes::userLevels userLevelEnabled;                                        // User level at which the item will be enabled
+    void addUserLevelAccess( QDomElement element, customisationLog& log  ); // Note the user levels at which the item is enabled and visible
+    void setUserLevelState( userLevelTypes::userLevels currentUserLevel );  // Set the visibility and enabled state of the item according to the user level
 
 private:
     // Item action
@@ -237,6 +236,9 @@ private:
 
     ContainerProfile profile;                       // Profile to use while creating customisations.
     applicationLauncher programLauncher;            // Manage any program that needs to be started
+
+    userLevelTypes::userLevels userLevelVisible;    // User level at which the item will be visible
+    userLevelTypes::userLevels userLevelEnabled;    // User level at which the item will be enabled
 
 public slots:
     void itemAction();                              // Slot to call when action is triggered
@@ -396,13 +398,15 @@ private:
 };
 
 // Window customisation information per Main Window
-class windowCustomisationInfo
+class windowCustomisationInfo : public ContainerProfile
 {
 public:
-    QMap<QString, QMenu*> placeholderMenus; // Menus where application may insert items
-    QMap<QString, QMenu*> menus;            // All menus added by customisation system
-    QMap<QString, QToolBar*> toolbars;      // All tool bars added by customisation system
-    QList<windowCustomisationMenuItem*> items;
+    void userLevelChangedGeneral( userLevelTypes::userLevels ); // Repond to a user level change (this is an implementation for the base ContainerProfile class
+
+    QMap<QString, QMenu*> placeholderMenus;    // Menus where application may insert items
+    QMap<QString, QMenu*> menus;               // All menus added by customisation system
+    QMap<QString, QToolBar*> toolbars;         // All tool bars added by customisation system
+    QList<windowCustomisationItem*> items;     // All menu bar items and toolbar buttons
 };
 
 // Class to hold a relationship between a customisation menu item, and an actual QMenu.
@@ -422,7 +426,7 @@ public:
 // Class managing all customisation sets
 // Only one instance of this class is instantiated (unless groups of customisation sets are required)
 // Multiple .xml files may be loaded, each defining one or more named customisations.
-class QEPLUGINLIBRARYSHARED_EXPORT windowCustomisationList : public QObject
+class QEPLUGINLIBRARYSHARED_EXPORT windowCustomisationList : public QObject, ContainerProfile
 {
     Q_OBJECT
 public:
@@ -463,7 +467,6 @@ private:
     windowCustomisationButtonItem* createButtonItem( // Create a button customisation item
                                               QDomElement itemElement);
     QList<windowCustomisation*> customisationList;                         // List of customisations
-//    QList<windowCustomisationMenuItem*> currentItems;
 
     // Variables to manage setting up 'toggle view' actions from docks created as a result of, but after, the window customisation has been applied.
     QList<menuItemToBeActivated> toBeActivatedList;     // Transient list of menus and customisation menu items
@@ -471,6 +474,8 @@ private:
     QMenu*       toBeActivatedMenu;                     // Menu currently currently waiting on a dock to be created (at which point the dock's 'toggle view' action will be added)
 
     QString      lastAppliedCustomisation;              // Last customisation applied by applyCustomisation() - successfully, or unsuccessfully
+
+    void userLevelChangedGeneral( userLevelTypes::userLevels ); // Repond to a user level change (this is an implementation for the base ContainerProfile class
 
 private slots:
     void activateDocks();                               // Slot to create any docks required to support dock menu items. Docked GUIs are created at the time customisation is applied.
