@@ -735,13 +735,7 @@ void MainWindow::on_actionAbout_triggered()
 
     // Build the user level string
     userLevelTypes::userLevels level = profile.getUserLevel();
-    QString userLevel;
-    switch( level )
-    {
-        case userLevelTypes::USERLEVEL_USER:      userLevel = "User";      break;
-        case userLevelTypes::USERLEVEL_SCIENTIST: userLevel = "Scientist"; break;
-        case userLevelTypes::USERLEVEL_ENGINEER:  userLevel = "Engineer";  break;
-    }
+    QString userLevel = ContainerProfile::getUserLevelName( level );
 
     // Build a list of GUI windows and their files
     QStringList windowTitles;

@@ -79,7 +79,7 @@
                 <Item Name="User Level...">
                     <BuiltIn Name="User Level..." />
                 </Item>
-                <Item Name="Set Passwords...">
+                <Item Name="Set Passwords..." UserLevelEnabled="Scientist">
                     <BuiltIn Name="Set Passwords..." />
                 </Item>
             </Menu>

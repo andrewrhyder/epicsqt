@@ -237,6 +237,9 @@ public:
 
     static QChar platformSeperator();                   // Return the platform dependant path separator (between paths, not directories in a path). Qt only provides a platform directory separator (\ or /)
 
+    static QString getUserLevelName( userLevelTypes::userLevels userLevelValue );   // Return the user level string given the user level
+    static userLevelTypes::userLevels getUserLevelValue( QString userLevelName );   // Return the user level value given the user level string name
+
 private:
     void publishProfile( QObject* guiLaunchConsumerIn,
                          QStringList pathListIn,

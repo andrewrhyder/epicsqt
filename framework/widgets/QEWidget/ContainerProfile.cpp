@@ -657,7 +657,38 @@ QChar ContainerProfile::platformSeperator()
     return( QDir::separator() == '/' )?':':';';
 }
 
+// Return the user level string name given the user level value
+QString ContainerProfile::getUserLevelName( userLevelTypes::userLevels userLevelValue )
+{
+    switch( userLevelValue )
+    {
+        case userLevelTypes::USERLEVEL_USER:      return "User";
+        case userLevelTypes::USERLEVEL_SCIENTIST: return "Scientist";
+        case userLevelTypes::USERLEVEL_ENGINEER:  return "Engineer";
+        default: return "Unknown";
+    }
+}
 
+// Return the user level value given the user level string name
+userLevelTypes::userLevels ContainerProfile::getUserLevelValue( QString userLevelName )
+{
+    if( userLevelName == "User" )
+    {
+        return userLevelTypes::USERLEVEL_USER;
+    }
+    else if ( ( userLevelName == "Scientist" ) )
+    {
+        return userLevelTypes::USERLEVEL_SCIENTIST;
+    }
+    else if ( ( userLevelName == "Engineer" ) )
+    {
+        return userLevelTypes::USERLEVEL_ENGINEER;
+    }
+    else // default
+    {
+        return userLevelTypes::USERLEVEL_USER;
+    }
+}
 
 void userLevelSignal::setLevel( userLevelTypes::userLevels levelIn )
 {
