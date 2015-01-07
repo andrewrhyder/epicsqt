@@ -267,12 +267,6 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, QString title, QString 
         QObject::connect( windowMenu, SIGNAL( triggered( QAction* ) ), this, SLOT( onWindowMenuSelection( QAction* ) ) );
     }
 
-    // Enable the edit menu if requested
-    if( editMenu )
-    {
-        editMenu->setEnabled( app->getParams()->enableEdit  );
-    }
-
     // Set up signals for starting the 'designer' process
     QObject::connect( &process, SIGNAL(error(QProcess::ProcessError)), this, SLOT( processError(QProcess::ProcessError) ) );
     QObject::connect( &processTimer, SIGNAL(timeout()), this, SLOT( startDesignerAlternate() ) );
@@ -355,6 +349,12 @@ void MainWindow::setupPlaceholderMenus()
 
     editMenu = customisationInfo.placeholderMenus.value( "Edit", NULL );
     QEScaling::applyToWidget( editMenu );
+
+    // Enable the edit menu if requested
+    if( editMenu )
+    {
+        editMenu->setEnabled( app->getParams()->enableEdit  );
+    }
 
     // Populate the 'Windows' menu to include all current guis in any main window
     buildWindowsMenu();
