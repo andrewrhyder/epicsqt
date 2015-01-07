@@ -217,6 +217,16 @@ void QEPlot::setPlotData( const double value, QCaAlarmInfo& alarmInfo, QCaDateTi
     // Flag this trace is displaying a strip chart
     tr->waveform = false;
 
+    // If we are currently holding array data, get rid of it as we are switching to scalar data.
+    // (This is very unlikely, but couild happen if the IOC has rebooted)
+    // Note, array data does not have timestamps.
+    if( tr->timeStamps.count() != tr->ydata.count() )
+    {
+        tr->timeStamps.clear();
+        tr->ydata.clear();
+        tr->xdata.clear();
+    }
+
     // Add the new data point
     tr->timeStamps.append( timestamp );
     tr->ydata.append(value);
@@ -253,6 +263,11 @@ void QEPlot::setPlotData( const double value, QCaAlarmInfo& alarmInfo, QCaDateTi
     This is a slot used to recieve data updates from a QCaObject based class.
  */
 void QEPlot::setPlotData( const QVector<double>& values, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex ) {
+
+    // A seperate data connection (QEPlot::setPlotData( const double value, ... ) manages
+    // scalar data, so ignore scalar data packaged as an array of one value here
+    if( values.count() <= 1 )
+        return;
 
     // Signal a database value change to any Link widgets
     emit dbValueChanged( values );
