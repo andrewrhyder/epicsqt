@@ -1237,6 +1237,11 @@ QMenu* windowCustomisationList::buildMenuPath( windowCustomisationInfo* customis
     return menuPoint;
 }
 
+// Initialise all the customisation items present in a window's menu bar and tool bar.
+// The QEGui application uses this method after loading a GUI so that all the QE widgets in the
+// GUI will be notified of any customisation tiems they may be interested in.
+// Other application should call this method after creating any QE widgets if they want the QE widgets
+// to interact with the customisation system.
 void windowCustomisationList::initialise( windowCustomisationInfo* customisationInfo )
 {
     int count = customisationInfo->items.count();
@@ -1257,13 +1262,13 @@ void windowCustomisationList::userLevelChangedGeneral( userLevelTypes::userLevel
         QList<windowCustomisationMenuItem*> menuItems = customisation->getMenuItems();
         for (int j = 0; j < menuItems.count(); j++)
         {
-            menuItems.at(i)->setUserLevelState( currentUserLevel );
+            menuItems.at(j)->setUserLevelState( currentUserLevel );
         }
 
         QList<windowCustomisationButtonItem*> buttons = customisation->getButtons();
         for (int j = 0; j < buttons.count(); j++)
         {
-            buttons.at(i)->setUserLevelState( currentUserLevel );
+            buttons.at(j)->setUserLevelState( currentUserLevel );
         }
     }
 }
