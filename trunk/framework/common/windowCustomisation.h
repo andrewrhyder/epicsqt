@@ -143,6 +143,7 @@
 #include <QMap>
 #include <ContainerProfile.h>
 #include <applicationLauncher.h>
+#include <QEPluginLibrary_global.h>
 
 
 // Class for building a log of the process of loading the customisation files
@@ -398,9 +399,12 @@ private:
 };
 
 // Window customisation information per Main Window
-class windowCustomisationInfo : public ContainerProfile
+class QEPLUGINLIBRARYSHARED_EXPORT windowCustomisationInfo : public ContainerProfile
 {
 public:
+    windowCustomisationInfo () {}
+    ~windowCustomisationInfo () {}
+
     void userLevelChangedGeneral( userLevelTypes::userLevels ); // Repond to a user level change (this is an implementation for the base ContainerProfile class
 
     QMap<QString, QMenu*> placeholderMenus;    // Menus where application may insert items
