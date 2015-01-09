@@ -1,4 +1,5 @@
-/*
+/*  ContainerProfile.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -735,3 +736,37 @@ userLevelTypes::userLevels userLevelSignal::getLevel()
 {
     return level;
 }
+
+
+// Published own profile if and only if required.
+//
+ProfilePublishiser::ProfilePublishiser (QEWidget* ownerIn)
+{
+    owner = ownerIn;
+
+    // Do we need to publish a local profile?
+    //
+    if( owner->isProfileDefined() ){
+        // No - one is already published.
+        localProfile = false;
+    } else {
+        // Flag the profile was set up in this function (and so should be released
+        // in this function).
+        localProfile = true;
+        owner->publishOwnProfile();
+    }
+}
+
+// Release own profile if and only if required.
+//
+ProfilePublishiser::~ProfilePublishiser()
+{
+    // Release the profile, if we defined one, now that all QE widgets have been
+    // created.
+    //
+    if( localProfile ){
+        owner->releaseProfile ();
+    }
+}
+
+// end

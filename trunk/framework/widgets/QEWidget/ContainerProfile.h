@@ -1,4 +1,5 @@
-/*
+/*  ContainerProfile.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -256,6 +257,28 @@ private:
     QString macroSubstitutions;      // Local copy of macro substitutions (converted to a single string) Still valid after the profile has been released by releaseProfile()
 
     unsigned int messageFormId;      // Local copy of current form ID. Used to group forms with their widgets for messaging
+};
+
+
+// Just by declaring an object of this class, the following is performed:
+//
+//    owner->publishOwnProfile ()   called if a profile not defined in construction.
+//    owner->releaseProfile ()      called if required in detruction.
+//
+// Use as:
+//   {
+//      ProfilePublishiser p (qewidget);
+//      'stuff' requiring a profile.
+//
+//   }  p is destroyed when it goes out of scop
+//
+class QEPLUGINLIBRARYSHARED_EXPORT ProfilePublishiser {
+public:
+    explicit ProfilePublishiser (QEWidget* owner);
+    ~ProfilePublishiser();
+private:
+    QEWidget* owner;
+    bool localProfile;
 };
 
 #endif // CONTAINERPROFILE_H
