@@ -47,7 +47,7 @@ public:
                  triangleUp, triangleDown, triangleLeft, triangleRight,
                  triangleTopRight, triangleBottomRight, triangleBottomLeft, triangleTopLeft,
                  diamond, equalDiamond, arrowUp, arrowDown, arrowLeft, arrowRight,
-                 crossHorozontal, crossVertical};
+                 crossHorizontal, crossVertical, hexagon, octogon };
    Q_ENUMS (Shapes)
 
    /// Nominated shape
