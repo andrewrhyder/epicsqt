@@ -111,7 +111,8 @@ void QEPlotter::createSlotWidgets (const int slot)
    QLabel* label = new QLabel (frame);
    QCheckBox* box = NULL;
 
-   letter->setFixedWidth (16);
+   letter->setFixedWidth (20);
+   letter->setFixedHeight (16);
    letter->setText (item_labels [slot]);
    letter->setStyleSheet (letterStyle);
    frameLayout->addWidget (letter);
