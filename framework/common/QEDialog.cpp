@@ -109,19 +109,34 @@ void QEDialog::relocateToCenteredPosition ()
 QRect QEDialog::constrainGeometry (const QRect& geometry)
 {
    const int gap = 20;
-   const QRect screen = QApplication::desktop ()->screenGeometry ();
+   const QRect screen = QApplication::desktop ()->screenGeometry (0);
    const QSize size = geometry.size ();
    QPoint position = geometry.topLeft ();
 
+   int stop = screen.top ();
+   int sleft = screen.left ();
+   int sright = screen.right ();
+   int sbottom = screen.bottom ();
+
+   // We assume screens are in a regualr block, e.g. 1x1, 1x4, 2x2, 2x1 etc.
+   //
+   for (int j = 1; j < QApplication::desktop ()->screenCount(); j++) {
+      const QRect s2 = QApplication::desktop ()->screenGeometry (j);
+      stop    = MIN (stop,    s2.top());
+      sleft   = MIN (sleft,   s2.left());
+      sright  = MAX (sright,  s2.right());
+      sbottom = MAX (sbottom, s2.bottom());
+   }
+
    // Constain X position.
    //
-   position.setX (MIN (position.x (), screen.right () - size.width () - gap));
-   position.setX (MAX (position.x (), screen.left () + gap));
+   position.setX (MIN (position.x (), sright - size.width () - gap));
+   position.setX (MAX (position.x (), sleft  + gap));
 
    // Constain Y position.
    //
-   position.setY (MIN (position.y (), screen.bottom () - size.height () - gap));
-   position.setY (MAX (position.y (), screen.top () + gap));
+   position.setY (MIN (position.y (), sbottom - size.height () - gap));
+   position.setY (MAX (position.y (), stop    + gap));
 
    return QRect (position, size);
 }
