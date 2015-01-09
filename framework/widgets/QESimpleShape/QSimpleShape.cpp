@@ -108,11 +108,15 @@ void QSimpleShape::paintEvent (QPaintEvent*)
    QPen pen;
    QBrush brush;
    QRect rect;
-   QPoint polygon[8];
+   QPoint polygon [20];
    QColor colour;
    QColor boarderColour;
    bool washedOut = false;
    QString text;
+   int f = 0;   // fraction
+   int g = 0;   // co-fraction
+   int sum;
+
    int x0, x1, x2;
    int y0, y1, y2;
 
@@ -337,7 +341,7 @@ void QSimpleShape::paintEvent (QPaintEvent*)
          painter.drawPolygon (polygon, 8);
          break;
 
-      case crossHorozontal:
+      case crossHorizontal:
          polygon[0] = QPoint (rect.left (), rect.top ());
          polygon[1] = QPoint (rect.right (), rect.top ());
          polygon[2] = QPoint (rect.left (), rect.bottom ());
@@ -353,6 +357,46 @@ void QSimpleShape::paintEvent (QPaintEvent*)
          polygon[3] = QPoint (rect.right (), rect.bottom ());
          polygon[4] = polygon[0];       // close loop
          painter.drawPolygon (polygon, 4);
+         break;
+
+      case hexagon:
+         sum = 4;
+         f = 3;
+         g = sum - f;
+         x1 = (f * rect.left () + g * rect.right ()) / sum;
+         x2 = (g * rect.left () + f * rect.right ()) / sum;
+         y0 = (rect.top () + rect.bottom ()) / 2;
+
+         polygon[0] = QPoint (rect.left (),  y0);
+         polygon[1] = QPoint (x1,            rect.top ());
+         polygon[2] = QPoint (x2,            rect.top ());
+         polygon[3] = QPoint (rect.right (), y0);
+         polygon[4] = QPoint (x2,            rect.bottom ());
+         polygon[5] = QPoint (x1,            rect.bottom ());
+         polygon[6] = polygon[0];       // close loop
+         painter.drawPolygon (polygon, 7);
+         break;
+
+      case octogon:
+         // sum/f is approx sqrt (2) - the rest is high-school geometry.
+         //
+         sum = 99;
+         f = 70;
+         g = sum - f;
+         x1 = (f * rect.left () + g * rect.right ()) / sum;
+         x2 = (g * rect.left () + f * rect.right ()) / sum;
+         y1 = (f * rect.top ()  + g * rect.bottom ()) / sum;
+         y2 = (g * rect.top ()  + f * rect.bottom ()) / sum;
+         polygon[0] = QPoint (rect.left (),  y1);
+         polygon[1] = QPoint (x1,            rect.top ());
+         polygon[2] = QPoint (x2,            rect.top ());
+         polygon[3] = QPoint (rect.right (), y1);
+         polygon[4] = QPoint (rect.right (), y2);
+         polygon[5] = QPoint (x2,            rect.bottom ());
+         polygon[6] = QPoint (x1,            rect.bottom ());
+         polygon[7] = QPoint (rect.left (),  y2);
+         polygon[8] = polygon[0];       // close loop
+         painter.drawPolygon (polygon, 9);
          break;
 
       default:
