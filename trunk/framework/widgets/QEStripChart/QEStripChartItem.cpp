@@ -209,8 +209,8 @@ void QEStripChartItem::createInternalWidgets ()
    this->layout->setContentsMargins (1, 1, 1, 1);
 
    this->pvSlotLetter = new QPushButton (letter, this);
-   this->pvSlotLetter->setMinimumSize (QSize (16, 15));
-   this->pvSlotLetter->setMaximumSize (QSize (16, 15));
+   this->pvSlotLetter->setFixedWidth (20);
+   this->pvSlotLetter->setFixedHeight (16);
    layout->addWidget (this->pvSlotLetter);
 
    this->pvName = new QLabel (this);

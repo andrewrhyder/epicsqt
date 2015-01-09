@@ -84,13 +84,13 @@
         <widget class="QPushButton" name="helpButton">
          <property name="minimumSize">
           <size>
-           <width>40</width>
+           <width>52</width>
            <height>0</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>40</width>
+           <width>52</width>
            <height>16777215</height>
           </size>
          </property>

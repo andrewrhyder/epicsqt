@@ -70,7 +70,7 @@ static const QColor clBlack (0x00, 0x00, 0x00, 0xFF);
 
 #define PV_DELTA_HEIGHT    18
 
-#define PV_FRAME_HEIGHT    (6 + (NUMBER_OF_PVS / 2) * PV_DELTA_HEIGHT)
+#define PV_FRAME_HEIGHT    (8 + (NUMBER_OF_PVS / 2) * PV_DELTA_HEIGHT)
 #define PV_SCROLL_HEIGHT   (PV_FRAME_HEIGHT + 6)
 
 
