@@ -118,7 +118,7 @@ QRect QEDialog::constrainGeometry (const QRect& geometry)
    int sright = screen.right ();
    int sbottom = screen.bottom ();
 
-   // We assume screens are in a regualr block, e.g. 1x1, 1x4, 2x2, 2x1 etc.
+   // We assume screens are in a regular block, e.g. 1x1, 1x4, 2x2, 2x1 etc.
    //
    for (int j = 1; j < QApplication::desktop ()->screenCount(); j++) {
       const QRect s2 = QApplication::desktop ()->screenGeometry (j);

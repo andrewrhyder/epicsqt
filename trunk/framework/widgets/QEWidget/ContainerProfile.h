@@ -270,7 +270,7 @@ private:
 //      ProfilePublishiser p (qewidget);
 //      'stuff' requiring a profile.
 //
-//   }  p is destroyed when it goes out of scop
+//   }  p is destroyed when it goes out of scope.
 //
 class QEPLUGINLIBRARYSHARED_EXPORT ProfilePublishiser {
 public:
