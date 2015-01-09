@@ -325,21 +325,10 @@ QString QEFormGrid::getPrioritySubstitutions (const int slot)
 //
 QEForm* QEFormGrid::createQEForm (const int slot)
 {
-   bool localProfile;
    QString psubs;
    QEForm* form = NULL;
 
-   // Do we need to publish a local profile?
-   //
-   if (!this->isProfileDefined ()) {
-      // Flag the profile was set up in this function (and so should be released
-      // in this function).
-      //
-      localProfile = true;
-      this->publishOwnProfile ();
-   } else {
-      localProfile = false;
-   }
+   ProfilePublishiser publishiser (this);   // publish/release as necessary.
 
    // Extend any variable name substitutions with this form grid's substitutions
    // Like most other macro substitutions, the substitutions already present
@@ -366,13 +355,6 @@ QEForm* QEFormGrid::createQEForm (const int slot)
    // created
    //
    this->removeMacroSubstitutions ();
-
-   // Release the profile, if we defined one, now that all QE widgets have been
-   // created.
-   //
-   if (localProfile) {
-      this->releaseProfile ();
-   }
 
    return form;
 }
