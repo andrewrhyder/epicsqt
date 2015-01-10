@@ -170,7 +170,8 @@ int QEUtilities::roundToInt (const double x, bool* ok)
 
 //------------------------------------------------------------------------------
 //
-QString QEUtilities::intervalToString (const double interval, const int precision)
+QString QEUtilities::intervalToString (const double interval, const int precision,
+                                       const bool showDays)
 {
    QString result;
    double seconds;
@@ -201,7 +202,11 @@ QString QEUtilities::intervalToString (const double interval, const int precisio
 
    #undef EXTRACT
 
-   image.sprintf ("%d %02d:%02d:%02d", days, hours, mins, secs);
+   if (showDays || (days != 0)) {
+      image.sprintf ("%d %02d:%02d:%02d", days, hours, mins, secs);
+   } else {
+      image.sprintf ("%02d:%02d:%02d", hours, mins, secs);
+   }
 
    if (precision > 0) {
       // Limit precision to 9.
@@ -219,7 +224,7 @@ QString QEUtilities::intervalToString (const double interval, const int precisio
 
 //------------------------------------------------------------------------------
 //
-int QEUtilities::getTimeZoneOffset (const QDateTime & atTime)
+int QEUtilities::getTimeZoneOffset (const QDateTime& atTime)
 {
    QDateTime local = atTime.toLocalTime ();
 
