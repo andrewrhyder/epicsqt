@@ -33,7 +33,6 @@
 #include <QFrame>
 #include <QObject>
 #include <QWidget>
-
 #include "QEStripChartNames.h"
 
 
@@ -41,13 +40,14 @@
 class QEStripChartToolBar : public QFrame {
 Q_OBJECT
 public:  
-  explicit QEStripChartToolBar (QWidget *parent = 0);
-  virtual ~QEStripChartToolBar ();
+   explicit QEStripChartToolBar (QWidget *parent = 0);
+   virtual ~QEStripChartToolBar ();
 
-  void setYRangeStatus (const QString& status);
-  void setTimeStatus (const QString& timeStatus);
+   void setYRangeStatus (const QString& status);
+   void setTimeStatus (const QString& timeStatus);
+   void setDurationStatus (const QString& durationStatus);
 
-  void setStateSelectionEnabled (const QEStripChartNames::StateModes mode, const bool enabled);
+   void setStateSelectionEnabled (const QEStripChartNames::StateModes mode, const bool enabled);
   
    static const int designHeight = 44;
 signals:
@@ -56,6 +56,7 @@ signals:
    void yScaleModeSelected (const QEStripChartNames::YScaleModes mode);
    void yRangeSelected (const QEStripChartNames::ChartYRanges scale);
    void durationSelected (const int seconds);
+   void selectDuration ();
    void timeZoneSelected (const Qt::TimeSpec timeSpec);
    void playModeSelected (const QEStripChartNames::PlayModes mode);
    void readArchiveSelected ();
@@ -64,16 +65,14 @@ protected:
    void resizeEvent (QResizeEvent * event);
 
 private:
-   // Internal widgets are held on ownWidgets. If these items are declared at
-   // class level, there is a run time exception. I think the SDK moc file
-   // generation gets very confused.
+   // Internal widgets are held in ownWidgets.
    //
    class OwnWidgets;
    OwnWidgets *ownWidgets;
 
 private slots:
-
-   void durationClicked (QAction *action);
+   void duration2Clicked (bool checked);
+   void selectDurationClicked (bool checked);
 
    void prevStateClicked (bool checked = false);
    void nextStateClicked (bool checked = false);

@@ -18,8 +18,8 @@ OTHER_FILES += \
     widgets/QEStripChart/play.png \
     widgets/QEStripChart/powered_by_asp.png \
     widgets/QEStripChart/reverse_video.png  \
-    widgets/QEStripChart/select_date_times.png
-
+    widgets/QEStripChart/select_date_times.png  \
+    widgets/QEStripChart/select_time.png
 
 RESOURCES += \
     widgets/QEStripChart/QEStripChart.qrc
@@ -29,6 +29,7 @@ HEADERS += \
     widgets/QEStripChart/QEStripChartState.h \
     widgets/QEStripChart/QEStripChartAdjustPVDialog.h \
     widgets/QEStripChart/QEStripChartContextMenu.h \
+    widgets/QEStripChart/QEStripChartDurationDialog.h \
     widgets/QEStripChart/QEStripChartItem.h \
     widgets/QEStripChart/QEStripChartNames.h \
     widgets/QEStripChart/QEStripChartRangeDialog.h \
@@ -43,6 +44,7 @@ SOURCES += \
     widgets/QEStripChart/QEStripChartState.cpp \
     widgets/QEStripChart/QEStripChartAdjustPVDialog.cpp \
     widgets/QEStripChart/QEStripChartContextMenu.cpp \
+    widgets/QEStripChart/QEStripChartDurationDialog.cpp \
     widgets/QEStripChart/QEStripChartItem.cpp \
     widgets/QEStripChart/QEStripChartRangeDialog.cpp \
     widgets/QEStripChart/QEStripChartTimeDialog.cpp \
@@ -56,6 +58,7 @@ INCLUDEPATH += \
 
 FORMS += \
     widgets/QEStripChart/QEStripChartAdjustPVDialog.ui \
+    widgets/QEStripChart/QEStripChartDurationDialog.ui \
     widgets/QEStripChart/QEStripChartRangeDialog.ui \
     widgets/QEStripChart/QEStripChartTimeDialog.ui \
     widgets/QEStripChart/QEStripChartStatistics.ui

@@ -14,5 +14,6 @@
         <file>powered_by_asp.png</file>
         <file>reverse_video.png</file>
         <file>select_date_times.png</file>
+        <file>select_time.png</file>
     </qresource>
 </RCC>

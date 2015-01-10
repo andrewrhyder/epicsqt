@@ -56,6 +56,7 @@
 #include "QEStripChartToolBar.h"
 #include "QEStripChartRangeDialog.h"
 #include "QEStripChartTimeDialog.h"
+#include "QEStripChartDurationDialog.h"
 #include "QEStripChartState.h"
 
 // Differed class declaration - no explicit dependency on Qwt header files.
@@ -151,7 +152,10 @@ public:
    void setPvName (unsigned int slot, const QString& pvName);
    QString getPvName (unsigned int slot) const;
 
-   void addPvName (const QString& pvName);
+   // Add PV to next avialble slot (if any).
+   // returns slot number 0 .. Max - 1 iff successful otherwise -1.
+   //
+   int addPvName (const QString& pvName);
 
 protected:
    // Override QWidget functions - call up standard handlers defined in QEDragDrop.
@@ -239,6 +243,7 @@ private:
    Qt::TimeSpec timeZoneSpec;
 
    QEStripChartTimeDialog *timeDialog;
+   QEStripChartDurationDialog *durationDialog;
 
    // Chart lower/upper range
    //
@@ -316,6 +321,7 @@ private slots:
    void yScaleModeSelected (const QEStripChartNames::YScaleModes mode);
    void yRangeSelected (const QEStripChartNames::ChartYRanges scale);
    void durationSelected (const int seconds);
+   void selectDuration ();
    void timeZoneSelected (const Qt::TimeSpec timeZoneSpec);
    void playModeSelected (const QEStripChartNames::PlayModes mode);
    void readArchiveSelected ();

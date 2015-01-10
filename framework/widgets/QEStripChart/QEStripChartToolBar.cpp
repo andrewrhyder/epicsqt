@@ -39,8 +39,10 @@
 #include "QEStripChartToolBar.h"
 
 
-#define NUMBER_OF_BUTTONS  21
+#define NUMBER_OF_BUTTONS  34
 #define ICW                26         // icon width
+#define DBW                28         // duration buttton width
+#define VALUE_PROPERTY     "QESTRIPCHART_BUTTON_VALUE"
 
 // Special slots NUMBERS  - must be consistent with below
 //
@@ -48,6 +50,7 @@
 #define NEXT_SLOT          1
 #define YSCALE_SLOT        6
 #define TSCALE_SLOT        12
+
 
 // Structure used in buttonSpecs for definining strip chart tool bar.
 // Note, a similar structure is used in QEPlotter. If they are the same name a
@@ -57,42 +60,56 @@
 struct QEStripChartPushButtonSpecifications {
    int gap;
    int width;
+   int value;
    bool isIcon;  // when false is caption
    const QString captionOrIcon;
    const QString toolTip;
-   const char * member;
+   const char* member;
 };
 
 static const QString localZone = QEUtilities::getTimeZoneTLA (Qt::LocalTime, QDateTime::currentDateTime ());
 
 static const struct QEStripChartPushButtonSpecifications buttonSpecs [NUMBER_OF_BUTTONS] = {
-   { 0,   ICW, true,  QString ("go_back.png"),           QString ("Previous state"),               SLOT (prevStateClicked (bool))        },
-   { 0,   ICW, true,  QString ("go_fwd.png"),            QString ("Next state"),                   SLOT (nextStateClicked (bool))        },
+   { 0,   ICW, 0, true,  QString ("go_back.png"),           QString ("Previous state"),               SLOT (prevStateClicked (bool))        },
+   { 0,   ICW, 0, true,  QString ("go_fwd.png"),            QString ("Next state"),                   SLOT (nextStateClicked (bool))        },
 
-   { 4,   ICW, true,  QString ("normal_video.png"),      QString ("White background"),             SLOT (normalVideoClicked (bool))      },
-   { 0,   ICW, true,  QString ("reverse_video.png"),     QString ("Black background"),             SLOT (reverseVideoClicked (bool))     },
+   { 8,   ICW, 0, true,  QString ("normal_video.png"),      QString ("White background"),             SLOT (normalVideoClicked (bool))      },
+   { 0,   ICW, 0, true,  QString ("reverse_video.png"),     QString ("Black background"),             SLOT (reverseVideoClicked (bool))     },
 
-   { 4,   ICW, true,  QString ("linear_scale.png"),      QString ("Linear scale"),                 SLOT (linearScaleClicked (bool))      },
-   { 0,   ICW, true,  QString ("log_scale.png"),         QString ("Log Scale"),                    SLOT (logScaleClicked (bool))         },
+   { 8,   ICW, 0, true,  QString ("linear_scale.png"),      QString ("Linear scale"),                 SLOT (linearScaleClicked (bool))      },
+   { 0,   ICW, 0, true,  QString ("log_scale.png"),         QString ("Log Scale"),                    SLOT (logScaleClicked (bool))         },
 
-   { 4,   ICW, false, QString ("M"),                     QString ("Manual Scale"),                 SLOT (manualYScaleClicked (bool))     },
-   { 0,   ICW, false, QString ("A"),                     QString ("HOPR/LOPR Scale"),              SLOT (automaticYScaleClicked (bool))  },
-   { 0,   ICW, false, QString ("P"),                     QString ("Plotted Data Scale"),           SLOT (plottedYScaleClicked (bool))    },
-   { 0,   ICW, false, QString ("B"),                     QString ("Buffer Data Scale"),            SLOT (bufferedYScaleClicked (bool))   },
-   { 0,   ICW, false, QString ("D"),                     QString ("Dynamic Scale"),                SLOT (dynamicYScaleClicked (bool))    },
-   { 0,   ICW, false, QString ("N"),                     QString ("Normalised Scale"),             SLOT (normalisedYScaleClicked (bool)) },
+   { 8,   ICW, 0, false, QString ("M"),                     QString ("Manual Scale"),                 SLOT (manualYScaleClicked (bool))     },
+   { 0,   ICW, 0, false, QString ("A"),                     QString ("HOPR/LOPR Scale"),              SLOT (automaticYScaleClicked (bool))  },
+   { 0,   ICW, 0, false, QString ("P"),                     QString ("Plotted Data Scale"),           SLOT (plottedYScaleClicked (bool))    },
+   { 0,   ICW, 0, false, QString ("B"),                     QString ("Buffer Data Scale"),            SLOT (bufferedYScaleClicked (bool))   },
+   { 0,   ICW, 0, false, QString ("D"),                     QString ("Dynamic Scale"),                SLOT (dynamicYScaleClicked (bool))    },
+   { 0,   ICW, 0, false, QString ("N"),                     QString ("Normalised Scale"),             SLOT (normalisedYScaleClicked (bool)) },
 
-   { 4,   96,  false, QString ("Duration"),              QString ("Select chart duration"),        NULL                                  },
+   { 8,   DBW, 60,     false, QString ("1m"),               QString ("Select chart duration"),        SLOT (duration2Clicked (bool))        },
+   { 0,   DBW, 120,    false, QString ("2m"),               QString ("Select chart duration"),        SLOT (duration2Clicked (bool))        },
+   { 0,   DBW, 300,    false, QString ("5m"),               QString ("Select chart duration"),        SLOT (duration2Clicked (bool))        },
+   { 0,   DBW, 600,    false, QString ("10m"),              QString ("Select chart duration"),        SLOT (duration2Clicked (bool))        },
+   { 0,   DBW, 1200,   false, QString ("20m"),              QString ("Select chart duration"),        SLOT (duration2Clicked (bool))        },
+   { 0,   DBW, 1800,   false, QString ("30m"),              QString ("Select chart duration"),        SLOT (duration2Clicked (bool))        },
+   { 0,   DBW, 3600,   false, QString ("1h"),               QString ("Select chart duration"),        SLOT (duration2Clicked (bool))        },
+   { 0,   DBW, 7200,   false, QString ("2h"),               QString ("Select chart duration"),        SLOT (duration2Clicked (bool))        },
+   { 0,   DBW, 14400,  false, QString ("4h"),               QString ("Select chart duration"),        SLOT (duration2Clicked (bool))        },
+   { 0,   DBW, 21600,  false, QString ("6h"),               QString ("Select chart duration"),        SLOT (duration2Clicked (bool))        },
+   { 0,   DBW, 43200,  false, QString ("12h"),              QString ("Select chart duration"),        SLOT (duration2Clicked (bool))        },
+   { 0,   DBW, 86400,  false, QString ("1d"),               QString ("Select chart duration"),        SLOT (duration2Clicked (bool))        },
+   { 0,   DBW, 172800, false, QString ("2d"),               QString ("Select chart duration"),        SLOT (duration2Clicked (bool))        },
+   { 0,   ICW, 0, true, QString ("select_time.png"),        QString ("Select chart duration"),        SLOT (selectDurationClicked (bool))   },
 
-   { 4,   40,  false, localZone,                         QString ("Use local time"),               SLOT (localTimeClicked (bool))        },
-   { 0,   40,  false, QString ("UTC"),                   QString ("Use UTC (GMT) time"),           SLOT (utcTimeClicked (bool))          },
+   { 8,   40,  0, false, localZone,                         QString ("Use local time"),               SLOT (localTimeClicked (bool))        },
+   { 0,   40,  0, false, QString ("UTC"),                   QString ("Use UTC (GMT) time"),           SLOT (utcTimeClicked (bool))          },
 
-   { 4,   ICW, true,  QString ("archive.png"),           QString ("Extract data from archive(s)"), SLOT (readArchiveClicked (bool))      },
-   { 0,   ICW, true,  QString ("select_date_times.png"), QString ("Set chart start/end time"),     SLOT (selectTimeClicked (bool))       },
-   { 0,   ICW, true,  QString ("play.png"),              QString ("Play - Real time"),             SLOT (playClicked (bool))             },
-   { 0,   ICW, true,  QString ("pause.png"),             QString ("Pause"),                        SLOT (pauseClicked (bool))            },
-   { 0,   ICW, true,  QString ("page_backward.png"),     QString ("Back one page"),                SLOT (backwardClicked (bool))         },
-   { 0,   ICW, true,  QString ("page_forward.png"),      QString ("Forward one page"),             SLOT (forwardClicked (bool))          }
+   { 8,   ICW, 0, true,  QString ("archive.png"),           QString ("Extract data from archive(s)"), SLOT (readArchiveClicked (bool))      },
+   { 0,   ICW, 0, true,  QString ("select_date_times.png"), QString ("Set chart start/end time"),     SLOT (selectTimeClicked (bool))       },
+   { 0,   ICW, 0, true,  QString ("play.png"),              QString ("Play - Real time"),             SLOT (playClicked (bool))             },
+   { 0,   ICW, 0, true,  QString ("pause.png"),             QString ("Pause"),                        SLOT (pauseClicked (bool))            },
+   { 0,   ICW, 0, true,  QString ("page_backward.png"),     QString ("Back one page"),                SLOT (backwardClicked (bool))         },
+   { 0,   ICW, 0, true,  QString ("page_forward.png"),      QString ("Forward one page"),             SLOT (forwardClicked (bool))          },
 };
 
 
@@ -101,20 +118,13 @@ static const struct QEStripChartPushButtonSpecifications buttonSpecs [NUMBER_OF_
 //
 class QEStripChartToolBar::OwnWidgets : public QObject {
 public:
-   OwnWidgets (QEStripChartToolBar *parent);
+   explicit OwnWidgets (QEStripChartToolBar *parent);
    ~OwnWidgets ();
 
    QPushButton *pushButtons [NUMBER_OF_BUTTONS];
    QLabel *yScaleStatus;
    QLabel *timeStatus;
-
-private:
-   QMenu *m2;
-   QMenu *m2s;
-   QMenu *m2m;
-   QMenu *m2h;
-   QMenu *m2d;
-   QMenu *m2w;
+   QLabel *durationStatus;
 };
 
 
@@ -122,15 +132,9 @@ private:
 //
 QEStripChartToolBar::OwnWidgets::OwnWidgets (QEStripChartToolBar *parent) : QObject (parent)
 {
-   static const int seconds_per_minute = 60;
-   static const int seconds_per_hour = 60 * seconds_per_minute;
-   static const int seconds_per_day = 24 * seconds_per_hour;
-   static const int seconds_per_week = 7 * seconds_per_day;
-
    int left;
    int j;
-   QLabel *status;
-   QPushButton *button;
+   QPushButton* button;
    QString iconPathName;
    int gap;
 
@@ -139,7 +143,6 @@ QEStripChartToolBar::OwnWidgets::OwnWidgets (QEStripChartToolBar *parent) : QObj
    //
    left = 4;
    for (j = 0 ; j < NUMBER_OF_BUTTONS; j++) {
-
       button = new QPushButton (parent);
 
       // Set up icon or caption text.
@@ -149,94 +152,56 @@ QEStripChartToolBar::OwnWidgets::OwnWidgets (QEStripChartToolBar *parent) : QObj
          iconPathName.append (buttonSpecs[j].captionOrIcon);
          button->setIcon (QIcon (iconPathName));
       } else {
+         QFont f;
+         f = button->font();
+         f.setPointSize (8);
+         button->setFont (f);
          button->setText (buttonSpecs[j].captionOrIcon);
+
       }
 
-      button->setToolTip(buttonSpecs[j].toolTip);
+      button->setFocusPolicy (Qt::NoFocus);
+      button->setProperty (VALUE_PROPERTY, buttonSpecs[j].value);
+      button->setToolTip (buttonSpecs[j].toolTip);
       gap = buttonSpecs[j].gap;
       button->setGeometry (left + gap, 2, buttonSpecs[j].width, 26);
-      left += gap + buttonSpecs[j].width + 2;
+      left += gap + buttonSpecs[j].width;
       if (buttonSpecs[j].member != NULL) {
          QObject::connect (button, SIGNAL (clicked (bool)),
                            parent, buttonSpecs[j].member);
       }
+
       this->pushButtons [j] = button;
    }
 
-   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-   this->m2 = new QMenu (parent);
-
-   this->m2s = new QMenu ("seconds", this->m2);
-   this->m2m = new QMenu ("minutes", this->m2);
-   this->m2h = new QMenu ("hours", this->m2);
-   this->m2d = new QMenu ("days", this->m2);
-   this->m2w = new QMenu ("weeks", this->m2);
-
-   this->m2->addMenu (this->m2s);
-   this->m2->addMenu (this->m2m);
-   this->m2->addMenu (this->m2h);
-   this->m2->addMenu (this->m2d);
-   this->m2->addMenu (this->m2w);
-
-   this->m2s->addAction ("1 sec   ")->setData (QVariant (1));
-   this->m2s->addAction ("2 secs  ")->setData (QVariant (2));
-   this->m2s->addAction ("5 secs  ")->setData (QVariant (5));
-   this->m2s->addAction ("10 secs ")->setData (QVariant (10));
-   this->m2s->addAction ("20 secs ")->setData (QVariant (20));
-   this->m2s->addAction ("30 secs ")->setData (QVariant (30));
-
-   this->m2m->addAction ("1 min   ")->setData (QVariant (1 * seconds_per_minute));
-   this->m2m->addAction ("2 mins  ")->setData (QVariant (2 * seconds_per_minute));
-   this->m2m->addAction ("5 mins  ")->setData (QVariant (5 * seconds_per_minute));
-   this->m2m->addAction ("10 mins ")->setData (QVariant (10 * seconds_per_minute));
-   this->m2m->addAction ("20 mins ")->setData (QVariant (20 * seconds_per_minute));
-   this->m2m->addAction ("30 mins ")->setData (QVariant (30 * seconds_per_minute));
-
-   this->m2h->addAction ("1 hour   ")->setData (QVariant (1 * seconds_per_hour));
-   this->m2h->addAction ("2 hours  ")->setData (QVariant (2 * seconds_per_hour));
-   this->m2h->addAction ("5 hours  ")->setData (QVariant (5 * seconds_per_hour));
-   this->m2h->addAction ("10 hours ")->setData (QVariant (10 * seconds_per_hour));
-   this->m2h->addAction ("20 hours ")->setData (QVariant (20 * seconds_per_hour));
-
-   this->m2d->addAction ("1 day    ")->setData (QVariant (1 * seconds_per_day));
-   this->m2d->addAction ("2 days   ")->setData (QVariant (2 * seconds_per_day));
-   this->m2d->addAction ("5 days   ")->setData (QVariant (5 * seconds_per_day));
-   this->m2d->addAction ("10 days  ")->setData (QVariant (10 * seconds_per_day));
-   this->m2d->addAction ("20 days  ")->setData (QVariant (20 * seconds_per_day));
-
-   this->m2w->addAction ("1 week   ")->setData (QVariant (1 * seconds_per_week));
-   this->m2w->addAction ("2 weeks  ")->setData (QVariant (2 * seconds_per_week));
-   this->m2w->addAction ("5 weeks  ")->setData (QVariant (5 * seconds_per_week));
-   this->m2w->addAction ("10 weeks ")->setData (QVariant (10 * seconds_per_week));
-   this->m2w->addAction ("20 weeks ")->setData (QVariant (20 * seconds_per_week));
-
-   // Connextion seems to apply to all the sub-menus as well
-   //
-   QObject::connect (this->m2,  SIGNAL (triggered       (QAction *)),
-                     parent,    SLOT   (durationClicked (QAction *)));
-
-   button = this->pushButtons [TSCALE_SLOT];
-   button->setMenu (this->m2);
-
    // Set up status labels.
    //
-   this->timeStatus = status = new QLabel (parent);
+   this->timeStatus = new QLabel (parent);
    left = this->pushButtons [TSCALE_SLOT]->geometry().x ();
-   status->setGeometry (left, 28, 368, 16);
+   this->timeStatus->setGeometry (left, 28, 328, 16);    // left top width height
 
-   QFont font = status->font ();
+   left = this->timeStatus->geometry ().right () + 8;
+
+   this->durationStatus = new QLabel (parent);
+   this->durationStatus->setGeometry (left, 28, 84, 16);    // left top width height
+   this->durationStatus->setAlignment (Qt::AlignRight);
+
+   QFont font = this->timeStatus->font ();
    font.setFamily ("Monospace");
-   font.setPointSize (9);
-   status->setFont (font);
-   // status->setStyleSheet ("QWidget { background-color: #ffffe0; }");
+   font.setPointSize (8);
 
-   this->yScaleStatus = status = new QLabel ("Dynamic", parent);
+   this->timeStatus->setFont (font);
+   this->durationStatus->setFont (font);
+
+   this->yScaleStatus = new QLabel ("Dynamic", parent);
    left = this->pushButtons [YSCALE_SLOT]->geometry().x ();
-   status->setGeometry (left, 28, 160, 16);
-   status->setAlignment (Qt::AlignHCenter);
-   status->setFont (font);
-   // status->setStyleSheet ("QWidget { background-color: #ffffe0; }");
+   this->yScaleStatus->setGeometry (left, 28, 160, 16);
+   this->yScaleStatus->setAlignment (Qt::AlignHCenter);
+   this->yScaleStatus->setFont (font);
 
+   // this->timeStatus->setStyleSheet     ("QWidget { background-color: #ffffe0; }");
+   // this->durationStatus->setStyleSheet ("QWidget { background-color: #ffffe0; }");
+   // this->yScaleStatus->setStyleSheet   ("QWidget { background-color: #ffffe0; }");
 }
 
 //------------------------------------------------------------------------------
@@ -271,9 +236,16 @@ void QEStripChartToolBar::setYRangeStatus (const QString & status)
 
 //------------------------------------------------------------------------------
 //
-void QEStripChartToolBar::setTimeStatus (const QString & timeStatusIn)
+void QEStripChartToolBar::setTimeStatus (const QString& timeStatusIn)
 {
    this->ownWidgets->timeStatus->setText (timeStatusIn);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChartToolBar::setDurationStatus (const QString& durationStatusIn)
+{
+   this->ownWidgets->durationStatus->setText (durationStatusIn);
 }
 
 //------------------------------------------------------------------------------
@@ -300,15 +272,24 @@ void QEStripChartToolBar::resizeEvent (QResizeEvent *)
 
 //------------------------------------------------------------------------------
 //
-void QEStripChartToolBar::durationClicked (QAction *action)
+void QEStripChartToolBar::duration2Clicked (bool)
 {
-   int d;
-   bool okay;
-
-   d = action->data().toInt (&okay);
-   if (okay) {
-      emit this->durationSelected (d);
+   QPushButton* button = dynamic_cast <QPushButton*> (this->sender ());
+   if (button) {
+      int d;
+      bool okay;
+      d = button->property(VALUE_PROPERTY).toInt(&okay);
+      if (okay) {
+         emit this->durationSelected (d);
+      }
    }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChartToolBar::selectDurationClicked (bool)
+{
+   emit this->selectDuration ();
 }
 
 //------------------------------------------------------------------------------

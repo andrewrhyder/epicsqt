@@ -93,7 +93,7 @@ void QEStripChartStatistics::processDataList (const QCaDataPointList& dataList)
 
    double duration = startTime.secondsTo (endTime);
 
-   this->ui->durationLabel->setText (QEUtilities::intervalToString (duration, 0));
+   this->ui->durationLabel->setText (QEUtilities::intervalToString (duration, 0, true));
 
    int validCount = 0;
    double minimum = +9.99E+99;
