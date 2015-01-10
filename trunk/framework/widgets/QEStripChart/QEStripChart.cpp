@@ -218,6 +218,9 @@ void QEStripChart::createInternalWidgets ()
    QObject::connect (this->toolBar, SIGNAL (durationSelected  (const int)),
                      this,          SLOT   (durationSelected  (const int)));
 
+   QObject::connect (this->toolBar, SIGNAL (selectDuration ()),
+                     this,          SLOT   (selectDuration ()));
+
    QObject::connect (this->toolBar, SIGNAL (playModeSelected  (const QEStripChartNames::PlayModes)),
                      this,          SLOT   (playModeSelected  (const QEStripChartNames::PlayModes)));
 
@@ -464,6 +467,9 @@ void QEStripChart::plotData ()
 
    // set on tool bar
    this->toolBar->setTimeStatus (times);
+
+   QString durationImage = QEUtilities::intervalToString ((double )this->getDuration (), 0, true);
+   this->toolBar->setDurationStatus (durationImage);
 
    QEStripChartNames meta;   // allows access to enumeration metta data.
    QString yRangeStatus;
@@ -720,6 +726,7 @@ QEStripChart::QEStripChart (QWidget * parent) : QEFrame (parent)
 
    // Construct dialogs.
    //
+   this->durationDialog = new QEStripChartDurationDialog (this);
    this->timeDialog = new QEStripChartTimeDialog (this);
    this->yRangeDialog = new QEStripChartRangeDialog (this);
 
@@ -855,16 +862,17 @@ QString QEStripChart::getPvName (unsigned int slot) const
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::addPvName (const QString& pvName)
+int QEStripChart::addPvName (const QString& pvName)
 {
-   unsigned int slot;
+   int result = -1;
 
-   for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
+   for (unsigned int slot = 0; slot < NUMBER_OF_PVS; slot++) {
       QEStripChartItem * item = this->getItem (slot);
       if (item->isInUse() == false) {
          // Found an empty slot.
          //
          item->setPvName (pvName, "");
+         result = (int) slot;
          break;
       }
    }
@@ -872,6 +880,7 @@ void QEStripChart::addPvName (const QString& pvName)
    // Determine if we are now full.
    //
    this->evaluateAllowDrop ();
+   return result;
 }
 
 //------------------------------------------------------------------------------
@@ -984,6 +993,18 @@ void QEStripChart::durationSelected (const int seconds)
 {
    this->setDuration (seconds);
    this->pushState ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::selectDuration ()
+{
+   int n;
+   this->durationDialog->setDuration (this->getDuration ());
+   n = this->durationDialog->exec (this->toolBar);
+   if (n == 1) {
+      this->setDuration (this->durationDialog->getDuration ());
+   }
 }
 
 //------------------------------------------------------------------------------
