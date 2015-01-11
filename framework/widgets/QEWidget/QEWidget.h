@@ -246,10 +246,10 @@ public:
     ///
     qcaobject::QCaObject* getQcaItem( unsigned int variableIndex );
 
-    /// Return a colour to update the widget's look to reflect the current alarm state
+    /// Static method to return a colour to update the widget's look to reflect the current alarm state
     /// Note, the color is determined by the alarmInfo class, but since that class is used in non
     /// gui applications, it can't return a QColor
-    QColor getColor( QCaAlarmInfo& alarmInfo, const int saturation );
+    static QColor getColor( QCaAlarmInfo& alarmInfo, const int saturation );
 
     /// This convenience function updates the alarm tool tip, and alarm status style if the displayAlarmState
     /// property is set to true - assumes the widget uses standard properties. This function is perhaps
