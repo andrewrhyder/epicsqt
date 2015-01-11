@@ -6,6 +6,7 @@
 
 HEADERS += \
    common/QEActionRequests.h \
+   common/QEAxisPainter.h \
    common/QECommon.h \
    common/QEDialog.h \
    common/QEDelayedText.h \
@@ -27,6 +28,7 @@ HEADERS += \
 
 SOURCES += \
    common/QEActionRequests.cpp \
+   common/QEAxisPainter.cpp \
    common/QECommon.cpp \
    common/QEDialog.cpp \
    common/QEDelayedText.cpp \
