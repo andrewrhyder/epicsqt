@@ -146,6 +146,8 @@ void recording::stopPlaying()
 // Show a specified frame in the QEImage class
 void recording::showRecordedFrame( int currentFrame )
 {
+    if( currentFrame<0) //check for currentFrame <0 because it could be set to -1 by invalid slider position.
+        return;
     // Get and display the frame
     if( currentFrame < history.count() )
     {
