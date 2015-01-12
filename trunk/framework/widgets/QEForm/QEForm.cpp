@@ -289,7 +289,7 @@ bool QEForm::readUiFile()
                 publishOwnProfile();
             }
 
-            // Add this form's macro substitutions for all it's children to use
+            // Add this form's macro substitutions for all it's children to use.
             // Note, any macros in the substitutions are themselves substituted before applying the substitutions to the form
             addPriorityMacroSubstitutions( substituteThis( getVariableNameSubstitutions()) );
 
@@ -370,7 +370,7 @@ bool QEForm::readUiFile()
             setPublishedMessageFormId( parentMessageFormId );
 
             // Remove this form's macro substitutions now all it's children are created
-            removeMacroSubstitutions();
+            removePriorityMacroSubstitutions();
 
             // Reset the published current object's path to what ever it was
             setPublishedParentPath( getParentPath() );

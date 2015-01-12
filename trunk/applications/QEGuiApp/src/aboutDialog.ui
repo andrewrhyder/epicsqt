@@ -155,7 +155,8 @@
           </font>
          </property>
          <property name="text">
-          <string>Macro Substitutions:</string>
+          <string>Macro Substitutions:
+(current window)</string>
          </property>
         </widget>
        </item>
@@ -485,8 +486,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>718</width>
-               <height>335</height>
+               <width>72</width>
+               <height>69</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_6">
