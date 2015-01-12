@@ -265,7 +265,7 @@ bool PersistanceManager::openRead( QString fileName, QString rootName )
     QFile file( fileName );
     if (!file.open(QIODevice::ReadOnly))
     {
-        qDebug() << "Could not open config file" << fileName;
+        qDebug() << "Could not open configuration file for reading" << fileName;
         return false;
     }
 
