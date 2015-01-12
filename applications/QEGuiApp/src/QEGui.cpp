@@ -102,14 +102,14 @@ int QEGui::run()
         }
     }
 
+    // Set up the profile for finding customisation files, and for loading customisations
+    ContainerProfile profile;
+    profile.setupProfile( NULL, params.pathList, "", params.substitutions );
+
     // Load window customisations
     // First load the inbuilt default
     // This can be overwritten by any external file with a customisation set with the name defined by DEFAULT_QEGUI_CUSTOMISATION
     winCustomisations.loadCustomisation( ":/qe/gui/configuration/QEGuiCustomisationDefault.xml" );
-
-    // Set up the profile for finding customisation files
-    ContainerProfile profile;
-    profile.setupProfile( NULL, params.pathList, "", params.substitutions );
 
     // Now load the configuration file specified in the parameters (if any), otherwise the default external file if present
     if( !winCustomisations.loadCustomisation( getParams()->customisationFile ))
