@@ -135,13 +135,18 @@ void standardProperties::setSuperVisibility()
     owner->setVisible( vis );
 }
 
+// Given a user level, note the new level and determine if the widget should be visible or enabled
 void standardProperties::checkVisibilityEnabledLevel( userLevelTypes::userLevels level )
 {
+    // Note the new user level
     currentLevel = level;
+
+    // Set the 'enabled' state according to the new level
     setSuperEnabled();
+
+    // Set the visibility according to the new level
     setSuperVisibility();
 }
-
 
 // visible (widget is visible outside 'Designer')
 void standardProperties::setRunVisible( bool visibleIn )
