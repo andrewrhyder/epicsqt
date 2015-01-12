@@ -39,7 +39,9 @@
 # Depending on compiler the '-W1' may or may not be required. If an error relating to nable-auto-import occurs (missing leading -e) then use -W1 option
 #win32:QMAKE_LFLAGS += -enable-auto-import
 win32QMAKE_LFLAGS += -Wl,-enable-auto-import
-
+#==========================================================
+#Define this if you are using MinGW compiler
+#DEFINES += _MINGW=TRUE
 #===========================================================
 # Project configuration
 
@@ -70,6 +72,8 @@ UI_HEADERS_DIR = O.$$(EPICS_HOST_ARCH)/ui_headers
 # We don't get this include path for free - need to be explicit.
 # 
 INCLUDEPATH += O.$$(EPICS_HOST_ARCH)/ui_headers
+#Add this includepath for Epics version 3.15.1 and later
+#INCLUDEPATH += $$(EPICS_BASE)/include/compiler/gcc
 
 DEFINES += QWT_DLL=TRUE
 
@@ -200,14 +204,16 @@ isEmpty( _QWT_INCLUDE_PATH ) {
 INCLUDEPATH += $$(QWT_INCLUDE_PATH)
 #win32:LIBS += -LC:/qwt-6.0.1/lib
 win32:LIBS += -LC:/qwt-6.1.0/lib
+#win32:LIBS += -LC:/qwt-6.1.1/lib
 
 # Depending on build, the qwt library below may need to be -lqwt or -lqwt6
+#The 'scope' labels Debug and Release need to have first letter capitalised for it to work in win32.
 win32 {
-    debug {
+    Debug {
         warning( "Using qwtd (not qwt) for this debug build" )
         LIBS += -lqwtd
     }
-    release {
+    Release {
         warning( "Using qwt (not qwtd) for this release build" )
         LIBS += -lqwt
     }
