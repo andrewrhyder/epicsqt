@@ -15,34 +15,45 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_4">
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-      <widget class="QRadioButton" name="radioButtonLive">
-       <property name="toolTip">
-        <string>Switch to live mode</string>
-       </property>
-       <property name="text">
-        <string>Live</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="radioButtonPlayback">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>Switch to playback mode</string>
-       </property>
-       <property name="text">
-        <string>Playback</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_5">
+      <item>
+       <widget class="QRadioButton" name="radioButtonLive">
+        <property name="toolTip">
+         <string>Switch to live mode</string>
+        </property>
+        <property name="text">
+         <string>Live</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioButtonPlayback">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Switch to playback mode</string>
+        </property>
+        <property name="text">
+         <string>Playback</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+     <zorder>radioButtonLive</zorder>
+     <zorder>radioButtonLive</zorder>
+     <zorder>radioButtonPlayback</zorder>
+    </widget>
    </item>
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_4">
