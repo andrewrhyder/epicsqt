@@ -554,7 +554,20 @@ public slots:
     void profileDisplayDestroyed( QObject* ); ///< Framework use only. Slot to catch deletion of components (such as profile plots) that have been passed to the application for presentation
     void recorderDestroyed( QObject* ); ///< Framework use only. Slot to catch deletion of components (such as profile plots) that have been passed to the application for presentation
 
-  signals:
+    //slots to enable external signals to show/hide markups.
+    //Note that setDisplayMarkups(bool) complicates things. If it is called with 'true'
+    //then markups that are PV controlled will still display (if the pv changes) even though the markup's setDisplay???Selection(false) has been called.
+    //So if you want a PV controlled markup to really not show, you have to call setDisplayMarkups(false) and then setDisplay????Selection(false)
+    //Note also that calling setDisplayMarkups(true) will show those previously hidden PV controlled markups but calling setDisplayMarkups(false)
+    //won't hide them again. To do that you also have to call their setDisplay?????Selection(false) again.
+    void showProfile() {setDisplayProfileSelection(true);} //show the arbitrary line (profile) markup
+    void hideProfile() {setDisplayProfileSelection(false);} //hide it but note that if its PV changes it will reshow unless DisplayMarkups has been set to off
+    void showArea1() {setDisplayArea1Selection(true);} //
+    void hideArea1() {setDisplayArea1Selection(false);} //
+    void setDisplayMarkupsOn() {setDisplayMarkups(true);} //set markup display to on to show all markups that change either due to user or PV activity, even if their setDisplay????Selection is off
+    void setDisplayMarkupsOff() {setDisplayMarkups(false);}//set markup display to off to stop PV controlled pvs from showing even if they change, unless their setDisplay????Selection is on
+
+signals:
     // Note, the following signals are common to many QE widgets,
     // if changing the doxygen comments, ensure relevent changes are migrated to all instances
     /// Sent when the widget is updated following a data change
