@@ -1337,6 +1337,16 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw,              
         return;
     }
 
+    // Get the current macro substitutions
+    // Note, this uses a new ContainerProfile which will pick up the current macro substitutions.
+    // The ContainerProfile base class (which is used to generate signals when the user level changes)
+    // will have the old macro substitutions (probably those current on application startup).
+    macroSubstitutionList macroSubstitutionParts;
+    {
+        ContainerProfile profile;
+        macroSubstitutionParts = macroSubstitutionList( profile.getMacroSubstitutions() );
+    }
+
     // Add the required toolbar buttons
     QList<windowCustomisationButtonItem*> bList = customisation->getButtons();
     for ( int i = 0; i < bList.length(); i++ )
@@ -1414,9 +1424,7 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw,              
                     if( checkInfo.getCheckable() )
                     {
                         menuItem->setCheckable( true );
-
-                        macroSubstitutionList parts = macroSubstitutionList( getMacroSubstitutions() );
-                        menuItem->setChecked( parts.getValue( checkInfo.getKey() ) == checkInfo.getValue() );
+                        menuItem->setChecked( macroSubstitutionParts.getValue( checkInfo.getKey() ) == checkInfo.getValue() );
                     }
 
                     // Set up an action to respond to the user
