@@ -180,7 +180,7 @@ public:
     //
     Q_PROPERTY (double value    READ getValue     WRITE setValue    DESIGNABLE false)
     Q_PROPERTY (bool   isActive READ getIsActive  WRITE setIsActive DESIGNABLE false)
-    Q_PROPERTY (bool   isValid  READ getIsValid   WRITE setIsValid DESIGNABLE false)
+    Q_PROPERTY (bool   isValid  READ getIsValid   WRITE setIsValid  DESIGNABLE false)
     //
     // End QEBitStatus specific properties ============================================
 
