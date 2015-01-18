@@ -410,7 +410,10 @@ public:
     QMap<QString, QMenu*> placeholderMenus;    // Menus where application may insert items
     QMap<QString, QMenu*> menus;               // All menus added by customisation system
     QMap<QString, QToolBar*> toolbars;         // All tool bars added by customisation system
-    QList<windowCustomisationItem*> items;     // All menu bar items and toolbar buttons
+    QList<windowCustomisationItem*> items;     // All menu bar items and toolbar buttons. (These customisation
+                                               // items are also the actual QActions used in the menus and
+                                               // buttons, except where the customisation is a dock, in which
+                                               // case the QAction is the sourced from the dock widget itself)
 };
 
 // Class to hold a relationship between a customisation menu item, and an actual QMenu.
