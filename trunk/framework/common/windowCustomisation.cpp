@@ -1239,7 +1239,7 @@ QMenu* windowCustomisationList::buildMenuPath( windowCustomisationInfo* customis
 
 // Initialise all the customisation items present in a window's menu bar and tool bar.
 // The QEGui application uses this method after loading a GUI so that all the QE widgets in the
-// GUI will be notified of any customisation tiems they may be interested in.
+// GUI will be notified of any customisation items they may be interested in.
 // Other application should call this method after creating any QE widgets if they want the QE widgets
 // to interact with the customisation system.
 void windowCustomisationList::initialise( windowCustomisationInfo* customisationInfo )
@@ -1393,8 +1393,8 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw,              
         QObject::connect( item, SIGNAL( newGui( const QEActionRequests& ) ),
                           mw, SLOT( requestAction( const QEActionRequests& ) ) );
 
+        // Add the toolbar item to the list of all menu items
         customisationInfo->items.append( item );
-
     }
 
     // Get the menu item customisations required
@@ -1561,12 +1561,15 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw,              
                     mw->menuBar()->addAction( menuItem );
                 }
 
+                // Set the item to request an action from the main window it has been added to.
                 QObject::connect( menuItem, SIGNAL( newGui( const QEActionRequests& ) ),
                                   mw, SLOT( requestAction( const QEActionRequests& ) ) );
-                customisationInfo->items.append( menuItem );
 
                 break;
         }
+
+        // Add the menu item to the list of all menu items
+        customisationInfo->items.append( menuItem );
     }
 
     // Activate any dock related items.
@@ -1687,6 +1690,14 @@ itemCheckInfo::itemCheckInfo( const itemCheckInfo &other )
 
 // Respond to a user level change (this is an implementation for the base ContainerProfile class)
 // Update all the items used to customise a window.
+//
+// Note, it is simpler to just update all items regardless, but note that setting the user level of
+// some items will not have any effect. For example, most customisation items in this list are also
+// the actual QAction used in the menus and buttons, so enabling them according to the user level will
+// show them enabled or disabled in the menu bar and tool bar. For docks, the QAction is sourced from
+// the dock, so enabling or disabling this customisation item will have no effect. This is OK as docks
+// cannot be enabled or dissabled according to user level. Applying user level to docks is not done as
+// it would interfere with the standard dock paradigm.
 void windowCustomisationInfo::userLevelChangedGeneral( userLevelTypes::userLevels userLevel )
 {
     for( int i = 0; i < items.count(); i++ )
