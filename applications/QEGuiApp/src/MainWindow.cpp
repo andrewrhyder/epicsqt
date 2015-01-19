@@ -307,7 +307,6 @@ MainWindow::~MainWindow()
     }
     unmanagedDocks.clear();
     //++++++++++++++++++++++++++++++++++++++++++++++++
-
 }
 
 // Set up the initial default customisation
@@ -539,6 +538,7 @@ void MainWindow::on_actionExit_triggered()
     if( app->getMainWindowCount() <= 1 )
     {
         QCoreApplication::exit(0);
+	return;
     }
 
     QString msg;

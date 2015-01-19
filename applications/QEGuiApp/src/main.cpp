@@ -26,14 +26,15 @@
 #include <QApplication>
 #include <QEGui.h>
 
-
+  
 //------------------------------------------------------------------------------
 //
 int main(int argc, char *argv[])
 {
     QEGui* app = new QEGui( argc, argv );
-    return app->run();
+    int ret = app->run();
     delete app;
+    return ret;
 }
 
 // end
