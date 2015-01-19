@@ -383,8 +383,13 @@ void MainWindow::on_actionNew_Window_triggered()
 void MainWindow::on_actionNew_Tab_triggered()
 {
     // Create the GUI
-    profile.publishOwnProfile();
-    QEForm* gui = createGui( GuiFileNameDialog( "Open" ), "", app->getParams()->defaultCustomisationName );
+    QEForm* gui = NULL;
+    profile.publishOwnProfile();\
+    QString filename = GuiFileNameDialog( "Open" );
+    if( !filename.isEmpty() )
+    {
+        gui = createGui( filename, "", app->getParams()->defaultCustomisationName );
+    }
     profile.releaseProfile();
 
     // If a GUI was created, ensure tab mode is in effect and loadf the GUI into a new tab
@@ -405,8 +410,13 @@ void MainWindow::on_actionNew_Tab_triggered()
 void MainWindow::on_actionNew_Dock_triggered()
 {
     // Create the GUI
+    QEForm* gui = NULL;
     profile.publishOwnProfile();
-    QEForm* gui = createGui( GuiFileNameDialog( "Open" ), "", app->getParams()->defaultCustomisationName, true );
+    QString filename = GuiFileNameDialog( "Open" );
+    if( !filename.isEmpty() )
+    {
+        gui = createGui( filename, "", app->getParams()->defaultCustomisationName, true );
+    }
     profile.releaseProfile();
     QDockWidget* dock = loadGuiIntoNewDock( gui );
 
@@ -422,8 +432,13 @@ void MainWindow::on_actionNew_Dock_triggered()
 void MainWindow::on_actionOpen_triggered()
 {
     // Create the GUI
+    QEForm* gui = NULL;
     profile.publishOwnProfile();
-    QEForm* gui = createGui( GuiFileNameDialog( "Open" ), "", app->getParams()->defaultCustomisationName, false );
+    QString filename = GuiFileNameDialog( "Open" );
+    if( !filename.isEmpty() )
+    {
+        gui = createGui( filename, "", app->getParams()->defaultCustomisationName, false );
+    }
     profile.releaseProfile();
     loadGuiIntoCurrentWindow( gui, true );
 }
@@ -537,9 +552,9 @@ void MainWindow::on_actionExit_triggered()
     // If there is only one window open (max), just exit
     if( app->getMainWindowCount() <= 1 )
     {
-	deleteLater();
+        deleteLater();
         QCoreApplication::exit(0);
-	return;
+        return;
     }
 
     QString msg;
@@ -1832,10 +1847,16 @@ QString MainWindow::GuiFileNameDialog( QString caption )
 }
 
 // Create a gui
+//
 // Performs gui opening tasks generic to new guis, including opening a new tab,
 // replacing a gui in a tab, replacing a single gui in the main window,
 // or creating a gui in a new main window.
 // A profile should have been published before calling this method.
+//
+// Note, even if there is no filename, createGui still performs some usefull tasks.
+// For example, when creating a new main window createGui is called. If there is no filename,
+// it can still set up customisations.
+// If no action is to be taken because there is no filename, then don't call createGui.
 QEForm* MainWindow::createGui( QString fileName, QString title, QString customisationName, bool isDock )
 {
     return createGui( fileName, title, customisationName, "", isDock );
