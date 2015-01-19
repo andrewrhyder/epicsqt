@@ -537,6 +537,7 @@ void MainWindow::on_actionExit_triggered()
     // If there is only one window open (max), just exit
     if( app->getMainWindowCount() <= 1 )
     {
+	deleteLater();
         QCoreApplication::exit(0);
 	return;
     }
