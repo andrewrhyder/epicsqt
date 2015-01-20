@@ -1,4 +1,234 @@
 ==================================================================================================
+Changes between 3.0.1 and 3.0.0 (this includes changes to all branches and tags and may include changes no related to this release)
+
+SUMMARY:
+Minor doco improvements.
+Minor bug fixes.
+Minor enhancements including:
+- User level controls what is enabled and visible in custom menus and toolbars.
+- Granularise default menus so all or parts of the default menus can be used in custom menus.
+- QSimpleShape has hexagon and octogon shapes.
+- QEStripChart add duration selection dialog and general tooBar upgrade.
+- Project settings for mingw on Windows
+
+DETAIL:
+------------------------------------------------------------------------
+r1793 | andrewstarritt | 2014-12-22 12:32:04 +1100 (Mon, 22 Dec 2014) | 1 line
+
+QEStripChart - re-privatise property support functions; create a public setPvName/getPvName functions; and make items const where applicable.
+------------------------------------------------------------------------
+r1794 | rhyder | 2014-12-22 16:23:23 +1100 (Mon, 22 Dec 2014) | 4 lines
+
+Minor corrections to release procedure doco.
+Export QCaVariableNamePropertyManager class for gcc compiler.
+Move version number back to development following release.
+
+------------------------------------------------------------------------
+r1795 | rhyder | 2014-12-23 15:19:47 +1100 (Tue, 23 Dec 2014) | 3 lines
+
+Macro substitutions defined in the QEForm variableSubstitutions property
+now take precedence over any already defined when the QEForm is created.
+
+------------------------------------------------------------------------
+r1796 | rhyder | 2014-12-24 12:52:14 +1100 (Wed, 24 Dec 2014) | 4 lines
+
+Initial work towards allowing user level tags in customisation files to
+allow menu items, tool bar buttons, etc to be visible or be enabled
+according to user level.
+
+------------------------------------------------------------------------
+r1797 | rhyder | 2015-01-06 16:57:54 +1100 (Tue, 06 Jan 2015) | 8 lines
+
+Add user level control of QEGui menu bar items and tool bar items
+defined by the customisation system. Menu bar items and tool bar items
+can now include attributes like UserLevelEnabled="Scientist".
+User level passwords menu item in default (inbuilt) customisations is
+now only enabled in "Scientist" mode and above.
+Menus themselves cannot currently be controlled (only items in them).
+This is an artifect of the implementation.
+
+------------------------------------------------------------------------
+r1798 | rhyder | 2015-01-07 11:11:35 +1100 (Wed, 07 Jan 2015) | 3 lines
+
+Fix bug in QEPlot introduced when QEFloating started delivering scalar
+values as an array containing one value.
+
+------------------------------------------------------------------------
+r1799 | rhyder | 2015-01-07 11:42:08 +1100 (Wed, 07 Jan 2015) | 3 lines
+
+Allow selective inclusion of individual default QEGui menus, rather than
+just the entire default set of menus.
+
+------------------------------------------------------------------------
+r1800 | rhyder | 2015-01-07 12:29:16 +1100 (Wed, 07 Jan 2015) | 3 lines
+
+In QEGui, ensure 'edit' menu (if present) is enabled or disabled as
+required every time a custom menu set is applied.
+
+------------------------------------------------------------------------
+r1801 | rhyder | 2015-01-07 16:47:15 +1100 (Wed, 07 Jan 2015) | 2 lines
+
+Fix recently introduced crash when changing user level.
+
+------------------------------------------------------------------------
+r1802 | andrewstarritt | 2015-01-09 13:14:52 +1100 (Fri, 09 Jan 2015) | 1 line
+
+windowCustomisation.h - use QEPLUGINLIBRARYSHARED_EXPORT qualifier for windowCustomisationInfo class and add explicit constructor/destructor
+------------------------------------------------------------------------
+r1803 | andrewstarritt | 2015-01-09 13:15:58 +1100 (Fri, 09 Jan 2015) | 1 line
+
+QEDialog.cpp : when constraining position of dialog, cater for multiple screen environments
+------------------------------------------------------------------------
+r1804 | andrewstarritt | 2015-01-09 14:37:58 +1100 (Fri, 09 Jan 2015) | 1 line
+
+QSimpleShape - has hexagon and octogon shapes
+------------------------------------------------------------------------
+r1805 | andrewstarritt | 2015-01-09 15:06:45 +1100 (Fri, 09 Jan 2015) | 1 line
+
+ContainerProfile: Add a ProfilePublishiser utility class and use in  QEFormGrid
+------------------------------------------------------------------------
+r1806 | andrewstarritt | 2015-01-09 15:10:07 +1100 (Fri, 09 Jan 2015) | 1 line
+
+Fix a couple of comment typos
+------------------------------------------------------------------------
+r1807 | andrewstarritt | 2015-01-09 15:30:22 +1100 (Fri, 09 Jan 2015) | 1 line
+
+Slightly enlarge strip chart/plotter button geometry
+------------------------------------------------------------------------
+r1808 | andrewstarritt | 2015-01-10 18:09:33 +1100 (Sat, 10 Jan 2015) | 1 line
+
+QEUtilities::intervalToString - add a bool showDays parameter
+------------------------------------------------------------------------
+r1809 | andrewstarritt | 2015-01-10 18:10:32 +1100 (Sat, 10 Jan 2015) | 1 line
+
+QEStripChart - add duration selection dialog and general tooBar upgrade
+------------------------------------------------------------------------
+r1810 | andrewstarritt | 2015-01-11 17:17:58 +1100 (Sun, 11 Jan 2015) | 1 line
+
+Extract axis painting capability from QAnalogIndicator
+------------------------------------------------------------------------
+r1811 | cornalt | 2015-01-12 09:53:23 +1100 (Mon, 12 Jan 2015) | 4 lines
+
+Make QEwidget::getcolor() static. It was used as a static function in
+QEAxisPainter.cpp but not defined as such. This only broke the build on
+mingw/Windows
+
+------------------------------------------------------------------------
+r1812 | rhyder | 2015-01-12 13:07:30 +1100 (Mon, 12 Jan 2015) | 11 lines
+
+Fix bug introduced in revision 1795. QEForm creation adds macro
+substitutions specific for the QEForm before the form is created, and
+removes them after creating the form. r1795 changed the macro addition
+to be priority macros (first to be processed when working through the
+macro substitution list). Previously they were added onto the end of the
+list of macros (and processed last). After creating the form, the last
+set of macros were still being removed. This had no effect if the list
+of macros was empty to start with as the macros added for form creation
+were still removed as they were the only set in the list.
+Also minor enhancement to help dialog.
+
+------------------------------------------------------------------------
+r1813 | rhyder | 2015-01-12 14:25:47 +1100 (Mon, 12 Jan 2015) | 2 lines
+
+Minor code comments
+
+------------------------------------------------------------------------
+r1814 | cornalt | 2015-01-12 17:22:56 +1100 (Mon, 12 Jan 2015) | 3 lines
+
+Put a radiobox around the live and playback radiobuttons to stop them
+being affected by naked radiobuttons outside the 'recording' subform.
+
+------------------------------------------------------------------------
+r1815 | cornalt | 2015-01-12 17:33:32 +1100 (Mon, 12 Jan 2015) | 6 lines
+
+Added a commented out line regarding defining  _MINGW=TRUE
+Added a commented out line regarding adding epics_base/include/compiler/
+gcc if using Epics 3.15.1 or later
+Capitalised Debug and Release scope labels in the win32 clause to make
+it work.
+
+------------------------------------------------------------------------
+r1816 | cornalt | 2015-01-12 18:09:22 +1100 (Mon, 12 Jan 2015) | 3 lines
+
+Added a check for currentFrame being used as a negative index in
+recording::showRecordedFrame( int currentFrame )
+
+------------------------------------------------------------------------
+r1817 | rhyder | 2015-01-13 08:49:43 +1100 (Tue, 13 Jan 2015) | 3 lines
+
+Improving warning message when attempting to open configuration file
+that does not exist.
+
+------------------------------------------------------------------------
+r1818 | cornalt | 2015-01-14 16:23:45 +1100 (Wed, 14 Jan 2015) | 3 lines
+
+Added some slots to allow signals to control visibilty of profile and
+area1 markups
+
+------------------------------------------------------------------------
+r1819 | andrewstarritt | 2015-01-16 15:01:35 +1100 (Fri, 16 Jan 2015) | 1 line
+
+QEBitStatus.h - add alignment space
+------------------------------------------------------------------------
+r1820 | andrewstarritt | 2015-01-16 17:36:56 +1100 (Fri, 16 Jan 2015) | 9 lines
+
+32608
+	Modified comments in QEImage.h to do with external slots for displaying
+	markups to allow Doxygen to document them
+
+32625
+	Fix bug where checkable menu items were not checked when selected. This
+	bug was introduced in revision r1797 (Adding user level control of menu
+	items)
+
+------------------------------------------------------------------------
+r1821 | rhyder | 2015-01-19 10:42:01 +1100 (Mon, 19 Jan 2015) | 9 lines
+
+32635
+	Fix bug where some menu items were not added to list of current
+	customisation items resulting in user level changes not taking effect
+	for those items.
+
+32638
+	Fix doco for PSI caQtDM integration
+
+
+------------------------------------------------------------------------
+r1822 | rhyder | 2015-01-19 14:09:39 +1100 (Mon, 19 Jan 2015) | 5 lines
+
+Change 32646 by rhydera@SR08ID01OPIHOST01 on 2015/01/19 13:58:42
+	Tidy application exit. In particular, return from exit slot after calling QCoreApplication::exit as, unlike C standard lib exit, this method returns to the caller (after forcing the event loop to exit).
+	Not doing this caused the application to hang on some platforms since (probably) event processing was halted then an attempt  to present a message box was made.
+
+
+------------------------------------------------------------------------
+r1823 | rhyder | 2015-01-19 17:26:27 +1100 (Mon, 19 Jan 2015) | 4 lines
+
+Change 32649 by rhydera@SR08ID01OPIHOST01 on 2015/01/19 17:23:36
+	Ensure QEGui main window is destroyed on exit. (Still may need to combine functionality of exit and close)
+
+
+------------------------------------------------------------------------
+r1824 | rhyder | 2015-01-20 10:30:22 +1100 (Tue, 20 Jan 2015) | 2 lines
+
+Fix problem where customisations are lost when no file is selected from 'open' file dialog.
+
+------------------------------------------------------------------------
+r1825 | rhyder | 2015-01-20 12:13:25 +1100 (Tue, 20 Jan 2015) | 2 lines
+
+Minor doco for qegui -d switch
+
+------------------------------------------------------------------------
+r1826 | rhyder | 2015-01-20 12:16:44 +1100 (Tue, 20 Jan 2015) | 2 lines
+
+Update release number to 3.0.2 production in preperation for release
+
+------------------------------------------------------------------------
+r1827 | rhyder | 2015-01-20 12:58:51 +1100 (Tue, 20 Jan 2015) | 1 line
+
+rollback as updated release number too early in release process
+------------------------------------------------------------------------
+==================================================================================================
 Changes between 3.0.0 and 2.9.0 (this includes changes to all branches and tags and may include changes no related to this release)
 
 SUMMARY:
