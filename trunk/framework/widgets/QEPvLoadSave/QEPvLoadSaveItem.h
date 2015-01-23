@@ -51,7 +51,7 @@
 ///  Contact: http://www.qt-project.org/legal
 ///
 /// A major difference is that it is derived from QObject because each leaf item
-/// is associated with a PV and needs slots to recieve value data. A consequence
+/// is associated with a PV and needs slots to receive value data. A consequence
 /// of this is that this class must be exposed in a header file even though it is
 /// essentially a QEPvLoadSave private class. Also there is no itemData variant
 /// array - these values calculated as an when needed.  Lastly some function name
@@ -64,15 +64,19 @@
 /// QEPvLoadSaveItem are created in one of two flavours:
 /// a/ node - used for groups
 /// b/ leaf - used for PVs.
-/// Consider creating an abstract item class and two derived concrete classes.
+/// both of which inherited from the QEPvLoadSaveItem base class
 ///
 class QEPvLoadSaveItem : public QObject {
 Q_OBJECT
-public:
+protected:
+   // This is an effectivly an abstract class; by making this function protected
+   // we stop QEPvLoadSaveItem class objects being created.
+   //
    explicit QEPvLoadSaveItem (const QString& nodeName,
                               const bool isPV,   // as opposed to isGroup
                               const QVariant& value,
                               QEPvLoadSaveItem* parent = 0);
+public:
    virtual ~QEPvLoadSaveItem ();
 
 
@@ -94,11 +98,13 @@ public:
    //
    QEPvLoadSaveItem* getNamedChild (const QString& searchName);    // get child with Node name
 
-   // Clones a QEPvLoadSaveItem and all its children if doDeep is true.
+   // Clones a QEPvLoadSaveItem and all its children if applicable.
    // Does not copy the actionConnect state, which must be done post construction
-   // just like the original. Note assigned a new parent.
+   // just like the original. Note assigned a the specifed parent.
    //
-   QEPvLoadSaveItem* clone (const bool doDeep, QEPvLoadSaveItem* parent);
+   // NOTE: child classes must override this - this function as is always returns NULL.
+   //
+   virtual QEPvLoadSaveItem* clone (QEPvLoadSaveItem* parent);
 
    // Set own model index - used for data changed signals.
    //
@@ -137,7 +143,7 @@ signals:
                               QEPvLoadSaveCommon::ActionKinds action,
                               bool actionSuccessful);
 
-private:
+protected:
    // We keep and maintain a separate list of QEPvLoadSaveItem children, as
    // opposed to using the QObject children mechanism, as QEPvLoadSaveItem
    // objects have other children such as a qcaobject::QCaObject.
@@ -145,6 +151,7 @@ private:
    QList<QEPvLoadSaveItem*> childItems;
    QEPvLoadSaveItem* parentItem;
 
+private:
    // The itemData created dynamically from these members.
    //
    QString nodeName;     // alias for first item in itemData
@@ -173,6 +180,8 @@ public:
    explicit QEPvLoadSaveGroup (const QString& groupName,
                                QEPvLoadSaveItem* parent = 0);
    ~QEPvLoadSaveGroup ();
+
+   QEPvLoadSaveItem* clone (QEPvLoadSaveItem* parent);
 };
 
 
@@ -188,6 +197,8 @@ public:
                               const QVariant& value,            // initial value
                               QEPvLoadSaveItem* parent = 0);
    ~QEPvLoadSaveLeaf ();
+
+   QEPvLoadSaveItem* clone (QEPvLoadSaveItem* parent);
 
    void setSetPointPvName (const QString& pvName);
    QString getSetPointPvName () const;

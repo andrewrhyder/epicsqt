@@ -219,22 +219,11 @@ QEPvLoadSaveItem* QEPvLoadSaveItem::getNamedChild (const QString& searchName)
 
 //-----------------------------------------------------------------------------
 //
-QEPvLoadSaveItem* QEPvLoadSaveItem::clone (const bool doDeep, QEPvLoadSaveItem* parent)
+QEPvLoadSaveItem* QEPvLoadSaveItem::clone (QEPvLoadSaveItem*)
 {
-   QEPvLoadSaveItem* result = NULL;
-
-   result = new QEPvLoadSaveItem (this->getNodeName (), this->getIsPV (), this->getNodeValue (), parent);
-
-   if (doDeep && this->getIsGroup ()) {
-       // Now clone each child.
-      //
-       for (int j = 0; j < this->childItems.count(); j++) {
-           QEPvLoadSaveItem* theChild = this->getChild (j);
-           theChild->clone (doDeep, result);
-       }
-   }
-
-   return result;
+   DEBUG << "Class: " << this->metaObject ()->className ()
+         << " did not overide clone () function";
+   return NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -465,6 +454,22 @@ QEPvLoadSaveGroup::~QEPvLoadSaveGroup ()
    // place holder
 }
 
+//-----------------------------------------------------------------------------
+//
+QEPvLoadSaveItem* QEPvLoadSaveGroup::clone (QEPvLoadSaveItem* parent)
+{
+   QEPvLoadSaveGroup* result = NULL;
+   result = new QEPvLoadSaveGroup (this->getNodeName (), parent);
+
+   // Now clone each child.
+   //
+   for (int j = 0; j < this->childItems.count(); j++) {
+      QEPvLoadSaveItem* theChild = this->getChild (j);
+      theChild->clone (result);   // dispatching function
+   }
+
+   return result;
+}
 
 //=============================================================================
 // Sub class for group/leaf
@@ -492,6 +497,21 @@ QEPvLoadSaveLeaf::QEPvLoadSaveLeaf (const QString& setPointPvNameIn,
 QEPvLoadSaveLeaf::~QEPvLoadSaveLeaf ()
 {
    // place holder
+}
+
+//-----------------------------------------------------------------------------
+//
+QEPvLoadSaveItem* QEPvLoadSaveLeaf::clone (QEPvLoadSaveItem* parent)
+{
+   QEPvLoadSaveLeaf* result = NULL;
+
+   result = new QEPvLoadSaveLeaf (this->getSetPointPvName (),
+                                  this->getReadBackPvName (),
+                                  this->getArchiverPvName(),
+                                  this->getNodeValue (),
+                                  parent);
+
+   return result;
 }
 
 //-----------------------------------------------------------------------------
