@@ -689,7 +689,7 @@ void QEPvLoadSave::treeMenuSelected (QAction* action)
    switch (menuAction) {
 
       case TCM_CREATE_ROOT:
-         item = new QEPvLoadSaveItem ("ROOT", false, nilValue, NULL);
+         item = new QEPvLoadSaveGroup ("ROOT", NULL);
          this->contextMenuHalf->setRoot (item, "");
          break;
 
@@ -700,7 +700,7 @@ void QEPvLoadSave::treeMenuSelected (QAction* action)
          this->groupNameDialog->setGroupName ("");
          n = this->groupNameDialog->exec (tree);
          if (n == 1) {
-            item = new QEPvLoadSaveItem (this->groupNameDialog->getGroupName (), false, nilValue, NULL);
+            item = new QEPvLoadSaveGroup (this->groupNameDialog->getGroupName (), NULL);
             model->addItemToModel (item, this->contextMenuItem);
          }
          break;
@@ -721,7 +721,7 @@ void QEPvLoadSave::treeMenuSelected (QAction* action)
          this->pvNameSelectDialog->setPvName ("");
          n = this->pvNameSelectDialog->exec (tree);
          if (n == 1) {
-            item = new QEPvLoadSaveItem (this->pvNameSelectDialog->getPvName (), true, nilValue, NULL);
+            item = new QEPvLoadSaveLeaf (this->pvNameSelectDialog->getPvName (), "", "", nilValue, NULL);
             model->addItemToModel (item, this->contextMenuItem);
          }
          break;

@@ -49,7 +49,7 @@ QEPvLoadSaveModel::QEPvLoadSaveModel (QTreeView* treeViewIn, QEPvLoadSave* paren
    // It is a place holder - not visible per se.
    // Note to be confused with the user ROOT item.
    //
-   this->coreItem = new QEPvLoadSaveItem ("Core", false, QVariant (QVariant::Invalid), NULL);
+   this->coreItem = new QEPvLoadSaveGroup ("Core", NULL);
    this->heading = "";
 
    // Associate this model with the treeView.
@@ -203,7 +203,7 @@ bool QEPvLoadSaveModel::mergeItemInToItem (QEPvLoadSaveItem* item, QEPvLoadSaveI
    } else {
       // counter part does not exists.
       //
-      counterPart = item->clone (true, NULL);
+      counterPart = item->clone (NULL);
       this->addItemToModel (counterPart, targetItem);
    }
 
@@ -245,14 +245,14 @@ bool QEPvLoadSaveModel::mergeItemInToModel (QEPvLoadSaveItem* item)
       } else {
          // does not exists - let's create it.
          //
-         nextItem = new QEPvLoadSaveItem (nodeName, false, nilValue, NULL);
+         nextItem = new QEPvLoadSaveGroup (nodeName, NULL);
          this->addItemToModel (nextItem, parentItem);
       }
 
       parentItem = nextItem;
    }
 
-   return mergeItemInToItem (item, parentItem);
+   return this->mergeItemInToItem (item, parentItem);
 }
 
 //-----------------------------------------------------------------------------
@@ -384,7 +384,7 @@ bool  QEPvLoadSaveModel::processDropEvent (QEPvLoadSaveItem* parentItem, QDropEv
 
       // Carry out the drop action
       //
-      item = new QEPvLoadSaveItem (dropText, true, nilValue, NULL);
+      item = new QEPvLoadSaveLeaf (dropText, "", "", nilValue, NULL);
       this->addItemToModel (item, parentItem);
    }
 
