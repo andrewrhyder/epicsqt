@@ -92,6 +92,7 @@ public:
    //
    // TODO: - specify a syntax to allow non-ambiguous validation.
    //
+   int getParameterCount ();
    QString getParameter (const int i);
 
    // Overloaded functions to determine if an option has been specified.

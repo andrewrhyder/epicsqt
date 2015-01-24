@@ -102,6 +102,13 @@ void QEOptions::registerOptionArgument (int p)
 
 //--------------------------------------------------------------------------------------
 //
+int QEOptions::getParameterCount ()
+{
+   return this->args.count () - this->parameterOffset;
+}
+
+//--------------------------------------------------------------------------------------
+//
 QString QEOptions::getParameter (const int i)
 {
    if (i >= 0) {
