@@ -19,8 +19,6 @@
  *
  */
 
-#include <math.h>
-
 #include <QDebug>
 #include <QFontMetrics>
 #include <QBrush>
@@ -29,6 +27,8 @@
 #include <QPainter>
 
 #include <alarm.h>
+
+#include <QEPlatform.h>
 #include <QECommon.h>
 #include <QCaAlarmInfo.h>
 #include <QEWidget.h>
@@ -291,10 +291,12 @@ QEAxisPainter::ColourBandLists QEAxisPainter::calcAlarmColourBandList (qcaobject
    //
    // Of course a QEAxisPainter user is noy obliged to use this function.
    //
-   alarmIsDefined = ( !isnan (alarmLower) && !isnan (alarmUpper) &&
+   alarmIsDefined = ( !QEPlatform::isNaN (alarmLower) &&
+                      !QEPlatform::isNaN (alarmUpper) &&
                       (alarmLower != alarmUpper) );
 
-   warnIsDefined = ( !isnan (warnLower) && !isnan (warnUpper) &&
+   warnIsDefined = ( !QEPlatform::isNaN (warnLower) &&
+                     !QEPlatform::isNaN (warnUpper) &&
                      (warnLower != warnUpper) );
 
    if (alarmIsDefined) {
