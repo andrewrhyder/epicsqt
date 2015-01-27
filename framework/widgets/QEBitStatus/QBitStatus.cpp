@@ -42,8 +42,8 @@ QBitStatus::QBitStatus( QWidget *parent ) : QWidget (parent)
    // Set up data
    //
    mBorderColour  = QColor (  0,   0,  32);   // dark dark blue
-   mOffColour     = QColor (255, 128, 128);   // red
-   mOnColour      = QColor (128, 255, 128);   // green
+   mOffColour     = QColor (255,   0,   0);   // red
+   mOnColour      = QColor (0,   255,   0);   // green
    mInvalidColour = QColor (255, 182, 128);   // orange
    mClearColour   = QColor (192, 192, 192, 0);   // gray, but clear
 
