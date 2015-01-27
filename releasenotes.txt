@@ -1,4 +1,48 @@
 ==================================================================================================
+Changes between 3.0.2 and 3.0.1 (this includes changes to all branches and tags and may include changes no related to this release)
+
+SUMMARY:
+fix build on windows/MSVC
+
+DETAIL:
+------------------------------------------------------------------------
+r1830 | andrewstarritt | 2015-01-23 20:24:24 +1100 (Fri, 23 Jan 2015) | 7 lines
+
+Change 32663 by rhydera@rhydera_epicsqt on 2015/01/20 14:07:44
+	Release 3.0.1
+
+Change 32757 by starritt@starritt_iridium on 2015/01/23 20:19:05
+	QEPvLoadSave: Ensure we create/clone items correctly, i.e. create concrete class objects (as oppsed to base class objects).
+
+
+------------------------------------------------------------------------
+r1831 | andrewstarritt | 2015-01-24 19:20:58 +1100 (Sat, 24 Jan 2015) | 5 lines
+
+Change 32759 by starritt@starritt_iridium on 2015/01/24 19:18:19
+
+	QEOptions: add a get parameter count function.
+
+
+------------------------------------------------------------------------
+r1832 | andrewstarritt | 2015-01-27 12:28:39 +1100 (Tue, 27 Jan 2015) | 4 lines
+
+32768 by starritt: Create QE Platform class to handle complier, os, version differences etc.
+	First (and only item so far) is testing for is "not a number"
+
+
+------------------------------------------------------------------------
+r1833 | rhyder | 2015-01-27 14:33:01 +1100 (Tue, 27 Jan 2015) | 3 lines
+
+Add GUI for demonstrating how alarm level can be used to affect presentation. Remove redundant release documentation. Change 32773 by rhydera
+Added comments on the interaction of displayMarkups and displayProfileSelection properties. Change 32774 by cornalt
+
+------------------------------------------------------------------------
+r1834 | rhyder | 2015-01-27 14:48:52 +1100 (Tue, 27 Jan 2015) | 2 lines
+
+Fix minor typos and publish to pdf. Change 32777 by rhydera
+
+------------------------------------------------------------------------
+==================================================================================================
 Changes between 3.0.1 and 3.0.0 (this includes changes to all branches and tags and may include changes no related to this release)
 
 SUMMARY:
