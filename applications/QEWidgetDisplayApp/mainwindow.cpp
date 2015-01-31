@@ -31,16 +31,55 @@
 #include "ui_mainwindow.h"
 #include "QELabel.h"
 #include "QEComboBox.h"
+#include "QEPushButton.h"
 #include <QPalette>
 #include "QELineEdit.h"
+#include "QDialog"
+
+// .ui file opened by push buttons and loaded into a dialog
+#define DIALOG_UI ":/ui/QEWidgetDisplayDialog.ui"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    // Define application wide macro substitutions.
+    applicationMacros = "APPL=demo";
+
+    // Set up the environment that will be applied to all widgets created
+    // from here on.
+    // In this case this application is set up as the object that will respond to
+    // 'new window' requests, the application wide macro substitutions are defined.
+    // The details are published and any widgets created from now on will take these
+    // setting as their own local environment as they are each created.
+    // The profile will remain published unti releaseProfile() is called, below.
+    ContainerProfile profile;
+    profile.setupProfile( this, QStringList(), "", applicationMacros );
+
     // Read the UI
     ui->setupUi(this);
 
+    // Create the demonstration QE widgets.
+    createQELabel();
+    createQEComboBox();
+    createQELineEdit();
+    createQPushButton(); // Not a QE widget, but click signal generates QE framework activity
+    createQEPushButton();
+
+    // Release the profile now all QE framework widgets have been created.
+    profile.releaseProfile();
+}
+
+// Application wind-up
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+
+// Create QELabel widgets in various flavours.
+void MainWindow::createQELabel()
+{
     // Create a QELabel
     QELabel* qel = new QELabel( centralWidget() );
 //    QELabel* qel = new QELabel( "OOE:ai", centralWidget() );  // See below for all the alternatives for setting a variable name
@@ -176,34 +215,148 @@ MainWindow::MainWindow(QWidget *parent) :
     profile.setDontActivateYet( oldDontActivateYet );
     qel->activate();
 */
+}
 
-    //=============================================================================================
-
-
-
+// Create a QEComboBox
+void MainWindow::createQEComboBox()
+{
     // Create a QEComboBox and set its position and size
-    QEComboBox* qeqb = new QEComboBox( centralWidget() );
-    qeqb->setGeometry( 100, 90, 200, 30 );
+    QEComboBox* qecb = new QEComboBox( centralWidget() );
+    qecb->setGeometry( 100, 90, 200, 30 );
 
     // Don't display the alarm state. This is done by setting the background colour and
     // we will be setting the background ourselves and don't want it overwritten
     // USE OF setDisplayAlarmState() is deprecated. USE setDisplayAlarmStateOption() instead
-    qeqb->setDisplayAlarmState( false );
+    qecb->setDisplayAlarmState( false );
 
     // Set the variable name using the access function for the variable name property.
     // This will activate the widget using the variable name and the current macro substitutions.
     // (See the creation of the QELabel above to see alternative ways of setting the
     // variable name and macro substitutions).
-    qeqb->setVariableNameProperty( "OOE:mbbi" );
-
-    // Create a QELineEdit with an active variable
-    // and set its position and size
-    QELineEdit* qew = new QELineEdit( "OOE:ai", centralWidget() );
-    qew->setGeometry( 100, 150, 200, 30 );
-
+    qecb->setVariableNameProperty( "OOE:mbbi" );
 }
 
-MainWindow::~MainWindow()
+// Create a QELineEdit
+void MainWindow::createQELineEdit()
 {
-    delete ui;
+    // Create a QELineEdit with an active variable
+    // and set its position and size
+    QELineEdit* qele = new QELineEdit( "OOE:ai", centralWidget() );
+    qele->setGeometry( 100, 150, 200, 30 );
+}
+
+// Create a QPushButton that opens a .ui file as a dialog box
+void MainWindow::createQPushButton()
+{
+    // Create a QPushButton that opens a .ui file as a dialog box
+    // All the QE framework tasks are performed in the button's click slot buttonClick()
+    QPushButton* qpb = new QPushButton( centralWidget() );
+    qpb->setGeometry( 100, 200, 200, 30 );
+    qpb->setText( "Open a dialog from a QPushButton" );
+    QObject::connect( qpb, SIGNAL (clicked(bool)), this, SLOT (buttonClick(bool)) );
+}
+
+// Create a QEPushButton that opens a .ui file as a dialog box.
+void MainWindow::createQEPushButton()
+{
+    // Create a QEPushButton that opens a .ui file as a dialog box.
+    // This uses the built in QE framework mechanism where the QE push button
+    // makes a request present a window. In this case, this main window class
+    // was set up in the ContainerProfile class as the object that would respond
+    // that request.
+    // When the QE push button is clicked the QE framework signals the requestAction() slot
+    // of this main window class with the request to open a new window.
+    // Note, the QEGui application is the main example of an application that
+    // responds to QE widget application requests.
+    QEPushButton* qepb = new QEPushButton( centralWidget() );
+    qepb->setText( "Open a dialog from a QEPushButton" );
+    qepb->setGeometry( 100, 250, 200, 30 );
+    qepb->setGuiName( DIALOG_UI );
+    qepb->setVariableNameSubstitutions( "BTN=pump1" );
+}
+
+// Slot to receive a click signal from a push button and
+// open a dialog.
+// This slot sets up the ContainerProfile with the required macro substitutions
+// then uses a QEForm to load the contents of the dialog from a .ui file.
+void MainWindow::buttonClick( bool )
+{
+    // Set up the ContainerProfile with the required macro substitutions
+    ContainerProfile profile;
+    profile.setupProfile( this, QStringList(), "", "BTN=pump2" );
+    profile.addMacroSubstitutions( applicationMacros );
+
+    // Build the gui and load it into a dialog.
+    // Note, this is very similar to the default method that QE push buttons uses
+    // to present a gui if the application has not provided a handler to
+    // create GUIs through the ContainerProfile.
+    QDialog* d = new QDialog;
+    QEForm* gui = new QEForm( DIALOG_UI );
+    if( gui )
+    {
+        if( gui->readUiFile())
+        {
+            gui->setParent( d );
+            d->exec();
+        }
+        else
+        {
+            delete gui;
+            gui = NULL;
+        }
+    }
+    else
+    {
+        delete d;
+    }
+
+    profile.releaseProfile();
+}
+
+// Slot to receive a request to create a window from the QE framework.
+// When a QE Push Button has been set up with a GUI file name and it is clicked
+// it looks to see if a handler to take window creation requests has been set up
+// in the ContainerProfile. This application has set up this slot as a window
+// creationhandler.
+// This handler does not have to be aware of any context of the widget that
+// made the request. All details such as the macro substitutions required are
+// provided in the request.
+// open a dialog.
+// For this application, only one type of request is accepted - open a .ui file.
+// It uses a QEForm to load the .ui file and place it in a dialog.
+void MainWindow::requestAction( const QEActionRequests& request )
+{
+    // Only handle file open requests
+    if( request.getKind() != QEActionRequests::KindOpenFile )
+    {
+        return;
+    }
+
+    // If there is enough arguments, open the file
+    if (request.getArguments().count () >= 1)
+    {
+        // Build the gui and load it into a dialog.
+        // Note, this is very similar to the default method that QE push buttons uses
+        // to present a gui if the application has not provided a handler to
+        // create GUIs through the ContainerProfile.
+        QDialog* d = new QDialog();
+        QEForm* gui = new QEForm( request.getArguments().first() );
+        if( gui )
+        {
+            if( gui->readUiFile())
+            {
+                gui->setParent( d );
+                d->exec();
+            }
+            else
+            {
+                delete gui;
+                gui = NULL;
+            }
+        }
+        else
+        {
+            delete d;
+        }
+    }
 }

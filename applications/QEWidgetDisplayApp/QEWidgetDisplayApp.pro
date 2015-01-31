@@ -40,7 +40,8 @@ SOURCES += main.cpp\
 
 HEADERS  += mainwindow.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    QEWidgetDisplayDialog.ui
 
 INCLUDEPATH += . \
     ./include \
@@ -48,9 +49,14 @@ INCLUDEPATH += . \
     ../../framework/widgets/QELabel \
     ../../framework/widgets/QELineEdit \
     ../../framework/widgets/QEComboBox \
+    ../../framework/widgets/QEButton \
+    ../../framework/widgets/QEForm \
     ../../framework/data \
     ../../framework/api \
     ../../framework/common
 
 LIBS += -L../../framework/designer -lQEPlugin
+
+RESOURCES += \
+    resources.qrc
 
