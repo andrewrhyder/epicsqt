@@ -31,6 +31,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "QEActionRequests.h"
 
 namespace Ui {
 class MainWindow;
@@ -45,7 +46,19 @@ public:
     ~MainWindow();
 
 private:
+    void createQELabel();
+    void createQEComboBox();
+    void createQELineEdit();
+    void createQPushButton();
+    void createQEPushButton();
+
+public slots:
+    void buttonClick( bool checked );
+    void requestAction( const QEActionRequests& requests );
+
+private:
     Ui::MainWindow *ui;
+    QString applicationMacros; // Macro substitutions to be applied across the application
 };
 
 #endif // MAINWINDOW_H

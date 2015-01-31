@@ -73,7 +73,7 @@
 //};
 
 // Class common to all QE buttons
-class QEGenericButton : public QEWidget, public managePixmaps, public QEStringFormattingMethods {
+class QEPLUGINLIBRARYSHARED_EXPORT QEGenericButton : public QEWidget, public managePixmaps, public QEStringFormattingMethods {
 
   public:
     QEGenericButton( QWidget *owner );
