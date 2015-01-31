@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>401</height>
+    <height>472</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,6 +32,20 @@
     </property>
     <property name="prioritySubstitutions">
      <string>BTN=designer</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>370</y>
+      <width>201</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Open a dialog from a QPushButton
+(this one defined in Designer)</string>
     </property>
    </widget>
   </widget>

@@ -254,6 +254,10 @@ void MainWindow::createQPushButton()
     qpb->setGeometry( 100, 200, 200, 30 );
     qpb->setText( "Open a dialog from a QPushButton" );
     QObject::connect( qpb, SIGNAL (clicked(bool)), this, SLOT (buttonClick(bool)) );
+
+    // A QPushButton is also defined in the main window .ui file.
+    // Link that push button to the same slot as the push button above.
+    QObject::connect( ui->pushButton, SIGNAL (clicked(bool)), this, SLOT (buttonClick(bool)) );
 }
 
 // Create a QEPushButton that opens a .ui file as a dialog box.
@@ -272,7 +276,11 @@ void MainWindow::createQEPushButton()
     qepb->setText( "Open a dialog from a QEPushButton" );
     qepb->setGeometry( 100, 250, 200, 30 );
     qepb->setGuiName( DIALOG_UI );
-    qepb->setVariableNameSubstitutions( "BTN=pump1" );
+    qepb->setVariableNameSubstitutions( "BTN=QE push button" );
+
+    // A QEPushButton is also defined in the main window .ui file.
+    // It will post requests just like the QEPushButton above and those
+    // requests will be handled in the same way.
 }
 
 // Slot to receive a click signal from a push button and
@@ -283,7 +291,7 @@ void MainWindow::buttonClick( bool )
 {
     // Set up the ContainerProfile with the required macro substitutions
     ContainerProfile profile;
-    profile.setupProfile( this, QStringList(), "", "BTN=pump2" );
+    profile.setupProfile( this, QStringList(), "", "BTN=push button" );
     profile.addMacroSubstitutions( applicationMacros );
 
     // Build the gui and load it into a dialog.
