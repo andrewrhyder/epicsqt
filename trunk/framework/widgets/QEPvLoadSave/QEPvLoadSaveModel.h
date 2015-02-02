@@ -91,6 +91,9 @@ public:
    //----------------------------------------------------------------------------------
    // Own functions, i.e. not from the example.
    //
+   void setHeading (const QString& heading);
+   QString getHeading () const;
+
    void setupModelData (QEPvLoadSaveItem* rootItem, const QString& heading);
    void modelUpdated ();
    void itemUpdated (const QEPvLoadSaveItem* item);

@@ -104,6 +104,7 @@ INCLUDEPATH += . \
     ../../framework/widgets/QEWidget \
     ../../framework/widgets/QEForm \
     ../../framework/widgets/QELogin \
+    ../../framework/widgets/QEAbstractWidget \
     ../../framework/data \
     ../../framework/api \
     ../../framework/common

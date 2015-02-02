@@ -197,7 +197,6 @@ private:
    private:
       Sides side;
       QEPvLoadSave* owner;
-      QString configurationFile;
    };
 
    QVBoxLayout* overallLayout;

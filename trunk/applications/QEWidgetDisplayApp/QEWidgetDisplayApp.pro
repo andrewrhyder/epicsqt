@@ -51,6 +51,7 @@ INCLUDEPATH += . \
     ../../framework/widgets/QEComboBox \
     ../../framework/widgets/QEButton \
     ../../framework/widgets/QEForm \
+    ../../framework/widgets/QEAbstractWidget \
     ../../framework/data \
     ../../framework/api \
     ../../framework/common

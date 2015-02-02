@@ -300,19 +300,20 @@ void QEPvLoadSaveUtilities::writeXmlScalerPv (const QEPvLoadSaveItem* itemIn,
 
    if (!item) return;  // Sainity check.
 
-   QString pvName;
+   QString basePvName;
+   QString otherPvName;
 
-   pvName = item->getSetPointPvName ();
-   pvElement.setAttribute (nameAttribute, pvName);
+   basePvName = item->getSetPointPvName ();
+   pvElement.setAttribute (nameAttribute, basePvName);
 
-   pvName = item->getReadBackPvName ();
-   if (!pvName.isEmpty()) {
-      pvElement.setAttribute (readBackNameAttribute, pvName);
+   otherPvName = item->getReadBackPvName ();
+   if (!otherPvName.isEmpty() && (otherPvName != basePvName)) {
+      pvElement.setAttribute (readBackNameAttribute, otherPvName);
    }
 
-   pvName = item->getArchiverPvName ();
-   if (!pvName.isEmpty()) {
-      pvElement.setAttribute (archiverNameAttribute, pvName);
+   otherPvName = item->getArchiverPvName ();
+   if (!otherPvName.isEmpty() && (otherPvName != basePvName)) {
+      pvElement.setAttribute (archiverNameAttribute, otherPvName);
    }
 
    QVariant value = item->getNodeValue ();
