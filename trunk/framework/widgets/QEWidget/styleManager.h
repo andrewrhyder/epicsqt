@@ -28,12 +28,6 @@
 
 #include <ContainerProfile.h>
 
-#define STYLE_MANAGER_PROPERTIES \
-                Q_PROPERTY(QString userLevelUserStyle READ getStyleUser WRITE setStyleUser); \
-                Q_PROPERTY(QString userLevelScientistStyle READ getStyleScientist WRITE setStyleScientist); \
-                Q_PROPERTY(QString userLevelEngineerStyle READ getStyleEngineer WRITE setStyleEngineer);
-
-
 /*!
   This class adds common style support to all QE widgets if required.
 
@@ -53,6 +47,8 @@
 
   To use the functionality provided by this class, QE widgets must include the following:
 
+    \li Q_PROPERTY(QString styleSheet READ styleSheet WRITE setStyleSheet  DESIGNABLE false)
+    \li Q_PROPERTY(QString defaultStyle READ getStyleDefault  WRITE setStyleDefault)
     \li Q_PROPERTY(QString userLevelUserStyle READ getStyleUser WRITE setStyleUser)
     \li Q_PROPERTY(QString userLevelScientistStyle READ getStyleScientist WRITE setStyleScientist)
     \li Q_PROPERTY(QString userLevelEngineerStyle READ getStyleEngineer WRITE setStyleEngineer)
@@ -112,9 +108,7 @@ public:
     void styleUserLevelChanged( userLevelTypes::userLevels levelIn );/**< Set the current user level.*/
 
 private:
-    void firstUseProcessing (); // On first call only, grab widget's current style sheet as save as default.
     QWidget* owner;             // Widget to which style sheet strings will be applied
-    bool firstUse;
 
     QString userUserStyle;      // Style to apply to widget when current user is a 'user'
     QString userScientistStyle; // Style to apply to widget when current user is a 'scientist'

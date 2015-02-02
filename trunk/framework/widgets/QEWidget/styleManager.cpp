@@ -39,26 +39,14 @@ styleManager::styleManager( QWidget* ownerIn )
 
     // Keep a handle on the underlying QWidget of the QE widgets
     owner = ownerIn;
-    firstUse = true;
+    defaultStyleSheet = "";
     level = userLevelTypes::USERLEVEL_USER;
-}
-
-// We can't setup defaultStyleSheet during construction as it has not been
-// set up yet, so we grab it as the first opertunity.
-// Note: this function is idempotant.
-void styleManager::firstUseProcessing ()
-{
-    if( firstUse ) {
-        firstUse = false;
-        defaultStyleSheet = owner->styleSheet();
-    }
 }
 
 // Allow the default style sheet to be programatically set.
 void styleManager::setStyleDefault( QString styleIn )
 {
     defaultStyleSheet = styleIn;
-    firstUse = false;
     updateStyleSheet();
 }
 
@@ -66,7 +54,7 @@ void styleManager::setStyleDefault( QString styleIn )
 // If not set we return the style out of the widget sttyle sheet.
 QString styleManager::getStyleDefault() const
 {
-   return firstUse ? owner->styleSheet() : defaultStyleSheet;
+   return defaultStyleSheet;
 }
 
 
@@ -153,34 +141,23 @@ void styleManager::updatePropertyStyle( QString style )
 // Update the style sheet with the various style sheet components used to modify the label style (user level, connection state, alarm info, enumeration color)
 void styleManager::updateStyleSheet()
 {
-    // Do nothing if in designer.
-    // Altering the style can alter properties that are written when designer saves a form.
-    // For example, setting the background through the style will alter the pallete properties which will be saved when the form is saved.
-    // Designer does not indicate the file has changed (a * beside the file name) but the pallet property can be seen to be updated
-    // and if the user saves the file the pallette changes are saved.
-    // So, for example, if a variable is disconnected, the style to indicate disconnected becomes permenant when the file
-    // is saved because the property changed by the disconnected style is saved.
-    if( QEWidget::inDesigner() )
-    {
-        return;
-    }
-
-    firstUseProcessing ();   // only does anything first time.
-
+    // Note,for QE widgets the styleSheet is now a non-designable property,
+    // so inhibiting style updates is no longer applicable.
+    //
     // Select the appropriate user level style
-    QString levelStyle;
+    QString userLevelStyle;
     switch( level )
     {
         case userLevelTypes::USERLEVEL_USER:
-            levelStyle = userUserStyle;
+            userLevelStyle = userUserStyle;
             break;
 
         case userLevelTypes::USERLEVEL_SCIENTIST:
-            levelStyle = userScientistStyle;
+            userLevelStyle = userScientistStyle;
             break;
 
         case userLevelTypes::USERLEVEL_ENGINEER:
-            levelStyle = userEngineerStyle;
+            userLevelStyle = userEngineerStyle;
             break;
     }
 
@@ -207,10 +184,10 @@ void styleManager::updateStyleSheet()
 
     newStyleSheet.append( dataStyleSheet );
 
-    if( !newStyleSheet.isEmpty() && !levelStyle.isEmpty() )
+    if( !newStyleSheet.isEmpty() && !userLevelStyle.isEmpty() )
         newStyleSheet.append( "\n" );
 
-    newStyleSheet.append( levelStyle );
+    newStyleSheet.append( userLevelStyle );
 
     if( newStyleSheet.compare( owner->styleSheet() ))
     {

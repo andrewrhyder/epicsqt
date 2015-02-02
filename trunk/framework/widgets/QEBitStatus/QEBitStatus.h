@@ -98,6 +98,14 @@ public:
     /// For example, by using a unique message source ID a QELog widget may be set up to only log messages from a select set of widgets.
     Q_PROPERTY(unsigned int messageSourceId READ getMessageSourceId WRITE setMessageSourceId )
 
+    /// Hide style sheet from designer as style calculation by the styleManager and not directly setable per se.
+    /// This also stops transient styles being saved to the ui file.
+    Q_PROPERTY(QString styleSheet   READ styleSheet       WRITE setStyleSheet  DESIGNABLE false)
+
+    /// Style Sheet string to be applied before, i.e. lower priority than, any other style, e.g. alarm style and/or user level style.
+    /// Default is an empty string.
+    Q_PROPERTY(QString defaultStyle READ getStyleDefault  WRITE setStyleDefault)
+
     /// Style Sheet string to be applied when the widget is displayed in 'User' mode. Default is an empty string.
     /// The syntax is the standard Qt Style Sheet syntax. For example, 'background-color: red'
     /// This Style Sheet string will be applied by the styleManager class.
