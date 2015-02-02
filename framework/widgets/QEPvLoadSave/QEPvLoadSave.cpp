@@ -248,38 +248,37 @@ void QEPvLoadSave::Halves::setRoot (QEPvLoadSaveItem* rootItem, const QString& h
 //------------------------------------------------------------------------------
 // Called by establishConnection
 //
-void QEPvLoadSave::Halves::open (const QString& configurationFileIn)
+void QEPvLoadSave::Halves::open (const QString& configurationFile)
 {
    QEPvLoadSaveItem* rootItem = NULL;
 
-   this->configurationFile = configurationFileIn;
-   if (this->configurationFile.isEmpty ()) {
+   if (configurationFile.isEmpty ()) {
       return;
    }
 
-   rootItem = QEPvLoadSaveUtilities::readTree (this->configurationFile, this->macroString->text ());
+   rootItem = QEPvLoadSaveUtilities::readTree (configurationFile, this->macroString->text ());
    if (!rootItem) {
-       DEBUG << "file read fail " << this->configurationFile;
+       DEBUG << "file read fail " << configurationFile;
        return;
    }
 
-   this->setRoot (rootItem, this->configurationFile);
+   this->setRoot (rootItem, configurationFile);
 }
 
 //------------------------------------------------------------------------------
 //
-void QEPvLoadSave::Halves::save (const QString& configurationFileIn)
+void QEPvLoadSave::Halves::save (const QString& configurationFile)
 {
    bool okay;
 
-   this->configurationFile = configurationFileIn;
-   if (this->configurationFile.isEmpty ()) {
+   if (configurationFile.isEmpty ()) {
       return;
    }
 
-   okay = QEPvLoadSaveUtilities::writeTree (this->configurationFile, this->model->getRootItem ());
-   if (!okay) {
-      this->configurationFile = "";
+   QEPvLoadSaveItem* rootItem = this->model->getRootItem ();
+   okay = QEPvLoadSaveUtilities::writeTree (configurationFile, rootItem);
+   if (okay) {
+      this->model->setHeading (configurationFile);
    }
 }
 
@@ -931,6 +930,11 @@ void QEPvLoadSave::loadClicked (bool)
 
    if (!filename.isEmpty()) {
       this->half [side]->open (filename);
+
+      // Extract and save new default directory.
+      //
+      QFileInfo fileInfo (filename);
+      this->setDefaultDir (fileInfo.absolutePath ());
    }
 }
 
@@ -948,6 +952,11 @@ void QEPvLoadSave::saveClicked (bool)
 
    if (!filename.isEmpty()) {
       this->half [side]->save (filename);
+
+      // Extract and save new default directory.
+      //
+      QFileInfo fileInfo (filename);
+      this->setDefaultDir (fileInfo.absolutePath ());
    }
 }
 

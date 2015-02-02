@@ -76,6 +76,20 @@ QEPvLoadSaveModel::~QEPvLoadSaveModel ()
 
 //-----------------------------------------------------------------------------
 //
+void QEPvLoadSaveModel::setHeading (const QString& headingIn)
+{
+   this->heading = headingIn;
+}
+
+//-----------------------------------------------------------------------------
+//
+QString QEPvLoadSaveModel::getHeading () const
+{
+   return this->heading;
+}
+
+//-----------------------------------------------------------------------------
+//
 void QEPvLoadSaveModel::setupModelData (QEPvLoadSaveItem* rootItem, const QString& headingIn)
 {
    // Removed exisiting user root item (not model core item).

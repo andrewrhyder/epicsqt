@@ -59,7 +59,7 @@
 // then the QEForm::establishConnection() will be called by the QE widget 'activation' mechanism where each widget is 'activated' after a QEForm
 // has been loaded by the UI Loader. For many QE widgets 'activation' means establish a CA connection to data sources. For
 // QEForm widgets 'activation' means read the UI file.
-QEForm::QEForm( QWidget* parent ) : QWidget( parent ), QEWidget( this )
+QEForm::QEForm( QWidget* parent ) : QEAbstractWidget( parent )
 {
     // Common construction.
     // Don't alert if UI is not found (it wont be as there isn't one specified) and
@@ -70,7 +70,7 @@ QEForm::QEForm( QWidget* parent ) : QWidget( parent ), QEWidget( this )
 // Constructor.
 // UI filename is supplied and saved. No filename or macro substituition properties need to be set, and the caller must
 // call QEForm::readUiFile() after construction to load the contents of the QEForm.
-QEForm::QEForm( const QString& uiFileNameIn, QWidget* parent ) : QWidget( parent ), QEWidget( this )
+QEForm::QEForm( const QString& uiFileNameIn, QWidget* parent ) : QEAbstractWidget( parent )
 {
     // Common construction
     // Alert if UI is not found and note that form will be loaded manually - it will not load automatically when QE widgets are 'activated' (when updates are initiated)

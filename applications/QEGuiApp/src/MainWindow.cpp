@@ -144,6 +144,7 @@
 #include <QUiLoader>
 
 #include <MainWindow.h>
+#include <QEAbstractWidget.h>
 #include <QEForm.h>
 #include <QEFrameworkVersion.h>
 #include <QECommon.h>
