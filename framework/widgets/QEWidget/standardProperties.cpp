@@ -118,17 +118,13 @@ void standardProperties::setSuperVisibility()
         return;
     }
 
-    ContainerProfile profile;
-
-    // Note the desired visibility
+    // Hide the widget if the user level is not adequate, or if the desired visibility is 'hide'
+    // (It is only visible if both the user level is adequate, and the desired visibility is 'show'
     bool vis = applicationVisibility;
-
-    // If not in designer, make invisible if not at a suitable user level
-    // Note, in designer, the user level will never cause visibility to be false unless in  preview
-    // and the user level is changed in the preview window
-    if( profile.getUserLevel() < visibilityLevel )
+    if( vis )
     {
-        vis = false;
+        ContainerProfile profile;   // Note, scoped so it is only created if we need to check user level
+        vis = ( profile.getUserLevel() >= visibilityLevel );
     }
 
     // Apply the result

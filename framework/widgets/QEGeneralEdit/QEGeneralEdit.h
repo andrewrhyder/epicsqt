@@ -68,14 +68,12 @@ Q_OBJECT
     // resources directory.
     //
     // Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
-    // A property name ending with 'Name' results in some sort of string a variable being displayed,
-    // but will only accept alphanumeric and won't generate callbacks on change.
+    // A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
 public:
     /// EPICS variable name (CA PV)
     ///
     Q_PROPERTY(QString variable READ getVariableNameProperty WRITE setVariableNameProperty)
-    /// Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1[,] NAME2=VALUE2...
-    /// Values may be quoted strings. For example, 'PUMP=PMP3, NAME = "My Pump"'
+    /// Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1[,] NAME2=VALUE2... Values may be quoted strings. For example, 'PUMP=PMP3, NAME = "My Pump"'
     /// These substitutions are applied to variable names for all QE widgets. In some widgets are are also used for other purposes.
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
 
@@ -85,8 +83,7 @@ public:
     QString getVariableNameProperty(){ return variableNamePropertyManager.getVariableNameProperty(); }
 
     /// Property access function for #variableSubstitutions property. This has special behaviour to work well within designer.
-    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions )
-               { variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }
+    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }
     /// Property access function for #variableSubstitutions property. This has special behaviour to work well within designer.
     QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManager.getSubstitutionsProperty(); }
 
