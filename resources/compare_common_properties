@@ -1,8 +1,8 @@
 #!/usr/bin/python
 #
 # $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/epicsqt/qeApp/epicsqt/resources/compare_common_properties $
-# $Revision: #1 $
-# $DateTime: 2015/02/02 15:35:49 $
+# $Revision: #2 $
+# $DateTime: 2015/02/02 17:43:51 $
 # Last checked in by: $Author: starritt $
 #
 
@@ -98,6 +98,9 @@ iam = os.path.basename (args.pop (0))
 
 if len (args) == 0:
    print (iam + " - no arguments specified")
+   print ""
+   print "Try something like:  ./compare_common_properties ../framework/widgets/*/*.h"
+   print ""
 
 else:
 
@@ -117,6 +120,7 @@ else:
             print  ("failed to parse " + arg)
             raise
 
+      total = len (the_set)
       reference = the_set.pop (0)
       mis_match = 0
       for j in range (len (the_set)):
@@ -126,7 +130,7 @@ else:
             mis_match = mis_match + 1
             print reference [0], "and",  item [0], "differ"
 
-      print "mis matching files:", mis_match
+      print "The are",  mis_match, "mis matches out of", total, "files"
       print ""
 
    print  (iam + " complete")
