@@ -42,11 +42,15 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEFrame :
 
 Q_OBJECT
 
-  public:
-    //=================================================================================
+    // BEGIN-STANDARD-PROPERTIES ======================================================
     // Standard properties
     // These properties should be identical for every widget using them.
-    // WHEN MAKING CHANGES: search for STANDARDPROPERTIES and change all occurances.
+    // WHEN MAKING CHANGES: Use the update_widget_properties script in the
+    // resources directory.
+public slots:
+    /// Slot to set the visibility of a QE widget, taking into account the user level.
+    /// Widget will be hidden if hidden by a call this slot, by will only be made visible by a calll to this slot if the user level allows.
+    void setManagedVisible( bool v ){ setRunVisible( v ); }
 public:
     /// Use the variable as the tool tip. Default is true. Tool tip property will be overwritten by the variable name.
     ///

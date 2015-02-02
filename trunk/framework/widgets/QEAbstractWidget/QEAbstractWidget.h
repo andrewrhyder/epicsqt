@@ -44,10 +44,15 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEAbstractWidget :
 
 Q_OBJECT
 
-    //=================================================================================
+    // BEGIN-STANDARD-PROPERTIES ======================================================
     // Standard properties
     // These properties should be identical for every widget using them.
-    // WHEN MAKING CHANGES: search for STANDARDPROPERTIES and change all occurances.
+    // WHEN MAKING CHANGES: Use the update_widget_properties script in the
+    // resources directory.
+public slots:
+    /// Slot to set the visibility of a QE widget, taking into account the user level.
+    /// Widget will be hidden if hidden by a call this slot, by will only be made visible by a calll to this slot if the user level allows.
+    void setManagedVisible( bool v ){ setRunVisible( v ); }
 public:
     /// Use the variable as the tool tip. Default is true. Tool tip property will be overwritten by the variable name.
     ///
@@ -63,7 +68,7 @@ public:
     Q_PROPERTY(bool visible READ getRunVisible WRITE setRunVisible)
 
     /// Set the ID used by the message filtering system. Default is zero.
-    /// Widgets or applications that use messages from the abstractwidgetwork have the option of filtering on this ID.
+    /// Widgets or applications that use messages from the framework have the option of filtering on this ID.
     /// For example, by using a unique message source ID a QELog widget may be set up to only log messages from a select set of widgets.
     Q_PROPERTY(unsigned int messageSourceId READ getMessageSourceId WRITE setMessageSourceId )
 

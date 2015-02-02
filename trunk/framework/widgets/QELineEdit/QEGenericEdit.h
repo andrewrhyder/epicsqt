@@ -56,15 +56,18 @@ public:
     /// These substitutions are applied to variable names for all QE widgets. In some widgets are are also used for other purposes.
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
 
-    void    setVariableNameProperty( QString variableName ){ variableNamePropertyManager.setVariableNameProperty( variableName ); }///< Access function for #variable property - refer to #variable property for details
-    QString getVariableNameProperty(){ return variableNamePropertyManager.getVariableNameProperty(); }                             ///< Access function for #variable property - refer to #variable property for details
+    /// Property access function for #variable property. This has special behaviour to work well within designer.
+    void    setVariableNameProperty( QString variableName ){ variableNamePropertyManager.setVariableNameProperty( variableName ); }
+    /// Property access function for #variable property. This has special behaviour to work well within designer.
+    QString getVariableNameProperty(){ return variableNamePropertyManager.getVariableNameProperty(); }
 
-    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }///< Access function for #variableSubstitutions property - refer to #variableSubstitutions property for details
-    QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManager.getSubstitutionsProperty(); }                                                       ///< Access function for #variableSubstitutions property - refer to #variableSubstitutions property for details
+    /// Property access function for #variableSubstitutions property. This has special behaviour to work well within designer.
+    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }
+    /// Property access function for #variableSubstitutions property. This has special behaviour to work well within designer.
+    QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManager.getSubstitutionsProperty(); }
 
 private:
     QCaVariableNamePropertyManager variableNamePropertyManager;
-
 public:
     // END-SINGLE-VARIABLE-PROPERTIES =================================================
 
@@ -100,6 +103,10 @@ public:
     // These properties should be identical for every widget using them.
     // WHEN MAKING CHANGES: Use the update_widget_properties script in the
     // resources directory.
+public slots:
+    /// Slot to set the visibility of a QE widget, taking into account the user level.
+    /// Widget will be hidden if hidden by a call this slot, by will only be made visible by a calll to this slot if the user level allows.
+    void setManagedVisible( bool v ){ setRunVisible( v ); }
 public:
     /// Use the variable as the tool tip. Default is true. Tool tip property will be overwritten by the variable name.
     ///
