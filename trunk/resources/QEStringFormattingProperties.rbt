@@ -130,5 +130,5 @@ public:
     /// Only used when the arrayAction property is INDEX. Refer to the arrayAction property for more details.
     Q_PROPERTY(unsigned int arrayIndex READ getArrayIndex WRITE setArrayIndex)
 public:
-=
+==
 = end
