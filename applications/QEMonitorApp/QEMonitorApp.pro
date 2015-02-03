@@ -50,6 +50,8 @@ INCLUDEPATH += \
     ../../framework/data \
     ../../framework/api
 
+LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) -lca -lCom
+
 LIBS += -L../../framework/designer -lQEPlugin
 
 # end

@@ -1811,7 +1811,7 @@ void QEImage::displayImage()
     if( initScrollPosSet == false )
     {
         scrollArea->verticalScrollBar()->setValue( initialVertScrollPos );
-        scrollArea->horizontalScrollBar()->setValue( 0 );// !!!initialHozScrollPos );
+        scrollArea->horizontalScrollBar()->setValue( initialHozScrollPos );
         initScrollPosSet = true;
     }
 
@@ -2543,7 +2543,7 @@ void QEImage::displayImage()
     // Display the new image
     videoWidget->setNewImage( frameImage, imageTime );
 
-    // Update markups if required
+    // Update markups if requiredye
     updateMarkupData();
 }
 
@@ -3424,7 +3424,13 @@ QEImage::resizeOptions QEImage::getResizeOption()
 // Initial vorizontal scroll position
 void QEImage::setInitialHozScrollPos( int initialHozScrollPosIn )
 {
+    // Save the position
     initialHozScrollPos = initialHozScrollPosIn;
+
+    // Set the position.
+    // Note, will work when changed interactivly in designer. When the property is loaded
+    // on startup, setting the scoll bars won't work until the widget has been presented
+    // and geometry is sorted out. that will happen when the image is first displayed
     scrollArea->horizontalScrollBar()->setValue( initialHozScrollPos );
 }
 
@@ -3436,7 +3442,13 @@ int QEImage::getInitialHozScrollPos()
 // Initial vertical scroll position
 void QEImage::setInitialVertScrollPos( int initialVertScrollPosIn )
 {
+    // Save the position
     initialVertScrollPos = initialVertScrollPosIn;
+
+    // Set the position.
+    // Note, will work when changed interactivly in designer. When the property is loaded
+    // on startup, setting the scoll bars won't work until the widget has been presented
+    // and geometry is sorted out. that will happen when the image is first displayed
     scrollArea->verticalScrollBar()->setValue( initialVertScrollPos );
 }
 
@@ -6088,104 +6100,168 @@ historicImage::historicImage( QByteArray imageIn, unsigned long dataSizeIn, QCaA
     time = timeIn;
 }
 
-
+// A configuration is being saved. Return any configuration to be saved for this widget
 void QEImage::saveConfiguration( PersistanceManager* pm )
 {
-    if( !imageDisplayProps )
-    {
-        return;
-    }
-
+    // Prepare to save configuration for this widget
     const QString imageName = persistantName( "QEImage" );
     PMElement imageElement = pm->addNamedConfiguration( imageName );
 
-    PMElement pvElement = imageElement.addElement( "DisplayProperties" );
-    pvElement.addValue( "highPixel",              (int)(imageDisplayProps->getHighPixel()) );
-    pvElement.addValue( "lowPixel",               (int)(imageDisplayProps->getLowPixel()) );
-    pvElement.addValue( "autoBrightnessContrast", (bool)(imageDisplayProps->getAutoBrightnessContrast()) );
-    pvElement.addValue( "contrastReversal",       (bool)(imageDisplayProps->getContrastReversal()) );
-    pvElement.addValue( "falseColour",            (bool)(imageDisplayProps->getFalseColour()) );
-    pvElement.addValue( "histZoom",               (int)(imageDisplayProps->getHistZoom()) );
-    pvElement.addValue( "log",                    (bool)(imageDisplayProps->getLog()) );
+    // Save the settings controlled by the image display properties dialog
+    if( imageDisplayProps )
+    {
+        PMElement pvElement = imageElement.addElement( "DisplayProperties" );
+        pvElement.addValue( "highPixel",              (int) (imageDisplayProps->getHighPixel()) );
+        pvElement.addValue( "lowPixel",               (int) (imageDisplayProps->getLowPixel()) );
+        pvElement.addValue( "autoBrightnessContrast", (bool)(imageDisplayProps->getAutoBrightnessContrast()) );
+        pvElement.addValue( "contrastReversal",       (bool)(imageDisplayProps->getContrastReversal()) );
+        pvElement.addValue( "falseColour",            (bool)(imageDisplayProps->getFalseColour()) );
+        pvElement.addValue( "histZoom",               (int) (imageDisplayProps->getHistZoom()) );
+        pvElement.addValue( "log",                    (bool)(imageDisplayProps->getLog()) );
+    }
+
+    // Save markup information
+    PMElement pvElement = imageElement.addElement( "Markups" );
+    pvElement.addValue( "enableHozSlicePresentation",   (bool)(getEnableHozSlicePresentation()) );
+    pvElement.addValue( "enableVertSlicePresentation",  (bool)(getEnableVertSlicePresentation()) );
+    pvElement.addValue( "enableProfilePresentation",    (bool)(getEnableProfilePresentation()) );
+    pvElement.addValue( "enableArea1Selection",         (bool)(getEnableArea1Selection()) );
+    pvElement.addValue( "enableArea2Selection",         (bool)(getEnableArea2Selection()) );
+    pvElement.addValue( "enableArea3Selection",         (bool)(getEnableArea3Selection()) );
+    pvElement.addValue( "enableArea4Selection",         (bool)(getEnableArea4Selection()) );
+    pvElement.addValue( "enableTargetSelection",        (bool)(getEnableTargetSelection()) );
+    pvElement.addValue( "enableBeamSelection",          (bool)(getEnableBeamSelection()) );
+
+    pvElement.addValue( "displayVertSliceSelection",    (bool)(getDisplayVertSliceSelection()) );
+    pvElement.addValue( "displayHozSliceSelection",     (bool)(getDisplayHozSliceSelection()) );
+    pvElement.addValue( "displayProfileSelection",      (bool)(getDisplayProfileSelection()) );
+    pvElement.addValue( "displayArea1Selection",        (bool)(getDisplayArea1Selection()) );
+    pvElement.addValue( "displayArea2Selection",        (bool)(getDisplayArea2Selection()) );
+    pvElement.addValue( "displayArea3Selection",        (bool)(getDisplayArea3Selection()) );
+    pvElement.addValue( "displayArea4Selection",        (bool)(getDisplayArea4Selection()) );
+    pvElement.addValue( "displayTargetSelection",       (bool)(getDisplayTargetSelection()) );
+    pvElement.addValue( "displayBeamSelection",         (bool)(getDisplayBeamSelection()) );
+    pvElement.addValue( "displayEllipse",               (bool)(getDisplayEllipse()) );
+
+
+    // Save other attributes of the image under the user's control
+    pvElement = imageElement.addElement( "View" );
+    pvElement.addValue( "displayButtonBar",             (bool)(getDisplayButtonBar()) );
+    pvElement.addValue( "showTime",                     (bool)(getShowTime()) );
+    pvElement.addValue( "verticalFlip",                 (bool)(getVerticalFlip()) );
+    pvElement.addValue( "horizontalFlip",               (bool)(getHorizontalFlip()) );
+    pvElement.addValue( "enableImageDisplayProperties", (bool)(getEnableImageDisplayProperties()) );
+    pvElement.addValue( "enableRecording",              (bool)(getEnableRecording()) );
+    pvElement.addValue( "zoom",                         (int) (getZoom()) );
+    pvElement.addValue( "hozScroll",                    (int) (scrollArea->horizontalScrollBar()->value()) );
+    pvElement.addValue( "vertScroll",                   (int) (scrollArea->verticalScrollBar()  ->value()) );
 }
 
 //------------------------------------------------------------------------------
-//
+// A configuration is being restored. Use any configuration information saved by this widget
 void QEImage::restoreConfiguration (PersistanceManager* pm, restorePhases restorePhase)
 {
-    if( !imageDisplayProps )
+    // Do nothing during the framework phase
+    if( restorePhase != FRAMEWORK )
     {
         return;
     }
 
-    if (restorePhase != FRAMEWORK) return;
-
+    // Retrieve our configuration
     const QString imageName = persistantName( "QEImage" );
     PMElement imageElement = pm->getNamedConfiguration( imageName );
 
-    PMElement pvElement = imageElement.getElement( "DisplayProperties" );
-    if( pvElement.isNull() )
+    // If there is an image properties dialog, restore the setting it is used to control
+    if( imageDisplayProps )
     {
-        return;
+        PMElement pvElement = imageElement.getElement( "DisplayProperties" );
+        if( !pvElement.isNull() )
+        {
+            bool status;
+            bool bval;
+            int  ival;
+
+            // Set the brightness/contrast.
+            // High and low pixel values are set as a pair. Ensure we have both - either from the configuration, or the current values
+            int highPixel, lowPixel;
+            status = pvElement.getValue( "highPixel", highPixel );
+            if( !status )
+            {
+                highPixel = imageDisplayProps->getHighPixel();
+            }
+            status = pvElement.getValue( "lowPixel", lowPixel   );
+            if( !status )
+            {
+                lowPixel  = imageDisplayProps->getLowPixel();
+            }
+            imageDisplayProps->setBrightnessContrast( highPixel, lowPixel );
+
+            // Set other image display properties
+            status = pvElement.getValue( "autoBrightnessContrast", bval ); if( status ) { imageDisplayProps->setAutoBrightnessContrast( bval ); }
+            status = pvElement.getValue( "contrastReversal",       bval ); if( status ) { imageDisplayProps->setContrastReversal(       bval ); }
+            status = pvElement.getValue( "falseColour",            bval ); if( status ) { imageDisplayProps->setFalseColour(            bval ); }
+            status = pvElement.getValue( "histZoom",               ival ); if( status ) { imageDisplayProps->setHistZoom(               ival ); }
+            status = pvElement.getValue( "log",                    bval ); if( status ) { imageDisplayProps->setLog(                    bval ); }
+
+            // Flag that the current pixel lookup table needs recalculating
+            pixelLookupValid = false;
+        }
     }
 
-    bool status;
-
-    int highPixel;
-    status = pvElement.getValue( "highPixel", highPixel );
-    if( !status )
+    // Restore markup settings
+    PMElement pvElement = imageElement.getElement( "Markups" );
+    if( !pvElement.isNull() )
     {
-        highPixel = imageDisplayProps->getHighPixel();
+        bool status;
+        bool bval;
+
+        status = pvElement.getValue( "enableHozSlicePresentation",  bval ); if( status ) { setEnableHozSlicePresentation(  bval ); }
+        status = pvElement.getValue( "enableVertSlicePresentation", bval ); if( status ) { setEnableVertSlicePresentation( bval ); }
+        status = pvElement.getValue( "enableProfilePresentation",   bval ); if( status ) { setEnableProfilePresentation(   bval ); }
+        status = pvElement.getValue( "enableArea1Selection",        bval ); if( status ) { setEnableArea1Selection(        bval ); }
+        status = pvElement.getValue( "enableArea2Selection",        bval ); if( status ) { setEnableArea2Selection(        bval ); }
+        status = pvElement.getValue( "enableArea3Selection",        bval ); if( status ) { setEnableArea3Selection(        bval ); }
+        status = pvElement.getValue( "enableArea4Selection",        bval ); if( status ) { setEnableArea4Selection(        bval ); }
+        status = pvElement.getValue( "enableTargetSelection",       bval ); if( status ) { setEnableTargetSelection(       bval ); }
+        status = pvElement.getValue( "enableBeamSelection",         bval ); if( status ) { setEnableBeamSelection(         bval ); }
+
+        status = pvElement.getValue( "displayVertSliceSelection",   bval ); if( status ) { setDisplayVertSliceSelection(   bval ); }
+        status = pvElement.getValue( "displayHozSliceSelection",    bval ); if( status ) { setDisplayHozSliceSelection(    bval ); }
+        status = pvElement.getValue( "displayProfileSelection",     bval ); if( status ) { setDisplayProfileSelection(     bval ); }
+        status = pvElement.getValue( "displayArea1Selection",       bval ); if( status ) { setDisplayArea1Selection(       bval ); }
+        status = pvElement.getValue( "displayArea2Selection",       bval ); if( status ) { setDisplayArea2Selection(       bval ); }
+        status = pvElement.getValue( "displayArea3Selection",       bval ); if( status ) { setDisplayArea3Selection(       bval ); }
+        status = pvElement.getValue( "displayArea4Selection",       bval ); if( status ) { setDisplayArea4Selection(       bval ); }
+        status = pvElement.getValue( "displayTargetSelection",      bval ); if( status ) { setDisplayTargetSelection(      bval ); }
+        status = pvElement.getValue( "displayBeamSelection",        bval ); if( status ) { setDisplayBeamSelection(        bval ); }
+        status = pvElement.getValue( "displayEllipse",              bval ); if( status ) { setDisplayEllipse(              bval ); }
     }
 
-    int lowPixel;
-    status = pvElement.getValue( "lowPixel", lowPixel );
-    if( !status )
+    // Restore current view
+    // These include all the attributes the user can alter without a GUI redesign
+    pvElement = imageElement.getElement( "View" );
+    if( !pvElement.isNull() )
     {
-        lowPixel = imageDisplayProps->getLowPixel();
+        bool status;
+        bool bval;
+        int  ival;
+
+        status = pvElement.getValue( "displayButtonBar",             bval ); if( status ) { setDisplayButtonBar(             bval ); }
+        status = pvElement.getValue( "showTime",                     bval ); if( status ) { setShowTime(                     bval ); }
+        status = pvElement.getValue( "verticalFlip",                 bval ); if( status ) { setVerticalFlip(                 bval ); }
+        status = pvElement.getValue( "horizontalFlip",               bval ); if( status ) { setHorizontalFlip(               bval ); }
+        status = pvElement.getValue( "enableImageDisplayProperties", bval ); if( status ) { setEnableImageDisplayProperties( bval ); }
+        status = pvElement.getValue( "enableRecording",              bval ); if( status ) { setEnableRecording(              bval ); }
+        status = pvElement.getValue( "zoom",                         ival ); if( status ) { setZoom(                         ival ); }
+        status = pvElement.getValue( "hozScroll",                    ival ); if( status ) { setInitialVertScrollPos(         ival ); }
+        status = pvElement.getValue( "vertScroll",                   ival ); if( status ) { setInitialHozScrollPos(          ival ); }
+
+        // Ensure scroll bars are set when the image is next displayed.
+        // The calls to setInitialVertScrollPos() and setInitialHozScrollPos() above save and set the scroll bar
+        // position, but the set won't work as the scroll bars have not been realised yet. The set won't work
+        // unless the scroll bar is shown and its geometry has been sorted.
+        initScrollPosSet = false;
     }
-
-    imageDisplayProps->setBrightnessContrast( highPixel, lowPixel );
-
-    bool autoBrightnessContrast;
-    status = pvElement.getValue( "autoBrightnessContrast", autoBrightnessContrast );
-    if( status )
-    {
-        imageDisplayProps->setAutoBrightnessContrast( autoBrightnessContrast );
-    }
-
-    bool contrastReversal;
-    status = pvElement.getValue( "contrastReversal", contrastReversal );
-    if( status )
-    {
-        imageDisplayProps->setContrastReversal( contrastReversal );
-    }
-
-    bool falseColour;
-    status = pvElement.getValue( "falseColour", falseColour );
-    if( status )
-    {
-        imageDisplayProps->setFalseColour( falseColour );
-    }
-
-    int histZoom;
-    status = pvElement.getValue( "histZoom", histZoom );
-    if( status )
-    {
-        imageDisplayProps->setHistZoom( histZoom );
-    }
-
-    bool log;
-    status = pvElement.getValue( "log", log );
-    if( status )
-    {
-        imageDisplayProps->setLog( log );
-    }
-
-    // Flag that the current pixel lookup table needs recalculating
-    pixelLookupValid = false;
-    qDebug() << "setting pixelLookupValid"<<pixelLookupValid;
-
 }
 
 // end

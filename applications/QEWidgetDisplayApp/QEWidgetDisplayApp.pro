@@ -56,6 +56,8 @@ INCLUDEPATH += . \
     ../../framework/api \
     ../../framework/common
 
+LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) -lca -lCom
+
 LIBS += -L../../framework/designer -lQEPlugin
 
 RESOURCES += \
