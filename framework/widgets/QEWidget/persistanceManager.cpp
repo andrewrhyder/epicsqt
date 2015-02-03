@@ -120,7 +120,6 @@
  *   - The persistance manager saves all data presented to it.
  */
 
-#include <QDebug>
 #include <persistanceManager.h>
 #include <QFile>
 #include <QByteArray>
@@ -214,7 +213,7 @@ void PersistanceManager::save( const QString fileName, const QString rootName, c
     }
     else
     {
-        qDebug() << "Could not save configuration";
+        QMessageBox::warning( 0, "Configuration management", QString( "Could not save configuration. Could not open configuration file ").append( fileName ) );
     }
 }
 
@@ -265,13 +264,13 @@ bool PersistanceManager::openRead( QString fileName, QString rootName )
     QFile file( fileName );
     if (!file.open(QIODevice::ReadOnly))
     {
-        qDebug() << "Could not open configuration file for reading" << fileName;
+        QMessageBox::warning( 0, "Configuration management", QString( "Could not open configuration file for reading: ").append( fileName ) );
         return false;
     }
 
     if ( !doc.setContent( &file ) )
     {
-        qDebug() << "Could not parse the XML in the config file" << fileName;
+        QMessageBox::warning( 0, "Configuration management", QString( "Could not parse the XML in the config file: ").append( fileName ) );
         file.close();
         return false;
     }
@@ -281,7 +280,7 @@ bool PersistanceManager::openRead( QString fileName, QString rootName )
 
     if( docElem.nodeName().compare( rootName ) )
     {
-        qDebug() << "Expected configuration root element (" << rootName << ") not found in config file" << fileName;
+        QMessageBox::warning( 0, "Configuration management", QString( "XML did not contain the expected root element " ).append( rootName ).append( " in the config file: ").append( fileName ) );
         return false;
     }
     return true;
@@ -401,7 +400,7 @@ void PersistanceManager::deleteConfigs( QString fileName, QString rootName, QStr
     }
     else
     {
-        qDebug() << "Could not save configuration";
+        QMessageBox::warning( 0, "Configuration management", QString( "Could not save the configuration to configuration file ").append( fileName ) );
     }
 }
 

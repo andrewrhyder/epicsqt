@@ -2543,7 +2543,7 @@ void QEImage::displayImage()
     // Display the new image
     videoWidget->setNewImage( frameImage, imageTime );
 
-    // Update markups if requiredye
+    // Update markups if required
     updateMarkupData();
 }
 
@@ -6203,8 +6203,8 @@ void QEImage::restoreConfiguration (PersistanceManager* pm, restorePhases restor
             status = pvElement.getValue( "histZoom",               ival ); if( status ) { imageDisplayProps->setHistZoom(               ival ); }
             status = pvElement.getValue( "log",                    bval ); if( status ) { imageDisplayProps->setLog(                    bval ); }
 
-            // Flag that the current pixel lookup table needs recalculating
-            pixelLookupValid = false;
+            // Apply the changes to the image display properties dialog
+            imageDisplayPropertiesChanged();
         }
     }
 
