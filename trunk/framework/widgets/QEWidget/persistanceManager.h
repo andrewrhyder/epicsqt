@@ -169,7 +169,7 @@ public:
     static QString defaultName;
 
 private:
-    bool openRead(  QString fileName, QString rootName );                   // Open and read the configuration file
+    bool openRead(  QString fileName, QString rootName, bool fileExpected );// Open and read the configuration file. fileExpected is true if the file must be present
 
     PMElement addElement( QDomElement parent, QString name );               // Add an element, return the new added element
 

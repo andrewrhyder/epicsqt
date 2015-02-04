@@ -147,7 +147,7 @@ void PersistanceManager::save( const QString fileName, const QString rootName, c
 {
     // Try to read the configuration file we are saving to
     // If OK, remove the configuration we are overwriting if present.
-    if( openRead( fileName, rootName ) )
+    if( openRead( fileName, rootName, false ) )
     {
         QDomNodeList configNodes = docElem.elementsByTagName( "Config" );
         QDomElement oldConfig;
@@ -220,7 +220,7 @@ void PersistanceManager::save( const QString fileName, const QString rootName, c
 // Restore a configuration
 void PersistanceManager::restore( const QString fileName, const QString rootName, const QString configName  )
 {
-    if( !openRead( fileName, rootName ) )
+    if( !openRead( fileName, rootName, true ) )
     {
         return;
     }
@@ -259,12 +259,15 @@ void SaveRestoreSignal::restore()
 }
 
 // Open and read the configuration file
-bool PersistanceManager::openRead( QString fileName, QString rootName )
+bool PersistanceManager::openRead( QString fileName, QString rootName, bool fileExpected )
 {
     QFile file( fileName );
     if (!file.open(QIODevice::ReadOnly))
     {
-        QMessageBox::warning( 0, "Configuration management", QString( "Could not open configuration file for reading: ").append( fileName ) );
+        if( fileExpected )
+        {
+            QMessageBox::warning( 0, "Configuration management", QString( "Could not open configuration file for reading: ").append( fileName ) );
+        }
         return false;
     }
 
@@ -320,7 +323,7 @@ QStringList PersistanceManager::getConfigNames( QString fileName, QString rootNa
     QStringList nameList;
 
     // Return the empty list if cant read file
-    if( !openRead( fileName, rootName ) )
+    if( !openRead( fileName, rootName, false ) )
     {
         return nameList;
     }
@@ -374,7 +377,7 @@ void PersistanceManager::deleteConfigs( QString fileName, QString rootName, QStr
 
     // Try to read the configuration file we are saving to
     // If OK, remove the configuration we are overwriting if present.
-    if( openRead( fileName, rootName ) )
+    if( openRead( fileName, rootName, true ) )
     {
         QDomNodeList nodeList = docElem.elementsByTagName( "Config" );
         for( int i = 0; i < names.count(); i++ )
