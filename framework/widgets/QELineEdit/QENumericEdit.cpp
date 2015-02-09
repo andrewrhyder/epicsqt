@@ -95,6 +95,8 @@ QENumericEdit::QENumericEdit (const QString & variableNameIn, QWidget * parent):
 //
 void QENumericEdit::commonConstructor ()
 {
+   this->setAlignment (Qt::AlignRight);
+
    this->mAutoScale = true;
    this->mCursor = 1;
 
@@ -532,12 +534,14 @@ void QENumericEdit::setNumericText ()
    qcaobject::QCaObject* qca;
    QString units;
 
+   image.append (" ");
+
    if (this->getAddUnits ()) {
       qca = this->getQcaItem (0);
       if (qca) {
          units = qca->getEgu();
          if (!units.isEmpty ()) {
-               image.append (" ").append (units);
+               image.append (units).append (" ");
          }
       }
    }

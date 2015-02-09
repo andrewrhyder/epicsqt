@@ -30,10 +30,24 @@
 
 #define DEBUG qDebug () << "QESimpleShape" << __LINE__ << __FUNCTION__
 
+#define MAIN_PV_INDEX   0
+#define EDGE_PV_INDEX   1
+
+//-----------------------------------------------------------------------------
+// Macro fuction to enure varable has an expected value.
+//
+#define ASSERT_PV_INDEX(vi, action)   {                                \
+   if ((vi != MAIN_PV_INDEX) && (vi != EDGE_PV_INDEX)) {               \
+      DEBUG << "unexpected variableIndex" << vi;                       \
+      action;                                                          \
+   }                                                                   \
+}
+
+
 //-----------------------------------------------------------------------------
 // Constructor with no initialisation
 //
-QESimpleShape::QESimpleShape (QWidget * parent)
+QESimpleShape::QESimpleShape (QWidget* parent)
    : QSimpleShape (parent), QEWidget (this)
 {
    this->setup ();
@@ -42,7 +56,7 @@ QESimpleShape::QESimpleShape (QWidget * parent)
 //-----------------------------------------------------------------------------
 // Constructor with known variable
 //
-QESimpleShape::QESimpleShape (const QString & variableNameIn, QWidget * parent)
+QESimpleShape::QESimpleShape (const QString& variableNameIn, QWidget* parent)
    : QSimpleShape (parent), QEWidget (this)
 {
    this->setup ();
@@ -61,11 +75,10 @@ void QESimpleShape::setup ()
    //
    // This control used a single data source
    //
-   this->setNumVariables (1);
+   this->setNumVariables (2);
    this->setVariableAsToolTip (true);
-   this->setDisplayAlarmState (true);
+   this->setDisplayAlarmStateOption (DISPLAY_ALARM_STATE_ALWAYS);
    this->setAllowDrop (false);
-
    this->setIsActive (false);
 
    // Set the initial state
@@ -75,6 +88,7 @@ void QESimpleShape::setup ()
    this->isStaticValue = false;
    this->channelValue = 0;
    this->channelAlarmColour = this->getColor (invalid, 255);
+   this->edgeAlarmState = Always;
 
    // Use default context menu.
    //
@@ -84,10 +98,28 @@ void QESimpleShape::setup ()
    // The variable name property manager class only delivers an updated
    // variable name after the user has stopped typing.
    //
+   this->variableNamePropertyManager.setVariableIndex (MAIN_PV_INDEX);
    QObject::connect (&this->variableNamePropertyManager, SIGNAL (newVariableNameProperty    (QString, QString, unsigned int)),
                      this,                               SLOT   (useNewVariableNameProperty (QString, QString, unsigned int)));
+
+   this->edgeVNPM.setVariableIndex (EDGE_PV_INDEX);
+   QObject::connect (&this->edgeVNPM, SIGNAL (newVariableNameProperty    (QString, QString, unsigned int)),
+                     this,            SLOT   (useNewVariableNameProperty (QString, QString, unsigned int)));
 }
 
+//------------------------------------------------------------------------------
+//
+void QESimpleShape::setEdgeVariableNameProperty (const QString& variableName)
+{
+   this->edgeVNPM.setVariableNameProperty (variableName);
+}
+
+//------------------------------------------------------------------------------
+//
+QString QESimpleShape::getEdgeVariableNameProperty () const
+{
+   return this->edgeVNPM.getVariableNameProperty ();
+}
 
 //------------------------------------------------------------------------------
 // Update variable name etc.
@@ -96,7 +128,9 @@ void QESimpleShape::useNewVariableNameProperty (QString variableNameIn,
                                                 QString variableNameSubstitutionsIn,
                                                 unsigned int variableIndex)
 {
-   this->isStaticValue = false;
+   ASSERT_PV_INDEX (variableIndex, return);
+
+   if (variableIndex == MAIN_PV_INDEX) this->isStaticValue = false;
 
    // Note: essentially calls createQcaItem - provided expanded pv name is not empty.
    //
@@ -105,19 +139,20 @@ void QESimpleShape::useNewVariableNameProperty (QString variableNameIn,
                                           variableIndex);
 }
 
-
 //------------------------------------------------------------------------------
 // Implementation of QEWidget's virtual funtion to create the specific type of QCaObject required.
 // For shape, a QCaObject that streams integers is required.
 //
 qcaobject::QCaObject* QESimpleShape::createQcaItem (unsigned int variableIndex)
 {
+   ASSERT_PV_INDEX (variableIndex, return NULL);
+
    qcaobject::QCaObject* result = NULL;
    QString pvName;
    int number;
    bool okay;
 
-   if (variableIndex == 0) {
+   if (variableIndex == MAIN_PV_INDEX) {
       pvName = this->getSubstitutedVariableName (variableIndex);
       number = pvName.toInt (&okay);
 
@@ -128,6 +163,7 @@ qcaobject::QCaObject* QESimpleShape::createQcaItem (unsigned int variableIndex)
          this->isStaticValue = true;
          this->channelValue = number;
          this->setValue (number);
+         qDebug () << "QESimpleShape: PV name interpreted as integer depreciated - use a QSimpleShape widget instead";
       } else {
          // Assume it is a PV.
          //
@@ -137,6 +173,10 @@ qcaobject::QCaObject* QESimpleShape::createQcaItem (unsigned int variableIndex)
          //
          result->setArrayIndex (this->arrayIndex);
       }
+
+   } else if (variableIndex == EDGE_PV_INDEX) {
+      pvName = this->getSubstitutedVariableName (variableIndex);
+      result = new QEInteger (pvName, this, &this->integerFormatting, variableIndex);
 
    } else {
       result = NULL;         // Unexpected
@@ -154,6 +194,8 @@ qcaobject::QCaObject* QESimpleShape::createQcaItem (unsigned int variableIndex)
 //
 void QESimpleShape::establishConnection (unsigned int variableIndex)
 {
+   ASSERT_PV_INDEX (variableIndex, return);
+
    // Create a connection.
    // If successfull, the QCaObject object that will supply data update signals will be returned
    // Note createConnection creates the connection and returns reference to existing QCaObject.
@@ -163,21 +205,21 @@ void QESimpleShape::establishConnection (unsigned int variableIndex)
    // If a QCaObject object is now available to supply data update signals,
    // connect it to the appropriate slots.
    //
-   if ((qca) && (variableIndex == 0)) {
+   if (qca) {
       QObject::connect (qca,  SIGNAL (integerChanged  (const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int &)),
-                        this, SLOT   (setShapeValue     (const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int &)));
+                        this, SLOT   (setShapeValue   (const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int &)));
 
       QObject::connect (qca,  SIGNAL (connectionChanged (QCaConnectionInfo&, const unsigned int &)),
                         this, SLOT   (connectionChanged (QCaConnectionInfo&, const unsigned int &)));
    }
 }
 
-
 //------------------------------------------------------------------------------
 //
 void QESimpleShape::activated ()
 {
-    // place holder
+   this->setValue (0);
+   this->setIsActive (false);
 }
 
 //------------------------------------------------------------------------------
@@ -188,6 +230,8 @@ void QESimpleShape::activated ()
 void QESimpleShape::connectionChanged (QCaConnectionInfo & connectionInfo,
                                        const unsigned int& variableIndex)
 {
+   ASSERT_PV_INDEX (variableIndex, return);
+
    bool isConnected;
 
    // Note the connected state
@@ -198,13 +242,15 @@ void QESimpleShape::connectionChanged (QCaConnectionInfo & connectionInfo,
    //
    this->updateToolTipConnection (isConnected, variableIndex);
 
-   // Widget is self draw - styleShheet not applicable per se.
-   // No need to call updateConnectionStyle (isConnected),
-   // but we do flag is in active (quazi disabled).
-   //
-   this->setIsActive (isConnected);
+   if (variableIndex == MAIN_PV_INDEX) {
+      // Widget drwas itself - a styleSheet not applicable per se.
+      // No need to call updateConnectionStyle (isConnected),
+      // but we do flag is in active (quazi disabled).
+      //
+      this->setIsActive (isConnected);
 
-   this->isFirstUpdate = true;  // more trob. than it's worth to check if connect or disconnect.
+      this->isFirstUpdate = true;  // more trob. than it's worth to check if connect or disconnect.
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -214,53 +260,73 @@ void QESimpleShape::connectionChanged (QCaConnectionInfo & connectionInfo,
 void QESimpleShape::setShapeValue (const long &valueIn, QCaAlarmInfo & alarmInfo,
                                    QCaDateTime &, const unsigned int& variableIndex)
 {
+   ASSERT_PV_INDEX (variableIndex, return);
+
    qcaobject::QCaObject* qca;
+   QColor selectedEdgeColour;
 
    // Associated qca object - avoid the segmentation fault.
    //
-   qca = getQcaItem (0);
+   qca = getQcaItem (variableIndex);
    if (!qca) {
       return;
    }
 
-   // Set up variable details used by some formatting options.
-   //
-   if (this->isFirstUpdate) {
-      this->stringFormatting.setDbEgu (qca->getEgu ());
-      this->stringFormatting.setDbEnumerations (qca->getEnumerations ());
-      this->stringFormatting.setDbPrecision (qca->getPrecision ());
+   switch (variableIndex) {
+
+      case MAIN_PV_INDEX:
+         // Set up variable details used by some formatting options.
+         //
+         if (this->isFirstUpdate) {
+            this->stringFormatting.setDbEgu (qca->getEgu ());
+            this->stringFormatting.setDbEnumerations (qca->getEnumerations ());
+            this->stringFormatting.setDbPrecision (qca->getPrecision ());
+         }
+
+         if (this->getTextFormat () == LocalEnumeration) {
+            this->stringFormatting.setFormat (QEStringFormatting::FORMAT_LOCAL_ENUMERATE);
+         } else {
+            this->stringFormatting.setFormat (QEStringFormatting::FORMAT_DEFAULT);
+         }
+
+         // Save alarm colour.
+         // Must do before we set value as getItemColour will get called.
+         //
+         this->channelAlarmColour = this->getColor (alarmInfo, 255);
+
+         // Save value and update the shape value.
+         // This essentially stores data twice, but the QSimpleShape stores the
+         // value modulo 16, but we want to keep actual value (for getItemText).
+         //
+         this->channelValue = valueIn;
+         this->setValue ((int) valueIn);
+
+         // Signal a database value change to any Link widgets
+         //
+         emit dbValueChanged (valueIn);
+
+         // This update is over, clear first update flag.
+         //
+         this->isFirstUpdate = false;
+         break;
+
+      case EDGE_PV_INDEX:
+         // For now (at least) we treat everything not Never as Always.
+         //
+         if (this->edgeAlarmState != Never) {
+            selectedEdgeColour = this->getColor (alarmInfo, 255);
+         } else {
+            selectedEdgeColour = this->getColourProperty (valueIn & 15);
+         }
+         this->setEdgeColour (selectedEdgeColour);
+         break;
+
    }
-
-   if (this->getTextFormat () == LocalEnumeration) {
-      this->stringFormatting.setFormat (QEStringFormatting::FORMAT_LOCAL_ENUMERATE);
-   } else {
-      this->stringFormatting.setFormat (QEStringFormatting::FORMAT_DEFAULT);
-   }
-
-   // Save alarm colour.
-   // Must do before we set value as getItemColour will get called.
-   //
-   this->channelAlarmColour = this->getColor (alarmInfo, 255);
-
-   // Save value and update the shape value.
-   // This essentially stores data twice, but the QSimpleShape stores the
-   // value modulo 16, but we want to keep actual value (for getItemText).
-   //
-   this->channelValue = valueIn;
-   this->setValue ((int) valueIn);
-
-   // Signal a database value change to any Link widgets
-   //
-   emit dbValueChanged (valueIn);
 
    // Invoke tool tip handling directly. We don;t want to interfer with the style
    // as widget draws it's own stuff with own, possibly clear, colours.
    //
    this->updateToolTipAlarm (alarmInfo.severityName (), variableIndex);
-
-   // This update is over, clear first update flag.
-   //
-   this->isFirstUpdate = false;
 }
 
 //------------------------------------------------------------------------------
@@ -320,7 +386,7 @@ void QESimpleShape::setArrayIndex (const int arrayIndexIn)
 {
    this->arrayIndex = MAX (0, arrayIndexIn);
 
-   qcaobject::QCaObject* qca = getQcaItem (0);
+   qcaobject::QCaObject* qca = getQcaItem (MAIN_PV_INDEX);
    if (qca) {
       // Apply to qca object and force update
       qca->setArrayIndex (this->arrayIndex);
@@ -335,13 +401,30 @@ int QESimpleShape::getArrayIndex () const
    return this->arrayIndex;
 }
 
+//------------------------------------------------------------------------------
+//
+QESimpleShape::DisplayAlarmStateOptions QESimpleShape::getEdgeAlarmStateOptionProperty ()
+{
+   return this->edgeAlarmState;
+}
+
+//------------------------------------------------------------------------------
+//
+void QESimpleShape::setEdgeAlarmStateOptionProperty (DisplayAlarmStateOptions option)
+{
+   this->edgeAlarmState = option;
+   // Force update (if we can).
+   //
+   qcaobject::QCaObject* qca = this->getQcaItem (EDGE_PV_INDEX);
+   if (qca) qca->resendLastData ();
+}
 
 //==============================================================================
 // Copy / paste
 //
 QString QESimpleShape::copyVariable ()
 {
-   return this->getSubstitutedVariableName (0);
+   return this->getSubstitutedVariableName (MAIN_PV_INDEX);
 }
 
 //------------------------------------------------------------------------------
@@ -351,10 +434,12 @@ QVariant QESimpleShape::copyData ()
    return QVariant (this->getValue ());
 }
 
+//------------------------------------------------------------------------------
+//
 void QESimpleShape::paste (QVariant v)
 {
-   this->setVariableName (v.toString (), 0);
-   this->establishConnection (0);
+   this->setVariableName (v.toString (), MAIN_PV_INDEX);
+   this->establishConnection (MAIN_PV_INDEX);
 }
 
 // end

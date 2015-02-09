@@ -95,11 +95,9 @@ class QEPLUGINLIBRARYSHARED_EXPORT QELogin:public QFrame, public QEWidget
 
     private:
         QPushButton* qPushButtonLogin;                     // Component widgets and layout
-        QPushButton* qPushButtonLogout;
         QLabel*      qLabelUserType;
         loginWidget* loginForm;
 
-        QStack<userLevelTypes::userLevels> loginHistory;    // Previous user level stack
         QDialog* parentDialog;                              // Dialog this widget is a part of (optional. If present, login will also send accept to dialog)
 
         QString userPassword;                               // User level password (local to this widget)
@@ -148,7 +146,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QELogin:public QFrame, public QEWidget
 
     private slots:
         void buttonLoginClicked();                          // Login clicked. Raise login dialog in compact mode, otherwise attempt login
-        void buttonLogoutClicked();                         // Logout clicked. Move mack to loast level it any
 
     signals:
         void login();                                       // A successfull login has occured. (good for closing a dialog)

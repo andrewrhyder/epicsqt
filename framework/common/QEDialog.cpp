@@ -54,7 +54,7 @@ int QEDialog::exec (QWidget* targetWidgetIn)
    this->targetWidget = targetWidgetIn;
 
    // Allow 5 mSec to allow dialog widget to "sort itself out" before trying to
-   // relocate it. Thisis particularly important on first activation.
+   // relocate it. This is particularly important on first activation.
    // Empirically found that we need more than 1 mSec.
    //
    QTimer::singleShot (10, this, SLOT (relocateToCenteredPosition ()));

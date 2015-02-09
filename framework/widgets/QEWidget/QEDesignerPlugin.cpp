@@ -43,6 +43,8 @@
 #include <QEPeriodicManager.h>
 #include <QEAnalogProgressBarManager.h>
 #include <QEAnalogIndicatorManager.h>
+#include <QEAnalogSliderManager.h>
+#include <QAnalogSliderManager.h>
 #include <QEBitStatusManager.h>
 #include <QBitStatusManager.h>
 #include <QEImageManager.h>
@@ -80,6 +82,7 @@
 QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
     // note: maintain in alphabetical order.
     widgets.append(new QEAnalogProgressBarManager(this));
+    widgets.append(new QEAnalogSliderManager(this));
     widgets.append(new QEBitStatusManager(this));
     widgets.append(new QECheckBoxManager(this));
     widgets.append(new QEComboBoxManager(this));
@@ -119,6 +122,7 @@ QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
     // Non-EPICS aware framework widgets.
     //
     widgets.append(new QEAnalogIndicatorManager(this));
+    widgets.append(new QAnalogSliderManager(this));
     widgets.append(new QEArchiveNameSearchManager(this));
     widgets.append(new QEArchiveStatusManager(this));
     widgets.append(new QBitStatusManager(this));
