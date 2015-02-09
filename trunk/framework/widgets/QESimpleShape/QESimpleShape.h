@@ -50,7 +50,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QESimpleShape :
 
    Q_OBJECT
 
-   // BEGIN-SINGLE-VARIABLE-PROPERTIES ===============================================
+    // BEGIN-SINGLE-VARIABLE-PROPERTIES ===============================================
     // Single Variable properties
     // These properties should be identical for every widget using a single variable.
     // WHEN MAKING CHANGES: Use the update_widget_properties script in the
@@ -79,9 +79,14 @@ public:
 private:
     QCaVariableNamePropertyManager variableNamePropertyManager;
 public:
-   // END-SINGLE-VARIABLE-PROPERTIES =================================================
+    // END-SINGLE-VARIABLE-PROPERTIES =================================================
 
-   // BEGIN-STANDARD-PROPERTIES ======================================================
+    Q_PROPERTY(QString edgeVariable READ getEdgeVariableNameProperty WRITE setEdgeVariableNameProperty)
+    void setEdgeVariableNameProperty (const QString& variableName);
+    QString getEdgeVariableNameProperty () const;
+
+
+    // BEGIN-STANDARD-PROPERTIES ======================================================
     // Standard properties
     // These properties should be identical for every widget using them.
     // WHEN MAKING CHANGES: Use the update_widget_properties script in the
@@ -198,7 +203,12 @@ public:
 
    // QESimpleShape specific properties ==============================================
    //
-   /// Array Index element to display if variable is a waveform. Defaults to 0.
+   Q_PROPERTY (DisplayAlarmStateOptions edgeAlarmStateOption READ getEdgeAlarmStateOptionProperty WRITE setEdgeAlarmStateOptionProperty)
+
+   DisplayAlarmStateOptions getEdgeAlarmStateOptionProperty ();             ///< Access function for #edgeAlarmStateOption property - refer to #edgeAlarmStateOption property for details
+   void setEdgeAlarmStateOptionProperty( DisplayAlarmStateOptions option);  ///< Access function for #edgeAlarmStateOption property - refer to #edgeAlarmStateOption property for details
+
+   /// Array Index element to display if main (non-edge) variable is a waveform. Defaults to 0.
    ///
    Q_PROPERTY (int arrayIndex   READ getArrayIndex   WRITE setArrayIndex )
 
@@ -252,7 +262,8 @@ public:
    /// A range of numbers can be covered by a pair of values as in the following example: >=4:"Between 4 and 8",<=8:"Between 4 and 8"
    Q_PROPERTY(QString/*localEnumerationList*/ localEnumeration READ getLocalEnumeration WRITE setLocalEnumeration)
 
-   // Make the value and isActive proerties non-designable. This both hides the properties
+
+   // Make the value and isActive properties non-designable. This both hides the properties
    // within designer and stops the values from being written to the .ui file.
    //
    Q_PROPERTY (int    value    READ getValue     WRITE setValue    DESIGNABLE false)
@@ -297,6 +308,8 @@ protected:
 private:
    void setup ();
 
+   QCaVariableNamePropertyManager edgeVNPM;
+   DisplayAlarmStateOptions edgeAlarmState;
    QEIntegerFormatting integerFormatting;
    bool isStaticValue;
    bool isFirstUpdate;

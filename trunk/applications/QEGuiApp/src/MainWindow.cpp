@@ -2158,8 +2158,7 @@ void MainWindow::on_actionSave_Configuration_triggered()
     // Get the user selection
     saveDialog sd( pm->getConfigNames( params->configurationFile, QE_CONFIG_NAME ) );
 
-    // Ensure scaling is consistent with the rest of the application's forms.
-    QEScaling::applyToWidget( &sd );
+    QEScaling::applyToWidget( &sd ); // Ensure scaling is consistent with the rest of the application's forms.
 
     if ( sd.exec() == QDialog::Rejected )
     {

@@ -59,8 +59,13 @@ QEAxisPainter::QEAxisPainter (QWidget* parent) : QWidget (parent)
    this->mOrientation = Left_To_Right;
    this->mTextPosition = BelowLeft;
 
-   this->mColour = QColor (0, 0, 0, 255);  // black
-   // this->mLogScaleInterval = 1;
+   for (int j = 0; j < NUMBER_OF_MARKERS; j++) {
+      this->markerColour [j] =  QColor (0, 0, 0, 255);  // black
+      this->markerVisible [j] = false;
+      this->markerValue [j] = 0.0;
+   }
+
+   this->mPenColour = QColor (0, 0, 0, 255);  // black
 }
 
 //------------------------------------------------------------------------------
@@ -143,7 +148,7 @@ void QEAxisPainter::setMajorMinorRatio (const int majorMinorRatio)
 {
    // Ensure in range
    //
-   this->mMajorMinorRatio = MAX (2, majorMinorRatio);
+   this->mMajorMinorRatio = MAX (1, majorMinorRatio);
    this->update ();
 }
 
@@ -200,17 +205,17 @@ QEAxisPainter::TextPositions QEAxisPainter::getTextPosition () const
 
 //------------------------------------------------------------------------------
 //
-void QEAxisPainter::setColour (const QColor colour)
+void QEAxisPainter::setPenColour (const QColor colour)
 {
-   this->mColour = colour;
+   this->mPenColour = colour;
    this->update ();
 }
 
 //------------------------------------------------------------------------------
 //
-QColor QEAxisPainter::getColour () const
+QColor QEAxisPainter::getPenColour () const
 {
-   return this->mColour;
+   return this->mPenColour;
 }
 
 //------------------------------------------------------------------------------
@@ -242,6 +247,67 @@ int QEAxisPainter::getGap  () const
 {
    return this->mGap;
 }
+
+
+//------------------------------------------------------------------------------
+//
+#define ASSERT_VALID_INDEX(index, action)  {                \
+   if ((index < 0) && (index >= NUMBER_OF_MARKERS)) {       \
+      action;                                               \
+   }                                                        \
+}
+
+//------------------------------------------------------------------------------
+//
+void QEAxisPainter::setMarkerColour (const int index, const QColor& colour)
+{
+   ASSERT_VALID_INDEX (index, return);
+   this->markerColour [index] = colour;
+   this->update ();
+}
+
+//------------------------------------------------------------------------------
+//
+QColor QEAxisPainter::getMarkerColour (const int index) const
+{
+   ASSERT_VALID_INDEX (index, return QColor (0,0,0,0));
+   return this->markerColour [index];
+}
+
+//------------------------------------------------------------------------------
+//
+void QEAxisPainter::setMarkerVisible (const int index, const bool isVisible)
+{
+   ASSERT_VALID_INDEX (index, return);
+   this->markerVisible [index] = isVisible;
+   this->update ();
+}
+
+//------------------------------------------------------------------------------
+//
+bool QEAxisPainter::getMarkerVisible (const int index) const
+{
+   ASSERT_VALID_INDEX (index, return false);
+   return this->markerVisible [index];
+}
+
+//------------------------------------------------------------------------------
+//
+void QEAxisPainter::setMarkerValue (const int index, const double value)
+{
+   ASSERT_VALID_INDEX (index, return);
+   this->markerValue [index] = value;
+   this->update ();
+}
+
+//------------------------------------------------------------------------------
+//
+double QEAxisPainter::getMarkerValue (const int index) const
+{
+   ASSERT_VALID_INDEX (index, return 0.0);
+   return this->markerValue [index];
+}
+
 
 //------------------------------------------------------------------------------
 //
@@ -278,10 +344,10 @@ QEAxisPainter::ColourBandLists QEAxisPainter::calcAlarmColourBandList (qcaobject
 
    const double dispLower = this->getMinimum ();
    const double dispUpper = this->getMaximum ();
-   const double alarmLower = qca->getAlarmLimitLower ();
-   const double alarmUpper = qca->getAlarmLimitUpper ();
-   const double warnLower = qca->getWarningLimitLower ();
-   const double warnUpper = qca->getWarningLimitUpper ();
+   double alarmLower = qca->getAlarmLimitLower ();
+   double alarmUpper = qca->getAlarmLimitUpper ();
+   double warnLower = qca->getWarningLimitLower ();
+   double warnUpper = qca->getWarningLimitUpper ();
    bool alarmIsDefined;
    bool warnIsDefined;
 
@@ -291,13 +357,13 @@ QEAxisPainter::ColourBandLists QEAxisPainter::calcAlarmColourBandList (qcaobject
    //
    // Of course a QEAxisPainter user is noy obliged to use this function.
    //
-   alarmIsDefined = ( !QEPlatform::isNaN (alarmLower) &&
-                      !QEPlatform::isNaN (alarmUpper) &&
-                      (alarmLower != alarmUpper) );
+   if (QEPlatform::isNaN (alarmLower)) alarmLower = 0.0;
+   if (QEPlatform::isNaN (alarmLower)) alarmLower = 0.0;
+   alarmIsDefined = (alarmLower != alarmUpper);
 
-   warnIsDefined = ( !QEPlatform::isNaN (warnLower) &&
-                     !QEPlatform::isNaN (warnUpper) &&
-                     (warnLower != warnUpper) );
+   if (QEPlatform::isNaN (warnLower)) warnLower = 0.0;
+   if (QEPlatform::isNaN (warnUpper)) warnUpper = 0.0;
+   warnIsDefined = (warnLower != warnUpper);
 
    if (alarmIsDefined) {
       if (warnIsDefined) {
@@ -337,6 +403,7 @@ QEAxisPainter::ColourBandLists QEAxisPainter::calcAlarmColourBandList (qcaobject
 void QEAxisPainter::setColourBandList (const ColourBandLists& bandListIn)
 {
    this->bandList = bandListIn;
+   this->update ();
 }
 
 //------------------------------------------------------------------------------
@@ -360,6 +427,7 @@ void QEAxisPainter::paintEvent (QPaintEvent *)
 {
    // Tick sizes on axis
    //
+   const int markerTick = 14;
    const int minorTick = 5;
    const int majorTick = 10;
    const int pointSize = 7;
@@ -463,8 +531,42 @@ void QEAxisPainter::paintEvent (QPaintEvent *)
       painter.drawRect (bandRect);
    }
 
+   // Draw markers
+   //
+   for (int j = 0; j < NUMBER_OF_MARKERS; j++) {
+      if (!this->markerVisible [j]) continue;
+
+      double mark = this->markerValue [j];
+      if ((mark < this->mMinimum) || (mark > this->mMaximum)) continue;
+
+      double f, g;
+      int x, y;
+      QPoint p1, p2;
+
+      f = this->calcFraction (mark);
+      g = 1.0 - f;    // co-fraction
+
+      x = int (g * double (x_first) +  f * double (x_last));
+      y = int (g * double (y_first) +  f * double (y_last));
+
+      p1 = QPoint (x, y);
+      p2 = this->isLeftRight () ? QPoint (x, y + sign*markerTick) : QPoint (x + sign*markerTick, y);
+
+      pen.setWidth (5);
+      penColour = this->markerColour [j];
+      if (!this->isEnabled()) {
+         penColour = QEUtilities::blandColour (penColour);
+      }
+      pen.setColor (penColour);
+      painter.setPen (pen);
+      painter.drawLine (p1, p2);
+   }
+
+
+   // Draw actual axis
+   //
    pen.setWidth (1);
-   penColour = this->mColour;
+   penColour = this->mPenColour;
    if (!this->isEnabled()) {
       penColour = QEUtilities::blandColour (penColour);
    }
@@ -473,19 +575,19 @@ void QEAxisPainter::paintEvent (QPaintEvent *)
 
    // Determine format.
    //
-   double mi = this->mMinorInterval * this->mMajorMinorRatio;
+   double majorInt = this->mMinorInterval * this->mMajorMinorRatio;
    const char* format;
 
    if (this->getLogScale ()) {
       format = "%.0e";
    } else {
-      if (mi >= 10.0) {
+      if (majorInt >= 10.0) {
          format = "%.0f";
-      } else if (mi >= 1.0) {
+      } else if (majorInt >= 1.0) {
          format = "%.1f";
-      } else if (mi >= 0.1) {
+      } else if (majorInt >= 0.1) {
          format = "%.2f";
-      } else if (mi >= 0.01) {
+      } else if (majorInt >= 0.01) {
          format = "%.3f";
       } else { // < 0.01
          format = "%.0e";

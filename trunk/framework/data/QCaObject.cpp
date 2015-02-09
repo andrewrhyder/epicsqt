@@ -786,11 +786,11 @@ void QCaObject::processEvent( QCaEventUpdate* dataUpdateEvent ) {
     if( connectionChange )
     {
         QCaConnectionInfo connectionInfo( lastEventChannelState, lastEventLinkState, getRecordName() );
-        emit connectionChanged( connectionInfo, variableIndex );
-        emit connectionChanged( connectionInfo );
         if (!connectionInfo.isChannelConnected()) {
            lastValueIsDefined = false;
         }
+        emit connectionChanged( connectionInfo, variableIndex );
+        emit connectionChanged( connectionInfo );
     }
 }
 
@@ -883,6 +883,10 @@ void QCaObject::processData( void* newDataPtr ) {
 
     // Determine size of data array.
     unsigned long arrayCount = newData->getArrayCount();
+
+    // Save date about be be emitted - for resend/access purposes.
+    lastAlarmInfo = alarmInfo;
+    lastTimeStamp = timeStamp;
 
     // Build and emit a Qt variantg containing the data
     if( signalsToSend & SIG_VARIANT )
@@ -1044,12 +1048,12 @@ void QCaObject::processData( void* newDataPtr ) {
             break;
         }
 
-        // Send off the new data
-        emit dataChanged( value, alarmInfo, timeStamp, variableIndex );
-
-        // Save the data just emited
+        // Save the data just about to be emited
         lastVariantValue = value;
         lastValueIsDefined = true;
+
+        // Send off the new data
+        emit dataChanged( value, alarmInfo, timeStamp, variableIndex );
     }
 
     // Build and emit a byte array containing the data.
@@ -1080,14 +1084,14 @@ void QCaObject::processData( void* newDataPtr ) {
         byteArrayValue = QByteArray::fromRawData( data, arraySize );
 #endif
 
+        // Save the data just about emited so it can be re-sent if required
+        lastByteArrayValue = byteArrayValue;
+        lastDataSize = dataSize;
+
         // Send off the new data
         // NOTE, the signal/slot connections to this signal must be Qt::DirectConnection
         // as the byte array refernces the data directly which may be deleted before a queued connection is completed
         emit dataChanged( byteArrayValue, dataSize, alarmInfo, timeStamp, variableIndex );
-
-        // Save the data just emited so it can be re-sent if required
-        lastByteArrayValue = byteArrayValue;
-        lastDataSize = dataSize;
 
         // Delete any old data now it is no longer referenced by byte arrays
         if( lastNewData )
@@ -1101,11 +1105,6 @@ void QCaObject::processData( void* newDataPtr ) {
         // Discard the event data
         delete newData;
     }
-
-    // Save the data just emited
-    lastAlarmInfo = alarmInfo;
-    lastTimeStamp = timeStamp;
-
 }
 
 /*

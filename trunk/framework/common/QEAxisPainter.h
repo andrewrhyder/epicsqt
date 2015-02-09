@@ -55,40 +55,8 @@ public:
                       };
    Q_ENUMS (TextPositions)
 
-
-   explicit QEAxisPainter (QWidget* parent = 0);
-   ~QEAxisPainter () { }
-
-   void setMinimum (const double minimum);
-   double getMinimum () const;
-
-   void setMaximum (const double maximum);
-   double getMaximum () const;
-
-   void setMinorInterval (const double minorInterval);
-   double getMinorInterval  () const;
-
-   void setMajorMinorRatio (const int majorMinorRatio);
-   int getMajorMinorRatio  () const;
-
-   void setLogScale (const bool isLog);
-   bool getLogScale () const;
-
-   void setOrientation (const Orientations orientation);
-   Orientations getOrientation () const;
-
-   void setTextPosition (const TextPositions textPositions);
-   TextPositions getTextPosition () const;
-
-   void setColour (const QColor colour);
-   QColor getColour () const;
-
-   void setIndent (const int indent);
-   int getIndent  () const;
-
-   void setGap (const int gap);
-   int getGap  () const;
-
+   // Used by get/get band list
+   //
    struct ColourBand {
       double lower;
       double upper;
@@ -97,11 +65,88 @@ public:
 
    typedef QList <ColourBand> ColourBandLists;
 
+#define NUMBER_OF_MARKERS   4
+
+
+   explicit QEAxisPainter (QWidget* parent = 0);
+   ~QEAxisPainter () { }
+
+   // Set/get minimum axis limit. Default is 0.0
+   //
+   void setMinimum (const double minimum);
+   double getMinimum () const;
+
+   // Set/get maximum axis limit. Default is 10.0
+   //
+   void setMaximum (const double maximum);
+   double getMaximum () const;
+
+   // Set/get minor tick interval. Altough not enforced, this is most sensibly
+   // something like 0.01, 0.5, 1.0.  Default is 0.2
+   //
+   void setMinorInterval (const double minorInterval);
+   double getMinorInterval  () const;
+
+   // Set/get ratio of major to minor intervals.
+   // Constrained to be >= 1.  Default is 5.
+   //
+   void setMajorMinorRatio (const int majorMinorRatio);
+   int getMajorMinorRatio  () const;
+
+   // Set/get log scaling. Default is false (i.e. linear scaling)
+   //
+   void setLogScale (const bool isLog);
+   bool getLogScale () const;
+
+   // Set/get axis orientation. Default is Left_To_Right.
+   //
+   void setOrientation (const Orientations orientation);
+   Orientations getOrientation () const;
+
+   // Set/get test position with respect to the axis. Default is BelowLeft.
+   //
+   void setTextPosition (const TextPositions textPositions);
+   TextPositions getTextPosition () const;
+
+   // Set/get pen colour. Default is black.
+   //
+   void setPenColour (const QColor colour);
+   QColor getPenColour () const;
+
+   // Set/get axis start/finish indentation with respect to widget width when the
+   // orientation is horizontal, or with respect to widget height when the orientation
+   // is vertical. Default is 20.
+   //
+   void setIndent (const int indent);
+   int getIndent  () const;
+
+   // Set/get axis gap or margin from top edge of the widget when the orientation is
+   // horizontal, or the vertical gap from the left/right edge when the orientation
+   // vertical. Default is 2.
+   //
+   void setGap (const int gap);
+   int getGap  () const;
+
+   // Set/get marker attributes. Index is constrained to the range 0 .. 3.
+   // Default values are clear; false; and  0.0.
+   //
+   void setMarkerColour (const int index, const QColor& colour);
+   QColor getMarkerColour (const int index) const;
+
+   void setMarkerVisible (const int index, const bool isVisible);
+   bool getMarkerVisible (const int index) const;
+
+   void setMarkerValue (const int index, const double value);
+   double getMarkerValue (const int index) const;
+
+   // Set/get the band background colours. Default is an empty list.
+   //
    void setColourBandList (const ColourBandLists& bandList);
    ColourBandLists getColourBandList () const;
 
    // Conveniance function to calculate a band list based upon alarm levels
    // from within the given QCaObject.
+   // TODO: Refactor out so that it can be used by AnalogProgressBar.
    //
    ColourBandLists calcAlarmColourBandList (qcaobject::QCaObject* qca);
 
@@ -124,8 +169,12 @@ private:
    ColourBand createColourBand (const double lower, const double upper, const QColor& colour);
    ColourBand createColourBand (const double lower, const double upper, const unsigned short severity);
 
+   QColor markerColour [NUMBER_OF_MARKERS];
+   bool   markerVisible [NUMBER_OF_MARKERS];
+   double markerValue [NUMBER_OF_MARKERS];
+
    ColourBandLists bandList;
-   QColor mColour;
+   QColor mPenColour;
    double mMinimum;
    double mMaximum;
    double mMinorInterval;

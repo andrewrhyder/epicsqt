@@ -31,7 +31,7 @@
 
 #include <QEPluginLibrary_global.h>
 
-/// This class provides a thin wrapper aroind the QDialog class, specifically the
+/// This class provides a thin wrapper around the QDialog class, specifically the
 /// exec function. There are two issues with the standard QDialog when exec-ed.
 ///
 /// a) if the dialog has no parent and there is a single application form open then

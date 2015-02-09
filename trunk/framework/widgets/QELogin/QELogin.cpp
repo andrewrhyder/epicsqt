@@ -46,14 +46,12 @@ QELogin::QELogin(QWidget *pParent):QFrame(pParent), QEWidget( this )
     qLabelUserType = new QLabel(this);
     loginForm = new loginWidget( this );
     qPushButtonLogin = new QPushButton(this);
-    qPushButtonLogout = new QPushButton(this);
 
     // Arrange the widget
     QGridLayout* qGridLayout = new QGridLayout(this);
     qGridLayout->addWidget( qLabelUserType, 0, 0, 1, 2 );
     qGridLayout->addWidget( loginForm, 1, 0, 1, 2 );
     qGridLayout->addWidget( qPushButtonLogin, 2, 0);
-    qGridLayout->addWidget( qPushButtonLogout, 2, 1);
 
     // Assume compact style
     setCompactStyle( true );
@@ -66,13 +64,6 @@ QELogin::QELogin(QWidget *pParent):QFrame(pParent), QEWidget( this )
     qPushButtonLogin->setText("Login");
     qPushButtonLogin->setToolTip("Change current user");
     QObject::connect(qPushButtonLogin, SIGNAL(clicked()), this, SLOT(buttonLoginClicked()));
-
-    // Set up logout button
-    qPushButtonLogout->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    qPushButtonLogout->setText("Logout");
-    qPushButtonLogout->setToolTip("Logout current user");
-    qPushButtonLogout->setEnabled(false);
-    QObject::connect(qPushButtonLogout, SIGNAL(clicked()), this, SLOT(buttonLogoutClicked()));
 
     // Set initial state
     setCurrentLevelText();
@@ -110,7 +101,6 @@ void QELogin::setStatusOnly( bool statusOnlyIn )
     statusOnly = statusOnlyIn;
     loginForm->setHidden( compactStyle || statusOnly );
     qPushButtonLogin->setHidden( statusOnly );
-    qPushButtonLogout->setHidden( statusOnly );
 }
 
 bool QELogin::getStatusOnly()
@@ -194,18 +184,18 @@ bool QELogin::login( userLevelTypes::userLevels level, QString password )
         case userLevelTypes::USERLEVEL_ENGINEER:  requiredPassword = getPriorityEngineerPassword();  break;
     }
 
-    // If the password is OK, change the user type
-    if( requiredPassword.isEmpty() || password == requiredPassword )
+    // Note the current user level
+    userLevelTypes::userLevels currentLevel = getUserLevel();
+
+    // If the password is not required, or if the password is OK, or if we are lowering the user level, change the user type
+    if( requiredPassword.isEmpty() || password == requiredPassword || currentLevel >= level )
     {
         // Change user level if required
-        userLevelTypes::userLevels currentLevel = getUserLevel();
         if( level != currentLevel )
         {
             sendMessage("The user type was changed from '" + getUserTypeName( currentLevel ) + "' to '" + getUserTypeName( level ) + "'");
-            loginHistory.push( currentLevel );
             setUserLevel( level);
             setCurrentLevelText();
-            qPushButtonLogout->setEnabled( true );
         }
 
         // Signal a successfull login has occured
@@ -219,26 +209,6 @@ bool QELogin::login( userLevelTypes::userLevels level, QString password )
     // bad password, tell the user
     QMessageBox::critical(this, "Error", "The password is invalid. Please try again!");
     return false;
-}
-
-// Logout to the last user type logged into by THIS widget
-void QELogin::buttonLogoutClicked()
-{
-    // If this widget has any record of previous user levels, then logout
-    if( loginHistory.count() )
-    {
-        // Logout
-        userLevelTypes::userLevels currentLevel = getUserLevel();
-        sendMessage("The user type was changed from '" + getUserTypeName( currentLevel ) + "' to '" + getUserTypeName( loginHistory.top() ) + "'");
-        setUserLevel( loginHistory.pop() );
-        setCurrentLevelText();
-
-        // If no more history, disable the logout button
-        if( loginHistory.count() == 0 )
-        {
-            qPushButtonLogout->setEnabled( false );
-        }
-    }
 }
 
 // Return the user level password from the profile if available, otherwise use the local user level password property
@@ -342,19 +312,30 @@ loginWidget::loginWidget( QELogin* ownerIn )
 // Enable or disable the password according to the user type
 void loginWidget::radioButtonClicked()
 {
-    // Enable password entry if a password is required for the selected user type
+    bool passwordIsEmpty;
+    userLevelTypes::userLevels targetLevel;
+
+    // Note if the password for the target level is empty (and what the target level is)
     if (qRadioButtonUser->isChecked())
     {
-        qLineEditPassword->setEnabled(owner->getPriorityUserPassword().isEmpty() == false);
+        passwordIsEmpty = owner->getPriorityUserPassword().isEmpty();
+        targetLevel = userLevelTypes::USERLEVEL_USER;
     }
     else if (qRadioButtonScientist->isChecked())
     {
-        qLineEditPassword->setEnabled(owner->getPriorityScientistPassword().isEmpty() == false);
+        passwordIsEmpty = owner->getPriorityScientistPassword().isEmpty();
+        targetLevel = userLevelTypes::USERLEVEL_SCIENTIST;
     }
     else
     {
-        qLineEditPassword->setEnabled(owner->getPriorityEngineerPassword().isEmpty() == false);
+        passwordIsEmpty = owner->getPriorityEngineerPassword().isEmpty();
+        targetLevel = userLevelTypes::USERLEVEL_ENGINEER;
     }
+
+    // Enable password entry if a password is required for the selected user type
+    // A password is only requried if a password is specified and the level is increasing
+    userLevelTypes::userLevels currentLevel = owner->getUserLevel();
+    qLineEditPassword->setEnabled( targetLevel > currentLevel && !passwordIsEmpty );
 }
 
 // Return the user type selected by the radio button group
@@ -404,7 +385,7 @@ QELoginDialog::QELoginDialog(QELogin* ownerIn)
     qPushButtonCancel = new QPushButton(this);
 
     // Set up the widgets
-    setWindowTitle("Login/Logout");
+    setWindowTitle("Login");
 
     qPushButtonOk->setText("Ok");
     qPushButtonOk->setToolTip("Perform login");
