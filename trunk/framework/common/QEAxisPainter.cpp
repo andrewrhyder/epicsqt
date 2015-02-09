@@ -573,27 +573,6 @@ void QEAxisPainter::paintEvent (QPaintEvent *)
    pen.setColor (penColour);
    painter.setPen (pen);
 
-   // Determine format.
-   //
-   double majorInt = this->mMinorInterval * this->mMajorMinorRatio;
-   const char* format;
-
-   if (this->getLogScale ()) {
-      format = "%.0e";
-   } else {
-      if (majorInt >= 10.0) {
-         format = "%.0f";
-      } else if (majorInt >= 1.0) {
-         format = "%.1f";
-      } else if (majorInt >= 0.1) {
-         format = "%.2f";
-      } else if (majorInt >= 0.01) {
-         format = "%.3f";
-      } else { // < 0.01
-         format = "%.0e";
-      }
-   }
-
    for (ok = this->firstValue (j, value, isMajor); ok;
         ok = this->nextValue  (j, value, isMajor)) {
 
