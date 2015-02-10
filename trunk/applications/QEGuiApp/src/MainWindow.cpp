@@ -1406,6 +1406,7 @@ void MainWindow::newMessage( QString msg, message_types type )
     // Change the message in the status bar
     if ( ( type.kind_set & MESSAGE_KIND_STATUS ) != 0 ) {
         statusBar()->showMessage( getMessageTypeName( type ).append( ": ").append( msg ) );
+        sendMessage( msg, type );
     }
 }
 

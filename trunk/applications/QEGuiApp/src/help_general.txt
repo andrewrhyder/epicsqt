@@ -51,9 +51,24 @@ Options
         an attempt will be made to use QEGuiCustomisation.xml in the current working
         directory. A customisation file is optional.
 
--n      Default window customisation name.
-        This name shoud be the name of one of the sets of window customisations read from
-        the window customisation file.
+
+-n      Startup window customisation name.
+        The name of the window and menu bar customisation set to apply to windows created
+        when the application starts (the .ui files specified on the command line). This
+        name should be the name of one of the sets of window customisations read from the
+        window customisation file.
+
+
+-d      Default window customisation name.
+        The name of the window and menubar customisation set to apply to all windows
+        created when no customisation name has otherwise been provided. This name should
+        be the name of one of the sets of window customisations read from the window
+        customisation file. Typically, this is required when windows created through the
+        ‘Open’ file dialog, or windows created through a QE push button require a different
+        set of customisations to the system defaults. Note the customisation set specified
+        in the –n switch only applies to windows created at startup and specified on the
+        command line.
+
 
 -t      Application title.
         This title will be used instead of the default application title of 'QEGui'
