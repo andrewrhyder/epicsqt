@@ -54,11 +54,15 @@ public:
    ///
    Q_PROPERTY (Shapes shape     READ getShape     WRITE setShape)
 
-   /// Edge width
+   /// Edge width - range 0 to 20 - default is 1.
+   /// If edge width set to 0, then shape colour used for edge/boarder colour.
    Q_PROPERTY (int    edgeWidth READ getEdgeWidth WRITE setEdgeWidth)
 
    /// Shape value - range 0 to 15 - default is zero.
    Q_PROPERTY (int    value     READ getValue     WRITE setValue)
+
+   /// Shape value modulus - range 2 to 16 - default is 16.
+   Q_PROPERTY (int    modulus   READ getModulus   WRITE setModulus)
 
    //----------------------------------------------------------------------------------
    // Note: PvText and LocalEnumeration are a nod to QESimpleShape. LocalEnumeration has
@@ -97,7 +101,7 @@ public:
    /// Flash offColour - default is clear.
    Q_PROPERTY (QColor flashOffColour READ getFlashOffColour  WRITE setFlashOffColour)
 
-   /// Value (modulo 16) used to select colour.
+   /// Value (modulo modulus) used to select colour.
    Q_PROPERTY (QColor  colour0    READ getColour0Property        WRITE setColour0Property)
    Q_PROPERTY (QColor  colour1    READ getColour1Property        WRITE setColour1Property)
    Q_PROPERTY (QColor  colour2    READ getColour2Property        WRITE setColour2Property)
@@ -154,6 +158,9 @@ public slots:
 
 public:
    int getValue () const;
+
+   void setModulus (const int value);
+   int getModulus () const;
 
    void setStateSet (const QStringList& stateSet);
    QStringList getStateSet () const;
@@ -248,6 +255,7 @@ private:
    bool   flashList [16];
    bool isActive;
    int value;
+   int modulus;
 
 private slots:
    void flashTimeout (const bool);
