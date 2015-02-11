@@ -31,6 +31,8 @@
 
 #define DEBUG qDebug () << "QSimpleShape" << __LINE__ << __FUNCTION__
 
+#define NUMBER_OF_STATES   16
+
 //-----------------------------------------------------------------------------
 //
 QSimpleShape::QSimpleShape (QWidget * parent) : QWidget (parent)
@@ -38,6 +40,7 @@ QSimpleShape::QSimpleShape (QWidget * parent) : QWidget (parent)
    // This class properties.
    //
    this->value = 0;
+   this->modulus = NUMBER_OF_STATES;
    this->shape = rectangle;
    this->textFormat = FixedText;
    this->fixedText = "";
@@ -52,7 +55,7 @@ QSimpleShape::QSimpleShape (QWidget * parent) : QWidget (parent)
    QEScanTimers::attach (this, SLOT (flashTimeout (const bool)), this->flashRate);
 
    this->stateSet.clear ();
-   for (int j = 0; j < 16; j++) {
+   for (int j = 0; j < NUMBER_OF_STATES; j++) {
       this->colourList[j] = QColor (200, 200, 200, 255);
       this->flashList [j] = false;
       this->stateSet.append ("");
@@ -144,10 +147,18 @@ void QSimpleShape::paintEvent (QPaintEvent*)
       boarderColour = QEUtilities::blandColour (boarderColour);
    }
 
-   const int ew = this->getEdgeWidth ();
+   int ew = this->getEdgeWidth ();
+   if (ew == 0) {
+      // We can't actually set a pen width of zero, so we go with 1 and use
+      // same colour for both pen and brush.
+      //
+      ew = 1;
+      pen.setColor (colour);
+   } else {
+      pen.setColor (boarderColour);
+   }
 
    pen.setWidth (ew);
-   pen.setColor (boarderColour);
    painter.setPen (pen);
 
    brush.setStyle (Qt::SolidPattern);
@@ -476,10 +487,13 @@ QColor QSimpleShape::getItemColour ()
 //
 void QSimpleShape::setValue (const int valueIn)
 {
-   // We want the value module 16
-   // Note: % operator is remainder not modulo, bit wise and does the trick.
+   // We want the modulo value
+   // Note: % operator is remainder not modulo, so need to be smarter.
    //
-   this->value = valueIn & 15;
+   this->value = valueIn % this->modulus;
+   if (this->value < 0) {
+      this->value += this->modulus;
+   }
    this->update ();
 }
 
@@ -487,14 +501,34 @@ void QSimpleShape::setValue (const int valueIn)
 //
 int QSimpleShape::getValue () const
 {
-   return this->value & 15;   // pedantic.
+   return this->value % this->modulus;   // pedantic.
+}
+
+//------------------------------------------------------------------------------
+//
+void QSimpleShape::setModulus (const int value)
+{
+   this->modulus = LIMIT (value, 2, NUMBER_OF_STATES);
+
+   // Ensure value within the new range.
+   // Both operands are postive, rem (%) will do.
+   //
+   this->value =  this->value % this->modulus;
+   this->update ();
+}
+
+//------------------------------------------------------------------------------
+//
+int QSimpleShape::getModulus () const
+{
+   return this->modulus;
 }
 
 //------------------------------------------------------------------------------
 //
 void QSimpleShape::setEdgeWidth (const int edgeWidthIn)
 {
-   this->edgeWidth = LIMIT (edgeWidthIn, 1, 20);
+   this->edgeWidth = LIMIT (edgeWidthIn, 0, 20);
    this->update ();
 }
 
@@ -528,10 +562,10 @@ void QSimpleShape::setStateSet (const QStringList& stateSetIn)
 
    // Pad/truncate as required.
    //
-   while (this->stateSet.count () > 16) {
+   while (this->stateSet.count () > NUMBER_OF_STATES) {
       this->stateSet.removeLast ();
    }
-   while (this->stateSet.count () < 16) {
+   while (this->stateSet.count () < NUMBER_OF_STATES) {
       this->stateSet.append ("");
    }
 
@@ -655,7 +689,7 @@ bool QSimpleShape::getIsActive () const
 //
 void QSimpleShape::setColourProperty (int slot, QColor colour)
 {
-   if ((slot >= 0) && (slot < 16)) {
+   if ((slot >= 0) && (slot < NUMBER_OF_STATES)) {
       if (this->colourList[slot] != colour) {
          this->colourList[slot] = colour;
          if (this->getValue () == slot) {
@@ -671,7 +705,7 @@ QColor QSimpleShape::getColourProperty (int slot) const
 {
    QColor result;
 
-   if ((slot >= 0) && (slot < 16)) {
+   if ((slot >= 0) && (slot < NUMBER_OF_STATES)) {
       result = this->colourList[slot];
    } else {
       result = QColor (0, 0, 0, 255);
@@ -684,7 +718,7 @@ QColor QSimpleShape::getColourProperty (int slot) const
 //
 void QSimpleShape::setFlashProperty (int slot, bool flash)
 {
-   if ((slot >= 0) && (slot < 16)) {
+   if ((slot >= 0) && (slot < NUMBER_OF_STATES)) {
       this->flashList [slot] = flash;
    }
 }
@@ -695,7 +729,7 @@ bool QSimpleShape::getFlashProperty (int slot) const
 {
    bool result = false;
 
-   if ((slot >= 0) && (slot < 16)) {
+   if ((slot >= 0) && (slot < NUMBER_OF_STATES)) {
       result = this->flashList [slot];
    }
    return result;

@@ -296,7 +296,7 @@ void QESimpleShape::setShapeValue (const long &valueIn, QCaAlarmInfo & alarmInfo
 
          // Save value and update the shape value.
          // This essentially stores data twice, but the QSimpleShape stores the
-         // value modulo 16, but we want to keep actual value (for getItemText).
+         // modulo value, but we want to keep actual value (for getItemText).
          //
          this->channelValue = valueIn;
          this->setValue ((int) valueIn);
