@@ -59,6 +59,7 @@ private slots:
         // Update the labelText property with itself.
         // This will apply any macro substitutions changes since the labelText property was last changed
         setLabelTextProperty( getLabelTextProperty() );
+        calcStyleOption();
     }
 
 public slots:

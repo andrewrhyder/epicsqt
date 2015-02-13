@@ -157,7 +157,8 @@ public:
     // Define a variable
     // Note, the QPROPERTY declaration itself can't be in this macro
 #define VARIABLE_PROPERTY_ACCESS(VAR_INDEX) \
-    void    setVariableName##VAR_INDEX##Property( QString variableName ){ variableNamePropertyManagers[VAR_INDEX].setVariableNameProperty( variableName ); } \
+    void    setVariableName##VAR_INDEX##Property( QString variableName ){ \
+      variableNamePropertyManagers[VAR_INDEX].setVariableNameProperty( variableName ); } \
     QString getVariableName##VAR_INDEX##Property(){ return variableNamePropertyManagers[VAR_INDEX].getVariableNameProperty(); }
 
     VARIABLE_PROPERTY_ACCESS(0)
@@ -199,6 +200,7 @@ private slots:
       // Update the labelText property with itself.
       // This will apply any macro substitutions changes since the labelText property was last changed
       setLabelTextProperty( getLabelTextProperty() );
+      calcStyleOption();
   }
 
 public:
