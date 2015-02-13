@@ -236,6 +236,7 @@ private:
 protected:
     void setup();
     void establishConnection( unsigned int variableIndex );
+    void calcStyleOption();
 
 private:
     void dataSetup();

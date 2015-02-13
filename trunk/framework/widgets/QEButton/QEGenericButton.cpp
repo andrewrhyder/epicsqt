@@ -33,6 +33,10 @@
 #include <QMainWindow>
 #include <QIcon>
 #include <QInputDialog>
+#include <QStyle>
+
+// Style option dynamic property name.
+#define STYLE_OPTION  "StyleOption"
 
 QEGenericButton::QEGenericButton( QWidget *owner ) : QEWidget( owner )
 {
@@ -85,6 +89,8 @@ void QEGenericButton::dataSetup()
     // Set the initial state
     isConnected = false;
     updateOption = getDefaultUpdateOption();
+
+    getQWidget()->setProperty( STYLE_OPTION, "" );
 }
 
 ///*
@@ -626,7 +632,11 @@ QString QEGenericButton::getClickCheckedText()
 // 'Command button' Property convenience functions
 
 // Program String
-void QEGenericButton::setProgram( QString program ){ programLauncher.setProgram( program ); }
+void QEGenericButton::setProgram( QString program ){
+    programLauncher.setProgram( program );
+    calcStyleOption ();
+}
+
 QString QEGenericButton::getProgram(){ return programLauncher.getProgram(); }
 
 // Arguments String
@@ -644,7 +654,9 @@ applicationLauncher::programStartupOptions QEGenericButton::getProgramStartupOpt
 void QEGenericButton::setGuiName( QString guiNameIn )
 {
     guiName = guiNameIn;
+    calcStyleOption();
 }
+
 QString QEGenericButton::getGuiName()
 {
     return guiName;
@@ -745,3 +757,29 @@ void QEGenericButton::startGui( const QEActionRequests & request )
         }
     }
 }
+
+void QEGenericButton::calcStyleOption () {
+    // update stylesheet
+    QWidget* button = getQWidget();
+    if (!button) return;    // sanity check
+
+    // Prioritise button usage.
+    if( !getSubstitutedVariableName( 0 ).isEmpty() ){
+       button->setProperty( STYLE_OPTION, "PV");
+
+    } else if( !getProgram().isEmpty() ){
+       button->setProperty( STYLE_OPTION, "Program");
+
+    } else if( !getGuiName().isEmpty() ){
+       button->setProperty( STYLE_OPTION, "UI");
+
+    } else {
+       button->setProperty( STYLE_OPTION, "");
+    }
+
+    button->style()->unpolish(button);
+    button->style()->polish(button);
+    button->update();
+}
+
+// end
