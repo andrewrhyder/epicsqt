@@ -305,7 +305,6 @@ void QEScaling::widgetScale (QWidget* widget)
    QSize minSize = baseline->minimumSize;
    QSize maxSize = baseline->maximumSize;
    QRect geo = baseline->geometry;
-   QWidget *parent;
 
    minSize.setWidth  (QEScaling::scale (minSize.width ()));
    minSize.setHeight (QEScaling::scale (minSize.height ()));
@@ -337,8 +336,6 @@ void QEScaling::widgetScale (QWidget* widget)
    }
 
    widget->setGeometry (geo);
-
-   parent = dynamic_cast <QWidget *>(widget->parent ());
 
    QFont font = widget->font ();
    int pointSize = baseline->pointSize;
