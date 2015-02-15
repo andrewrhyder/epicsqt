@@ -75,13 +75,129 @@
  *
  */
 
-#include <ContainerProfile.h>
 #include <QCoreApplication>
-#include <QSharedMemory>
 #include <QProcessEnvironment>
 #include <QDir>
 #include <QEWidget.h>
 #include <QtDebug>
+#include <ContainerProfile.h>
+
+// Forward declaration
+QEEnvironmentShare ContainerProfile::share;
+
+// Single static instance of a QEEnvironmentShare class.
+//
+// The details contained in the PublishedProfile class need to be shared across the application, but they can't
+// be just static since QE framework library QEPlugin may be loaded twice: Once as a run time loaded dll
+// for an application (example QEGui) and once when a QEForm is loaded by the Qt .ui loader. On Linux this
+// doesn't matter - the library is mapped once and the same mapping is returned in both cases. So any static
+// variables only exist once.
+// In windows, however, the library (QEPlugin.dll) is mapped twice and static variables are created twice.
+// This can be observed by printing out the address of a static variable. The 'same' static variable will
+// have different addresses depening on whether it is being referenced by the application or the Qt .ui form loader.
+//
+// This static instance of the QEEnvironmentShare class will be mapped once for each mapping of the library and will
+// manage sharing the PublishedProfile across all mappings through shared memory.
+//
+// The sharing is limited to the current process by including the process ID in the shared memory key.
+// Note, the Qt objects in the single published profile class are all being access by the same thread, just through
+// different mappings of the same dll.
+QEEnvironmentShare::QEEnvironmentShare()
+{
+    qDebug() << "CPShare constructor";
+
+    // Generate a shared memory key.
+    // Keep it unique to this process by including the pid
+    qint64 pid = QCoreApplication::applicationPid();
+    QString key = QString( "QEFramework:" ).append( QString("%1").arg( pid ) );
+
+    // Create the shared memory
+    sharedMemory = new QSharedMemory( key );
+
+    // Get the shared memory data
+    // If the shared memory data is there, it has also been set up to contain a reference
+    // to the unique published profile by another instance of this class.
+    void* sharedMemoryData = NULL;
+    if( sharedMemory->attach() )
+    {
+        sharedMemoryData = sharedMemory->data();
+        if( sharedMemoryData )
+        {
+            // Get the other's reference to it's Published Profile
+            sharedMemory->lock();
+            publishedProfile = *(PublishedProfile**)(sharedMemoryData);
+            sharedMemory->unlock();
+
+            // Note we don't own the PublishedProfile (we should never deleted it)
+            publishedProfileCreatedByMe = false;
+            return;
+        }
+    }
+
+    // There is no shared memory data. (or we couldn't attach)
+    // Create a unique published profile class, create the shared memory data (big enough to
+    // hold a reference to the published profile), and load the reference to the published profile
+    // into the shared memory data.
+    // (Note we own the PublishedProfile (we should deleted it on exit)
+    publishedProfile = new PublishedProfile;
+    publishedProfileCreatedByMe = true;
+
+    if( !sharedMemory->create( sizeof( PublishedProfile* ) ) )
+    {
+        qDebug() << "Error (1) setting up ContainerProfile in shared memory. (on Linux, check if there are left over lock files in /tmp)" << sharedMemory->error() << sharedMemory->errorString();
+    }
+    else
+    {
+        sharedMemoryData = sharedMemory->data();
+        if( sharedMemoryData == NULL )
+        {
+            qDebug() << "Error (2) setting up ContainerProfile in shared memory." << sharedMemory->error() << sharedMemory->errorString();
+        }
+        else
+        {
+            // Lock the shared memory
+            sharedMemory->lock();
+            *(PublishedProfile**)(sharedMemoryData) = publishedProfile;
+            sharedMemory->unlock();
+        }
+    }
+}
+
+// Release shared profile
+QEEnvironmentShare::~QEEnvironmentShare()
+{
+    qDebug() << "CPShare destructor";
+
+    // Free the profile if we created it.
+/* How about we dont. Other instances take a copy and although we may have created it
+   we may not be the last to reference it.
+   Instead, just leave it. We are talking about a few bytes that is meant to last for the
+   duration of the applcation anyway.
+   The best reason to do this better is so memory leak tools dont complain.
+   To do this properly, the QEEnvironmentShare class should get the published profile from
+   the (locked) shared memory each time it is required.
+
+    if( publishedProfileCreatedByMe )
+    {
+        void* sharedMemoryData = sharedMemory->data();
+        if( sharedMemoryData == NULL )
+        {
+            qDebug() << "Error (3) accessing ContainerProfile in shared memory." << sharedMemory->error() << sharedMemory->errorString();
+        }
+        else
+        {
+            sharedMemory->lock();
+            *sharedMemoryData = NULL;
+            delete publishedProfile;
+            sharedMemory->unlock();
+        }
+    }
+*/
+
+    // Ensure shared memory is released. Without this lock files may persist on Linux
+    delete sharedMemory;
+
+}
 
 // Constructor.
 // A local copy of the defined profile (if any) is made.
@@ -121,76 +237,7 @@ ContainerProfile::~ContainerProfile()
 // different mappings of the same dll.
 PublishedProfile* ContainerProfile::getPublishedProfile()
 {
-    // Generate a shared memory key.
-    // Keep it unique to this process by including the pid
-    static qint64 pid = QCoreApplication::applicationPid();
-    static QString key;
-    if( key.isEmpty() )
-    {
-        key.append( "QEFramework:" ).append( QString("%1").arg( pid ) );
-    }
-
-    // Published profile, and the shared memory to reference it,
-    // These static variables are instantiated twice on windows - once when this code is loaded by an application (QEGui)
-    // and once when the Qt .ui loaded loads this code to support creation of QE widgets.
-    static QSharedMemory* sharedMemory = NULL;
-    static PublishedProfile* publishedProfile = NULL;
-
-    // If we have a published profile, it is a truly unique one created earlier - return it
-    if( publishedProfile )
-    {
-        return publishedProfile;
-    }
-
-    // We don't have a published profile.
-    // If we don't have a shared memory yet, create it.
-    if( !sharedMemory )
-    {
-        sharedMemory = new QSharedMemory( key );
-    }
-
-    // Get the shared memory data
-    // If the shared memory data is there, it has also been set up to contain a reference
-    // to the unique published profile, so extract and return it.
-    void* sharedMemoryData = NULL;
-    if( sharedMemory->attach() )
-    {
-        sharedMemoryData = sharedMemory->data();
-        if( sharedMemoryData )
-        {
-            // Lock the shared memory
-            sharedMemory->lock();
-            publishedProfile = *(PublishedProfile**)(sharedMemoryData);
-            sharedMemory->unlock();
-            return publishedProfile;
-        }
-    }
-
-    // There is no shared memory data. (or we couldn't attach)
-    // Create a unique published profile class, create the shared memory data (big enough to
-    // hold a reference to the published profile), load the reference to the published profile
-    // into the shared memory data, and return the newly created published profile.
-    publishedProfile = new PublishedProfile;
-    if( !sharedMemory->create( sizeof( PublishedProfile* ) ) )
-    {
-        qDebug() << "Error (1) setting up ContainerProfile in shared memory." << sharedMemory->error() << sharedMemory->errorString();
-    }
-    else
-    {
-        sharedMemoryData = sharedMemory->data();
-        if( sharedMemoryData == NULL )
-        {
-            qDebug() << "Error (2) setting up ContainerProfile in shared memory." << sharedMemory->error() << sharedMemory->errorString();
-        }
-        else
-        {
-            // Lock the shared memory
-            sharedMemory->lock();
-            *(PublishedProfile**)(sharedMemoryData) = publishedProfile;
-            sharedMemory->unlock();
-        }
-    }
-    return publishedProfile;
+    return share.publishedProfile;
 }
 
 /*

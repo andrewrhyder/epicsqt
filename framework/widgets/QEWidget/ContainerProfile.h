@@ -26,6 +26,7 @@
 #ifndef CONTAINERPROFILE_H
 #define CONTAINERPROFILE_H
 
+#include <QSharedMemory>
 #include <QObject>
 #include <QMutex>
 #include <QList>
@@ -33,6 +34,8 @@
 #include <QDebug>
 #include <QEPluginLibrary_global.h>
 #include <persistanceManager.h>
+
+
 
 class QEWidget;
 class ContainerProfile;
@@ -55,6 +58,25 @@ public:
                     };
     Q_ENUMS (userLevels)
 };
+
+
+// Published profile, and the shared memory to reference it,
+// These static variables are instantiated twice on windows - once when this code is loaded by an application (QEGui)
+// and once when the Qt .ui loaded loads this code to support creation of QE widgets.
+
+class PublishedProfile;
+
+class QEEnvironmentShare
+{
+public:
+    QEEnvironmentShare();
+    ~QEEnvironmentShare();
+
+    QSharedMemory* sharedMemory;            // Memory to hold a reference to the application wide PublishedProfile
+    PublishedProfile* publishedProfile;     // Reference to the application wide PublishedProfile
+    bool publishedProfileCreatedByMe;       // True of this instance of the QEEnvironmentShare class allocated the memory for the publishedProfile
+};
+
 
 // Class used to generate signals that the user level has changed.
 // A single instance of this class is shared by all instances of
@@ -257,6 +279,8 @@ private:
     QString macroSubstitutions;      // Local copy of macro substitutions (converted to a single string) Still valid after the profile has been released by releaseProfile()
 
     unsigned int messageFormId;      // Local copy of current form ID. Used to group forms with their widgets for messaging
+
+    static QEEnvironmentShare share;
 };
 
 
