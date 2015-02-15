@@ -104,8 +104,6 @@ QEEnvironmentShare ContainerProfile::share;
 // different mappings of the same dll.
 QEEnvironmentShare::QEEnvironmentShare()
 {
-    qDebug() << "CPShare constructor";
-
     // Generate a shared memory key.
     // Keep it unique to this process by including the pid
     qint64 pid = QCoreApplication::applicationPid();
@@ -166,8 +164,6 @@ QEEnvironmentShare::QEEnvironmentShare()
 // Release shared profile
 QEEnvironmentShare::~QEEnvironmentShare()
 {
-    qDebug() << "CPShare destructor";
-
     // Free the profile if we created it.
 /* How about we dont. Other instances take a copy and although we may have created it
    we may not be the last to reference it.
