@@ -109,6 +109,8 @@ namespace qcaobject {
       QString getHostName();
       QString getFieldType();
       unsigned long getElementCount();  // num elements available on server as oppsoed to num elements actually subscribed for.
+      bool getReadAccess();
+      bool getWriteAccess();
 
       // Set/get the array index use to extract scaler value form an array.
       // Default to 0, i.e. first element of the array.

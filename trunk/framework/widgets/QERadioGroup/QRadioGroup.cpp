@@ -135,6 +135,7 @@ void QRadioGroup::commonSetup ()
    // Set up default properties
    //
    this->cols = 2;
+   this->space = 4;
    this->buttonStyle = Radio;
    this->strings.clear ();
 
@@ -146,8 +147,11 @@ void QRadioGroup::commonSetup ()
    this->rows = 0;
 
    this->buttonLayout = new QGridLayout (this);
-   this->buttonLayout->setContentsMargins (8, 4, 8, 4);  // left, top, right, bottom
-   this->buttonLayout->setSpacing (4);
+   this->buttonLayout->setContentsMargins (this->space,   // left
+                                           this->space,   // top
+                                           this->space,   // right
+                                           this->space);  // bottom
+   this->buttonLayout->setSpacing (this->space);
 
    // Create buttons - invisble for now.
    // NOTE: radio buttons are added/removed from layout as and when needed.
@@ -366,6 +370,26 @@ void QRadioGroup::setColumns (int colsIn)
 int QRadioGroup::getColumns () const
 {
    return this->cols;
+}
+
+//------------------------------------------------------------------------------
+//
+void QRadioGroup::setSpacing (int spacingIn)
+{
+   this->space = LIMIT (spacingIn, 0, 20);
+
+   this->buttonLayout->setContentsMargins (this->space,   // left
+                                           this->space,   // top
+                                           this->space,   // right
+                                           this->space);  // bottom
+   this->buttonLayout->setSpacing (this->space);
+}
+
+//------------------------------------------------------------------------------
+//
+int QRadioGroup::getSpacing () const
+{
+    return this->space;
 }
 
 //------------------------------------------------------------------------------

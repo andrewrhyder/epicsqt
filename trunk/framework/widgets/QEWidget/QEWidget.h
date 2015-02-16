@@ -366,6 +366,13 @@ protected:
     void setDrop (QVariant drop) { if( getAllowDrop() ){ paste (drop); } }
     QVariant getDrop () { return isDraggingVariable () ? QVariant( copyVariable() ) : copyData(); }
 
+    unsigned int  xPv;
+    QCaInfo::ACCESS_MODES accessMode;
+    void setControlPV (const unsigned int x) { xPv = x; }
+    unsigned int getControlPV () { return xPv; }
+    void setAccessCursorStyle (QCaConnectionInfo& connectionInfo, const unsigned int variableIndex);
+    QCaInfo::ACCESS_MODES getAccessMode(){ return accessMode; }
+
 private:
     unsigned int numVariables;                              // The number of process variables that will be managed for the QE widgets.
     qcaobject::QCaObject** qcaItem;                         // CA access - provides a stream of updates. One for each variable name used by the QE widgets

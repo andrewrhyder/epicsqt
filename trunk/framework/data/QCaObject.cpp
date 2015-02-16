@@ -1257,6 +1257,22 @@ QString QCaObject::getHostName()
 }
 
 /*
+  Get the read access of the current connection.
+ */
+bool QCaObject::getReadAccess()
+{
+    return caobject::CaObject::getReadAccess();
+}
+
+/*
+  Get the write access of the current connection.
+ */
+bool QCaObject::getWriteAccess()
+{
+   return caobject::CaObject::getWriteAccess();
+}
+
+/*
  Return the PV native field type
 */
 QString QCaObject::getFieldType()

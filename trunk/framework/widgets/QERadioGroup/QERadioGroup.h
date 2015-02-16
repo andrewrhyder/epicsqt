@@ -79,6 +79,10 @@ class QEPLUGINLIBRARYSHARED_EXPORT QERadioGroup : public QEAbstractWidget {
    ///
    Q_PROPERTY (int columns READ getColumns WRITE setColumns)
 
+   /// Interay layout margins and spacing - defayult to 4.
+   ///
+   Q_PROPERTY (int spacing READ getSpacing WRITE setSpacing)
+
    /// Use database enumerations - defaults to true.
    /// False implies use local enumeration.
    ///
@@ -138,6 +142,7 @@ public:
    // Expose access to the internal widget's set/get functions.
    //
    QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (internalWidget, int, getColumns, setColumns)
+   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (internalWidget, int, getSpacing, setSpacing)
    QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (internalWidget, QRadioGroup::ButtonStyles, getButtonStyle, setButtonStyle)
 
 signals:

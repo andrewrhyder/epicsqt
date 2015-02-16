@@ -27,6 +27,14 @@
 #include <QRadioButton>
 #include <QPushButton>
 #include <QECommon.h>
+#include <stdio.h>
+
+// Microsoft don't implement snprintf. If using MSVC, use their version
+// Note, _snprintf_s is not identical to snprintf, but close enough for
+// our purposes
+#ifdef _MSC_VER
+#define snprintf _snprintf_s
+#endif
 
 #include "QAnalogSlider.h"
 

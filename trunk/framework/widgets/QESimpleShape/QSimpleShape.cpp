@@ -506,7 +506,7 @@ int QSimpleShape::getValue () const
 
 //------------------------------------------------------------------------------
 //
-void QSimpleShape::setModulus (const int value)
+void QSimpleShape::setModulus (int value)
 {
    this->modulus = LIMIT (value, 2, NUMBER_OF_STATES);
 

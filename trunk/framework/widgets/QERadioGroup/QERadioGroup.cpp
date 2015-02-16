@@ -95,6 +95,10 @@ void QERadioGroup::commonSetup (const QString& title)
    //
    this->setNumVariables (2);
 
+   // Set variable index used to select write access cursor style.
+   //
+   this->setControlPV (PV_VARIABLE_INDEX);
+
    // Title managed as second variable.
    //
    this->setVariableName (title, TITLE_VARIABLE_INDEX);
@@ -239,6 +243,10 @@ void QERadioGroup::connectionChanged (QCaConnectionInfo& connectionInfo,
    //
    this->isFirstUpdate = true;
    this->currentIndex = -1;
+
+   // Set cursor to indicate access mode.
+   //
+   this->setAccessCursorStyle (connectionInfo, variableIndex);
 }
 
 //-----------------------------------------------------------------------------

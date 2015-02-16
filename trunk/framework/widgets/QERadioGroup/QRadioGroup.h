@@ -54,6 +54,7 @@ public:
 
    Q_PROPERTY (QRadioGroup::ButtonStyles buttonStyle READ getButtonStyle  WRITE setButtonStyle)
    Q_PROPERTY (int columns                           READ getColumns      WRITE setColumns)
+   Q_PROPERTY (int spacing                           READ getSpacing      WRITE setSpacing)
    Q_PROPERTY (QStringList strings                   READ getStrings      WRITE setStrings)   // max 256 strings.
    Q_PROPERTY (int value                             READ getValue        WRITE setValue)
 
@@ -84,6 +85,9 @@ public:
    void setColumns (int columns);
    int getColumns () const;
 
+   void setSpacing (int spacing);
+   int getSpacing () const;
+
    void setButtonStyle (const ButtonStyles buttonStyle);
    ButtonStyles getButtonStyle () const;
 
@@ -108,6 +112,7 @@ private:
    int numberDisplayed;    // number of displayed buttons.
    int rows;
    int cols;
+   int space;
    ButtonStyles buttonStyle;
    bool emitValueChangeInhibited;
 
