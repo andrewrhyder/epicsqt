@@ -159,7 +159,7 @@ public slots:
 public:
    int getValue () const;
 
-   void setModulus (const int value);
+   void setModulus (int value);
    int getModulus () const;
 
    void setStateSet (const QStringList& stateSet);

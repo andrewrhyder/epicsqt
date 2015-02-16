@@ -448,6 +448,28 @@ std::string CaConnection::getHostName ()
 }
 
 /*
+  Get the read access flag from the current data record
+ */
+bool CaConnection::getReadAccess ()
+{
+    chid ChannelId = getChannelId ();
+
+    if (!ChannelId) return false;    // belts and braces check
+    return ca_read_access (ChannelId);
+}
+
+/*
+  Get the write access flag from the current data record
+ */
+bool CaConnection::getWriteAccess ()
+{
+    chid ChannelId = getChannelId ();
+
+    if (!ChannelId) return false;    // belts and braces check
+    return ca_write_access (ChannelId);
+}
+
+/*
   Get the the field type from the current data record
  */
 std::string CaConnection::getFieldType ()

@@ -42,11 +42,16 @@
 #include <QEFrameworkVersion.h>
 #include <QEForm.h>
 #include <standardProperties.h>
+#include <QCaObject.h>
+
+
+#define NO_PV  0x7ffffff
 
 /*
     Constructor
 */
-QEWidget::QEWidget( QWidget *ownerIn ) : QEToolTip( ownerIn ), QEDragDrop( ownerIn ), styleManager( ownerIn ), contextMenu( this ), standardProperties( ownerIn )
+QEWidget::QEWidget( QWidget *ownerIn ) : QEToolTip( ownerIn ), QEDragDrop( ownerIn ), styleManager( ownerIn ), contextMenu( this ),
+    standardProperties( ownerIn ), xPv(NO_PV), accessMode(QCaInfo::UNKNOWN)
 {
     // Sanity check.
     if( ownerIn == NULL )
@@ -826,4 +831,22 @@ int* QEWidget::getDisconnectedCountRef()
 int* QEWidget::getConnectedCountRef()
 {
     return &ConnectionQCaStateMachine::connectedCount;
+}
+
+void QEWidget::setAccessCursorStyle(QCaConnectionInfo& connectionInfo, const unsigned int variableIndex){
+    if (xPv != variableIndex ) return;
+    qcaobject::QCaObject* caObj = getQcaItem(xPv);
+    if (!caObj) return;
+
+    bool writeable;
+    if (connectionInfo.isChannelConnected()) {
+       writeable = caObj->getWriteAccess();
+    } else {
+        writeable = false;
+    }
+    if (writeable) {
+        getQWidget()->setCursor(Qt::ArrowCursor);
+    } else {
+        getQWidget()->setCursor(Qt::ForbiddenCursor);
+    }
 }

@@ -91,6 +91,8 @@ void QEGenericButton::dataSetup()
     updateOption = getDefaultUpdateOption();
 
     getQWidget()->setProperty( STYLE_OPTION, "" );
+    // set control PV for cursor style
+    setControlPV(0);
 }
 
 ///*
@@ -198,6 +200,8 @@ void QEGenericButton::connectionChanged( QCaConnectionInfo& connectionInfo, cons
     // Display the connected state
     updateToolTipConnection( isConnected, variableIndex );
     updateConnectionStyle( isConnected );
+    // set cursor to indicate access mode
+    setAccessCursorStyle(connectionInfo, variableIndex);
 }
 
 /*

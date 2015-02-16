@@ -80,7 +80,11 @@ void QEAnalogSlider::commonSetup ()
 
    // Set default property values
    //
-   this->setNumVariables (3);
+   this->setNumVariables (2);
+
+   // Set variable index used to select write access cursor style.
+   //
+   this->setControlPV (SET_POINT_VARIABLE_INDEX);
 
    // Set up default properties
    //
@@ -313,6 +317,10 @@ void QEAnalogSlider::mainConnectionChanged (QCaConnectionInfo& connectionInfo,
       QEAxisPainter* ap = this->getAxisPainter ();
       ap->setMarkerVisible (SET_POINT_MARKER, false);
    }
+
+   // Set cursor to indicate access mode.
+   //
+   this->setAccessCursorStyle (connectionInfo, variableIndex);
 }
 
 
@@ -329,6 +337,10 @@ void QEAnalogSlider::secondaryConnectionChanged (QCaConnectionInfo& connectionIn
       QEAxisPainter* ap = this->getAxisPainter ();
       ap->setMarkerVisible (READ_BACK_MARKER, false);
    }
+
+   // Set cursor to indicate access mode.
+   //
+   this->setAccessCursorStyle (connectionInfo, variableIndex);
 }
 
 //-----------------------------------------------------------------------------

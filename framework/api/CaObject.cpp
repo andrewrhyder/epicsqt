@@ -605,6 +605,28 @@ std::string CaObject::getHostName()
 }
 
 /*
+  Get the read access of the current connection.
+ */
+bool CaObject::getReadAccess()
+{
+    // Get the parts not shared with the non CA world
+    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
+
+    return p->caConnection->getReadAccess();
+}
+
+/*
+  Get the write access of the current connection.
+ */
+bool CaObject::getWriteAccess()
+{
+    // Get the parts not shared with the non CA world
+    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
+
+    return p->caConnection->getWriteAccess();
+}
+
+/*
   Get the the field type of the current connection.
 */
 std::string  CaObject::getFieldType ()

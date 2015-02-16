@@ -59,6 +59,9 @@ void QEGenericEdit::setup()
     // This control used a single data source
     setNumVariables( 1 );
 
+    // Set variable index used to select write access cursor style.
+    setControlPV( 0 );
+
     // Set up default properties
     writeOnLoseFocus = false;
     writeOnEnter = true;
@@ -120,6 +123,9 @@ void QEGenericEdit::connectionChanged( QCaConnectionInfo& connectionInfo )
     // Display the connected state
     updateToolTipConnection( isConnected );
     updateConnectionStyle( isConnected );
+
+    // Set cursor to indicate access mode.
+    setAccessCursorStyle( connectionInfo, 0 );
 }
 
 //------------------------------------------------------------------------------

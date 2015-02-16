@@ -100,6 +100,8 @@ namespace caconnection {
       std::string   getHostName();
       std::string   getFieldType();      // field type as string
       unsigned long getElementCount();   // number on server, as opposed to number subscribed for.
+      bool getReadAccess();
+      bool getWriteAccess();
 
       void* getParent() { return parent; }
 

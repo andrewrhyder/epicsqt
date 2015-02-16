@@ -79,6 +79,8 @@ namespace caobject {
             std::string   getHostName();
             std::string   getFieldType();
             unsigned long getElementCount();
+            bool getReadAccess();
+            bool getWriteAccess();
 
             void inhibitCallbacks();
 
