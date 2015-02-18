@@ -221,6 +221,12 @@ void QEPeriodic::setup() {
     // A pair of values to read 'element' readback
     setNumVariables(4);
 
+    // Set variable indices used to select write access cursor style.
+    ControlVariableIndicesSet controlPvs;
+    controlPvs << 0 << 1;
+    setControlPVs( controlPvs );
+
+
     // Override default QEWidget and QPushButton properties
     subscribe = false;
 
@@ -278,8 +284,8 @@ void QEPeriodic::establishConnection( unsigned int variableIndex ) {
                           this, SLOT( setElement( const double&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
 
         // Get conection status changes always (subscribing or not)
-        QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
-                          this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
+        QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo&, const unsigned int&  ) ),
+                          this, SLOT( connectionChanged( QCaConnectionInfo&, const unsigned int&  ) ) );
         QObject::connect( this, SIGNAL( requestResend() ),
                           qca, SLOT( resendLastData() ) );
 
@@ -291,13 +297,13 @@ void QEPeriodic::establishConnection( unsigned int variableIndex ) {
     Change how the label looks and change the tool tip
     This is the slot used to recieve connection updates from a QCaObject based class.
  */
-void QEPeriodic::connectionChanged( QCaConnectionInfo& connectionInfo )
+void QEPeriodic::connectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex )
 {
     // If connected enabled the widget if required.
     if( connectionInfo.isChannelConnected() )
     {
         isConnected = true;
-        updateToolTipConnection( isConnected );
+        updateToolTipConnection( isConnected, variableIndex );
 
         if( localEnabled )
         {
@@ -313,7 +319,7 @@ void QEPeriodic::connectionChanged( QCaConnectionInfo& connectionInfo )
     else
     {
         isConnected = false;
-        updateToolTipConnection( isConnected );
+        updateToolTipConnection( isConnected, variableIndex );
 
         if( writeButton )
             writeButton->setEnabled( false );
@@ -321,6 +327,9 @@ void QEPeriodic::connectionChanged( QCaConnectionInfo& connectionInfo )
         if( readbackLabel )
             readbackLabel->setEnabled( false );
     }
+
+    // Set cursor to indicate access mode.
+    setAccessCursorStyle();
 }
 
 /*

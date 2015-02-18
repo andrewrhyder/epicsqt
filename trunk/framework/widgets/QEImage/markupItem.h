@@ -34,7 +34,10 @@
 
 #include <QPainter>
 
-#include <QDebug>
+/* markups managing their own data is not implemented yet
+#include <VariableNameManager.h>
+#include <QCaObject.h>
+*/
 
 // Allowable distance in pixels from object which will still be considered 'over'
 #define OVER_TOLERANCE 6
@@ -47,7 +50,7 @@ class imageMarkup;
 
 // Generic markup item.
 // Each type of markup (line, area, etc) is based on this class.
-class markupItem
+class markupItem      // markups managing their own data is not implemented yet : public VariableNameManager
 {
 protected:
     enum isOverOptions{ OVER_LINE, OVER_BORDER, OVER_AREA }; // test required to determine if pointer is over the object
@@ -61,7 +64,6 @@ public:
                          MARKUP_HANDLE_TL, MARKUP_HANDLE_TR, MARKUP_HANDLE_BL, MARKUP_HANDLE_BR, // Area corners
                          MARKUP_HANDLE_T, MARKUP_HANDLE_B, MARKUP_HANDLE_L, MARKUP_HANDLE_R };   // Area sides
     void drawMarkupItem( QPainter& p );
-    void scale( const double xScale, const double yScale, const double zoomScale );//UNUSED!!!!!!!!!!!!!!!!!!!!!
     QSize getImageSize();
 
 
@@ -87,8 +89,11 @@ public:
     void setColor( QColor colorIn );
     QColor        getColor();   // Return the colour used for this markup
 
-    QRect         area;         // Area (in original image) object occupies, used for repainting, and actual object coordinates where appropriate
-    QRect         scalableArea; // Area in original image that is scaled when drawn in display image. This should be a part of 'area'. For example, when a region is drawn, the actual region is scaled, but the handles on the sides and corners are not scaled.
+    QRect         area;         // Area (in original image) object occupies, used for repainting,
+                                //  and actual object coordinates where appropriate.
+    QRect         scalableArea; // Area in original image that is scaled when drawn in display image.
+                                //  This should be a part of 'area'. For example, when a region is drawn, the
+                                //  actual region is scaled, but the handles on the sides and corners are not scaled.
     bool          visible;      // Object is visible to the user
     bool          interactive;  // Object can be moved by the user
     bool          reportOnMove; // Movements reported (not just on move completion)
@@ -106,9 +111,9 @@ protected:
     const QSize getLegendSize();                        // Return the size of the string used to notate the markup
     void addLegendArea();                               // Add the legend area to the markup area
 
-    enum  legendJustification{ ABOVE_RIGHT, BELOW_LEFT, BELOW_RIGHT };  // Options for positioning the legend
+    enum   legendJustification{ ABOVE_RIGHT, BELOW_LEFT, BELOW_RIGHT }; // Options for positioning the legend
     const  QPoint getLegendTextOrigin( QPoint posScaled );              // Returns the text drawing origin of the legend
-    void setLegendOffset( QPoint offset, legendJustification just );    // Sets the top left position of the rectangle enclosing the legend, relative to the markup's origin
+    void   setLegendOffset( QPoint offset, legendJustification just );  // Sets the top left position of the rectangle enclosing the legend, relative to the markup's origin
     const  QPoint getLegendOffset();                                    // Returns the legend position, relative to the markup's origin
     void   drawLegend( QPainter& p, QPoint posScaled );                 // Draw the legend beside the markup
     QPoint limitPointToImage( const QPoint pos );                       // Return the input point limited to the image area
@@ -117,6 +122,23 @@ protected:
     unsigned int maxThickness;                          // Maximum line thickness. Changes according to current zoom
 
     double getZoomScale();
+
+/* Not implemented yet
+// Markup items may make their own data connections in the same way QEWidgets do.
+// The variables below support this and are very similar to those in QEWidget
+// which is the base class for all QE widgets.
+protected:
+    void setNumVariables( unsigned int numVariablesIn );    // Set the number of variables that will stream data updates to the widget. Default of 1 if not called.
+
+    bool subscribe;                                         // Flag if data updates should be requested
+
+    qcaobject::QCaObject* createConnection( unsigned int variableIndex );       // Create a CA connection. Return a QCaObject if successfull
+
+    virtual qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );  // Function to create a appropriate superclass of QCaObject to stream data updates
+    virtual void establishConnection( unsigned int variableIndex );             // Create a CA connection and initiates updates if required
+    virtual void activated();                                                   // Do any post-all-widgets-constructed stuff
+*/
+
 
 private:
     QString      legend;                                // Text displayed beside markup

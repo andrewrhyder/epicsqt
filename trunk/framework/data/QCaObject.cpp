@@ -86,6 +86,9 @@ void QCaObject::initialise( const QString& newRecordName, QObject *newEventHandl
 
     isStatField = false;
 
+    lastIsChannelConnected = false;
+    lastIsLinkUp = false;
+
     lastTimeStamp = QCaDateTime( QDateTime::currentDateTime() );
     lastVariantValue = (double)0.0;
     lastValueIsDefined = false;
@@ -146,6 +149,11 @@ QCaObject::~QCaObject() {
     // Send disconnected signal to monitoring widgets.
     //
     QCaConnectionInfo connectionInfo ( caconnection::CLOSED, caconnection::LINK_DOWN, getRecordName() );
+
+    // Save last connetion info.
+    lastIsChannelConnected = connectionInfo.isChannelConnected ();
+    lastIsLinkUp = connectionInfo.isLinkUp ();
+
     emit connectionChanged( connectionInfo, variableIndex );
     emit connectionChanged( connectionInfo );
 
@@ -789,6 +797,11 @@ void QCaObject::processEvent( QCaEventUpdate* dataUpdateEvent ) {
         if (!connectionInfo.isChannelConnected()) {
            lastValueIsDefined = false;
         }
+
+        // Save last connetion info.
+        lastIsChannelConnected = connectionInfo.isChannelConnected ();
+        lastIsLinkUp = connectionInfo.isLinkUp ();
+
         emit connectionChanged( connectionInfo, variableIndex );
         emit connectionChanged( connectionInfo );
     }
@@ -1119,6 +1132,11 @@ void QCaObject::setChannelExpired() {
     // (This is done with some licence. There isn't really a connection change.
     //  The connection has gone from 'no connection' to 'given up waiting for a connection')
     QCaConnectionInfo connectionInfo( caconnection::NEVER_CONNECTED, caconnection::LINK_DOWN, getRecordName() );
+
+    // Save last connetion info.
+    lastIsChannelConnected = connectionInfo.isChannelConnected ();
+    lastIsLinkUp = connectionInfo.isLinkUp ();
+
     emit connectionChanged( connectionInfo, variableIndex );
     emit connectionChanged( connectionInfo );
 
@@ -1192,6 +1210,24 @@ void QCaObject::getLastData( bool& isDefinedOut, QVariant& valueOut, QCaAlarmInf
     alarmInfoOut = lastAlarmInfo;
     timeStampOut = lastTimeStamp;
 }
+
+
+/*
+  Extract last emmited connection info: indicates if channel is connected.
+  */
+bool QCaObject::getChannelIsConnected () const
+{
+    return lastIsChannelConnected;
+}
+
+/*
+  Extract last emmited connection info: indicates if channel link is up.
+  */
+bool QCaObject::getIsLinkUp () const
+{
+    return lastIsLinkUp;
+}
+
 
 /*
   Indicates if last data is defined/meaningful.

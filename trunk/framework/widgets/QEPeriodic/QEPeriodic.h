@@ -151,7 +151,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPeriodic : public QFrame, public QEWidget {
     QString getUserInfo();
 
   private slots:
-    void connectionChanged( QCaConnectionInfo& connectionInfo );
+    void connectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex );
     void setElement( const double& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& );
     void userClicked();
 

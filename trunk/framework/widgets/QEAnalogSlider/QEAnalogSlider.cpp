@@ -320,7 +320,7 @@ void QEAnalogSlider::mainConnectionChanged (QCaConnectionInfo& connectionInfo,
 
    // Set cursor to indicate access mode.
    //
-   this->setAccessCursorStyle (connectionInfo, variableIndex);
+   this->setAccessCursorStyle ();
 }
 
 
@@ -340,7 +340,7 @@ void QEAnalogSlider::secondaryConnectionChanged (QCaConnectionInfo& connectionIn
 
    // Set cursor to indicate access mode.
    //
-   this->setAccessCursorStyle (connectionInfo, variableIndex);
+   this->setAccessCursorStyle ();
 }
 
 //-----------------------------------------------------------------------------

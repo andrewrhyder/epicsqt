@@ -23,6 +23,11 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
+/// QE widget tool tips may be set to display the names of the process variables
+/// supplying data to the widget and the alarm state and connectino status of those variables.
+/// The QE widget may also set some custom text to be displayed along with this information.
+/// The QEToolTip class manages building and setting the QE widget tool tips when this functino is required.
+
 #ifndef QEToolTip_H
 #define QEToolTip_H
 
@@ -36,23 +41,23 @@ class QEToolTip
         QEToolTip( QWidget* ownerIn );
         virtual ~QEToolTip(){}
         void setNumberToolTipVariables ( const unsigned int number );
-        void updateToolTipVariable ( const QString& variable, const unsigned int variableIndex );
-        void updateToolTipAlarm ( const QString& alarm, const unsigned int variableIndex );
-        void updateToolTipConnection ( bool connection, const unsigned int variableIndex = 0 );
-        void updateToolTipCustom ( const QString& custom );
+        void updateToolTipVariable ( const QString& variable, const unsigned int variableIndex );   // Update a variable name
+        void updateToolTipAlarm ( const QString& alarm, const unsigned int variableIndex );         // Update an alarm state
+        void updateToolTipConnection ( bool connection, const unsigned int variableIndex = 0 );     // Update a connection status
+        void updateToolTipCustom ( const QString& custom );                                         // Update the customisable part of the tooltip
 
-        void setVariableAsToolTip( const bool variableAsToolTip );
-        bool getVariableAsToolTip() const;
+        void setVariableAsToolTip( const bool variableAsToolTip );                                  // Set flag indicating variable names should be in the tool tip
+        bool getVariableAsToolTip() const;                                                          // Get the flag indicating variable names should be in the tool tip
 
     private:
         bool variableAsToolTip;         // Flag the tool tip should be set to the variable name
-        void displayToolTip();
-        unsigned int number;
-        QStringList toolTipVariable;
-        QStringList toolTipAlarm;
-        QList<bool> toolTipIsConnected;
+        void displayToolTip();          // Built a tool tip from all the required information and set it
+        unsigned int number;            // Count of variables that will be included in the tooltip
+        QStringList toolTipVariable;    // List of variable names to be included in the tooltip
+        QStringList toolTipAlarm;       // List of alarm states to be included in the tool tip (same size as toolTipVariable)
+        QList<bool> toolTipIsConnected; // List of connection status to be included in the tool tip (same size as toolTipVariable)
         QString toolTipCustom;          // Custion tool tip extra for specific widget types
-        QWidget* owner;
+        QWidget* owner;                 // Widget whos tool tip will be updated
 };
 
 #endif // QEToolTip_H
