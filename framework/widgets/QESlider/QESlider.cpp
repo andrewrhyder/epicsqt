@@ -55,6 +55,9 @@ void QESlider::setup() {
     // This control used a single data source
     setNumVariables(1);
 
+    // Set variable index used to select write access cursor style.
+    setControlPV( 0 );
+
     // Set up default properties
     updateInProgress = false;
     writeOnChange = true;
@@ -139,6 +142,9 @@ void QESlider::connectionChanged( QCaConnectionInfo& connectionInfo )
         qca->singleShotRead();
         ignoreSingleShotRead = true;
     }
+
+    // Set cursor to indicate access mode.
+    setAccessCursorStyle();
 }
 
 /*

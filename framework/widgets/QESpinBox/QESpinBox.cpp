@@ -57,6 +57,9 @@ void QESpinBox::setup() {
     // This control used a single data source
     setNumVariables(1);
 
+    // Set variable index used to select write access cursor style.
+    setControlPV( 0 );
+
     // Initialise the flag indicating the value is being changed programatically (not by the user)
     programaticValueChange = false;
 
@@ -163,6 +166,9 @@ void QESpinBox::connectionChanged( QCaConnectionInfo& connectionInfo )
         qca->singleShotRead();
         ignoreSingleShotRead = true;
     }
+
+    // Set cursor to indicate access mode.
+    setAccessCursorStyle();
 }
 
 /*

@@ -158,7 +158,7 @@ void QEComboBox::connectionChanged( QCaConnectionInfo& connectionInfo )
     }
 
     // Set cursor to indicate access mode.
-    setAccessCursorStyle( connectionInfo, 0 );
+    setAccessCursorStyle();
 }
 
 /*

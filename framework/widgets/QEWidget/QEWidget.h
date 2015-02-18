@@ -26,11 +26,9 @@
 #ifndef QEWIDGET_H
 #define QEWIDGET_H
 
+#include <QList>
 #include <QObject>
-#include <QString>
-#include <QCaObject.h>
-#include <VariableNameManager.h>
-#include <UserMessage.h>
+#include <VariableManager.h>
 #include <ContainerProfile.h>
 #include <QEToolTip.h>
 #include <QEPluginLibrary_global.h>
@@ -38,15 +36,14 @@
 #include <styleManager.h>
 #include <contextMenu.h>
 #include <standardProperties.h>
-#include <QCaStateMachine.h>
 
-
-// Class to pass summary information about a QCaObject
-
+/// Class to pass summary information about a QCaObject
 class QCaInfo
 {
 public:
     enum ACCESS_MODES {NO_ACCESS, READ_ONLY, READ_WRITE, UNKNOWN };
+
+    // The constructor bundles up a set of CA related information, ensuring every item is set
     QCaInfo(
             QString variableIn,
             QString typeIn,
@@ -91,6 +88,7 @@ public:
          accessMode        = accessModeIn;
     }
 
+    // CA informational items
     QString variable;
     QString type;
     QString value;
@@ -113,6 +111,7 @@ public:
     ACCESS_MODES accessMode;
 };
 
+// Forward declaration
 class QEWidget;
 
 // Class used to recieve save and restore signals from persistance manager,
@@ -153,12 +152,12 @@ private:
   warning and status messages, and setting tool tips based on variable names.
 
   Note, there is tight integration between the CA aware widget classes, this class, and its
-  base classes, especially VariableNameManager and QEToolTip.
+  base classes, especially VariableManager, VariableNameManager and QEToolTip.
 
-  In particular, this class manages QCaObject classes that stream updates to the
-  CA aware widget class. But this class, however, doesn't know how to format the data,
+  In particular, the VariableManager class manages QCaObject classes that stream updates to the
+  CA aware widgets. But the VariableManager class, however, doesn't know how to format the data,
   or how the updates will be used.
-  To resolve this, this class asks its parent class (such as QELabel) to create the
+  To resolve this, the VariableManager class asks a parent class (such as QELabel) to create the
   QCaObject class in what ever flavour it wants, by calling the virtual function createQcaItem.
   A QELabel, for example, wants string updates so it creates a QEString which is based on a
   QCaObject class and formats all updates as strings.
@@ -171,7 +170,7 @@ private:
   (such as QELabel) directly to make use of a new tool tip.
 
 
-  After construction, a CA aware widget is activated (starts updating) by calling it's
+  After construction, a CA aware widget is activated (starts updating) by VariableManager calling its
   establishConnection() function in one of two ways:
 
    1) The variable name or variable name substitutions is changed by calling setVariableName
@@ -182,27 +181,30 @@ private:
 
    2) When an QEForm widget is created, resulting in a set of CA aware widgets being created by loading a UI file
       contining plugin definitions.
-      After loading the plugin widgets, code in the QEForm class calls the activate() function in this class (QEWiget).
-      the activate() function calls  establishConnection() in the CA aware widget for each variable. This simulates
+      After loading the plugin widgets, code in the QEForm class calls the activate() function in the VariableManager base of
+      this class (QEWiget).
+      The activate() function calls  establishConnection() in the CA aware widget for each variable. This simulates
       what the VariableNamePropertyManager does as each variable name is entered (see 1, above, for details)
 
   No matter which way a CA aware widget is activated, the establishConnection() function in the CA aware widget is called
   for each variable. The establishConnection() function asks this QEWidget base class, by calling the createConnection()
   function, to perform the tasks common to all CA aware widgets for establishing a stream of CA data.
 
-  The createConnection() function sets up the widget 'tool tip', then immedietly calls the CA aware widget back asking it to create
-  an object based on QCaObject. This object will supply a stream of CA update signals to the CA aware object in a form that
-  it needs. For example a QELabel creates a QEString object. The QEString class is based on the QCaObject class and converts
-  all update data to a strings which is required for updating a Qt label widget. This class stores the QCaObject based class.
+  The createConnection() function sets up the widget 'tool tip', then immedietly calls (through VariableManager::createVariable)
+  the CA aware widget back asking it to create an object based on QCaObject. This object will supply a stream of CA update
+  signals to the CA aware object in a form that it needs. For example a QELabel creates a QEString object. The QEString class
+  is based on the QCaObject class and converts all update data to a strings which is required for updating a Qt label widget.
+  This class stores the QCaObject based class.
 
   After the establishConnection() function in the CA aware widget has called createConnection(), the remaining task of the
   establishConnection() function is to connect the signals of the newly created QCaObject based classes to its own slots
   so that data updates can be used. For example, a QELabel connects the 'stringChanged' signal
   from the QEString object to its setLabelText slot.
+
  */
 
 class QEPLUGINLIBRARYSHARED_EXPORT  QEWidget :
-                 public VariableNameManager,
+                 public VariableManager,
                  public QEToolTip,
                  public ContainerProfile,
                  public QEDragDrop,
@@ -216,19 +218,17 @@ public:
     enum restorePhases { APPLICATION = SaveRestoreSignal::RESTORE_APPLICATION,
                          FRAMEWORK   = SaveRestoreSignal::RESTORE_QEFRAMEWORK };
 
+    /// Defines a list or set of variable indices. Used to indicate thos variables
+    /// that are considered control variables, and thus have theitr cursor updated
+    /// to the forbidden cursor if/when write access is denied.
+    typedef QList <unsigned int> ControlVariableIndicesSet;
+
+
     /// Constructor
     QEWidget( QWidget* ownerIn );
 
     /// Destructor
     virtual ~QEWidget();
-
-    /// Initiate updates.
-    /// Called after all configuration is complete.
-    void activate();
-
-    /// Terminates updates.
-    /// This has been provided for third party (non QEGui) applications using the framework.
-    void deactivate();
 
     /// Get the message source ID.
     /// The message source ID is used as part of the system where QE widgets can emit
@@ -242,10 +242,6 @@ public:
     /// Refer to the UserMessage class for further details.
     void setMessageSourceId( unsigned int messageSourceId ){ setSourceId( messageSourceId ); }
 
-    /// Return a reference to one of the qCaObjects used to stream CA updates
-    ///
-    qcaobject::QCaObject* getQcaItem( unsigned int variableIndex );
-
     /// Static method to return a colour to update the widget's look to reflect the current alarm state
     /// Note, the color is determined by the alarmInfo class, but since that class is used in non
     /// gui applications, it can't return a QColor
@@ -255,14 +251,6 @@ public:
     /// property is set to true - assumes the widget uses standard properties. This function is perhaps
     /// most usefull for single-variable widgets.
     void processAlarmInfo( QCaAlarmInfo& alarmInfo, const unsigned int variableIndex = 0 );
-
-    /// Perform a single shot read on all variables (Usefull when not subscribing by default)
-    ///
-    void readNow();
-
-    /// (Control widgets only - such as QELineEdit)
-    /// Write the value now. Used when writeOnChange, writeOnEnter, etc are all false
-    virtual void writeNow(){ qDebug()<<"default writeNow"; }
 
     /// Virtual function that may be implimented by users of QEWidget to update variable names and macro substitutions.
     /// A default is provided that is suitible in most cases.
@@ -326,82 +314,52 @@ public:
     ///
     const QList<QCaInfo> getQCaInfo();
 
-    /// Return references to the current count of disconnections.
-    /// The plugin library (and therefore the static connection and disconnection counts)
-    /// can be mapped twice (on Windows at least). So it is no use just referencing these
-    /// static variables from an application if the widgets of interest have been created
-    /// by the UI Loader. This function can be called on any widget loaded by the UI loader
-    /// and the reference returned can be used to get counts for all widgets loaded by the
-    /// UI loader.
-    int* getDisconnectedCountRef();
-
-    /// Return references to the current count of connections.
-    /// The plugin library (and therefore the static connection and disconnection counts)
-    /// can be mapped twice (on Windows at least). So it is no use just referencing these
-    /// static variables from an application if the widgets of interest have been created
-    /// by the UI Loader. This function can be called on any widget loaded by the UI loader
-    /// and the reference returned can be used to get counts for all widgets loaded by the
-    /// UI loader.
-    int* getConnectedCountRef();
-
-
 protected:
-    void setNumVariables( unsigned int numVariablesIn );    // Set the number of variables that will stream data updates to the widget. Default of 1 if not called.
+    qcaobject::QCaObject* createConnection( unsigned int variableIndex ); ///< Create a CA connection. Return a QCaObject if successfull
 
-    bool subscribe;                                         // Flag if data updates should be requested
+    QString persistantName( QString prefix );                             ///< Returns a string that will not change between runs of the application (given the same configuration)
 
-    qcaobject::QCaObject* createConnection( unsigned int variableIndex );       // Create a CA connection. Return a QCaObject if successfull
-
-    virtual qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );  // Function to create a appropriate superclass of QCaObject to stream data updates
-    virtual void establishConnection( unsigned int variableIndex );             // Create a CA connection and initiates updates if required
-    virtual void activated();                                                   // Do any post-all-widgets-constructed stuff
-
-    QString persistantName( QString prefix );               // Returns a string that will not change between runs of the application (given the same configuration)
-
-    virtual void actionRequest( QString, QStringList, bool, QAction* ){} // Perform a named action
-
-    void deleteQcaItem( unsigned int variableIndex, bool disconnect );       // Delete a stream of CA updates
+    virtual void actionRequest( QString, QStringList, bool, QAction* ){}  ///< Perform a named action
 
     // Default drag/drop actions.
-    void setDrop (QVariant drop) { if( getAllowDrop() ){ paste (drop); } }
-    QVariant getDrop () { return isDraggingVariable () ? QVariant( copyVariable() ) : copyData(); }
+    void setDrop (QVariant drop) { if( getAllowDrop() ){ paste (drop); } }                           ///< Default get drop action
+    QVariant getDrop () { return isDraggingVariable () ? QVariant( copyVariable() ) : copyData(); }  ///< Default set drop action
 
-    unsigned int  xPv;
-    QCaInfo::ACCESS_MODES accessMode;
-    void setControlPV (const unsigned int x) { xPv = x; }
-    unsigned int getControlPV () { return xPv; }
-    void setAccessCursorStyle (QCaConnectionInfo& connectionInfo, const unsigned int variableIndex);
-    QCaInfo::ACCESS_MODES getAccessMode(){ return accessMode; }
+    void setControlPV (const unsigned int variableIndex);                     /// Nominate a single variable index as the control variable index.
+    void setControlPVs (const ControlVariableIndicesSet& variableIndexList);  /// Nominate a variable number of variable indicis as the control variable indies list.
+    ControlVariableIndicesSet getControlPVs () const;
+
+    void setAccessCursorStyle ();                                         /// Update cursor style if all control variable indices are write inhibited.
 
 private:
-    unsigned int numVariables;                              // The number of process variables that will be managed for the QE widgets.
-    qcaobject::QCaObject** qcaItem;                         // CA access - provides a stream of updates. One for each variable name used by the QE widgets
+    void userLevelChangedGeneral( userLevelTypes::userLevels level );     // Manage general aspects of user level change, then call optional QE widget specific virtual functions
+    virtual void userLevelChanged( userLevelTypes::userLevels ){}         // Virtual function implemented by QE widgets when the user level changes
 
-    void userLevelChangedGeneral( userLevelTypes::userLevels level );         // Manage general aspects of user level change, then call optional QE widget specific virtual functions
-    virtual void userLevelChanged( userLevelTypes::userLevels ){} // Virtual function implemented by QE widgets when the user level changes
+    void setToolTipFromVariableNames();                                   // Update the variable name list used in tool tips if requried
 
-    void setToolTipFromVariableNames();                     // Update the variable name list used in tool tips if requried
-
-    signalSlotHandler signalSlot;                    // QObject based class a save/restore signal can be delivered to
+    signalSlotHandler signalSlot;                                         // QObject based class a save/restore signal can be delivered to
 
     void buildPersistantName( QWidget* w, QString& name );
 
-    QCAALARMINFO_SEVERITY lastSeverity;                     // Used as low pass tool tip filter.
-    standardProperties::displayAlarmStateOptions lastDisplayAlarmState;
+    QCAALARMINFO_SEVERITY lastSeverity;                                  // Used as low pass tool tip filter.
+    standardProperties::displayAlarmStateOptions lastDisplayAlarmState;  // Last alarm state. Kept to identify when the alarm state (included in a data update signal) changes
 
     static void addPathToSearchList( QString path, QString name, QStringList& searchList ); // Add a path and filename to a search list. (add sub dirs if path ends with '...')
 
-    QWidget* owner;
+    QWidget* owner;                                                      // QE Widget using this base class. for example, QELabel
+
+    //
+    ControlVariableIndicesSet controlVariableIndices;
+    bool isWriteAllowed;
+    QCursor savedAllowedCursor;
 
 public:
-    static bool inDesigner();                               // Flag indicating this widget is running inside Qt's 'designer'
-    virtual QMenu* getDefaultContextMenu(){ return NULL; }  // Return the Qt default context menu to add to the QE context menu
-    virtual int getUserPrecision(){ return 0; }             // Return the widgets precision property if any (otherwise zero)
-    virtual int getUserAlarmMin(){ return 0; }              // Return the widget alarm minimum if any (otherwise zero)
-    virtual int getUserAlarmMax(){ return 0; }              // Return the widget alarm maximum if any (otherwise zero)
-    virtual bool getAlarmSensitive(){ return false; }       // Return the widget's alarm sensitivity (default to not sensitive)
+    static bool inDesigner();                               /// Flag indicating this widget is running inside Qt's 'designer'
+    virtual QMenu* getDefaultContextMenu(){ return NULL; }  /// Return the Qt default context menu to add to the QE context menu
+    virtual int getUserPrecision(){ return 0; }             /// Return the widgets precision property if any (otherwise zero)
+    virtual int getUserAlarmMin(){ return 0; }              /// Return the widget alarm minimum if any (otherwise zero)
+    virtual int getUserAlarmMax(){ return 0; }              /// Return the widget alarm maximum if any (otherwise zero)
+    virtual bool getAlarmSensitive(){ return false; }       /// Return the widget's alarm sensitivity (default to not sensitive)
 };
-
-
 
 #endif // QEWIDGET_H

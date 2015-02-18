@@ -200,8 +200,9 @@ void QEGenericButton::connectionChanged( QCaConnectionInfo& connectionInfo, cons
     // Display the connected state
     updateToolTipConnection( isConnected, variableIndex );
     updateConnectionStyle( isConnected );
+
     // set cursor to indicate access mode
-    setAccessCursorStyle(connectionInfo, variableIndex);
+    setAccessCursorStyle();
 }
 
 /*

@@ -208,6 +208,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPlot : public QwtPlot, public QEWidget {
     double xStart;
     double xIncrement;
 
+    bool plottingArrayData;    // True if plotting scalar (rather than array) data. Used to ensure only one plot mechanism is used.
+
     // Functions common to most QE widgets
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
 

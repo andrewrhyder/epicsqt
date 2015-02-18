@@ -103,8 +103,12 @@ void QEPlot::setup() {
     gridMinorColor = Qt::gray;
 
 
+    // Default to one minute span
     tickRate = 50;
     timeSpan = 59;
+
+    // Assume we are plotting scalar (rather than array) data
+    plottingArrayData = false;
 
     // Use standard context menu
     setupContextMenu();
@@ -207,6 +211,12 @@ void QEPlot::connectionChanged( QCaConnectionInfo& connectionInfo, const unsigne
  */
 
 void QEPlot::setPlotData( const double value, QCaAlarmInfo& alarmInfo, QCaDateTime& timestamp, const unsigned int& variableIndex ) {
+    // A seperate data connection (QEPlot::setPlotData( const QVector<double>& values, ... ) manages
+    // array data (it also determines if we are getting array data), so do nothing more here if plotting array data data
+    if( plottingArrayData )
+    {
+        return;
+    }
 
     // Signal a database value change to any Link widgets
     emit dbValueChanged( value );
@@ -265,9 +275,12 @@ void QEPlot::setPlotData( const double value, QCaAlarmInfo& alarmInfo, QCaDateTi
 void QEPlot::setPlotData( const QVector<double>& values, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex ) {
 
     // A seperate data connection (QEPlot::setPlotData( const double value, ... ) manages
-    // scalar data, so ignore scalar data packaged as an array of one value here
-    if( values.count() <= 1 )
+    // scalar data, so decide if we are plotting scalar or array data and do nothing more here if plotting scalar data
+    plottingArrayData = ( values.count() > 1 );
+    if( !plottingArrayData )
+    {
         return;
+    }
 
     // Signal a database value change to any Link widgets
     emit dbValueChanged( values );

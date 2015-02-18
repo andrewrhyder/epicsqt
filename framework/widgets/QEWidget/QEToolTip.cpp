@@ -28,6 +28,7 @@
 
 #define DEBUG qDebug () << "QEToolTip" << __FUNCTION__ << __LINE__
 
+// Constructor
 QEToolTip::QEToolTip(  QWidget* ownerIn )
 {
     // Sanity check.
@@ -40,6 +41,7 @@ QEToolTip::QEToolTip(  QWidget* ownerIn )
     // Keep a handle on the underlying QWidget of the QE widgets
     owner = ownerIn;
 
+    // Initially there are no variables associated with the tool tip
     number = 0;
     variableAsToolTip = true;
 }
@@ -152,5 +154,3 @@ void QEToolTip::displayToolTip()
         owner->setToolTip( toolTip );
     }
 }
-
-// end

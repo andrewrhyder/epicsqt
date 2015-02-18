@@ -246,7 +246,7 @@ void QERadioGroup::connectionChanged (QCaConnectionInfo& connectionInfo,
 
    // Set cursor to indicate access mode.
    //
-   this->setAccessCursorStyle (connectionInfo, variableIndex);
+   this->setAccessCursorStyle ();
 }
 
 //-----------------------------------------------------------------------------

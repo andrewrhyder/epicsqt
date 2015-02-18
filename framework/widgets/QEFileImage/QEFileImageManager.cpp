@@ -68,7 +68,7 @@ QString QEFileImageManager::name() const {
     Name of group Qt Designer will add widget to.
 */
 QString QEFileImageManager::group() const {
-    return "EPICSQt Controls";
+    return "EPICSQt Monitors";
 }
 
 /*

@@ -41,17 +41,13 @@
 #include <QEWidget.h>
 #include <QEFrameworkVersion.h>
 #include <QEForm.h>
-#include <standardProperties.h>
-#include <QCaObject.h>
-
 
 #define NO_PV  0x7ffffff
 
-/*
-    Constructor
-*/
+// Constructor
+
 QEWidget::QEWidget( QWidget *ownerIn ) : QEToolTip( ownerIn ), QEDragDrop( ownerIn ), styleManager( ownerIn ), contextMenu( this ),
-    standardProperties( ownerIn ), xPv(NO_PV), accessMode(QCaInfo::UNKNOWN)
+    standardProperties( ownerIn )
 {
     // Sanity check.
     if( ownerIn == NULL )
@@ -63,12 +59,11 @@ QEWidget::QEWidget( QWidget *ownerIn ) : QEToolTip( ownerIn ), QEDragDrop( owner
     // Keep a handle on the underlying QWidget of the QE widgets
     owner = ownerIn;
 
-    // Initially flag no variables array is defined.
-    // This will be corrected when the first variable is declared
-    numVariables = 0;
-    qcaItem = 0;
+    // Clear list
+    controlVariableIndices.clear();
+    isWriteAllowed = true;     // assume allowed until we find out otherwise.
 
-    //
+    // Inisialise 'current' severity and alarm states
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
     lastDisplayAlarmState = standardProperties::DISPLAY_ALARM_STATE_NEVER;
 
@@ -110,207 +105,34 @@ QEWidget::QEWidget( QWidget *ownerIn ) : QEToolTip( ownerIn ), QEDragDrop( owner
     }
 }
 
-/*
-    Destruction:
-    Delete all variable sources for the widgeet
-*/
+// Destruction:
 QEWidget::~QEWidget() {
-    // Remove this widget remove this widget from the list of contained widgets if it is there.
+    // Remove this widget from the list of contained widgets if it is there.
     // The list is only used during form construction and generally widgets are not destroyed during form
     // construction, but there are exceptions. A typical exception is QEMotor, which creates and sometimes
     // destroys QELabels during contruction. These QELabels get added to the contained widgets list
     // but are then destroyed. Unless they are removed from the list, the form will attempt to activate them.
     removeContainedWidget( this );
 
-    // Delete all the QCaObject instances
-    for( unsigned int i = 0; i < numVariables; i++ ) {
-        deleteQcaItem( i, true );
-    }
-
-    // Release the list
-    delete[] qcaItem;
-    qcaItem = NULL;
 }
 
-/*
-    Set the number of variables that will be used for this widget.
-    Create an array of QCaObject based objects to suit.
-    This is called by the CA aware widgets based on this class, such as a QELabel.
-*/
-void QEWidget::setNumVariables( unsigned int numVariablesIn ) {
-
-    // Get the number of variables that will be used by this widget
-    // Don't accept zero or the qca array will be invalid
-    if( numVariablesIn ) {
-        numVariables = numVariablesIn;
-    } else {
-        numVariables = 1;
-    }
-
-    // Set up the number of variables managed by the variable name manager
-    variableNameManagerInitialise( numVariables );
-
-    // Allocate the array of QCa objects
-    qcaItem = new qcaobject::QCaObject* [numVariables];
-    for( unsigned int i = 0; i < numVariables; i++ ) {
-        qcaItem[i] = NULL;
-    }
-}
-
-/*
-   Initiate updates.
-   This is only required when QE widgets are loaded within a form and not directly by 'designer'.
-   When loaded directly by 'designer' they are activated (a CA connection is established) as soon as either
-   the variable name or variable name substitution properties are set
- */
-void QEWidget::activate()
-{
-    // For each variable, ask the CA aware widget based on this class to initiate updates and to set up
-    // whatever signal/slot connections are required to make use of data updates.
-    // Note, establish connection is a virtual function of the VariableNameManager class and is normally
-    // called by that class when a variable name is defined or changed
-    for( unsigned int i = 0; i < numVariables; i++ )
-        establishConnection( i );
-
-    // Ask the widget to perform any tasks which should only be done once all other widgets have been created.
-    // For example, if a widget wants to notify other widgets through signals during construction, other widgets
-    // may not be present yet to recieve the signals. This type of notification could be held off untill now.
-    activated();
-}
-
-/*
-   Terminate updates.
-   This has been provided for third party (non QEGui) applications using the framework.
- */
-void QEWidget::deactivate()
-{
-    // Delete all the QCaObject instances
-    for( unsigned int i = 0; i < numVariables; i++ ) {
-        deleteQcaItem( i, false );
-    }
-}
-
-
-/*
-    Create a CA connection and initiates updates if required.
-    This is called by the establishConnection function of CA aware widgets based on this class, such as a QELabel.
-    If successfull it will return the QCaObject based object supplying data update signals
-*/
+// Create a CA connection and initiates updates if required.
+// This is called by the establishConnection function of CA aware widgets based on this class, such as a QELabel.
+// If successfull it will return the QCaObject based object supplying data update signals
 qcaobject::QCaObject* QEWidget::createConnection( unsigned int variableIndex ) {
-
-    // If the index is invalid do nothing
-    // This same test is also valid if qcaItem has never been set up yet as numVariables will be zero
-    if( variableIndex >= numVariables ) {
-        return NULL;
-    }
 
     // Update the variable names in the tooltip if required
     setToolTipFromVariableNames();
 
-    // Remove any existing QCa connection
-    deleteQcaItem( variableIndex, false );
-
-    // Connect to new variable.
-    // If a new variable name is present, ask the CA aware widget based on this class to create an
-    // appropriate object based on a QCaObject (by calling its createQcaItem() function).
-    // If that is successfull, supply it with a mechanism for handling errors and subscribe
-    // to the new variable if required.
-    if( getSubstitutedVariableName( variableIndex ).length() > 0 ) {
-        qcaItem[variableIndex] = createQcaItem( variableIndex );
-        if( qcaItem[variableIndex] ) {
-
-            qcaItem[variableIndex]->setUserMessage( (UserMessage*)this );
-
-            if( subscribe )
-                qcaItem[variableIndex]->subscribe();
-        }
-    }
-
-    // Return the QCaObject, if any
-    return qcaItem[variableIndex];
+    // Create the required QCa objects (in the end, the originating QE widget will be asked to create
+    // the QCa objects in the flavours that it wants through the createQcaItem() virtual function.
+    return createVariable( variableIndex );
 }
 
-// Default implementation of createQcaItem().
-// Usually a QE widgets will request a connection be established by this class and this class will
-// call back the QE widgets for it to create the specific flavour of QCaObject required using this function.
-// Since this class can also be used as a base class for widgets that don't establish any CA connection,
-// this default implementation is here to always return NULL when asked to create a QCaObject
+// Return a colour to update the widget's look to reflect the current alarm state
+// Note, the color is determined by the alarmInfo class, but since that class is used in non
+// gui applications, it can't return a QColor
 //
-qcaobject::QCaObject* QEWidget::createQcaItem( unsigned int )
-{
-    return NULL;
-}
-
-// Default implementation of establishConnection().
-// Usually a QE widgets will request a connection be established by this class and this class will
-// call back the QE widgets for it to establish a connection on a newly created QCaObject using this function.
-// Since this class can also be used as a base class for widgets that don't establish any CA connection,
-// this default implementation is here as a default when not implemented
-//
-void QEWidget::establishConnection( unsigned int )
-{
-}
-
-// Default implementation of activated().
-// Widgets may have tasks which should only be done once all other widgets have been created.
-// For example, if a widget wants to notify other widgets through signals during construction, other widgets
-// may not be present yet to recieve the signals. This type of notification could be held off untill now.
-void QEWidget::activated()
-{
-}
-
-
-
-/*
-    Return a reference to one of the qCaObjects used to stream CA data updates to the widget
-    This is called by CA aware widgets based on this class, such as a QELabel, mainly when they
-    want to connect to its signals to recieve data updates.
-*/
-qcaobject::QCaObject* QEWidget::getQcaItem( unsigned int variableIndex ) {
-    // If the index is invalid return NULL.
-    // This same test is also valid if qcaItem has never been set up yet as numVariables will be zero
-    if( variableIndex >= numVariables )
-        return NULL;
-
-    // Return the QCaObject used for the specified variable name
-    return qcaItem[variableIndex];
-}
-
-/*
-    Remove any previous QCaObject created to supply CA data updates for a variable name
-    If the object connected to the QCaObject is being destroyed it is not good to receive signals so the disconnect parameter should be true in this case
-*/
-void QEWidget::deleteQcaItem( unsigned int variableIndex, bool disconnect ) {
-    // If the index is invalid do nothing.
-    // This same test is also valid if qcaItem has never been set up yet as numVariables will be zero
-    if( variableIndex >= numVariables )
-        return;
-
-    // Remove the reference to the deleted object to prevent accidental use
-    qcaobject::QCaObject* qca = qcaItem[variableIndex];
-    qcaItem[variableIndex] = NULL;
-
-    // Delete the QCaObject used for the specified variable name
-    if( qca )
-    {
-        // If we need to disconnect first, do so.
-        // If the object connected is being destroyed it is not good to receive signals. (this happened)
-        // If the object connected is not being destroyed is will want to know a disconnection has occured.
-        if( disconnect )
-        {
-            qca->disconnect();
-        }
-
-        // Delete the QCaObject
-        delete qca;
-    }
-}
-
-/*
-  Return a colour to update the widget's look to reflect the current alarm state
-  Note, the color is determined by the alarmInfo class, but since that class is used in non
-  gui applications, it can't return a QColor
- */
 QColor QEWidget::getColor( QCaAlarmInfo& alarmInfo, int saturation )
 {
     QColor result(alarmInfo.getColorName());
@@ -321,9 +143,8 @@ QColor QEWidget::getColor( QCaAlarmInfo& alarmInfo, int saturation )
     return result;
 }
 
-/*
-  Provides default (and consistant) alarm handling for all QE widgets.
- */
+// Provides default (and consistant) alarm handling for all QE widgets.
+//
 void QEWidget::processAlarmInfo( QCaAlarmInfo& alarmInfo, const unsigned int variableIndex )
 {
     // Gather the current info
@@ -361,12 +182,13 @@ void QEWidget::processAlarmInfo( QCaAlarmInfo& alarmInfo, const unsigned int var
     lastDisplayAlarmState = displayAlarmState;
 }
 
-// Update the variable name list used in tool tips if requried
+// Update the variable name list used in tool tips if required
+//
 void QEWidget::setToolTipFromVariableNames()
 {
     // Set tip info
-    setNumberToolTipVariables( numVariables );
-    for( unsigned int i = 0; i < numVariables; i++ ) {
+    setNumberToolTipVariables( getNumVariables() );
+    for( unsigned int i = 0; i < getNumVariables(); i++ ) {
         // If a variable name is present, add it to the tip
         QString variableName = getSubstitutedVariableName( i );
         updateToolTipVariable( variableName, i );
@@ -376,6 +198,7 @@ void QEWidget::setToolTipFromVariableNames()
 // Returns true if running within the Qt Designer application.
 // used when the behaviour needs to be different in designer.
 // For example, a run-time-visible property - always visible in designer, visible at run time dependant on the property.
+//
 bool QEWidget::inDesigner()
 {
     // check if the current executable has 'designer' in the name
@@ -385,11 +208,9 @@ bool QEWidget::inDesigner()
     return fi.baseName().contains( "designer" );
 }
 
-//==============================================================================
-// User level
-
 // The user level has changed
 // Modify the widget visibility and style accordingly
+//
 void QEWidget::userLevelChangedGeneral( userLevelTypes::userLevels level )
 {
     // Manage general QE widget aspects of the user level chagning
@@ -400,26 +221,10 @@ void QEWidget::userLevelChangedGeneral( userLevelTypes::userLevels level )
     userLevelChanged( level );
 }
 
-// Perform a single shot read on all variables.
-// Widgets may be write only and do not need to subscribe (subscribe property is false).
-// When not subscribing it may still be usefull to do a single shot read to get initial
-// values, or perhaps confirm a write.
-void QEWidget::readNow()
-{
-    // Perform a single shot read on all variables.
-    qcaobject::QCaObject* qca;
-    for( unsigned int i = 0; i < numVariables; i++ )
-    {
-        qca = getQcaItem( i );
-        if( qca ) // If variable exists...
-        {
-            qca->singleShotRead();
-        }
-    }
-}
 
 // Access functions for variableName and variableNameSubstitutions
 // variable substitutions Example: SECTOR=01 will result in any occurance of $SECTOR in variable name being replaced with 01.
+//
 void QEWidget::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
 {
     setVariableNameSubstitutions( variableNameSubstitutionsIn );
@@ -433,30 +238,37 @@ void QEWidget::setVariableNameAndSubstitutions( QString variableNameIn, QString 
 
 // Returns the default location to create files.
 // Use this to create files in a consistant location
+//
 QString QEWidget::defaultFileLocation()
 {
+    // First choice - the path the parent object is using
     QString path = getParentPath();
     if( !path.isEmpty() )
     {
         return path;
     }
 
+    // Second choice - the path in the ContainerProfile
     path = getPath();
     if( !path.isEmpty() )
     {
         return path;
     }
 
+    // Third choice - the current path
     path = QDir::currentPath();
     if( !path.isEmpty() )
     {
         return path;
     }
+
+    // Fourth choice - give up
     return "";
 }
 
 // Returns an open file given a file name.
 // This uses findQEFile() to find files in a consistant set of locations. Refer to findQEFile() for details.
+//
 QFile* QEWidget::openQEFile( QString name, QFile::OpenModeFlag mode )
 {
     // Find the file
@@ -555,6 +367,7 @@ QFile* QEWidget::findQEFile( QString name, ContainerProfile* profile )
 //
 //    addPathToSearchList( "/home/rhydera", myFile.ui, searchList )
 //       will add /home/rhydera/myFile.ui to the search list
+
 void QEWidget::addPathToSearchList( QString path, QString name, QStringList& searchList )
 {
     QFileInfo fileInfo;
@@ -771,10 +584,12 @@ void QEWidget::doAction( QWidget* searchPoint, QString widgetName, QString actio
 
 const QList<QCaInfo> QEWidget::getQCaInfo()
 {
+    // Prepare a list of info for each variable
     QList<QCaInfo> list;
 
+    // Populate the list for each variable
     qcaobject::QCaObject* qca;
-    for( unsigned int i = 0; i < numVariables; i++ )
+    for( unsigned int i = 0; i < getNumVariables(); i++ )
     {
         qca = getQcaItem( i );
         if( qca ) // If variable exists...
@@ -807,46 +622,79 @@ const QList<QCaInfo> QEWidget::getQCaInfo()
     return list;
 }
 
-using namespace qcastatemachine;
-
-// Return references to the current count of disconnections.
-// The plugin library (and therefore the static connection and disconnection counts)
-// can be mapped twice (on Windows at least). So it is no use just referencing these
-// static variables from an application if the widgets of interest have been created
-// by the UI Loader. This function can be called on any widget loaded by the UI loader
-// and the reference returned can be used to get counts for all widgets loaded by the
-// UI loader.
-int* QEWidget::getDisconnectedCountRef()
+// Nominate a single variable index as the sole control variable.
+//
+void  QEWidget::setControlPV( const unsigned int variableIndex )
 {
-    return &ConnectionQCaStateMachine::disconnectedCount;
+    controlVariableIndices.clear();
+    controlVariableIndices.append( variableIndex );
 }
 
-// Return references to the current count of connections.
-// The plugin library (and therefore the static connection and disconnection counts)
-// can be mapped twice (on Windows at least). So it is no use just referencing these
-// static variables from an application if the widgets of interest have been created
-// by the UI Loader. This function can be called on any widget loaded by the UI loader
-// and the reference returned can be used to get counts for all widgets loaded by the
-// UI loader.
-int* QEWidget::getConnectedCountRef()
+// Nominate a set (0, 1, 2 or more) variable indicies as control variable(s).
+//
+void QEWidget::setControlPVs (const ControlVariableIndicesSet& variableIndexList)
 {
-    return &ConnectionQCaStateMachine::connectedCount;
+    controlVariableIndices = variableIndexList;
 }
 
-void QEWidget::setAccessCursorStyle(QCaConnectionInfo& connectionInfo, const unsigned int variableIndex){
-    if (xPv != variableIndex ) return;
-    qcaobject::QCaObject* caObj = getQcaItem(xPv);
-    if (!caObj) return;
+// Return the set/list of control variable indicies.
+//
+QEWidget::ControlVariableIndicesSet QEWidget::getControlPVs () const
+{
+    return controlVariableIndices;
+}
 
-    bool writeable;
-    if (connectionInfo.isChannelConnected()) {
-       writeable = caObj->getWriteAccess();
+// This updates the cursor style based on the widget's nominated control variable(s)
+// and the write access associated with each of those control variables.
+// When more than control variable nominated, all have to be denied write access
+// in order for the cursor style to be set to Qt::ForbiddenCursor.
+void QEWidget::setAccessCursorStyle()
+{
+    QWidget* widget = getQWidget();
+    if (!widget) return;   // sainity check.
+
+    bool newIsWriteAllowed;
+
+    int number = controlVariableIndices.count() ;
+    if( number > 0 ){
+        // Check if at least one of the control variables have write access.
+        newIsWriteAllowed = false;
+        for( int j = 0; j < number ; j++ ){
+            const unsigned int variableIndex = controlVariableIndices.value( j );
+            qcaobject::QCaObject* qca = getQcaItem( variableIndex );
+            bool channelWritable = false;
+
+            if( qca ){
+                if( qca->getChannelIsConnected() ){
+                    channelWritable = qca->getWriteAccess();
+                }
+            }
+
+            if( channelWritable ){
+                newIsWriteAllowed = true;
+                break;   //  one allowed is all that it takes.
+            }
+        }
     } else {
-        writeable = false;
+        // There are no control variables specified.
+        // Assume allowed, or more specifically not forbidden.
+        newIsWriteAllowed = true;
     }
-    if (writeable) {
-        getQWidget()->setCursor(Qt::ArrowCursor);
-    } else {
-        getQWidget()->setCursor(Qt::ForbiddenCursor);
+
+    // Have there been a change of allowed/forbidden state?
+    if( isWriteAllowed != newIsWriteAllowed ){
+        // Change of state - save new state
+        //
+        isWriteAllowed = newIsWriteAllowed;
+        if( isWriteAllowed ){
+            // reapply the saved cursor.
+            widget->setCursor( savedAllowedCursor );
+        } else {
+            // save the current cursor style and then update.
+            savedAllowedCursor = widget->cursor ();
+            widget->setCursor( Qt::ForbiddenCursor );
+        }
     }
 }
+
+// end

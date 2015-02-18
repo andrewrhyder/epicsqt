@@ -8,6 +8,7 @@ INCLUDEPATH += \
     widgets/QEWidget
 
 HEADERS += \
+    widgets/QEWidget/VariableManager.h \
     widgets/QEWidget/VariableNameManager.h \
     widgets/QEWidget/UserMessage.h \
     widgets/QEWidget/contextMenu.h \
@@ -26,6 +27,7 @@ HEADERS += \
     widgets/QEWidget/applicationLauncher.h
 
 SOURCES += \
+    widgets/QEWidget/VariableManager.cpp \
     widgets/QEWidget/VariableNameManager.cpp \
     widgets/QEWidget/UserMessage.cpp \
     widgets/QEWidget/contextMenu.cpp \

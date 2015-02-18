@@ -125,7 +125,7 @@ void QEGenericEdit::connectionChanged( QCaConnectionInfo& connectionInfo )
     updateConnectionStyle( isConnected );
 
     // Set cursor to indicate access mode.
-    setAccessCursorStyle( connectionInfo, 0 );
+    setAccessCursorStyle();
 }
 
 //------------------------------------------------------------------------------

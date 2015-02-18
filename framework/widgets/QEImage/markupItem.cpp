@@ -34,15 +34,6 @@
 // Construct a markup item
 markupItem::markupItem( imageMarkup* ownerIn, const isOverOptions /*unused*/, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn )
 {
-/*
-    enabledAction = new QAction( legendIn );
-    enabledAction->setCheckable( true );
-    enabledAction->setChecked( true );
-
-    displayedAction = new QAction(legendIn );
-    enabledAction->setCheckable( true );
-*/
-
     interactive = interactiveIn;
     reportOnMove = reportOnMoveIn;
     visible = false;
