@@ -27,8 +27,6 @@
  */
 
 #include <brightnessContrast.h>
-#include <QVBoxLayout>
-#include <QPushButton>
 #include <QPainter>
 #include <math.h>
 
@@ -89,18 +87,23 @@ imageDisplayProperties::imageDisplayProperties()
     imageDisplayPropertiesMainLayout->setSpacing( 10 );
     setLayout( imageDisplayPropertiesMainLayout );
 
-    QHBoxLayout* imageDisplayPropertiesSub1Layout = new QHBoxLayout();
-    QGridLayout* imageDisplayPropertiesSub2Layout = new QGridLayout();
-    QHBoxLayout* imageDisplayPropertiesSub3Layout = new QHBoxLayout();
-    QHBoxLayout* imageDisplayPropertiesSub4Layout = new QHBoxLayout();
-    QHBoxLayout* imageDisplayPropertiesSub5Layout = new QHBoxLayout();
+    imageDisplayPropertiesSub1Layout = new QHBoxLayout();
+    imageDisplayPropertiesSub2Layout = new QGridLayout();
+    imageDisplayPropertiesSub3Layout = new QHBoxLayout();
+    imageDisplayPropertiesSub4Layout = new QHBoxLayout();
+    imageDisplayPropertiesSub5Layout = new QHBoxLayout();
 
-    QLabel* brightnessLabel = new QLabel( "Brightness:", this );
-    QLabel* gradientLabel = new QLabel( "Gradient:\n(Contrast)", this );
+    brightnessLabel = new QLabel( "Brightness:", this );
+    gradientLabel = new QLabel( "Gradient:\n(Contrast)", this );
     QLabel* minLabel = new QLabel( "Minimum:", this );
     QLabel* maxLabel = new QLabel( "Maximum:", this );
 
-    autoBrightnessCheckBox = new QCheckBox( "Auto Brightness and Contrast", this );
+    advancedButton = new QPushButton( "+", this );
+    advancedButton->setToolTip( "Provide full image display properties");
+    advancedButton->setMaximumWidth(30);
+    advancedButton->setCheckable(true);
+
+    autoBrightnessCheckBox = new QCheckBox( "Auto", this );
     autoBrightnessCheckBox->setToolTip( "Set brightness and contrast to use the full dynamic range of an area when an area is selected");
 
     QPushButton* autoImageButton = new QPushButton( "Auto all", this );
@@ -115,6 +118,7 @@ imageDisplayProperties::imageDisplayProperties()
     brightnessSlider->setToolTip( "Set brightness.");
     brightnessSlider->setMinimum( 0 );
     brightnessSlider->setMaximum( 100 );
+    brightnessSlider->setMinimumWidth(200);
     QObject::connect( brightnessSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( brightnessSliderValueChanged( int )) );
 
     gradientSlider = new QSlider( Qt::Horizontal, this );
@@ -237,6 +241,7 @@ imageDisplayProperties::imageDisplayProperties()
 
     imageDisplayPropertiesMainLayout->addWidget( histZoom, 0, 1, 3, 1 );
     imageDisplayPropertiesMainLayout->addWidget( histScroll, 0, 2, 3, 1 );
+    imageDisplayPropertiesMainLayout->addWidget( advancedButton, 0, 3, 3, 1, Qt::AlignBottom );
     imageDisplayPropertiesMainLayout->setColumnStretch( 1, 2 );  // Histogram to take all spare room
 
     // Update brightness and contrast to match zero and full values
@@ -245,6 +250,8 @@ imageDisplayProperties::imageDisplayProperties()
 
     // Apply the layouts
     adjustSize();
+    QObject::connect( advancedButton, SIGNAL( clicked ( bool ) ), this,  SLOT  ( advencedToggled( bool )) );
+    advencedToggled(false);
 }
 
 imageDisplayProperties::~imageDisplayProperties()
@@ -1099,3 +1106,84 @@ int imageDisplayProperties::toExponentialTailSlider( double value )
         return (log10(value-241.207)+6.83)/0.01;
     }
 }
+// slot for advance button toggled
+void imageDisplayProperties::advencedToggled( bool toggled ){
+    if (toggled){
+        // go full detailed properties
+        showAll(true);
+        this->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+        advancedButton->setText("-");
+    }
+    else{
+        // go minimum details on brightness and contrast only
+        showAll(false);
+        brightnessLabel->show();
+        gradientLabel->show();
+        brightnessSlider->show();
+        gradientSlider->show();
+        setMaximumSize(360, 100);
+        advancedButton->setText("+");
+    }
+}
+// helper method to hide/show all the widget
+void imageDisplayProperties::showAll( bool show ){
+    if (show){
+        // show all
+        int count = imageDisplayPropertiesSub1Layout->count();
+        for ( int i = 0; i < count; i++ ){
+            if (imageDisplayPropertiesSub1Layout->itemAt(i)->widget()){
+                imageDisplayPropertiesSub1Layout->itemAt(i)->widget()->show();
+            }
+        }
+        count = imageDisplayPropertiesSub2Layout->count();
+        for ( int i = 0; i < count; i++ ){
+            if (imageDisplayPropertiesSub2Layout->itemAt(i)->widget()){
+                imageDisplayPropertiesSub2Layout->itemAt(i)->widget()->show();
+            }
+        }
+        count = imageDisplayPropertiesSub3Layout->count();
+        for ( int i = 0; i < count; i++ ){
+            imageDisplayPropertiesSub3Layout->itemAt(i)->widget()->show();
+        }
+        count = imageDisplayPropertiesSub4Layout->count();
+        for ( int i = 0; i < count; i++ ){
+            imageDisplayPropertiesSub4Layout->itemAt(i)->widget()->show();
+        }
+        count = imageDisplayPropertiesSub5Layout->count();
+        for ( int i = 0; i < count; i++ ){
+            imageDisplayPropertiesSub5Layout->itemAt(i)->widget()->show();
+        }
+        histZoom->show();
+        histScroll->show();
+    }
+    else{
+        // hide all
+        int count = imageDisplayPropertiesSub1Layout->count();
+        for ( int i = 0; i < count; i++ ){
+            if (imageDisplayPropertiesSub1Layout->itemAt(i)->widget()){
+                imageDisplayPropertiesSub1Layout->itemAt(i)->widget()->hide();
+            }
+        }
+        count = imageDisplayPropertiesSub2Layout->count();
+        for ( int i = 0; i < count; i++ ){
+            if (imageDisplayPropertiesSub2Layout->itemAt(i)->widget()){
+                imageDisplayPropertiesSub2Layout->itemAt(i)->widget()->hide();
+            }
+        }
+        count = imageDisplayPropertiesSub3Layout->count();
+        for ( int i = 0; i < count; i++ ){
+            imageDisplayPropertiesSub3Layout->itemAt(i)->widget()->hide();
+        }
+        count = imageDisplayPropertiesSub4Layout->count();
+        for ( int i = 0; i < count; i++ ){
+            imageDisplayPropertiesSub4Layout->itemAt(i)->widget()->hide();
+        }
+        count = imageDisplayPropertiesSub5Layout->count();
+        for ( int i = 0; i < count; i++ ){
+            imageDisplayPropertiesSub5Layout->itemAt(i)->widget()->hide();
+        }
+        histZoom->hide();
+        histScroll->hide();
+    }
+}
+

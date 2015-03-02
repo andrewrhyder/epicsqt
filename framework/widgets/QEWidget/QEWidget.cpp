@@ -42,8 +42,6 @@
 #include <QEFrameworkVersion.h>
 #include <QEForm.h>
 
-#define NO_PV  0x7ffffff
-
 // Constructor
 
 QEWidget::QEWidget( QWidget *ownerIn ) : QEToolTip( ownerIn ), QEDragDrop( ownerIn ), styleManager( ownerIn ), contextMenu( this ),

@@ -236,7 +236,7 @@ private:
 protected:
     void setup();
     void establishConnection( unsigned int variableIndex );
-    void calcStyleOption();
+    void calcStyleOption();                                             // Calculate style based on the widget usage and set a dynamic propert for style options.
 
 private:
     void dataSetup();

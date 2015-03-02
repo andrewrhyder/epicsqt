@@ -53,7 +53,9 @@ HEADERS += \
     widgets/QEImage/markupDisplayMenu.h \
     widgets/QEImage/recording.h \
     widgets/QEImage/screenSelectDialog.h \
-    widgets/QEImage/colourConversion.h
+    widgets/QEImage/colourConversion.h \
+    widgets/QEImage/imageProcessor.h \
+    widgets/QEImage/imageProperties.h
 
 isEmpty( _QE_FFMPEG ) {
 
@@ -87,7 +89,9 @@ SOURCES += \
     widgets/QEImage/fullScreenWindow.cpp \
     widgets/QEImage/markupDisplayMenu.cpp \
     widgets/QEImage/recording.cpp \
-    widgets/QEImage/screenSelectDialog.cpp
+    widgets/QEImage/screenSelectDialog.cpp \
+    widgets/QEImage/imageProcessor.cpp \
+    widgets/QEImage/imageProperties.cpp
 
 isEmpty( _QE_FFMPEG ) {
 } else {
