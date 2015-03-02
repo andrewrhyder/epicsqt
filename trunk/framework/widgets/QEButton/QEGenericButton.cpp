@@ -763,6 +763,7 @@ void QEGenericButton::startGui( const QEActionRequests & request )
     }
 }
 
+// Calculate style based on the widget usage and set a dynamic propert for style options.
 void QEGenericButton::calcStyleOption () {
     // update stylesheet
     QWidget* button = getQWidget();

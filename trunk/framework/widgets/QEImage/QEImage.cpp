@@ -89,16 +89,9 @@ void QEImage::setup() {
     zoom = 100;
     infoUpdateZoom( zoom );
 
-    rotation = ROTATION_0;
-    flipVert = false;
-    flipHoz = false;
-
     initialHozScrollPos = 0;
     initialVertScrollPos = 0;
     initScrollPosSet = false;
-
-    mFormatOption = imageDataFormats::MONO;
-    bitDepth = 8;
 
     paused = false;
     infoUpdatePaused( paused );
@@ -127,20 +120,8 @@ void QEImage::setup() {
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
     isConnected = false;
 
-    imageDataSize = 0;
-    elementsPerPixel = 1;
-    bytesPerPixel = 0;
-
-    clippingOn = false;
-    clippingLow = 0;
-    clippingHigh = 0;
-
-    pixelLookupValid = false;
-
     appHostsControls = false;
     hostingAppAvailable = false;
-
-    receivedImageSize = 0;
 
     displayMarkups = false;
 
@@ -204,7 +185,7 @@ void QEImage::setup() {
 
     // Create flip/rotate sub menu
     frMenu = new flipRotateMenu();
-    frMenu->setChecked( rotation, flipHoz, flipVert );
+    frMenu->setChecked( iProcessor.getRotation(), iProcessor.getFlipHoz(), iProcessor.getFlipVert() );
     QObject::connect( frMenu, SIGNAL( triggered ( QAction* ) ), this,  SLOT  ( flipRotateMenuTriggered( QAction* )) );
 
     // Create and setup the select menu
@@ -223,6 +204,8 @@ void QEImage::setup() {
 
     // Image display properties controls
     imageDisplayProps = new imageDisplayProperties;
+    iProcessor.setImageDisplayProperties( imageDisplayProps );
+
     QObject::connect( imageDisplayProps, SIGNAL( imageDisplayPropertiesChange() ),
                       this,    SLOT  ( imageDisplayPropertiesChanged()) );
     QObject::connect( imageDisplayProps, SIGNAL( brightnessContrastAutoImage() ),
@@ -371,16 +354,6 @@ void QEImage::setup() {
     // This will be resized when the image size is known
     videoWidget->resize( scrollArea->width(), scrollArea->height() );
 
-    // Set image size to zero
-    // Image will not be presented until size is available
-    imageBuffWidth = 0;
-    imageBuffHeight = 0;
-
-    numDimensions = 0;
-    imageDimension0 = 0;
-    imageDimension1 = 0;
-    imageDimension2 = 0;
-
     // Simulate pan mode being selected
     panModeClicked();
     sMenu->setChecked( QEImage::SO_PANNING );
@@ -441,7 +414,11 @@ QEImage::~QEImage()
 }
 
 // If an object handed over to the application (which we have a reference to) has been deleted, then clear the reference
-void QEImage::imageDisplayPropsDestroyed( QObject* ){ imageDisplayProps = NULL; }
+void QEImage::imageDisplayPropsDestroyed( QObject* )
+{
+    imageDisplayProps = NULL;
+    iProcessor.setImageDisplayProperties( NULL );
+}
 void QEImage::vSliceDisplayDestroyed( QObject* ){ vSliceDisplay = NULL; }
 void QEImage::hSliceDisplayDestroyed( QObject* ){ hSliceDisplay = NULL; }
 void QEImage::profileDisplayDestroyed( QObject* ){ profileDisplay = NULL; }
@@ -548,32 +525,9 @@ qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
                 // Create the image item
                 QEByteArray* qca = new QEByteArray( getSubstitutedVariableName( variableIndex ), this, variableIndex );
 
-                // If we already have the image dimensions (and the elements per pixel if required), update the image
-                // size we need here before the subscription.
-                // (we should have image dimensions as a connection is only established once these have been read)
-                if( imageBuffWidth && imageBuffHeight && ( numDimensions !=3 || imageDimension0))
+                int elementCount = iProcessor.getElementCount();
+                if( elementCount )
                 {
-                    // element count is at least width x height
-                    unsigned int elementCount = imageBuffWidth * imageBuffHeight;
-
-                    // Regardless of the souce of the width and height (either from width and height variables or from
-                    // the appropriate area detector dimension variables), if the number of area detector dimensions
-                    // is 3, then the first dimension is the number or elements per pixel so the element count needs to
-                    // be multiplied by the first area detector dimension.
-
-                    // It is possible for the image dimensions to change dynamically. For example to change from
-                    // 3 dimensions to 2. In this example, the first dimension may change from being the data elements
-                    // per pixel to being the image width before the 'number of dimensions' variable changes. This results
-                    // in a window where the first dimension is assumed to be the data elements per pixel (num dimensions is 3)
-                    // but it is actually the image width (much larger) this can result in crashes where a huge number of bytes
-                    // per pixel is assumed and data arrays are overrun. If the dimensions appear odd, 32 was chosen as being large enough to cater for the
-                    // largest number of elements per pixel. It is reasonable for image widths to be less than 32, so code must
-                    // still handle invalid bytes per pixel calculations.
-                    if( numDimensions == 3 && imageDimension0 && imageDimension0 <= 32 )
-                    {
-                        elementCount = elementCount * elementsPerPixel;
-                    }
-
                     qca->setRequestedElementCount( elementCount );
                 }
                 return qca;
@@ -661,7 +615,7 @@ qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
 void QEImage::establishConnection( unsigned int variableIndex ) {
 
     // Do nothing regarding the image until the width and height are available
-    if( variableIndex == IMAGE_VARIABLE && imageBuffWidth == 0 && imageBuffHeight == 0 )
+    if( variableIndex == IMAGE_VARIABLE && iProcessor.getImageBuffWidth() == 0 && iProcessor.getImageBuffHeight() == 0 )
        return;
 
     // Create a connection.
@@ -864,42 +818,6 @@ void QEImage::connectionChanged( QCaConnectionInfo& connectionInfo )
 
 }
 
-// Update the image dimensions (width and height) from the area detector dimension variables.
-// If an area detector dimension is available, then set up the width and height from the
-// appropriate area detector dimension variables if available.
-// This function is called when any area detector dimension related variable changes
-// Width and height will not be touched untill the number of dimensions is avaliable, and
-// will only be altered if there is a valid dimension.
-void QEImage::setWidthHeightFromDimensions()
-{
-    switch( numDimensions )
-    {
-        // 2 dimensions - one data element per pixel, dimensions are width x height
-        case 2:
-            if( imageDimension0 )
-            {
-                imageBuffWidth = imageDimension0;
-            }
-            if( imageDimension1 )
-            {
-                imageBuffHeight = imageDimension1;
-            }
-            break;
-
-        // 3 dimensions - multiple data elements per pixel, dimensions are pixel x width x height
-        case 3:
-            if( imageDimension1 )
-            {
-                imageBuffWidth = imageDimension1;
-            }
-            if( imageDimension2 )
-            {
-                imageBuffHeight = imageDimension2;
-            }
-            break;
-    }
-}
-
 /*
     Update the image format from a variable.
     This tends to take precedence over the format property simply as variable data arrives after all properties are set.
@@ -909,29 +827,7 @@ void QEImage::setWidthHeightFromDimensions()
  */
 void QEImage::setFormat( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& )
 {
-    imageDataFormats::formatOptions previousFormatOption = mFormatOption;
-
-    // Update image format
-    // Area detector formats
-    if     ( !text.compare( "Mono" ) )         mFormatOption = imageDataFormats::MONO;
-    else if( !text.compare( "Bayer" ) )        mFormatOption = imageDataFormats::BAYERRG;
-    else if( !text.compare( "BayerGB" ) )      mFormatOption = imageDataFormats::BAYERGB;
-    else if( !text.compare( "BayerBG" ) )      mFormatOption = imageDataFormats::BAYERBG;
-    else if( !text.compare( "BayerGR" ) )      mFormatOption = imageDataFormats::BAYERGR;
-    else if( !text.compare( "BayerRG" ) )      mFormatOption = imageDataFormats::BAYERRG;
-    else if( !text.compare( "RGB1" ) )         mFormatOption = imageDataFormats::RGB1;
-    else if( !text.compare( "RGB2" ) )         mFormatOption = imageDataFormats::RGB2;
-    else if( !text.compare( "RGB3" ) )         mFormatOption = imageDataFormats::RGB3;
-    else if( !text.compare( "YUV444" ) )       mFormatOption = imageDataFormats::YUV444;
-    else if( !text.compare( "YUV422" ) )       mFormatOption = imageDataFormats::YUV422;
-    else if( !text.compare( "YUV421" ) )       mFormatOption = imageDataFormats::YUV421;
-    else
-    {
-        // !!! warn unexpected format
-    }
-
-    // Do nothing if no format change
-    if( previousFormatOption == mFormatOption)
+    if( !iProcessor.setFormat( text ) )
     {
         return;
     }
@@ -965,67 +861,12 @@ void QEImage::setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateT
     // Update image size variable
     switch( variableIndex )
     {
-        case WIDTH_VARIABLE:
-            if( imageBuffWidth != uValue )
-            {
-                dimensionChange = true;
-                imageBuffWidth = uValue;
-            }
-            break;
-
-        case HEIGHT_VARIABLE:
-            if( imageBuffHeight != uValue )
-            {
-                dimensionChange = true;
-                imageBuffHeight = uValue;
-            }
-            break;
-
-        case NUM_DIMENSIONS_VARIABLE:
-            if( numDimensions != uValue )
-            {
-                dimensionChange = true;
-                switch( uValue )
-                {
-                    case 0:
-                        numDimensions = uValue;
-                        break;
-
-                    case 2:
-                    case 3:
-                        numDimensions = uValue;
-                        setWidthHeightFromDimensions();
-                        break;
-                }
-            }
-            break;
-
-        case DIMENSION_0_VARIABLE:
-            if( imageDimension0 != uValue )
-            {
-                dimensionChange = true;
-                imageDimension0 = uValue;
-                setWidthHeightFromDimensions();
-            }
-            break;
-
-        case DIMENSION_1_VARIABLE:
-            if( imageDimension1 != uValue )
-            {
-                dimensionChange = true;
-                imageDimension1 = uValue;
-                setWidthHeightFromDimensions();
-            }
-            break;
-
-        case DIMENSION_2_VARIABLE:
-            if( imageDimension2 != uValue )
-            {
-                dimensionChange = true;
-                imageDimension2 = uValue;
-                setWidthHeightFromDimensions();
-            }
-            break;
+        case WIDTH_VARIABLE:          dimensionChange = iProcessor.setWidth( uValue );         break;
+        case HEIGHT_VARIABLE:         dimensionChange = iProcessor.setHeight( uValue );        break;
+        case NUM_DIMENSIONS_VARIABLE: dimensionChange = iProcessor.setNumDimensions( uValue ); break;
+        case DIMENSION_0_VARIABLE:    dimensionChange = iProcessor.setDimension0( uValue );    break;
+        case DIMENSION_1_VARIABLE:    dimensionChange = iProcessor.setDimension1( uValue );    break;
+        case DIMENSION_2_VARIABLE:    dimensionChange = iProcessor.setDimension2( uValue );    break;
     }
 
     // Update the image buffer according to the new size
@@ -1041,30 +882,10 @@ void QEImage::setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateT
 
     // If the image size or data array dimensions has changed and we have good dimensions, update the image
     // variable connection to reflect the elements we now need.
-    // If an image dimensions change dynamically we may pass through a period where a set of dimensions that are nonsense. For example,
-    // if the number of dimensions is changing from 3 to 2, this means the first dimension will change from being the data elements
-    // per pixel to the image width. If the update for the first dimension arrives first, the number of dimensions will still be 3 (implying the
-    // first dimension is the number of data elements per pixel, but the the first dimension will be the image width.
-    // If the dimensions appear nonsense, then don't force an image update. Note, this won't stop an image update from occuring, so
-    // the image update must cope with odd dimensions, but just no point forcing it here.
-    // The test for good dimensions is to check if a width and height is present, and (if the first dimension is expected to be the number
-    // of data elements per pixel, then is is less than 32. 32 was chosen as being large enough for any pixel format (for example 32 bits
-    // per color for 4 Bayer RGBG colours) but less than most image widths. This test doesn't have to be perfect since the image update must
-    // be able to cope with an invalid set of dimensions as mentioned above.
-    unsigned long pixelCount = imageBuffWidth * imageBuffHeight;
-    if( pixelCount && dimensionChange && (( numDimensions != 3 ) || ( imageDimension0 < 32 ) ) )
+    if( dimensionChange && iProcessor.validateDimensions() )
     {
-        if( numDimensions == 3 )
-        {
-            elementsPerPixel = imageDimension0;
-        }
-        else
-        {
-            elementsPerPixel = 1;
-        }
-
         // Clear any current image as the data in it is not our own and will be lost when the connection is re-established
-        image.clear();
+        iProcessor.releaseImageData();
 
         // Re-establish the image connection. This will set request the appropriate array size.
         establishConnection( IMAGE_VARIABLE );
@@ -1116,35 +937,10 @@ void QEImage::setClipping( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTi
     // Update image size variable
     switch( variableIndex )
     {
-        case CLIPPING_ONOFF_VARIABLE:
-            {
-                bool newClippingOn = (value>0)?true:false;
-                if( clippingOn != newClippingOn )
-                {
-                    pixelLookupValid = false;
-                }
-                clippingOn = newClippingOn;
-                break;
-            }
-        case CLIPPING_LOW_VARIABLE:
-            if( clippingLow != (unsigned int)value )
-            {
-                pixelLookupValid = false;
-            }
-            clippingLow = value;
-            break;
-
-        case CLIPPING_HIGH_VARIABLE:
-            if( clippingHigh != (unsigned int)value )
-            {
-                pixelLookupValid = false;
-            }
-            clippingHigh = value;
-            break;
-        }
-
-    // Update the image buffer according to the new size
-    setImageBuff();
+        case CLIPPING_ONOFF_VARIABLE: iProcessor.setClippingOn(   (value>0)?true:false ); break;
+        case CLIPPING_LOW_VARIABLE:   iProcessor.setClippingLow(  (unsigned int)value );  break;
+        case CLIPPING_HIGH_VARIABLE:  iProcessor.setClippingHigh( (unsigned int)value );  break;
+    }
 
     // Display invalid if invalid
     if( alarmInfo.isInvalid() )
@@ -1226,7 +1022,7 @@ void QEImage::useROIData( const unsigned int& variableIndex )
 #define USE_ROI_DATA( IS_ENABLED, IS_DISPLAY, N )                                                      \
     if( sMenu->isEnabled( imageContextMenu::IS_ENABLED ) && mdMenu->isDisplayed( imageContextMenu::IS_DISPLAY ) && roiInfo[N].getStatus() )         \
     {                                                                                             \
-        QRect rotateFlipArea = rotateFlipToImageRectangle( roiInfo[N].getArea() );                \
+        QRect rotateFlipArea = iProcessor.rotateFlipToImageRectangle( roiInfo[N].getArea() );     \
         videoWidget->markupRegionValueChange( N, rotateFlipArea, displayMarkups );                \
     }                                                                                             \
     break;
@@ -1336,8 +1132,8 @@ void QEImage::useProfileData( const unsigned int& variableIndex )
         case LINE_PROFILE_Y2_VARIABLE:
             if( sMenu->isEnabled( imageContextMenu::ICM_SELECT_PROFILE ) && lineProfileInfo.getStatus() )
             {
-                videoWidget->markupLineProfileChange( rotateFlipToImagePoint( lineProfileInfo.getPoint1() ),
-                                                      rotateFlipToImagePoint( lineProfileInfo.getPoint2() ),
+                videoWidget->markupLineProfileChange( iProcessor.rotateFlipToImagePoint( lineProfileInfo.getPoint1() ),
+                                                      iProcessor.rotateFlipToImagePoint( lineProfileInfo.getPoint2() ),
                                                       displayMarkups );
             }
             break;
@@ -1408,7 +1204,7 @@ void QEImage::useEllipseData()
         }
 
         // Scale, flip, and rotate the area then display the markup
-        QRect rotateFlipArea = rotateFlipToImageRectangle( area );
+        QRect rotateFlipArea = iProcessor.rotateFlipToImageRectangle( area );
         videoWidget->markupEllipseValueChange( rotateFlipArea.topLeft(), rotateFlipArea.bottomRight(), displayMarkups );
     }
 }
@@ -1460,8 +1256,8 @@ void QEImage::useTargetingData()
 {
     if( sMenu->isEnabled( imageContextMenu::ICM_SELECT_TARGET ) && targetInfo.getStatus() && beamInfo.getStatus() )
     {
-        videoWidget->markupTargetValueChange( rotateFlipToImagePoint( targetInfo.getPoint() ), displayMarkups );
-        videoWidget->markupBeamValueChange( rotateFlipToImagePoint( beamInfo.getPoint() ), displayMarkups );
+        videoWidget->markupTargetValueChange( iProcessor.rotateFlipToImagePoint( targetInfo.getPoint() ), displayMarkups );
+        videoWidget->markupBeamValueChange( iProcessor.rotateFlipToImagePoint( beamInfo.getPoint() ), displayMarkups );
     }
 }
 
@@ -1531,13 +1327,13 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, unsig
     //!!! should also set format as delivered with image from mpeg source???
 
     // Set the image bit depth
-    bitDepth = depth;
+    iProcessor.setBitDepth( depth );
 
-    elementsPerPixel = elements;
+    iProcessor.setElementsPerPixel( elements );
 
     // Set the image dimensions to match the image size
-    imageBuffWidth = width;
-    imageBuffHeight = height;
+    iProcessor.setImageBuffWidth( width );
+    iProcessor.setImageBuffHeight( height );
 
     // Update the image buffer according to the new size.
     setImageBuff();
@@ -1565,23 +1361,14 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
     // If recording, save image
     if( recorder && recorder->isRecording() )
     {
-        recorder->recordImage(  image, dataSize, alarmInfo, time );
+        recorder->recordImage( imageIn, dataSize, alarmInfo, time );
     }
 
     // Signal a database value change to any Link widgets
     emit dbValueChanged( "image" );
 
     // Save the image data for analysis and redisplay
-    image = imageIn;
-    receivedImageSize = (unsigned long) image.size ();
-    imageDataSize = dataSize;
-
-    // Calculate the number of bytes per pixel.
-    // If the number of elements per pixel is known (derived from the image dimension zero if there are three dimensions)
-    // then it is the image data element size * the number of elements per pixel
-    // If the number of elements per pixel is not known (number of dimensions is not know or not three or dimension zero is not present)
-    // then the elements per pixel will default to 1.
-    bytesPerPixel = imageDataSize * elementsPerPixel;
+    iProcessor.setImage( imageIn, dataSize );
 
     // Note the time of this image
     imageTime = time;
@@ -1612,200 +1399,15 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
     }
 }
 
-// Generate a lookup table to convert raw pixel values to display pixel values taking into
-// account, clipping, and contrast reversal.
-// Note, the table will be used to translate each colour in an RGB format.
-//
-void QEImage::getPixelTranslation()
-{
-    // Maximum pixel value for 8 bit
-    #define MAX_VALUE 255
-
-    // If there is an image options control, get the relevent options
-    bool contrastReversal;
-    bool logBrightness;
-
-    if( imageDisplayProps )
-    {
-        contrastReversal = imageDisplayProps->getContrastReversal();
-        logBrightness = imageDisplayProps->getLog();
-    }
-    else
-    {
-        contrastReversal = false;
-        logBrightness = false;
-    }
-
-    // If there is an image options control, and we have retrieved high and low pixels from an image, get the relevent options
-    if( imageDisplayProps&& imageDisplayProps->statisticsValid() )
-    {
-        pixelLow = imageDisplayProps->getLowPixel();
-        pixelHigh = imageDisplayProps->getHighPixel();
-    }
-    else
-    {
-        pixelLow = 0;
-        pixelHigh = maxPixelValue();
-    }
-
-    // Loop populating table with pixel translations for every pixel value
-    unsigned int value = 0;
-    for( value = 0; value <= MAX_VALUE; value++ )
-    {
-        // Alpha always 100%
-        pixelLookup[value].p[3] = 0xff;
-
-        // Assume no clipping
-        bool clipped = false;
-        if( clippingOn && (clippingHigh > 0 || clippingLow > 0 ))
-        {
-            // If clipping high, set pixel to solid 'clip high' color
-            if( clippingHigh > 0 && value >= clippingHigh )
-            {
-                pixelLookup[value].p[0] = 0x80;
-                pixelLookup[value].p[1] = 0x80;
-                pixelLookup[value].p[2] = 0xff;
-                clipped = true;
-            }
-            // If clipping low, set pixel to solid 'clip low' color
-            else if( clippingLow > 0 && value <= clippingLow )
-            {
-                pixelLookup[value].p[0] = 0xff;
-                pixelLookup[value].p[1] = 0x80;
-                pixelLookup[value].p[2] = 0x80;
-                clipped = true;
-            }
-        }
-
-        // Translate pixel value if not clipped
-        if( !clipped )
-        {
-            // Start with original value
-            int translatedValue = value;
-
-            // Logarithmic brightness if required
-            if( logBrightness )
-            {
-                translatedValue = int( log10( value+1 ) * 105.8864 );
-            }
-
-            // Reverse contrast if required
-            if( contrastReversal )
-            {
-                translatedValue = MAX_VALUE - translatedValue;
-            }
-
-            // Save translated pixel
-            if( getUseFalseColour() )
-            {
-                pixelLookup[value] = getFalseColor ((unsigned char)translatedValue);
-            }
-            else
-            {
-                pixelLookup[value].p[0] = (unsigned char)translatedValue;
-                pixelLookup[value].p[1] = (unsigned char)translatedValue;
-                pixelLookup[value].p[2] = (unsigned char)translatedValue;
-            }
-        }
-
-    }
-
-    return;
-}
-
-// Get a false color representation for an entry from the color lookup table
-imageDisplayProperties::rgbPixel QEImage::getFalseColor (const unsigned char value) {
-
-    const int max = 0xFF;
-    const int half = 0x80;
-    const int lightness_slope = 4;
-    const int low_hue = 240;    // blue.
-    const int high_hue = 0;     // red
-
-    int bp1;
-    int bp2;
-    imageDisplayProperties::rgbPixel result;
-    int h, l;
-    QColor c;
-
-    // Range of inputs broken into three bands:
-    // [0 .. bp1], [bp1 .. bp2] and [bp2 .. max]
-    //
-    bp1 = half / lightness_slope;
-    bp2 = max - (max - half) / lightness_slope;
-
-    if( value < bp1 ){
-        // Constant hue (blue), lightness ramps up to 128
-        h = low_hue;
-        l = lightness_slope*value;
-    } else if( value > bp2 ){
-        // Constant hue (red), lightness ramps up from 128 to 255
-        h = high_hue;
-        l = max - lightness_slope*(max-value);
-    } else {
-        // The bit in the middle.
-        // Contant lightness, hue varies blue to red.
-        h = ((value - bp1)*high_hue + (bp2 - value)*low_hue) / (bp2 - bp1);
-        l = half;
-    }
-
-    c.setHsl( h, max, l );   // Saturation always 100%
-
-    result.p[0] = (unsigned char) c.blue();
-    result.p[1] = (unsigned char) c.green();
-    result.p[2] = (unsigned char) c.red();
-    result.p[3] = (unsigned char) max; // Alpha always 100%
-
-    return result;
-}
-
-
 // Display a new image.
 void QEImage::displayImage()
 {
 
-    // Do nothing if there is no image, or are no image dimensions yet
-    if( image.isEmpty() || !imageBuffWidth || !imageBuffHeight )
-        return;
-
-    // Do we have enough (or any) data
-    //
-    const unsigned long required_size = imageBuffWidth * imageBuffHeight * bytesPerPixel;
-    if( required_size > (unsigned int)(image.size()) )
-    {
-        // Do nothing if no image data.
-        //
-        if( receivedImageSize == 0 ) {
-            return;
-        }
-
-        QString messageText;
-
-        messageText = QString( "Image too small (")
-                .append( QString( "available image size: %1, " )    .arg( receivedImageSize ))
-                .append( QString( "required size: %1, " )           .arg( required_size ))
-                .append( QString( "width: %1, " )                   .arg( imageBuffWidth ))
-                .append( QString( "height: %1, " )                  .arg( imageBuffHeight ))
-                .append( QString( "data element size: %1, " )       .arg( imageDataSize ))
-                .append( QString( "data elements per pixel: %1, " ) .arg( elementsPerPixel ))
-                .append( QString( "bytes per pixel: %1)" )          .arg( bytesPerPixel ));
-
-        // Skip if messageText same as last message.
-        if (messageText != previousMessageText) {
-            sendMessage( messageText, "QEImage" );
-            previousMessageText = messageText;
-        }
-
-        // If not enough image data for the expected size then zero extend.
-        // Part image better than no image at all.
-        int extra = (int)required_size - image.size();
-        QByteArray zero_extend ( extra, '\0' );
-        image.append( zero_extend );
-    }
-
     // Set up the image buffer if not done already
-    if( imageBuff.isEmpty() )
+    if( !iProcessor.hasImageBuff() )
+    {
         setImageBuff();
+    }
 
     // Now an image can be displayed, set the initial scroll bar positions if not set before
     if( initScrollPosSet == false )
@@ -1815,730 +1417,24 @@ void QEImage::displayImage()
         initScrollPosSet = true;
     }
 
-    // Set up input and output pointers and counters ready to process each pixel
-    const unsigned char* dataIn = (unsigned char*)image.constData();
-    imageDisplayProperties::rgbPixel* dataOut = (imageDisplayProperties::rgbPixel*)(imageBuff.data());
-    unsigned long buffIndex = 0;
-    unsigned long dataIndex = 0;
+    // Process the image data. Hopefully a presentable QImage will be result.
+    QString messageText;
+    QImage frameImage;
+    frameImage = iProcessor.displayImage2( messageText );
 
-    // Determine the number of pixels to process
-    // If something is wrong, do nothing
-    unsigned long pixelCount = imageBuffWidth*imageBuffHeight;
-    if(( pixelCount * bytesPerPixel > (unsigned long)image.size() ) ||
-       ( pixelCount * IMAGEBUFF_BYTES_PER_PIXEL > (unsigned long)imageBuff.size() ))
+    // If there was an error processing the image, report it.
+    if( !messageText.isEmpty() )
     {
-        return;  // !!! should clear the image
+        sendMessage( messageText, "QEImage" );
     }
 
-    // Depending on the flipping and rotating options pixel drawing can start in any of
-    // the four corners and start scanning either vertically or horizontally.
-    // See getScanOption() comments for more details on how the rotate and flip
-    // options are used to generate one of 8 scan options.
-    // The 8 scanning options are shown numbered here:
-    //
-    //    o----->1         2<-----o
-    //    |                       |
-    //    |                       |
-    //    |                       |
-    //    v                       v
-    //    5                       6
-    //
-    //
-    //
-    //    7                       8
-    //    ^                       ^
-    //    |                       |
-    //    |                       |
-    //    |                       |
-    //    o----->3         4<-----o
-    //
-    int scanOption = getScanOption();
-
-    // Drawing is performed in two nested loops, one for height and one for width.
-    // Depending on the scan option, however, the outer may be height or width.
-    // The input buffer is read consecutivly from first pixel to last and written to the
-    // output buffer, which is moved to the next pixel by both the inner and outer
-    // loops to where ever that next pixel is according to the rotation and flipping.
-    // The following defines parameters driving the loops:
-    //
-    // opt      = scan option
-    // outCount = outer loop count (width or height);
-    // inCount  = inner loop count (height or width)
-    // start    = output buffer start pixel (one of the four corners)
-    // outInc   = outer loop increment to output buffer
-    // inInc    = inner loop increment to output buffer
-    // w        = image width
-    // h        = image height
-    //
-    // opt outCount inCount start    outInc   inInc
-    //  1      h       w      0         0       1
-    //  2      h       w      w-1       w      -1
-    //  3      h       w    w*(h-1)    -2*w     1
-    //  4      h       w    (w*h)-1     0      -1
-    //  5      w       h      0     -w*(h-1)+1   w
-    //  6      w       h      w-1   -w*(h-1)-1   w
-    //  7      w       h    w*(h-1)  w*(h-1)+1  -w
-    //  8      w       h    (w*h)-1  w*(h-1)-1  -w
-
-
-    int outCount;   // Outer loop count (width or height);
-    int inCount;    // Inner loop count (height or width)
-    int start;      // Output buffer start pixel (one of the four corners)
-    int outInc;     // Outer loop increment to output buffer
-    int inInc;      // Inner loop increment to output buffer
-    int h = imageBuffHeight;
-    int w = imageBuffWidth;
-
-    // Set the loop parameters according to the scan option
-    switch( scanOption )
+    // If no image could be created, do nothing.
+    // Even without an error message above, it may be reasonable that no image
+    // can be created - for example, if image dimensions are not yet available.
+    if( frameImage.isNull() )
     {
-        default:  // Sanity check. default to 1
-        case 1: outCount = h; inCount = w; start = 0;       outInc =  0;     inInc =  1; break;
-        case 2: outCount = h; inCount = w; start = w-1;     outInc =  2*w;   inInc = -1; break;
-        case 3: outCount = h; inCount = w; start = w*(h-1); outInc = -2*w;   inInc =  1; break;
-        case 4: outCount = h; inCount = w; start = (w*h)-1; outInc =  0;     inInc = -1; break;
-        case 5: outCount = w; inCount = h; start = 0;       outInc = -w*h+1; inInc =  w; break;
-        case 6: outCount = w; inCount = h; start = w-1;     outInc = -w*h-1; inInc =  w; break;
-        case 7: outCount = w; inCount = h; start = w*(h-1); outInc =  w*h+1; inInc = -w; break;
-        case 8: outCount = w; inCount = h; start = (w*h)-1; outInc =  w*h-1; inInc = -w; break;
+        return;
     }
-
-    // Draw the input pixels into the image buffer.
-    // Drawing is performed in two nested loops, one for height and one for width.
-    // Depending on the scan option, however, the outer may be height or width.
-    // The input buffer is read consecutively from first pixel to last and written to the
-    // output buffer, which is moved to the next pixel by both the inner and outer
-    // loops to where ever that next pixel is according to the rotation and flipping.
-    dataIndex = start;
-
-    // Get the pixel lookup table to convert raw pixel values to display pixel values taking into
-    // account input pixel size, clipping, contrast reversal, and local brightness and contrast.
-    if( !pixelLookupValid )
-    {
-        getPixelTranslation();
-        pixelLookupValid = true;
-    }
-
-    unsigned int pixelRange = pixelHigh-pixelLow;
-    if( !pixelRange )
-    {
-        pixelRange = 1;
-    }
-
-    unsigned int mask = (1<<bitDepth)-1;
-
-    // Prepare for building image stats while processing image data
-    unsigned int maxP = 0;
-    unsigned int minP = UINT_MAX;
-    static unsigned int bins[HISTOGRAM_BINS];
-    unsigned int valP;
-    unsigned int binShift = (bitDepth<8)?0:bitDepth-8;
-    unsigned int bin;
-    for( int i = 0; i < HISTOGRAM_BINS; i++ )
-    {
-        bins[i]=0;
-    }
-#define BUILD_STATS \
-    bin = valP>>binShift; \
-    bins[bin] = bins[bin]+1; \
-    if( valP < minP ) minP = valP; \
-    else if( valP > maxP ) maxP = valP;
-
-// For speed, the format switch statement is outside the pixel loop.
-// An identical(ish) loop is used for each format
-#define LOOP_START                          \
-    for( int i = 0; i < outCount; i++ )     \
-    {                                       \
-        for( int j = 0; j < inCount; j++ )  \
-        {
-
-#define LOOP_END                            \
-            dataIndex += inInc;             \
-            buffIndex++;                    \
-        }                                   \
-        dataIndex += outInc;                \
-    }
-
-    // Format each pixel ready for use in an RGB32 QImage.
-    // Note, for speed, the switch on format is outside the loop. The loop is duplicated in each case using macros which.
-    switch( mFormatOption )
-    {
-        case imageDataFormats::MONO:
-        {
-            LOOP_START
-                unsigned int inPixel;
-
-                // Extract pixel
-                inPixel =  (*(unsigned int*) (&dataIn[dataIndex*bytesPerPixel]))&mask;
-
-                // Accumulate pixel statistics
-                valP = inPixel;
-                BUILD_STATS
-
-                // Scale pixel for local brightness and contrast
-                ( (int)inPixel < pixelLow ) ? inPixel = 0 : ( (int)inPixel > pixelHigh ) ? inPixel = 255 : inPixel = ((int)inPixel-pixelLow)*255/pixelRange;
-
-                // Select displayed pixel
-                dataOut[buffIndex] = pixelLookup[inPixel];
-            LOOP_END
-            break;
-        }
-
-        case imageDataFormats::BAYERGB:
-        case imageDataFormats::BAYERBG:
-        case imageDataFormats::BAYERGR:
-        case imageDataFormats::BAYERRG:
-        {
-            // Pre-calculate offsets in the data to neighbouring pixels
-            int TLOffset = (-(int)(imageBuffWidth)-1)*(int)(bytesPerPixel);
-            int  TOffset = -(int)(imageBuffWidth)*(int)(bytesPerPixel);
-            int TROffset = (-(int)(imageBuffWidth)+1)*(int)(bytesPerPixel);
-            int  LOffset = -(int)(bytesPerPixel);
-            int  ROffset = (int)(bytesPerPixel);
-            int BLOffset = ((int)(imageBuffWidth)-1)*(int)(bytesPerPixel);
-            int  BOffset = imageBuffWidth*(int)(bytesPerPixel);
-            int BROffset = ((int)(imageBuffWidth)+1)*(int)(bytesPerPixel);
-
-            // Define regions in the image where different calculations occur.
-            // Over most of the image four neighbouring cells are available.
-            // On the sides five neighbours are present.
-            // On the corners three neighbours are present.
-            enum regions {REG_TL, REG_T, REG_TR, REG_L, REG_C, REG_R, REG_BL, REG_B, REG_BR};
-
-            // Values for all cells that may be involved in generating a pixel
-            quint32 g1; // Green above blue or red
-            quint32 g2; // Green below of blue or red
-            quint32 g3; // Green left of blue or red
-            quint32 g4; // Green right of blue or red
-
-            quint32 d1; // Red or blue diagonally above-left of blue or red
-            quint32 d2; // Red or blue diagonally above-right of blue or red
-            quint32 d3; // Red or blue diagonally below-left of blue or red
-            quint32 d4; // Red or blue diagonally below-right of blue or red
-
-            quint32 d;  // Sum of reds or blues diagonally sourounding current blue or red
-
-            quint32 rb; // Red or blue from current cell (depending on pattern)
-
-            quint32 h1; // Left of green (may be red or blue depending on pattern)
-            quint32 h2; // Right of green (may be red or blue depending on pattern)
-            quint32 v1; // Above green (may be red or blue depending on pattern)
-            quint32 v2; // Below green (may be red or blue depending on pattern)
-
-            quint32 h;  // Sum of left and right or green (horizontal) (may be red or blue depending on pattern)
-            quint32 v;  // Sum of above and below green (vertical) (may be red or blue depending on pattern)
-
-            quint32 g12;// Green (either Green1 or Green 2)
-
-            quint32* g1r; // Pointer to red sum for Green1 (may be h (left and right) or v (above and below) depending on pattern)
-            quint32* g2r; // Pointer to red sum for Green2 (may be h (left and right) or v (above and below) depending on pattern)
-            quint32* g1b; // Pointer to blue sum for Green1 (may be h (left and right) or v (above and below) depending on pattern)
-            quint32* g2b; // Pointer to blue sum for Green2 (may be h (left and right) or v (above and below) depending on pattern)
-
-            // Pixel RGB values
-            quint32 r;
-            quint32 g;
-            quint32 b;
-
-            // Each Bayer cluster of four image cells contain one red, one blue, and two green values.
-            // There are four combinations for each cluster and no standard :(
-            // Preconfigure a table to translate from cluster cell index to color.
-            enum CELL_COLOURS {CC_G1, CC_G2,CC_R,CC_B};
-            CELL_COLOURS cellColours[4];
-            switch( mFormatOption )
-            {
-                default:    // Should never hit the default case. Include to avoid compilation errors
-                case imageDataFormats::BAYERGB: cellColours[0] = CC_G1; cellColours[1] = CC_B;  cellColours[2] = CC_R;  cellColours[3] = CC_G2; break;
-                case imageDataFormats::BAYERBG: cellColours[0] = CC_B;  cellColours[1] = CC_G1; cellColours[2] = CC_G2; cellColours[3] = CC_R;  break;
-                case imageDataFormats::BAYERGR: cellColours[0] = CC_G1; cellColours[1] = CC_R;  cellColours[2] = CC_B;  cellColours[3] = CC_G2; break;
-                case imageDataFormats::BAYERRG: cellColours[0] = CC_R;  cellColours[1] = CC_G1; cellColours[2] = CC_G2; cellColours[3] = CC_B;  break;
-            }
-
-            // Preconfigure red and blue positions relative to green. Depending on the Bayer pattern
-            // red can be left and right, and blue above and below, or the other way round
-            switch( mFormatOption )
-            {
-                default:    // Should never hit the default case. Include to avoid compilation errors
-                case imageDataFormats::BAYERGB:
-                case imageDataFormats::BAYERBG:
-                    g1r = &v; // Use vertical (v) for reds associated with Green1
-                    g1b = &h; // Use horizontal (h) for blues associated with Green1
-                    g2r = &h; // Use horizontal (h) for reds associated with Green2
-                    g2b = &v; // Use vertical (v) for blues associated with Green2
-                    break;
-
-                case imageDataFormats::BAYERGR:
-                case imageDataFormats::BAYERRG:
-                    g1r = &h; // Use horizontal (h) for reds associated with Green1
-                    g1b = &v; // Use vertical (v) for blues associated with Green1
-                    g2r = &v; // Use vertical (v) for reds associated with Green2
-                    g2b = &h; // Use horizontal (h) for blues associated with Green2
-                    break;
-            }
-
-            // Pre-calculate last cell for inner and outer loops
-            int outLast = outCount-1;
-            int inLast = inCount-1;
-
-            // Pre-calculate pixel index values for corners
-            unsigned int TLPixel = 0;
-            unsigned int TRPixel = imageBuffWidth-1;
-            unsigned int BLPixel = (imageBuffHeight-1)*imageBuffWidth;
-            unsigned int BRPixel = (imageBuffHeight*imageBuffWidth)-1;
-
-            // Processing region (corners, edges, or central)
-            regions region;
-
-            // Pre-calculate data shift and mask nessesary to obtain most significant 8 bits
-            int shift = (bitDepth<=8)?0:bitDepth-8;
-            quint32 mask = (1<<bitDepth)-1;
-
-            // Loop through the input data
-            // The loop order is based on current flip and rotation and so will not nessesarily
-            // move linearly through input data. No matter what the order of processing neighbouring
-            // cells are referenced the same way.
-            LOOP_START
-
-                // Get a reference to the current 'pixel'
-                unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
-
-                // Calculate the current Bayer cell. (one of four as follows)
-                //   01010101010101010101...
-                //   23232323232323232323...
-                //   01010101010101010101...
-                //   23232323232323232323...
-                //   01010101010101010101...
-                //   23232323232323232323...
-                //   .......................
-                //   .......................
-                //   .......................
-                //
-                unsigned int color = (dataIndex&1)|(((dataIndex/imageBuffWidth)&1)<<1);
-
-                // Translate the bayer cell to a color
-                // Depending on the specific bayer pattern the color number is interpreted as follows
-                //
-                // BayerBG = 01 = BG
-                //           23   GR
-                //
-                // BayerGB = 01 = GB
-                //           23   RG
-                //
-                // BayerRG = 01 = RG
-                //           23   GB
-                //
-                // BayerGR = 01 = GR
-                //           23   BG
-                //
-                // So, for example, color = 1 and Bayer pattern is BayerRG, then the current color is G1 (the first green)
-                CELL_COLOURS cellColour = cellColours[color];
-
-                // Calculate the processing region.
-                // This is used to determine what neighbouring cells are available.
-
-                // Assume Central region.
-                region = REG_C;
-
-                // If on an edge...
-                if( i == 0 || j == 0 || i == outLast || j == inLast )
-                {
-                    // Determine where on edge
-                    // (this will be simpler if we loop through source data rather than output image)
-
-                    // If on top edge...
-                    if( dataIndex < imageBuffWidth )
-                    {
-                        if     ( dataIndex == TLPixel ) region = REG_TL;
-                        else if( dataIndex == TRPixel ) region = REG_TR;
-                        else                            region = REG_T;
-                    }
-
-                    // If on bottom edge...
-                    else if( dataIndex >= BLPixel)
-                    {
-                        if     ( dataIndex == BLPixel ) region = REG_BL;
-                        else if( dataIndex == BRPixel ) region = REG_BR;
-                        else                            region = REG_B;
-                    }
-
-                    // if on left or right edge...
-                    else if( !(dataIndex % imageBuffWidth) ) region = REG_L;
-                    else                                     region = REG_R;
-                }
-
-
-                // Process the cell
-                switch( cellColour )
-                {
-                    case CC_R: // red
-                    case CC_B: // blue
-
-                        // Extract the value
-                        rb = (*((quint32*)inPixel))&mask;
-
-                        // Based on the region, use available neighbouring cells to supply green and red or blue (diagonal) values
-                        switch( region )
-                        {
-                            case REG_C:
-                                g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
-                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                d1 = (*((quint32*)(&inPixel[TLOffset])))&mask;
-                                d2 = (*((quint32*)(&inPixel[TROffset])))&mask;
-                                d3 = (*((quint32*)(&inPixel[BLOffset])))&mask;
-                                d4 = (*((quint32*)(&inPixel[BROffset])))&mask;
-                                break;
-
-                            case REG_TL:
-                                g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
-                                g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                g1 = g2;
-                                g3 = g4;
-                                d4 = (*((quint32*)(&inPixel[BROffset])))&mask;
-                                d1 = d4;
-                                d2 = d4;
-                                d3 = d4;
-                                break;
-
-                            case REG_T:
-                                g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
-                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                g1 = (g2+g3+g4)/3;
-                                d3 = (*((quint32*)(&inPixel[BLOffset])))&mask;
-                                d4 = (*((quint32*)(&inPixel[BROffset])))&mask;
-                                d1 = d3;
-                                d2 = d4;
-                                break;
-
-                            case REG_TR:
-                                g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
-                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                g1 = g2;
-                                g4 = g3;
-                                d3 = (*((quint32*)(&inPixel[BLOffset])))&mask;
-                                d1 = d3;
-                                d2 = d3;
-                                d4 = d3;
-                                break;
-
-                            case REG_L:
-                                g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
-                                g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                g3 = g4;
-                                d2 = (*((quint32*)(&inPixel[TROffset])))&mask;
-                                d4 = (*((quint32*)(&inPixel[BROffset])))&mask;
-                                d1 = d2;
-                                d3 = d4;
-                                break;
-
-                            case REG_R:
-                                g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
-                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                g4 = (g1+g2+g3)/3;
-                                d1 = (*((quint32*)(&inPixel[TLOffset])))&mask;
-                                d3 = (*((quint32*)(&inPixel[BLOffset])))&mask;
-                                d2 = d1;
-                                d4 = d3;
-                                break;
-
-                            case REG_BL:
-                                g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                g2 = g1;
-                                g3 = g4;
-                                d2 = (*((quint32*)(&inPixel[TROffset])))&mask;
-                                d1 = d2;
-                                d3 = d2;
-                                d4 = d2;
-                                break;
-
-                            case REG_B:
-                                g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                g2 = (g1+g3+g4)/3;
-                                d1 = (*((quint32*)(&inPixel[TLOffset])))&mask;
-                                d2 = (*((quint32*)(&inPixel[TROffset])))&mask;
-                                d3 = d1;
-                                d4 = d2;
-                                break;
-
-                            case REG_BR:
-                                g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                g2 = g1;
-                                g4 = g3;
-                                d1 = (*((quint32*)(&inPixel[TLOffset])))&mask;
-                                d2 = d1;
-                                d3 = d1;
-                                d4 = d1;
-                                break;
-
-                        }
-
-                        // Calculate the diagonal sum (red or blue depending on the pattern)
-                        d = (d1+d2+d3+d4)>>(shift+2);
-
-                        // Calculate the Green value from the green cells
-                        g = (g1+g2+g3+g4)>>(shift+2);
-
-                        // Take the red and blue from the current cell and the diagonals, or the other way round depending on the pattern
-                        switch( cellColour )
-                        {
-                            default:    // Should never hit the default case. Include to avoid compilation errors
-                            case CC_R: // red
-                                r = rb>>shift;
-                                b = d;
-                                break;
-                            case CC_B: // blue
-                                r = d;
-                                b = rb>>shift;
-                                break;
-                        }
-
-                        break;
-
-                    case CC_G1: // green 1
-                    case CC_G2: // green 2
-
-                        // Extract the green value
-                        g12 = (*((quint32*)inPixel))&mask;
-
-                        // Based on the region, use available neighbouring cells to supply red and blue values
-                        // Depending on the pattern top and bottom might be red and left and right blue,
-                        // or the other way round, so for the time being, just refer to them by their
-                        // orientation (v or h), rather than colour
-                        switch( region )
-                        {
-                            case REG_C:
-                                h1 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                h2 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                v1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                v2 = (*((quint32*)(&inPixel[BOffset])))&mask;
-                                break;
-
-                            case REG_T:
-                                h1 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                h2 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                v2 = (*((quint32*)(&inPixel[BOffset])))&mask;
-                                v1 = v2;
-                                break;
-
-                            case REG_TR:
-                                h1 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                h2 = h1;
-                                v2 = (*((quint32*)(&inPixel[BOffset])))&mask;
-                                v1 = v2;
-                                break;
-
-                            case REG_R:
-                                h1 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                h2 = h1;
-                                v1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                v2 = (*((quint32*)(&inPixel[BOffset])))&mask;
-                                break;
-
-                            case REG_B:
-                                h1 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                h2 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                v1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                v2 = v1;
-                                break;
-
-                            case REG_BR:
-                                h1 = (*((quint32*)(&inPixel[LOffset])))&mask;
-                                h2 = h1;
-                                v1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                v2 = v1;
-                                break;
-
-                            case REG_TL:
-                                h2 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                h1 = h2;
-                                v2 = (*((quint32*)(&inPixel[BOffset])))&mask;
-                                v1 = v2;
-                                break;
-
-                            case REG_L:
-                                h2 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                h1 = h2;
-                                v1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                v2 = (*((quint32*)(&inPixel[BOffset])))&mask;
-                                break;
-
-                            case REG_BL:
-                                h2 = (*((quint32*)(&inPixel[ROffset])))&mask;
-                                h1 = h2;
-                                v1 = (*((quint32*)(&inPixel[TOffset])))&mask;
-                                v2 = v1;
-                                break;
-                        }
-
-                        // Calculate the vertical and horizontal sums (one is red, the other is blue depending on the pattern)
-                        h = (h1+h2)>>(shift+1);
-                        v = (v1+v2)>>(shift+1);
-
-                        // Calculate the Green value from the green cell
-                        g = g12>>shift;
-
-                        // Take the red and blue from the vertical or horizontal sums depending on the pattern
-                        switch( cellColour )
-                        {
-                            default:    // Should never hit the default case. Include to avoid compilation errors
-                            case CC_G1: // green 1
-                                r = *g1r;
-                                b = *g1b;
-                                break;
-                            case CC_G2: // green 2
-                                r = *g2r;
-                                b = *g2b;
-                                break;
-                        }
-
-                        break;
-
-                    // Should never get here.
-                    // Included to avoid compilation warnings on some compilers
-                    default:
-                        r = 0;
-                        b = 0;
-                        g = 0;
-                        break;
-                }
-
-
-
-                // Accumulate pixel statistics
-                valP = g; // use all three colors!!!
-                BUILD_STATS
-
-                // Scale pixel for local brightness and contrast
-                // !!! This will introduce some hue issues. Should convert to HSV to manipulate brightness and contrast????
-                ( (int)r < pixelLow ) ? r = 0 : ( (int)r > pixelHigh ) ? r = 255 : r = (r-pixelLow)*255/pixelRange;
-                ( (int)g < pixelLow ) ? g = 0 : ( (int)g > pixelHigh ) ? g = 255 : g = (g-pixelLow)*255/pixelRange;
-                ( (int)b < pixelLow ) ? b = 0 : ( (int)b > pixelHigh ) ? b = 255 : b = (b-pixelLow)*255/pixelRange;
-
-                // Select displayed pixel
-                dataOut[buffIndex].p[0] = pixelLookup[b].p[0];
-                dataOut[buffIndex].p[1] = pixelLookup[g].p[0];
-                dataOut[buffIndex].p[2] = pixelLookup[r].p[0];
-                dataOut[buffIndex].p[3] = 0xff;
-
-            LOOP_END
-            break;
-        }
-
-        case imageDataFormats::RGB1:
-        case imageDataFormats::RGB2: //!!! not done yet - just do the same as RGB1 for the time being and hope
-        case imageDataFormats::RGB3: //!!! not done yet - just do the same as RGB1 for the time being and hope
-        {
-            //unsigned int rOffset = 0*imageDataSize;
-            unsigned int gOffset = imageDataSize;
-            unsigned int bOffset = 2*imageDataSize;
-            LOOP_START
-
-                // Extract pixel
-                unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
-                unsigned int r = *inPixel;
-                unsigned int g = inPixel[gOffset];
-                unsigned int b = inPixel[bOffset];
-
-                // Accumulate pixel statistics
-                valP = g; // use all three colors!!!
-                BUILD_STATS
-
-                // Scale pixel for local brightness and contrast
-                // !!! This will introduce some hue issues. Should convert to HSV to manipulate brightness and contrast????
-                ( (int)r < pixelLow ) ? r = 0 : ( (int)r > pixelHigh ) ? r = 255 : r = (r-pixelLow)*255/pixelRange;
-                ( (int)g < pixelLow ) ? g = 0 : ( (int)g > pixelHigh ) ? g = 255 : g = (g-pixelLow)*255/pixelRange;
-                ( (int)b < pixelLow ) ? b = 0 : ( (int)b > pixelHigh ) ? b = 255 : b = (b-pixelLow)*255/pixelRange;
-
-                // Select displayed pixel
-                dataOut[buffIndex].p[0] = pixelLookup[b].p[0];
-                dataOut[buffIndex].p[1] = pixelLookup[g].p[0];
-                dataOut[buffIndex].p[2] = pixelLookup[r].p[0];
-                dataOut[buffIndex].p[3] = 0xff;
-
-            LOOP_END
-            break;
-        }
-
-        case imageDataFormats::YUV421: //!!! not done yet. do the same as for YUV422
-        case imageDataFormats::YUV422:
-        case imageDataFormats::YUV444: //!!! not done yet. do the same as for YUV422
-        {
-            LOOP_START
-                    // Extract pixel
-                    // 4 values are used to generate 2 pixels as follows:
-
-                    // u  = yuv[0];
-                    // y1 = yuv[1];
-                    // v  = yuv[2];
-                    // y2 = yuv[3];
-
-                    // rgb1 = YUVtoRGB(y1, u, v);
-                    // rgb2 = YUVtoRGB(y2, u, v);
-
-                    unsigned int pairIndex = dataIndex&1;               // Generating first or second pixel? extract lowest bit
-                    unsigned long dataPairIndex = dataIndex-pairIndex;  // Create data index to base of both pixels - clear lowest bit
-
-                    // Get base of both pixels.
-                    // This loop is running through the output pixels, so depending on flip and rotate the last (or next)
-                    // pixel processed may not be from the same pixel pair represented by this YUV quad.
-                    // That's OK. As each pixel is processed, the correct parts from the appropriate quad is used.
-                    unsigned char* yuv422Base = (unsigned char*)(&dataIn[dataPairIndex*bytesPerPixel]);
-
-                    // Get the correct YUV values for this pixel
-                    unsigned char* y;
-                    if( pairIndex == 0 )
-                    {
-                        y  = yuv422Base+bytesPerPixel;                  // yuv[1]
-                    }
-                    else
-                    {
-                        y  = yuv422Base+(3*bytesPerPixel);              // yuv[3]
-                    }
-                    unsigned char* u   = yuv422Base;                    // yuv[0]
-                    unsigned char* v   = yuv422Base+(2*bytesPerPixel);  // yuv[2]
-
-                    // Extract pixel
-                    unsigned int r = YUV2R(*y, *u, *v);
-                    unsigned int g = YUV2G(*y, *u, *v);
-                    unsigned int b = YUV2B(*y, *u, *v);
-
-                    // Accumulate pixel statistics
-                    valP = g; // use all three colors!!!
-                    BUILD_STATS
-
-                    // Scale pixel for local brightness and contrast
-                    // !!! This will introduce some hue issues. Should convert to HSV to manipulate brightness and contrast????
-                    ( (int)r < pixelLow ) ? r = 0 : ( (int)r > pixelHigh ) ? r = 255 : r = (r-pixelLow)*255/pixelRange;
-                    ( (int)g < pixelLow ) ? g = 0 : ( (int)g > pixelHigh ) ? g = 255 : g = (g-pixelLow)*255/pixelRange;
-                    ( (int)b < pixelLow ) ? b = 0 : ( (int)b > pixelHigh ) ? b = 255 : b = (b-pixelLow)*255/pixelRange;
-
-                    // Select displayed pixel
-                    dataOut[buffIndex].p[0] = pixelLookup[b].p[0];
-                    dataOut[buffIndex].p[1] = pixelLookup[g].p[0];
-                    dataOut[buffIndex].p[2] = pixelLookup[r].p[0];
-                    dataOut[buffIndex].p[3] = 0xff;
-
-            LOOP_END
-            break;
-        }
-    }
-
-    // Update the image display properties controls if present
-    if( imageDisplayProps )
-    {
-        imageDisplayProps->setStatistics( minP, maxP, bitDepth, bins, pixelLookup );
-    }
-
-    // Generate a frame from the data
-    QImage frameImage( (uchar*)(imageBuff.constData()), rotatedImageBuffWidth(), rotatedImageBuffHeight(), QImage::Format_RGB32 );
 
     // Display the new image
     videoWidget->setNewImage( frameImage, imageTime );
@@ -2569,7 +1465,7 @@ QSize QEImage::getVedioDestinationSize()
 void QEImage::setImageBuff()
 {
     // Do nothing if there are no image dimensions yet
-    if( !imageBuffWidth || !imageBuffHeight )
+    if( !iProcessor.getImageBuffWidth() || !iProcessor.getImageBuffHeight() )
         return;
 
     // Size the image
@@ -2577,18 +1473,18 @@ void QEImage::setImageBuff()
     {
         // Zoom the image
         case RESIZE_OPTION_ZOOM:
-            videoWidget->resize( rotatedImageBuffWidth() * zoom / 100, rotatedImageBuffHeight() * zoom / 100 );
+            videoWidget->resize( iProcessor.rotatedImageBuffWidth() * zoom / 100, iProcessor.rotatedImageBuffHeight() * zoom / 100 );
             break;
 
         // Resize the image to fit exactly within the QCaItem
         case RESIZE_OPTION_FIT:
             QSize destSize = getVedioDestinationSize();
-            double vScale = (double)(destSize.height()) / (double)(rotatedImageBuffHeight());
-            double hScale = (double)(destSize.width()) / (double)(rotatedImageBuffWidth());
+            double vScale = (double)(destSize.height()) / (double)(iProcessor.rotatedImageBuffHeight());
+            double hScale = (double)(destSize.width()) / (double)(iProcessor.rotatedImageBuffWidth());
             double scale = (hScale<vScale)?hScale:vScale;
 
-            videoWidget->resize( (int)((double)rotatedImageBuffWidth() * scale),
-                                 (int)((double)rotatedImageBuffHeight() * scale) );
+            videoWidget->resize( (int)((double)iProcessor.rotatedImageBuffWidth() * scale),
+                                 (int)((double)iProcessor.rotatedImageBuffHeight() * scale) );
             zoom = scale * 100;
 
             // Update the info area
@@ -2597,11 +1493,8 @@ void QEImage::setImageBuff()
             break;
     }
 
-    // Determine buffer size
-    unsigned long buffSize = IMAGEBUFF_BYTES_PER_PIXEL * imageBuffWidth * imageBuffHeight;
-
-    // Resize buffer
-    imageBuff.resize( buffSize );
+    // Set the image buffer used for generating images so it will be large enough to hold the processed image.
+    iProcessor.setImageBuff2();
 }
 
 //=================================================================================================
@@ -2639,10 +1532,12 @@ void QEImage::setImageFile( QString name )
     // Setup the widget in the same way receiving valid image, width and height data would
     // !! make this common to the actual data update functions
     scrollArea->setEnabled( true );
-    imageBuffWidth = stdImage.width();
-    imageBuffHeight = stdImage.height();
-    setFormatOption( imageDataFormats::RGB1 );
-    bitDepth = 8;
+    iProcessor.setImageBuffWidth( stdImage.width() );
+    iProcessor.setImageBuffHeight( stdImage.height() );
+    iProcessor.setFormat( imageDataFormats::RGB1 );
+    iProcessor.setBitDepth( 8 );
+
+
     setImageBuff();
 
     // Use the image data just like it came from a waveform variable
@@ -2715,11 +1610,11 @@ void QEImage::zoomToArea()
     double zoomFactor = std::min( zoomFactorX, zoomFactorY );
 
     //Determine the new zoom
-    double newZoom = zoomFactor * (double)(videoWidget->width()) / (double)(imageBuffWidth);
+    double newZoom = zoomFactor * (double)(videoWidget->width()) / (double)(iProcessor.getImageBuffWidth());
 
     // Ensure the zoom factor will not generate an image that is too large
     double maxDim = 5000;
-    if( ((double)(imageBuffWidth) * newZoom ) > maxDim )
+    if( ((double)(iProcessor.getImageBuffWidth()) * newZoom ) > maxDim )
     {
         newZoom = (double)maxDim / (double)videoWidget->width();
     }
@@ -2733,8 +1628,8 @@ void QEImage::zoomToArea()
     QPoint newOrigin = selectedArea1Point1;
 
     // Resize the display widget
-    int newSizeX = int( (double)(imageBuffWidth) * newZoom );
-    int newSizeY = int( (double)(imageBuffHeight) * newZoom );
+    int newSizeX = int( (double)(iProcessor.getImageBuffWidth()) * newZoom );
+    int newSizeY = int( (double)(iProcessor.getImageBuffHeight()) * newZoom );
     videoWidget->resize( newSizeX, newSizeY );
 
     // Reposition the display widget
@@ -2754,8 +1649,8 @@ void QEImage::roi1Changed()
 {
     // Write the ROI variables.
     QEInteger *qca;
-    QPoint p1 = rotateFlipToDataPoint( selectedArea1Point1 );
-    QPoint p2 = rotateFlipToDataPoint( selectedArea1Point2 );
+    QPoint p1 = iProcessor.rotateFlipToDataPoint( selectedArea1Point1 );
+    QPoint p2 = iProcessor.rotateFlipToDataPoint( selectedArea1Point2 );
     QRect r( p1, p2 );
     r = r.normalized();
 
@@ -2779,8 +1674,8 @@ void QEImage::roi2Changed()
 {
     // Write the ROI variables.
     QEInteger *qca;
-    QPoint p1 = rotateFlipToDataPoint( selectedArea2Point1 );
-    QPoint p2 = rotateFlipToDataPoint( selectedArea2Point2 );
+    QPoint p1 = iProcessor.rotateFlipToDataPoint( selectedArea2Point1 );
+    QPoint p2 = iProcessor.rotateFlipToDataPoint( selectedArea2Point2 );
     QRect r( p1, p2 );
     r = r.normalized();
 
@@ -2804,8 +1699,8 @@ void QEImage::roi3Changed()
 {
     // Write the ROI variables.
     QEInteger *qca;
-    QPoint p1 = rotateFlipToDataPoint( selectedArea3Point1 );
-    QPoint p2 = rotateFlipToDataPoint( selectedArea3Point2 );
+    QPoint p1 = iProcessor.rotateFlipToDataPoint( selectedArea3Point1 );
+    QPoint p2 = iProcessor.rotateFlipToDataPoint( selectedArea3Point2 );
     QRect r( p1, p2 );
     r = r.normalized();
 
@@ -2829,8 +1724,8 @@ void QEImage::roi4Changed()
 {
     // Write the ROI variables.
     QEInteger *qca;
-    QPoint p1 = rotateFlipToDataPoint( selectedArea4Point1 );
-    QPoint p2 = rotateFlipToDataPoint( selectedArea4Point2 );
+    QPoint p1 = iProcessor.rotateFlipToDataPoint( selectedArea4Point1 );
+    QPoint p2 = iProcessor.rotateFlipToDataPoint( selectedArea4Point2 );
     QRect r( p1, p2 );
     r = r.normalized();
 
@@ -2854,8 +1749,8 @@ void QEImage::lineProfileChanged()
 {
     // Write the arbitrary line profile variables.
     QEInteger *qca;
-    QPoint p1 = rotateFlipToDataPoint( profileLineStart );
-    QPoint p2 = rotateFlipToDataPoint( profileLineEnd );
+    QPoint p1 = iProcessor.rotateFlipToDataPoint( profileLineStart );
+    QPoint p2 = iProcessor.rotateFlipToDataPoint( profileLineEnd );
 
     qca = (QEInteger*)getQcaItem( LINE_PROFILE_X1_VARIABLE );
     if( qca ) qca->writeInteger( p1.x() );
@@ -2929,13 +1824,14 @@ void QEImage::pauseClicked()
     // Not paused, so pause
     else
     {
+
         // Force a deep copy of the image data as it will be used while paused if the user
         // interacts with the image - even by just hovering over it and causing pixel information to be displayed.
         // For efficiency, the image data was generated from the original update data using QByteArray::fromRawData().
         // The data system keeps the raw data until the next update so QByteArray instances like 'image' will remain vaild.
         // The data system discards it and replaces it will the latest data after each update. So if not using the latest
         // data (such as when paused) the data in 'image' would become stale after an update.
-        image.resize( image.count()+1);
+        iProcessor.ownImageData();
 
         // Pause the display
         pauseButton->setIcon( *playButtonIcon );
@@ -2983,7 +1879,7 @@ void QEImage::saveClicked()
 
     if (qFileDialog->exec())
     {
-        QImage qImage = copyImage();
+        QImage qImage = iProcessor.copyImage();
         filename = qFileDialog->selectedFiles().at(0);
 
         if (qFileDialog->selectedNameFilter() == filterList.at(0))
@@ -3014,13 +1910,6 @@ void QEImage::saveClicked()
     }
 
 }
-
-// Return a QImage based on the current image
-QImage QEImage::copyImage()
-{
-    return QImage((uchar*) imageBuff.constData(), rotatedImageBuffWidth(), rotatedImageBuffHeight(), QImage::Format_RGB32);
-}
-
 
 // Update the video widget if the QEImage has changed
 void QEImage::resizeEvent(QResizeEvent* )
@@ -3057,7 +1946,7 @@ void QEImage::doEnableRecording( bool enableRecording )
 void QEImage::doContrastReversal( bool /*contrastReversal*/ )
 {
     // Flag color lookup table is invalid
-    pixelLookupValid = false;
+    iProcessor.invalidatePixelLookup();
 
     // Redraw the current image (don't wait for next update (image may be stalled)
     redraw();
@@ -3257,18 +2146,12 @@ void QEImage::paste( QVariant v )
 // Allow user to set the video format
 void QEImage::setFormatOption( imageDataFormats::formatOptions formatOptionIn )
 {
-    if( mFormatOption != formatOptionIn )
-    {
-        pixelLookupValid = false;
-    }
-
-    // Save the option
-    mFormatOption = formatOptionIn;
+    iProcessor.setFormat( formatOptionIn );
 }
 
 imageDataFormats::formatOptions QEImage::getFormatOption()
 {
-    return mFormatOption;
+    return iProcessor.getFormat();
 }
 
 // Allow user to set the bit depth for Mono video format
@@ -3285,19 +2168,13 @@ void QEImage::setBitDepth( unsigned int bitDepthIn )
         sanitiedBitDepth = 32;
     }
 
-    // Invalidate pixel look up table if bit depth changes (it will be regenerated with the new depth when next needed)
-    if( bitDepth != sanitiedBitDepth )
-    {
-        pixelLookupValid = false;
-    }
-
     // Save the option
-    bitDepth = sanitiedBitDepth;
+    iProcessor.setBitDepth( sanitiedBitDepth );
 }
 
 unsigned int QEImage::getBitDepth()
 {
-    return bitDepth;
+    return iProcessor.getBitDepth();
 }
 
 // Set the zoom percentage (and force zoom mode)
@@ -3335,10 +2212,10 @@ int QEImage::getZoom()
 }
 
 // Rotation
-void QEImage::setRotation( rotationOptions rotationIn )
+void QEImage::setRotation( imageProperties::rotationOptions rotationIn )
 {
     // Save the rotation requested
-    rotation = rotationIn;
+    iProcessor.setRotation( rotationIn );
 
     // Adjust the size of the image to maintain aspect ratio if required
     setImageBuff();
@@ -3348,15 +2225,15 @@ void QEImage::setRotation( rotationOptions rotationIn )
     redisplayAllMarkups();
 }
 
-QEImage::rotationOptions QEImage::getRotation()
+imageProperties::rotationOptions QEImage::getRotation()
 {
-    return rotation;
+    return iProcessor.getRotation();
 }
 
 // Horizontal flip
 void QEImage::setHorizontalFlip( bool flipHozIn )
 {
-    flipHoz = flipHozIn;
+    iProcessor.setFlipHoz( flipHozIn );
 
     // Present the updated image
     displayImage();
@@ -3365,13 +2242,13 @@ void QEImage::setHorizontalFlip( bool flipHozIn )
 
 bool QEImage::getHorizontalFlip()
 {
-    return flipHoz;
+    return iProcessor.getFlipHoz();
 }
 
 // Vertical flip
 void QEImage::setVerticalFlip( bool flipVertIn )
 {
-    flipVert = flipVertIn;
+    iProcessor.setFlipVert( flipVertIn );
 
     // Present the updated image
     displayImage();
@@ -3380,7 +2257,7 @@ void QEImage::setVerticalFlip( bool flipVertIn )
 
 bool QEImage::getVerticalFlip()
 {
-    return flipVert;
+    return iProcessor.getFlipVert();
 }
 
 // Automatic setting of brightness and contrast on region selection
@@ -4331,7 +3208,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode,   // Markup being mani
 
             case imageMarkup::MARKUP_ID_TARGET:
                 {
-                    targetInfo.setPoint( rotateFlipToDataPoint( point1 ) );
+                    targetInfo.setPoint( iProcessor.rotateFlipToDataPoint( point1 ) );
 
                     // Write the target variables.
                     QEInteger *qca;
@@ -4351,7 +3228,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode,   // Markup being mani
 
             case imageMarkup::MARKUP_ID_BEAM:
                 {
-                    beamInfo.setPoint( rotateFlipToDataPoint( point1 ) );
+                    beamInfo.setPoint( iProcessor.rotateFlipToDataPoint( point1 ) );
 
                     // Write the beam variables.
                     QEInteger *qca;
@@ -4573,68 +3450,6 @@ void QEImage::setLineProfileControlsNotVisible()
 
 //==================================================
 
-// Determine the maximum pixel value for the current format
-unsigned int QEImage::maxPixelValue()
-{
-    double result = 0;
-
-    switch( mFormatOption )
-    {
-        case imageDataFormats::BAYERGB:
-        case imageDataFormats::BAYERBG:
-        case imageDataFormats::BAYERGR:
-        case imageDataFormats::BAYERRG:
-        case imageDataFormats::MONO:
-            result = (1<<bitDepth)-1;
-            break;
-
-        case imageDataFormats::RGB1:
-        case imageDataFormats::RGB2:
-        case imageDataFormats::RGB3:
-            result = (1<<8)-1; //???!!! not done yet probably correct
-            break;
-
-        case imageDataFormats::YUV444:
-        case imageDataFormats::YUV422:
-        case imageDataFormats::YUV421:
-            result = (1<<8)-1; //???!!! not done yet probably correct
-            break;
-    }
-
-    if( result == 0 )
-    {
-        result = 255;
-    }
-
-    return result;
-}
-
-// Return a pointer to pixel data in the original image data.
-// The position parameter is scaled to the original image size but reflects
-// the displayed rotation and flip options, so it must be transformed first.
-// Return NULL, if there is no image data, or point is beyond end of image data
-const unsigned char* QEImage::getImageDataPtr( QPoint& pos )
-{
-    QPoint posTr;
-
-    // Transform the position to reflect the original unrotated or flipped data
-    posTr = rotateFlipToDataPoint( pos );
-
-    // Set up reference to start of the data, and the index to the required pixel
-    const unsigned char* data = (unsigned char*)image.constData();
-    int index = (posTr.x()+posTr.y()*imageBuffWidth)*bytesPerPixel;
-
-    // Return a pointer to the pixel data if possible
-    if( !image.isEmpty() && index < image.size() )
-    {
-        return &(data[index]);
-    }
-    else
-    {
-        return NULL;
-    }
-}
-
 // Display textual info about a selected area
 //!!! No longer needed. change calls to displaySelectedAreaInfo() to calls to infoUpdateRegion() directly
 void QEImage::displaySelectedAreaInfo( int region, QPoint point1, QPoint point2 )
@@ -4646,63 +3461,16 @@ void QEImage::displaySelectedAreaInfo( int region, QPoint point1, QPoint point2 
 void QEImage::setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 )
 {
     // Translate the corners to match the current flip and roate options
-    QRect area = rotateFlipToDataRectangle( point1, point2 );
+    QRect area = iProcessor.rotateFlipToDataRectangle( point1, point2 );
 
     // Determine the range of pixel values in the selected area
     unsigned int min, max;
-    getPixelRange( area, &min, &max );
+    iProcessor.getPixelRange( area, &min, &max );
 
     if( imageDisplayProps )
     {
         imageDisplayProps->setBrightnessContrast( max, min );
     }
-}
-
-// Determine the range of pixel values an area of the image
-void QEImage::getPixelRange( const QRect& area, unsigned int* min, unsigned int* max )
-{
-    // If the area selected was the the entire image, and the image was not presented at 100%, rounding areas while scaling
-    // may result in area dimensions outside than the actual image by a pixel or so, so limit the area to within the image.
-    unsigned int areaX = (area.topLeft().x()>=0)?area.topLeft().x():0;
-    unsigned int areaY = (area.topLeft().y()>=0)?area.topLeft().y():0;
-    unsigned int areaW = (area.width()<=(int)rotatedImageBuffWidth())?area.width():rotatedImageBuffWidth();
-    unsigned int areaH = (area.height()<=(int)rotatedImageBuffHeight())?area.height():rotatedImageBuffHeight();
-
-    // Set up to step pixel by pixel through the area
-    const unsigned char* data = (unsigned char*)image.constData();
-    unsigned int index = (areaY*rotatedImageBuffWidth()+areaX)*bytesPerPixel;
-
-    // This function is called as the user drags region handles around the
-    // screen. Recalculating min and max pixels for large areas
-    // for each mouse movement event needs to be efficient so speed loop by
-    // extracting width and height. (Compiler can't assume QRect width
-    // and height stays constant so it is evaluated each iteration of for
-    // loop if it was in the form   'for( int i = 0; i < area.height(); i++ )'
-    unsigned int stepW = bytesPerPixel;
-
-    // Calculate the step to the start of the next row in the area selected.
-    unsigned int stepH = (rotatedImageBuffWidth()-areaW)*bytesPerPixel;
-
-    unsigned int maxP = 0;
-    unsigned int minP = UINT_MAX;
-
-    // Determine the maximum and minimum pixel values in the area
-    for( unsigned int i = 0; i < areaH; i++ )
-    {
-        for( unsigned int j = 0; j < areaW; j++ )
-        {
-            unsigned int p = getPixelValueFromData( &(data[index]) );
-            if( p < minP ) minP = p;
-            if( p > maxP ) maxP = p;
-
-            index += stepW;
-        }
-        index += stepH;
-    }
-
-    // Return results
-    *min = minP;
-    *max = maxP;
 }
 
 //=====================================================================
@@ -4712,7 +3480,7 @@ void QEImage::getPixelRange( const QRect& area, unsigned int* min, unsigned int*
 void QEImage::imageDisplayPropertiesChanged()
 {
     // Flag that the current pixel lookup table needs recalculating
-    pixelLookupValid = false;
+    iProcessor.invalidatePixelLookup();
 
     // Present the updated image
     displayImage();
@@ -4721,7 +3489,7 @@ void QEImage::imageDisplayPropertiesChanged()
 // A request has been made to set the brightness and contrast to suit the current image
 void QEImage::brightnessContrastAutoImageRequest()
 {
-    setRegionAutoBrightnessContrast( QPoint( 0, 0), QPoint( imageBuffWidth, imageBuffHeight ) );
+    setRegionAutoBrightnessContrast( QPoint( 0, 0), QPoint( iProcessor.getImageBuffWidth(), iProcessor.getImageBuffHeight() ) );
 }
 
 //=====================================================================
@@ -4740,70 +3508,14 @@ void QEImage::generateVSlice( int x, unsigned int thickness )
     infoUpdateVertProfile( x, thickness );
 
     // If not over the image, remove the profile
-    if( x < 0 || x >= (int)rotatedImageBuffWidth() )
+    if( x < 0 || x >= (int)iProcessor.rotatedImageBuffWidth() )
     {
         vSliceDisplay->clearProfile();
         return;
     }
 
-    // Ensure the buffer is the correct size
-    if( vSliceData.size() != (int)rotatedImageBuffHeight() )
-        vSliceData.resize( rotatedImageBuffHeight() );
-
-    // Set up to step pixel by pixel through the image data along the line
-    const unsigned char* data = (unsigned char*)image.constData();
-    const unsigned char* dataPtr = &(data[x*bytesPerPixel]);
-    int dataPtrStep = rotatedImageBuffWidth()*bytesPerPixel;
-
-    // Set up to step through the line thickness
-    unsigned int halfThickness = thickness/2;
-    int xMin = x-halfThickness;
-    if( xMin < 0 ) xMin = 0;
-    int xMax =  xMin+thickness;
-    if( xMax >= (int)rotatedImageBuffWidth() ) xMax = rotatedImageBuffWidth();
-
-    // Accumulate data for each pixel in the thickness
-    bool firstPass = true;
-    for( int nextX = xMin; nextX < xMax; nextX++ )
-    {
-        // Accumulate the image data value at each pixel.
-        // The buffer is filled backwards so the plot, which sits on its side beside the image is drawn correctly
-        QPoint pos;
-        pos.setX( nextX );
-        for( int i = rotatedImageBuffHeight()-1; i >= 0; i-- )
-        {
-            pos.setY( i );
-            QPointF* dataPoint = &vSliceData[i];
-            double value = getFloatingPixelValueFromData( getImageDataPtr( pos ) );
-
-            // On first pass, set up X and Y
-            if( firstPass )
-            {
-                dataPoint->setY( i );
-                dataPoint->setX( value );
-            }
-
-            // On subsequent passes (when thickness is greater than 1), accumulate X
-            else
-            {
-                dataPoint->setX( dataPoint->x() + value );
-            }
-
-            dataPtr += dataPtrStep;
-        }
-
-        firstPass = false;
-    }
-
-    // Calculate average pixel values if more than one pixel thick
-    if( thickness > 1 )
-    {
-        for( int i = rotatedImageBuffHeight()-1; i >= 0; i-- )
-        {
-            QPointF* dataPoint = &vSliceData[i];
-            dataPoint->setX( dataPoint->x()/thickness );
-        }
-    }
+    // Generate the data through the slice
+    iProcessor.generateVSliceData( vSliceData, x, thickness );
 
     // Write the profile data
     QEFloating *qca;
@@ -4821,8 +3533,18 @@ void QEImage::generateVSlice( int x, unsigned int thickness )
 
     // Display the profile
     QDateTime dt = QDateTime::currentDateTime();
-    QString title = QString( "Vertical profile - " ).append( getSubstitutedVariableName( IMAGE_VARIABLE ) ).append( dt.toString(" - dd.MM.yyyy HH:mm:ss.zzz") );
-    vSliceDisplay->setProfile( &vSliceData, maxPixelValue(), 0.0, (double)(vSliceData.size()), 0.0, title, QPoint( x, 0 ), QPoint( x, rotatedImageBuffHeight()-1 ), thickness );
+    QString title = QString( "Vertical profile - " )
+                    .append( getSubstitutedVariableName( IMAGE_VARIABLE ) )
+                    .append( dt.toString(" - dd.MM.yyyy HH:mm:ss.zzz") );
+    vSliceDisplay->setProfile( &vSliceData,
+                               iProcessor.maxPixelValue(),
+                               0.0,
+                               (double)(vSliceData.size()),
+                               0.0,
+                               title,
+                               QPoint( x, 0 ),
+                               QPoint( x, iProcessor.rotatedImageBuffHeight()-1 ),
+                               thickness );
 }
 
 // Generate a profile along a line across an image at a given Y position
@@ -4839,70 +3561,14 @@ void QEImage::generateHSlice( int y, unsigned int thickness )
     infoUpdateHozProfile( y, thickness );
 
     // If not over the image, remove the profile
-    if( y < 0 || y >= (int)rotatedImageBuffHeight() )
+    if( y < 0 || y >= (int)iProcessor.rotatedImageBuffHeight() )
     {
         hSliceDisplay->clearProfile();
         return;
     }
 
-    // Ensure the buffer is the correct size
-    if( hSliceData.size() != (int)rotatedImageBuffWidth() )
-        hSliceData.resize( rotatedImageBuffWidth() );
-
-    // Set up to step pixel by pixel through the image data along the line
-    const unsigned char* data = (unsigned char*)image.constData();
-    const unsigned char* dataPtr = &(data[y*rotatedImageBuffWidth()*bytesPerPixel]);
-    int dataPtrStep = bytesPerPixel;
-
-    // Set up to step through the line thickness
-    unsigned int halfThickness = thickness/2;
-    int yMin = y-halfThickness;
-    if( yMin < 0 ) yMin = 0;
-    int yMax =  yMin+thickness;
-    if( yMax >= (int)rotatedImageBuffHeight() ) yMax = rotatedImageBuffHeight();
-
-    // Accumulate data for each pixel in the thickness
-    bool firstPass = true;
-    for( int nextY = yMin; nextY < yMax; nextY++ )
-    {
-        // Accumulate the image data value at each pixel.
-        QPoint pos;
-        pos.setY( nextY );
-        for( unsigned int i = 0; i < rotatedImageBuffWidth(); i++ )
-        {
-            pos.setX( i );
-            QPointF* dataPoint = &hSliceData[i];
-            double value = getFloatingPixelValueFromData( getImageDataPtr( pos ) );
-
-            // On first pass, set up X and Y
-            if( firstPass )
-            {
-                dataPoint->setX( i );
-                dataPoint->setY( value );
-            }
-
-            // On subsequent passes (when thickness is greater than 1), accumulate X
-            else
-            {
-                dataPoint->setY( dataPoint->y() + value );
-            }
-
-            dataPtr += dataPtrStep;
-        }
-
-        firstPass = false;
-    }
-
-
-    // Calculate average pixel values if more than one pixel thick
-    if( thickness > 1 )
-    {
-        for( unsigned int i = 0; i < rotatedImageBuffWidth(); i++ )
-        {
-            QPointF* dataPoint = &hSliceData[i];
-            dataPoint->setY( dataPoint->y()/thickness );
-        }
-    }
+    // Generate the data through the slice
+    iProcessor.generateHSliceData( hSliceData, y, thickness );
 
     // Write the profile data
     QEFloating *qca;
@@ -4920,8 +3586,18 @@ void QEImage::generateHSlice( int y, unsigned int thickness )
 
     // Display the profile
     QDateTime dt = QDateTime::currentDateTime();
-    QString title = QString( "Horizontal profile - " ).append( getSubstitutedVariableName( IMAGE_VARIABLE ) ).append( dt.toString(" - dd.MM.yyyy HH:mm:ss.zzz") );
-    hSliceDisplay->setProfile( &hSliceData, 0.0, (double)(hSliceData.size()), 0.0,  maxPixelValue(), title, QPoint( y, 0 ), QPoint( y, rotatedImageBuffWidth()-1 ), thickness );
+    QString title = QString( "Horizontal profile - " )
+                    .append( getSubstitutedVariableName( IMAGE_VARIABLE ) )
+                    .append( dt.toString(" - dd.MM.yyyy HH:mm:ss.zzz") );
+    hSliceDisplay->setProfile( &hSliceData,
+                               0.0,
+                               (double)(hSliceData.size()),
+                               0.0,
+                               iProcessor.maxPixelValue(),
+                               title,
+                               QPoint( y, 0 ),
+                               QPoint( y, iProcessor.rotatedImageBuffWidth()-1 ),
+                               thickness );
 }
 
 // Generate a profile along an arbitrary line through an image.
@@ -5007,157 +3683,8 @@ void QEImage::generateProfile( QPoint point1, QPoint point2, unsigned int thickn
         return;
     }
 
-    // Line length
-    double len = sqrt( dX*dX+dY*dY );
-
-    // Step on each axis to move one 'pixel' length
-    double xStep = dX/len;
-    double yStep = dY/len;
-
-    // Starting point in center of start pixel
-    double initX = point1.x()+0.5;
-    double initY = point1.y()+0.5;
-
-    // Ensure output buffer is the correct size
-    if( profileData.size() != len )
-    {
-       profileData.resize( int( len ) );
-    }
-
-    // Integer pixel length
-    int intLen = (int)len;
-
-    // Parrallel passes will be made one 'pixel' away from each other up to the thickness required.
-    // Determine the offset for the first pass.
-    // Note, this will not add an offset for a thickness of 1 pixel
-    initX -= yStep * (double)(thickness-1) / 2;
-    initY += xStep * (double)(thickness-1) / 2;
-
-    // Accumulate a set of values for each pixel width up to the thickness required
-    bool firstPass = true;
-    for( unsigned int j = 0; j < thickness; j++ )
-    {
-        // Starting point for this pass
-        double x = initX;
-        double y = initY;
-
-        // Calculate a value for each pixel length along the selected line
-        for( int i = 0; i < intLen; i++ )
-        {
-            // Calculate the value if the point is within the image (user can drag outside the image)
-            double value;
-            if( x >= 0 && x < rotatedImageBuffWidth() && y >= 0 && y < rotatedImageBuffHeight() )
-            {
-
-                // Determine the top left of the notional pixel that will be measured
-                // The notional pixel is one pixel length both dimensions and will not
-                // nessesarily overlay a single real pixel
-                double xTL = x-0.5;
-                double yTL = y-0.5;
-
-                // Determine the top left actual pixel of the four actual pixels that
-                // the notional pixel overlays, and the fractional part of a pixel that
-                // the notional pixel is offset by.
-                double xTLi, xTLf; // i = integer part, f = fractional part
-                double yTLi, yTLf; // i = integer part, f = fractional part
-
-                xTLf = modf( xTL, & xTLi );
-                yTLf = modf( yTL, & yTLi );
-
-                // For each of the four actual pixels that the notional pixel overlays,
-                // determine the proportion of the actual pixel covered by the notional pixel
-                double propTL = (1.0-xTLf)*(1-yTLf);
-                double propTR = (xTLf)*(1-yTLf);
-                double propBL = (1.0-xTLf)*(yTLf);
-                double propBR = (xTLf)*(yTLf);
-
-                // Determine a pointer into the image data for each of the four actual pixels overlayed by the notional pixel
-                int actualXTL = (int)xTLi;
-                int actualYTL = (int)yTLi;
-                QPoint posTL( actualXTL,   actualYTL );
-                QPoint posTR( actualXTL+1, actualYTL );
-                QPoint posBL( actualXTL,   actualYTL+1 );
-                QPoint posBR( actualXTL+1, actualYTL+1 );
-
-                const unsigned char* dataPtrTL = getImageDataPtr( posTL );
-                const unsigned char* dataPtrTR = getImageDataPtr( posTR );
-                const unsigned char* dataPtrBL = getImageDataPtr( posBL );
-                const unsigned char* dataPtrBR = getImageDataPtr( posBR );
-
-                // Determine the value of the notional pixel from a weighted average of the four real pixels it overlays.
-                // The larger the proportion of the real pixel overlayed, the greated the weight.
-                // (Ignore pixels outside the image)
-                int pixelsInValue = 0;
-                value = 0;
-                if( xTLi >= 0 && yTLi >= 0 )
-                {
-                    value += propTL * getFloatingPixelValueFromData( dataPtrTL );
-                    pixelsInValue++;
-                }
-
-                if( xTLi+1 < rotatedImageBuffWidth() && yTLi >= 0 )
-                {
-                    value += propTR * getFloatingPixelValueFromData( dataPtrTR );
-                    pixelsInValue++;
-                }
-
-                if( xTLi >= 0 && yTLi+1 < rotatedImageBuffHeight() )
-                {
-
-                    value += propBL * getFloatingPixelValueFromData( dataPtrBL );
-                    pixelsInValue++;
-                }
-                if( xTLi+1 < rotatedImageBuffWidth() && yTLi+1 < rotatedImageBuffHeight() )
-                {
-                    value += propBR * getFloatingPixelValueFromData( dataPtrBR );
-                    pixelsInValue++;
-                }
-
-
-                // Calculate the weighted value
-                value = value / pixelsInValue * 4;
-
-                // Move on to the next 'point'
-                x+=xStep;
-                y+=yStep;
-            }
-
-            // Use a value of zero if the point is not within the image (user can drag outside the image)
-            else
-            {
-                value = 0.0;
-            }
-
-            // Get a reference to the current data point
-            QPointF* data = &profileData[i];
-
-            // If the first pass, set the X axis and the initial data value
-            if( firstPass )
-            {
-                data->setX( i );
-                data->setY( value );
-            }
-
-            // On consequent passes, accumulate the data value
-            else
-            {
-                data->setY( data->y() + value );
-            }
-        }
-
-        initX += yStep;
-        initY -= xStep;
-
-        firstPass = false;
-
-    }
-
-    // Average the values
-    for( int i = 0; i < intLen; i++ )
-    {
-        QPointF* data = &profileData[i];
-        data->setY( data->y() / thickness );
-    }
+    // Generate the data through the slice
+    iProcessor.generateProfileData( profileData, point1, point2, thickness );
 
     // Write the profile data
     QEFloating *qca;
@@ -5176,237 +3703,7 @@ void QEImage::generateProfile( QPoint point1, QPoint point2, unsigned int thickn
     // Update the profile display
     QDateTime dt = QDateTime::currentDateTime();
     QString title = QString( "Line profile - " ).append( getSubstitutedVariableName( IMAGE_VARIABLE ) ).append( dt.toString(" - dd.MM.yyyy HH:mm:ss.zzz") );
-    profileDisplay->setProfile( &profileData, 0.0, (double)(profileData.size()), 0.0,  maxPixelValue(), title, point1, point2, thickness );
-}
-
-//=================================================================================================
-
-
-// Return a number representing a pixel intensity given a pointer into an image data buffer.
-// Note, the pointer is indexed according to the pixel data size which will be at least
-// big enough for the data format.
-int QEImage::getPixelValueFromData( const unsigned char* ptr )
-{
-    // Sanity check
-    if( !ptr )
-        return 0;
-
-    // Case the data to the correct size, then return the data as a floating point number.
-    switch( mFormatOption )
-    {
-        case imageDataFormats::BAYERGB:
-        case imageDataFormats::BAYERBG:
-        case imageDataFormats::BAYERGR:
-        case imageDataFormats::BAYERRG:
-        case imageDataFormats::MONO:
-            {
-                unsigned int usableDepth = bitDepth;
-                if( bitDepth > (imageDataSize*8) )
-                {
-                    usableDepth = imageDataSize*8;
-                }
-
-                quint32 mask = (1<<usableDepth)-1;
-
-                return (*((quint32*)ptr))&mask;
-            }
-
-        case imageDataFormats::RGB1:
-            {
-                // for RGB, average all colors
-                unsigned int pixel = *(unsigned int*)ptr;
-                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
-            }
-
-        case imageDataFormats::RGB2:
-            //!!! not done - copy of RGB1
-            {
-                // for RGB, average all colors
-                unsigned int pixel = *(unsigned int*)ptr;
-                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
-            }
-
-        case imageDataFormats::RGB3:
-            //!!! not done - copy of RGB1
-            {
-                // for RGB, average all colors
-                unsigned int pixel = *(unsigned int*)ptr;
-                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
-            }
-
-        case imageDataFormats::YUV444:
-            //!!! not done - copy of RGB1
-            {
-                // for RGB, average all colors
-                unsigned int pixel = *(unsigned int*)ptr;
-                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
-            }
-
-        case imageDataFormats::YUV422:
-            //!!! not done - copy of RGB1
-            {
-                // for RGB, average all colors
-                unsigned int pixel = *(unsigned int*)ptr;
-                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
-            }
-
-        case imageDataFormats::YUV421:
-            //!!! not done - copy of RGB1
-            {
-                // for RGB, average all colors
-                unsigned int pixel = *(unsigned int*)ptr;
-                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
-            }
-    }
-
-    // Avoid compilation warning (not sure why this is required as all cases are handled in switch statements.
-    return *ptr;
-}
-
-// Return a floating point number representing a pixel intensity given a pointer into an image data buffer.
-double QEImage::getFloatingPixelValueFromData( const unsigned char* ptr )
-{
-    return getPixelValueFromData( ptr );
-}
-
-// Transform a rectangle in the displayed image to a rectangle in the
-// original data according to current rotation and flip options.
-QRect QEImage::rotateFlipToDataRectangle( const QRect& rect )
-{
-    QPoint pos1 = rect.topLeft();
-    QPoint pos2 = rect.bottomRight();
-    return rotateFlipToDataRectangle( pos1, pos2 );
-}
-
-// Transform a rectangle (defined by two points) in the displayed image to
-// a rectangle in the original data according to current rotation and flip options.
-QRect QEImage::rotateFlipToDataRectangle( const QPoint& pos1, const QPoint& pos2 )
-{
-    QPoint trPos1 = rotateFlipToDataPoint( pos1 );
-    QPoint trPos2 = rotateFlipToDataPoint( pos2 );
-
-    QRect trRect( trPos1, trPos2 );
-    trRect = trRect.normalized();
-
-    return trRect;
-}
-
-// Transform a point in the displayed image to a point in the original
-// data according to current rotation and flip options.
-QPoint QEImage::rotateFlipToDataPoint( const QPoint& pos )
-{
-    // Transform the point according to current rotation and flip options.
-    // Depending on the flipping and rotating options pixel drawing can start in any of
-    // the four corners and start scanning either vertically or horizontally.
-    // The 8 scanning options are shown numbered here:
-    //
-    //    o----->1         2<-----o
-    //    |                       |
-    //    |                       |
-    //    |                       |
-    //    v                       v
-    //    5                       6
-    //
-    //
-    //
-    //    7                       8
-    //    ^                       ^
-    //    |                       |
-    //    |                       |
-    //    |                       |
-    //    o----->3         4<-----o
-    //
-    // A point from a rotated and fliped image needs to be transformed to be able to
-    // reference pixel data in the original data buffer.
-    // Base the transformation on the scanning option used when building the image
-    int w = (int)imageBuffWidth-1;
-    int h = (int)imageBuffHeight-1;
-    QPoint posTr;
-    int scanOption = getScanOption();
-    switch( scanOption )
-    {
-        default:
-        case 1: posTr = pos;                                      break;
-        case 2: posTr.setX( w-pos.x() ); posTr.setY( pos.y() );   break;
-        case 3: posTr.setX( pos.x() );   posTr.setY( h-pos.y() ); break;
-        case 4: posTr.setX( w-pos.x() ); posTr.setY( h-pos.y() ); break;
-        case 5: posTr.setX( pos.y() );   posTr.setY( pos.x() );   break;
-        case 6: posTr.setX( w-pos.y() ); posTr.setY( pos.x() );   break;
-        case 7: posTr.setX( pos.y() );   posTr.setY( h-pos.x() ); break;
-        case 8: posTr.setX( w-pos.y() ); posTr.setY( h-pos.x() ); break;
-    }
-
-    return posTr;
-}
-
-// Transform a rectangle in the original data to a rectangle in the
-// displayed image according to current rotation and flip options.
-QRect QEImage::rotateFlipToImageRectangle( const QRect& rect )
-{
-    QPoint pos1 = rect.topLeft();
-    QPoint pos2 = rect.bottomRight();
-    return rotateFlipToImageRectangle( pos1, pos2 );
-}
-
-// Transform a rectangle (defined by two points) in the original data to a rectangle in the
-// displayed image according to current rotation and flip options.
-QRect QEImage::rotateFlipToImageRectangle( const QPoint& pos1, const QPoint& pos2 )
-{
-    QPoint trPos1 = rotateFlipToImagePoint( pos1 );
-    QPoint trPos2 = rotateFlipToImagePoint( pos2 );
-
-    QRect trRect( trPos1, trPos2 );
-    trRect = trRect.normalized();
-
-    return trRect;
-}
-
-// Transform a point in the original data to a point in the image
-// according to current rotation and flip options.
-QPoint QEImage::rotateFlipToImagePoint( const QPoint& pos )
-{
-    // Transform the point according to current rotation and flip options.
-    // Depending on the flipping and rotating options pixel drawing can start in any of
-    // the four corners and start scanning either vertically or horizontally.
-    // The 8 scanning options are shown numbered here:
-    //
-    //    o----->1         2<-----o
-    //    |                       |
-    //    |                       |
-    //    |                       |
-    //    v                       v
-    //    5                       6
-    //
-    //
-    //
-    //    7                       8
-    //    ^                       ^
-    //    |                       |
-    //    |                       |
-    //    |                       |
-    //    o----->3         4<-----o
-    //
-    // A point from a rotated and fliped image needs to be transformed to be able to
-    // reference pixel data in the original data buffer.
-    // Base the transformation on the scanning option used when building the image
-    int w = (int)imageBuffWidth-1;
-    int h = (int)imageBuffHeight-1;
-    QPoint posTr;
-    int scanOption = getScanOption();
-    switch( scanOption )
-    {
-        default:
-        case 1: posTr = pos;                                      break;
-        case 2: posTr.setX( w-pos.x() ); posTr.setY( pos.y() );   break;
-        case 3: posTr.setX( pos.x() );   posTr.setY( h-pos.y() ); break;
-        case 4: posTr.setX( w-pos.x() ); posTr.setY( h-pos.y() ); break;
-        case 5: posTr.setX( pos.y() );   posTr.setY( pos.x() );   break;
-        case 6: posTr.setX( pos.y() );   posTr.setY( w-pos.x() ); break;
-        case 7: posTr.setX( h-pos.y() ); posTr.setY( pos.x() );   break;
-        case 8: posTr.setX( h-pos.y() ); posTr.setY( w-pos.x() ); break;
-    }
-
-    return posTr;
+    profileDisplay->setProfile( &profileData, 0.0, (double)(profileData.size()), 0.0,  iProcessor.maxPixelValue(), title, point1, point2, thickness );
 }
 
 //=================================================================================================
@@ -5414,14 +3711,14 @@ QPoint QEImage::rotateFlipToImagePoint( const QPoint& pos )
 void QEImage::currentPixelInfo( QPoint pos )
 {
     // Don't do anything if no image data yet
-    if( image.isEmpty() )
+    if( !iProcessor.hasImage() )
     {
         return;
     }
 
     // If the pixel is not within the image, display nothing
     QString s;
-    if( pos.x() < 0 || pos.y() < 0 || pos.x() >= (int)rotatedImageBuffWidth() || pos.y() >= (int)rotatedImageBuffHeight() )
+    if( pos.x() < 0 || pos.y() < 0 || pos.x() >= (int)iProcessor.rotatedImageBuffWidth() || pos.y() >= (int)iProcessor.rotatedImageBuffHeight() )
     {
         infoUpdatePixel();
     }
@@ -5430,101 +3727,8 @@ void QEImage::currentPixelInfo( QPoint pos )
     else
     {
         // Extract the pixel data from the original image data
-        int value = getPixelValueFromData( getImageDataPtr( pos ) );
+        int value = iProcessor.getPixelValueFromData( iProcessor.getImageDataPtr( pos ) );
         infoUpdatePixel( pos, value );
-    }
-}
-
-// Return the image width following any rotation
-unsigned int QEImage::rotatedImageBuffWidth()
-{
-    switch( rotation)
-    {
-        default:
-        case ROTATION_0:
-        case ROTATION_180:
-            return imageBuffWidth;
-
-        case ROTATION_90_RIGHT:
-        case ROTATION_90_LEFT:
-            return imageBuffHeight;
-    }
-}
-
-// Return the image height following any rotation
-unsigned int QEImage::rotatedImageBuffHeight()
-{
-    switch( rotation)
-    {
-        default:
-        case ROTATION_0:
-        case ROTATION_180:
-            return imageBuffHeight;
-
-        case ROTATION_90_RIGHT:
-        case ROTATION_90_LEFT:
-            return imageBuffWidth;
-    }
-}
-
-
-// Determine the way the input pixel data must be scanned to accommodate the required
-// rotate and flip options. This is used when generating the image data, and also when
-// transforming points in the image back to references in the original pixel data.
-int QEImage::getScanOption()
-{
-    // Depending on the flipping and rotating options pixel drawing can start in any of
-    // the four corners and start scanning either vertically or horizontally.
-    // The 8 scanning options are shown numbered here:
-    //
-    //    o----->1         2<-----o
-    //    |                       |
-    //    |                       |
-    //    |                       |
-    //    v                       v
-    //    5                       6
-    //
-    //
-    //
-    //    7                       8
-    //    ^                       ^
-    //    |                       |
-    //    |                       |
-    //    |                       |
-    //    o----->3         4<-----o
-    //
-    //
-    // The rotation and flip properties can be set in 16 combinations, but these 16
-    // options can only specify the 8 possible scan options as follows:
-    // (for example rotating 180 degrees, then flipping both vertically and horizontally
-    // is the same as doing no rotation or flipping at all - scan option 1)
-    //
-    //  rot vflip hflip scan_option
-    //    0   0     0      1
-    //    0   0     1      2
-    //    0   1     0      3
-    //    0   1     1      4
-    //  R90   0     0      7
-    //  R90   0     1      5
-    //  R90   1     0      8
-    //  R90   1     1      6
-    //  L90   0     0      6
-    //  L90   0     1      8
-    //  L90   1     0      5
-    //  L90   1     1      7
-    //  180   0     0      4
-    //  180   0     1      3
-    //  180   1     0      2
-    //  180   1     1      1
-    //
-    // Determine the scan option as shown in the above diagram
-    switch( rotation )
-    {                                               // vh v!h     !vh !v!h
-        case ROTATION_0:        return flipVert?flipHoz?4:3:flipHoz?2:1;
-        case ROTATION_90_RIGHT: return flipVert?flipHoz?6:8:flipHoz?5:7;
-        case ROTATION_90_LEFT:  return flipVert?flipHoz?7:5:flipHoz?8:6;
-        case ROTATION_180:      return flipVert?flipHoz?1:2:flipHoz?3:4;
-        default:                return 1; // Sanity check
     }
 }
 
@@ -5635,7 +3839,7 @@ void QEImage::showImageContextMenuCommon( const QPoint& pos, const QPoint& globa
         cm->addMenu( zMenu );
 
         // Add the flip/rotate menu
-        frMenu->setChecked( rotation, flipHoz, flipVert );
+        frMenu->setChecked( iProcessor.getRotation(), iProcessor.getFlipHoz(), iProcessor.getFlipVert() );
         cm->addMenu( frMenu );
 
         // Add 'full scree' item
@@ -5736,9 +3940,9 @@ void QEImage::flipRotateMenuTriggered( QAction* selectedItem )
         default:
         case imageContextMenu::ICM_NONE: break;
 
-        case imageContextMenu::ICM_ROTATE_RIGHT:        setRotation( selectedItem->isChecked()?ROTATION_90_RIGHT:ROTATION_0 );               break;
-        case imageContextMenu::ICM_ROTATE_LEFT:         setRotation( selectedItem->isChecked()?ROTATION_90_LEFT:ROTATION_0 );                break;
-        case imageContextMenu::ICM_ROTATE_180:          setRotation( selectedItem->isChecked()?ROTATION_180:ROTATION_0 );                    break;
+        case imageContextMenu::ICM_ROTATE_RIGHT:        setRotation( selectedItem->isChecked()?imageProperties::ROTATION_90_RIGHT:imageProperties::ROTATION_0 ); break;
+        case imageContextMenu::ICM_ROTATE_LEFT:         setRotation( selectedItem->isChecked()?imageProperties::ROTATION_90_LEFT :imageProperties::ROTATION_0 ); break;
+        case imageContextMenu::ICM_ROTATE_180:          setRotation( selectedItem->isChecked()?imageProperties::ROTATION_180     :imageProperties::ROTATION_0 ); break;
 
         case imageContextMenu::ICM_FLIP_HORIZONTAL:     setHorizontalFlip( selectedItem->isChecked() ); break;
         case imageContextMenu::ICM_FLIP_VERTICAL:       setVerticalFlip  ( selectedItem->isChecked() ); break;
@@ -5747,7 +3951,7 @@ void QEImage::flipRotateMenuTriggered( QAction* selectedItem )
     // Update the checked state of the buttons now the user has selected an option.
     // Note, this is also called before displaying the menu to reflect any property
     // changes from other sources
-    frMenu->setChecked( rotation, flipHoz, flipVert );
+    frMenu->setChecked( iProcessor.getRotation(), iProcessor.getFlipHoz(), iProcessor.getFlipVert() );
 }
 
 // Act on a selection from the select menu
@@ -5829,70 +4033,7 @@ QEImage::selectOptions QEImage::getSelectionOption()
 void QEImage::showImageAboutDialog()
 {
     // Build the image information string
-    QString about = QString ("QEImage image information:\n");
-
-    about.append( QString( "\nSize (bytes) of CA data array: %1" ).arg( image.count() ));
-    about.append( QString( "\nSize (bytes) of CA data elements: %1" ).arg( imageDataSize ));
-    about.append( QString( "\nWidth (pixels) taken from dimension variables or width variable: %1" ).arg( imageBuffWidth ));
-    about.append( QString( "\nHeight (pixels) taken from dimension variables or height variable: %1" ).arg( imageBuffHeight ));
-    about.append( QString( "\nPixel depth taken from bit depth variable or bit depth property: %1" ).arg( bitDepth ));
-
-    QString name;
-    switch( mFormatOption )
-    {
-        case imageDataFormats::MONO:        name = "Monochrome";         break;
-        case imageDataFormats::BAYERGB:     name = "Bayer (Green/Blue)"; break;
-        case imageDataFormats::BAYERBG:     name = "Bayer (Blue/Green)"; break;
-        case imageDataFormats::BAYERGR:     name = "Bayer (Green/Red)";  break;
-        case imageDataFormats::BAYERRG:     name = "Bayer (red/Green)";  break;
-        case imageDataFormats::RGB1:        name = "8 bit RGB";          break;
-        case imageDataFormats::RGB2:        name = "RGB2???";            break;
-        case imageDataFormats::RGB3:        name = "RGB3???";            break;
-        case imageDataFormats::YUV444:      name = "???bit YUV444";      break;
-        case imageDataFormats::YUV422:      name = "???bit YUV422";      break;
-        case imageDataFormats::YUV421:      name = "???bit YUV421";      break;
-    }
-
-    about.append( QString( "\nExpected format: " ).append( name ));
-
-    about.append( "\n\nFirst bytes of raw image data:\n   ");
-    if( image.isEmpty() )
-    {
-        about.append( "No data yet." );
-    }
-    else
-    {
-        int count = 20;
-        if( image.count() < count )
-        {
-            count = image.count() ;
-        }
-        for( int i = 0; i < count; i++ )
-        {
-            about.append( QString( " %1" ).arg( (unsigned char)(image[i]) ));
-        }
-    }
-
-    about.append( "\n\nFirst pixels of 32 bit RGBA image data (after flipping, rotating and clipping:");
-    if( imageBuff.isEmpty() )
-    {
-        about.append( "\n   No data yet." );
-    }
-    else
-    {
-        int count = 20;
-        if( imageBuff.count() < count )
-        {
-            count = imageBuff.count() ;
-        }
-        for( int i = 0; i < count; i += 4 )
-        {
-            about.append( QString( "\n   [%1, %2, %3, %4]" ).arg( (unsigned char)(imageBuff[i+0]) )
-                                                            .arg( (unsigned char)(imageBuff[i+1]) )
-                                                            .arg( (unsigned char)(imageBuff[i+2]) )
-                                                            .arg( (unsigned char)(imageBuff[i+3]) ));
-        }
-    }
+    QString about = QString ("QEImage image information:\n").append( iProcessor.getInfoText() );
 
 // Note if mpeg stuff if included.
 // To include mpeg stuff, don't define QE_USE_MPEG directly, define environment variable
@@ -6058,7 +4199,7 @@ void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool ini
     {
         if( !initialise )
         {
-            programLauncher1.launchImage( this, copyImage() );
+            programLauncher1.launchImage( this, iProcessor.copyImage() );
         }
     }
 
@@ -6067,7 +4208,7 @@ void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool ini
     {
         if( !initialise )
         {
-            programLauncher2.launchImage( this, copyImage() );
+            programLauncher2.launchImage( this, iProcessor.copyImage() );
         }
     }
 
@@ -6263,5 +4404,3 @@ void QEImage::restoreConfiguration (PersistanceManager* pm, restorePhases restor
         initScrollPosSet = false;
     }
 }
-
-// end

@@ -71,9 +71,9 @@ imageContextMenu::imageContextMenuOptions flipRotateMenu::getFlipRotate( const Q
 void flipRotateMenu::setChecked( const int rotation, const bool flipH, const bool flipV )
 {
     // Check the appropriate rotation option
-    rotation90RAction ->setChecked( rotation == QEImage::ROTATION_90_RIGHT );
-    rotation90LAction ->setChecked( rotation == QEImage::ROTATION_90_LEFT );
-    rotation180Action ->setChecked( rotation == QEImage::ROTATION_180 );
+    rotation90RAction ->setChecked( rotation == imageProperties::ROTATION_90_RIGHT );
+    rotation90LAction ->setChecked( rotation == imageProperties::ROTATION_90_LEFT );
+    rotation180Action ->setChecked( rotation == imageProperties::ROTATION_180 );
 
     // Check the appropriate flip options
     flipHAction->setChecked( flipH );

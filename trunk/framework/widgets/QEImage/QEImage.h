@@ -50,6 +50,8 @@
 #include <QEFloatingFormatting.h>
 #include <fullScreenWindow.h>
 #include <recording.h>
+#include <imageProperties.h>
+#include <imageProcessor.h>
 
 // Only include the mpeg stuff if required.
 // To include mpeg stuff, don't define QE_USE_MPEG directly, define environment variable
@@ -151,11 +153,15 @@ class pointInfo
         bool haveY;
 };
 
-class QEPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QEWidget, public imageInfo, private mpegSource {
+/*!
+  This class is a EPICS aware image widget.
+  When image related variables are defined the image will be displayed.
+  Many PVs may be defined to allow user interaction, such as selecting regions of interest.
+  It is tighly integrated with the base class QEWidget which provides generic support such as macro substitutions, drag/drop, and standard properties.
+ */
+class QEPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QEWidget, public imageInfo, private mpegSource{
     Q_OBJECT
-
   public:
-
     /// Create without a variable.
     /// Use setVariableName'n'Property() - where 'n' is a number from 0 to 40 - and setSubstitutionsProperty() to define variables and, optionally, macro substitutions later.
     /// Note, each variable property is named by function (such as imageVariable and widthVariable) but given
@@ -211,16 +217,8 @@ public:
     void setZoom( int zoomIn );                                         ///< Access function for #zoom property - refer to #zoom property for details
     int getZoom();                                                      ///< Access function for #zoom property - refer to #zoom property for details
 
-    // Rotation
-    /// \enum rotationOptions
-    /// Image rotation options
-    enum rotationOptions { ROTATION_0,          ///< No image rotation
-                           ROTATION_90_RIGHT,   ///< Rotate image 90 degrees clockwise
-                           ROTATION_90_LEFT,    ///< Rotate image 90 degrees anticlockwise
-                           ROTATION_180         ///< Rotate image 180 degrees
-                         };
-    void setRotation( rotationOptions rotationIn );                     ///< Access function for #rotation property - refer to #rotation property for details
-    rotationOptions getRotation();                                      ///< Access function for #rotation property - refer to #rotation property for details
+    void setRotation( imageProperties::rotationOptions rotationIn );    ///< Access function for #rotation property - refer to #rotation property for details
+    imageProperties::rotationOptions getRotation();                     ///< Access function for #rotation property - refer to #rotation property for details
 
     void setHorizontalFlip( bool flipHozIn );                           ///< Access function for #horizontalFlip property - refer to #horizontalFlip property for details
     bool getHorizontalFlip();                                           ///< Access function for #horizontalFlip property - refer to #horizontalFlip property for details
@@ -447,22 +445,16 @@ public:
 
     resizeOptions resizeOption; // Resize option. (zoom or fit)
     int zoom;                   // Zoom percentage
-    rotationOptions rotation;   // Rotation option
-    bool flipVert;              // True if vertical flip option set
-    bool flipHoz;               // True if horizontal flip option set
-
     int initialHozScrollPos;    // Initial horizontal scroll bar position (for when starting zoomed)
     int initialVertScrollPos;   // Initial vertical scroll bar position (for when starting zoomed)
 
     bool displayButtonBar;      // True if button bar should be displayed
-    QImage copyImage();         // Return a QImage based on the current image
 
     void redisplayAllMarkups();
 
 private slots:
     // QCa data update slots
     void connectionChanged( QCaConnectionInfo& connectionInfo );
-//    void setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long width, unsigned long height );
     void setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long elements, unsigned long width, unsigned long height, imageDataFormats::formatOptions format, unsigned int depth );
     void setImage( const QByteArray& image, unsigned long dataSize, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
     void setFormat( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& );
@@ -679,30 +671,8 @@ signals:
     bool enableVertSlicePresentation;
     bool enableProfilePresentation;
 
-    // Options
-    imageDataFormats::formatOptions mFormatOption;
-    unsigned int bitDepth;
-
     // Image and related information
     QCaDateTime imageTime;
-    unsigned long imageDataSize;    // Size of elements in image data (originating from CA data type)
-    unsigned long elementsPerPixel; // Number of data elements per pixel. Derived from image dimension 0 (only when there are three dimensions)
-    unsigned long bytesPerPixel;    // Bytes in input data per pixel (imageDataSize * elementsPerPixel)
-    QByteArray image;       // Buffer to hold original image data. WARNING To avoid expensive memory copies, data is
-                            // generated using QByteArray::fromRawData(), where the raw data is the original CA update
-                            // data. This data is held until a subsequent update. The data in this QByteArray will
-                            // be valid only until the next update arrives.
-    unsigned long receivedImageSize;  // Size as received on last CA update.
-    QString previousMessageText;      // Previous message text - avoid repeats.
-    QByteArray imageBuff;   // Buffer to hold data converted to format for generating QImage.
-#define IMAGEBUFF_BYTES_PER_PIXEL 4   // 4 bytes for Format_RGB32
-    unsigned long imageBuffWidth;   // Original image width (may be generated directly from a width variable, or selected from the relevent dimension variable)
-    unsigned long imageBuffHeight;  // Original image height (may be generated directly from a width variable, or selected from the relevent dimension variable)
-
-    unsigned long numDimensions;   // Image data dimensions. Expected values are 0 (all dimensions values are ignored), 2 (one data element per pixel, dimensions are width x height), 3 (multiple data elements per pixel, dimensions are pixel x width x height)
-    unsigned long imageDimension0; // Image data dimension 0. If two dimensions, this is the width, if three dimensions, this is the pixel depth (the elements used to represent each pixel)
-    unsigned long imageDimension1; // Image data dimension 1. If two dimensions, this is the height, if three dimensions, this is the width
-    unsigned long imageDimension2; // Image data dimension 2. If two dimensions, this is not used, if three dimensions, this is the height
 
     // Image history
     recording* recorder;
@@ -752,32 +722,14 @@ signals:
 
     void updateMarkupData();                                               // Update markups if required. (For example, after image update)
 
-    int getPixelValueFromData( const unsigned char* ptr );              // Return a floating point number given a pointer into an image data buffer.
-    double getFloatingPixelValueFromData( const unsigned char* ptr );   // Return a floating point number given a pointer to a value of an arbitrary size in a char* buffer.
-
-    unsigned int rotatedImageBuffWidth();                   // Return the image width following any rotation
-    unsigned int rotatedImageBuffHeight();                  // Return the image height following any rotation
-
+    imageProcessor iProcessor;                              // Image processor. Generates images for presentation from raw image data and formatting information such as brightness, contrast, flip, rotate, canvas size, etc
     void displayImage();                                    // Display a new image.
-    int getScanOption();                                    // Determine the way the input pixel data must be scanned to accommodate the required rotate and flip options.
-    QPoint rotateFlipToDataPoint( const QPoint& pos );                          // Transform the point from the image to the original data according to current rotation and flip options.
-    QRect rotateFlipToDataRectangle( const QPoint& pos1, const QPoint& pos2 );  // Transform the rectangle from the image to the original data according to current rotation and flip options
-    QRect rotateFlipToDataRectangle( const QRect& rect );                       // Transform the rectangle from the image to the original data according to current rotation and flip options
-
-    QPoint rotateFlipToImagePoint( const QPoint& pos );                         // Transform the point from the original data to the image according to current rotation and flip options.
-    QRect rotateFlipToImageRectangle( const QPoint& pos1, const QPoint& pos2 ); // Transform the rectangle from the original data to the image according to current rotation and flip options
-    QRect rotateFlipToImageRectangle( const QRect& rect );                      // Transform the rectangle from the original data to the image according to current rotation and flip options
-
-    const unsigned char* getImageDataPtr( QPoint& pos );    // Return a pointer to pixel data in the original image data.
 
     void zoomToArea();                                      // Zoom to the area selected on the image
     void setResizeOptionAndZoom( int zoomIn );              // Set the zoom percentage (and force zoom mode)
 
-    unsigned int maxPixelValue();                                 // Determine the maximum pixel value for the current format
-
-    void setWidthHeightFromDimensions();                    // Update the image dimensions (width and height) from the area detector dimension variables.
-
     // Data generated from pixel profiles
+    // Kept for life of QEImage to avoid regenerating each time data is calculated
     QVector<QPointF> vSliceData;
     QVector<QPointF> hSliceData;
     QVector<QPointF> profileData;
@@ -786,22 +738,7 @@ signals:
     QIcon* pauseButtonIcon;
     QIcon* playButtonIcon;
 
-    // Clipping info (determined from cliping variable data)
-    bool clippingOn;
-    unsigned int clippingLow;
-    unsigned int clippingHigh;
-
-    void getPixelTranslation();
-
-    imageDisplayProperties::rgbPixel getFalseColor (const unsigned char value);    // Get a false color representation for an entry fro the color lookup table
-
-    bool pixelLookupValid;  // pixelLookup is valid. It is invalid if anything that affects the translation changes, such as pixel format, local brigHtness, etc
-    imageDisplayProperties::rgbPixel pixelLookup[256];
-    int pixelLow;
-    int pixelHigh;
-
     void setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 );    // Update the brightness and contrast, if in auto, to match the recently selected region
-    void getPixelRange( const QRect& area, unsigned int* min, unsigned int* max ); // Determine the range of pixel values an area of the image
 
     void doEnableImageDisplayProperties( bool enableBrightnessContrast );
     void doEnableRecording( bool enableRecording );
@@ -1520,12 +1457,12 @@ public:
     Q_PROPERTY(RotationOptions rotation READ getRotationProperty WRITE setRotationProperty)
     /// \enum RotationOptions
     /// User friendly enumerations for #rotation property
-    enum RotationOptions { NoRotation    = QEImage::ROTATION_0,         ///< No image rotation
-                           Rotate90Right = QEImage::ROTATION_90_RIGHT,  ///< Rotate image 90 degrees clockwise
-                           Rotate90Left  = QEImage::ROTATION_90_LEFT,   ///< Rotate image 90 degrees anticlockwise
-                           Rotate180     = QEImage::ROTATION_180        ///< Rotate image 180 degrees
+    enum RotationOptions { NoRotation    = imageProperties::ROTATION_0,         ///< No image rotation
+                           Rotate90Right = imageProperties::ROTATION_90_RIGHT,  ///< Rotate image 90 degrees clockwise
+                           Rotate90Left  = imageProperties::ROTATION_90_LEFT,   ///< Rotate image 90 degrees anticlockwise
+                           Rotate180     = imageProperties::ROTATION_180        ///< Rotate image 180 degrees
                           };
-    void setRotationProperty( RotationOptions rotation ){ setRotation( (QEImage::rotationOptions)rotation ); }          ///< Access function for #rotation property - refer to #rotation property for details
+    void setRotationProperty( RotationOptions rotation ){ setRotation( (imageProperties::rotationOptions)rotation ); }          ///< Access function for #rotation property - refer to #rotation property for details
     RotationOptions getRotationProperty(){ return (RotationOptions)getRotation(); }                                     ///< Access function for #rotation property - refer to #rotation property for details
 
     /// If true, flip image vertically.

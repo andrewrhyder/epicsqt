@@ -121,7 +121,7 @@ namespace qcaobject {
       // the data is valid, i.e. has been received since the channel last connected.
       void getLastData( bool& isDefined, QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
 
-      // Get last connection nifo.
+      // Get last connection info.
       //
       bool getChannelIsConnected () const;
       bool getIsLinkUp () const;

@@ -101,6 +101,7 @@ public:
 
 public:
     double getNumericValue ();
+    void setNumericValue (const double value, const bool isUserUpdate = false);  // as opposed to system update
 
     // Property set and get functions.
     void setAutoScale (const bool value);
@@ -185,8 +186,6 @@ private:
    double valueOfImage (const QString & image);  // Extract value of given image - excludes any EGU.
    bool showSign ();
    bool cursorOverSign ();
-
-   void setNumericValue (const double value, const bool userUpdate);  // as opposed to system update
 
    void setNumericText ();          // Calls parent class setText using string from imageOfValue.
    void setDigitSelection ();       // high-lights selected digit
