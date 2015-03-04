@@ -38,23 +38,38 @@
     QE Byte array creation.
 
     Note, the QCaObject is created with low priorityfor the following scenario:
-    Several large rapidly updating images being displayed. Network bandwith is far less than would support the image update rate.
+    Several large rapidly updating images being displayed. Network bandwidth is far less than would support the image update rate.
     When scalar values are requested, the request times out before the scalar updates.
 */
-QEByteArray::QEByteArray( QString recordName, QObject *eventObject,
-                        unsigned int variableIndexIn ) : QCaObject( recordName, eventObject, variableIndexIn, SIG_BYTEARRAY, QE_PRIORITY_LOW ) {
+QEByteArray::QEByteArray( QString recordName,
+                          QObject *eventObject,
+                          unsigned int variableIndexIn ) : QCaObject( recordName,
+                                                                      eventObject,
+                                                                      variableIndexIn,
+                                                                      SIG_BYTEARRAY,
+                                                                      QE_PRIORITY_LOW )
+{
     initialise();
 }
-QEByteArray::QEByteArray( QString recordName, QObject *eventObject,
-                        unsigned int variableIndexIn, UserMessage* userMessageIn ) : QCaObject( recordName, eventObject, variableIndexIn, userMessageIn, SIG_BYTEARRAY, QE_PRIORITY_LOW ) {
+
+QEByteArray::QEByteArray( QString recordName,
+                          QObject *eventObject,
+                          unsigned int variableIndexIn,
+                          UserMessage* userMessageIn ) : QCaObject( recordName,
+                                                                    eventObject,
+                                                                    variableIndexIn,
+                                                                    userMessageIn,
+                                                                    SIG_BYTEARRAY,
+                                                                    QE_PRIORITY_LOW )
+{
     initialise();
 }
 
 /*
     Stream the QCaObject data through this class to generate byte array data updates
 */
-void QEByteArray::initialise() {
-
+void QEByteArray::initialise()
+{
     QObject::connect( this, SIGNAL( connectionChanged(  QCaConnectionInfo&, const unsigned int&  ) ),
                       this, SLOT( forwardConnectionChanged( QCaConnectionInfo& , const unsigned int& ) ) );
 
@@ -65,22 +80,28 @@ void QEByteArray::initialise() {
 /*
     Take a new byte array value and write it to the database.
 */
-void QEByteArray::writeByteArray( const QByteArray &data ) {
+void QEByteArray::writeByteArray( const QByteArray &data )
+{
     writeData( QVariant( data ));
 }
 
 /*
     Slot to recieve data updates from the base QCaObject and generate byte array updates.
 */
-void QEByteArray::forwardDataChanged( const QByteArray &value, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex  ) {
+void QEByteArray::forwardDataChanged( const QByteArray &value,
+                                      unsigned long dataSize,
+                                      QCaAlarmInfo& alarmInfo,
+                                      QCaDateTime& timeStamp,
+                                      const unsigned int& variableIndex  )
+{
+    qDebug() << "QEByteArray::forwardDataChanged()";
     emit byteArrayChanged( value, dataSize, alarmInfo, timeStamp, variableIndex );
 }
 
 /*
-    Re send connection change and with variableIndex - depricated.
+    Re send connection change and with variableIndex - deprecated.
 */
-void QEByteArray::forwardConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex ) {
+void QEByteArray::forwardConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int& variableIndex )
+{
     emit byteArrayConnectionChanged( connectionInfo, variableIndex );
 }
-
-// end

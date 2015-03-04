@@ -134,10 +134,15 @@ private:
     mpegSourceObject* mso;
     QString url;
     FFThread* ff;
-    virtual void setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long elements, unsigned long width, unsigned long height, imageDataFormats::formatOptions format, unsigned int depth ) = 0;
+    virtual void setImage( const QByteArray& imageIn,
+                           unsigned long dataSize,
+                           unsigned long elements,
+                           unsigned long width,
+                           unsigned long height,
+                           imageDataFormats::formatOptions format,
+                           unsigned int depth ) = 0;    // Function to consume image formatted like a CA update
 
-    char* buff;     // Buffer to use to build image without line gaps
-    int buffSize;   // Size of 'buff'
+    QByteArray ba;  // Byte array used to deliver images
 
 };
 

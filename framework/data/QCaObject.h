@@ -145,8 +145,12 @@ namespace qcaobject {
 
 
     private:
-      void initialise( const QString& newRecordName, QObject *newEventHandler, const unsigned int variableIndex,
-                       UserMessage* userMessageIn, unsigned char signalsToSendIn, priorities priorityIn );
+      void initialise( const QString& newRecordName,
+                       QObject *newEventHandler,
+                       const unsigned int variableIndex,
+                       UserMessage* userMessageIn,
+                       unsigned char signalsToSendIn,
+                       priorities priorityIn );
 
       unsigned int variableIndex; // The variable index within a widget. If not used within a widget, can hold arbitary number.
       long lastEventChannelState; // Channel state from most recent update event. This is actually of type caconnection::channel_states

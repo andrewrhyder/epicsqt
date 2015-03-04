@@ -606,7 +606,7 @@ signals:
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
 
-    void setImageBuff();
+    void setImageSize();
 
     QGridLayout* mainLayout;
     QGridLayout* graphicsLayout;
@@ -618,7 +618,6 @@ signals:
     bool initScrollPosSet;
 
     VideoWidget* videoWidget;
-//    imageMarkup* markups;
 
     bool appHostsControls;
     bool hostingAppAvailable;

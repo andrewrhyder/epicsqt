@@ -107,7 +107,7 @@ void imageProperties::setWidthHeightFromDimensions()
 QString imageProperties::getInfoText()
 {
     // Build the image information string
-    QString about = QString ("QEImage image information:\n");
+    QString about;
 
     about.append( QString( "\nSize (bytes) of CA data array: %1" ).arg( image.count() ));
     about.append( QString( "\nSize (bytes) of CA data elements: %1" ).arg( imageDataSize ));

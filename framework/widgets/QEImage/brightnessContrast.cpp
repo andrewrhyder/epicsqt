@@ -51,6 +51,7 @@
 #define GRADIENT_USER_SCALE_FACTOR 679.7506549
 #define GRADIENT_BASE 0.099668652
 
+// Construction.
 imageDisplayProperties::imageDisplayProperties()
 {
     statisticsSet = false;
@@ -87,11 +88,12 @@ imageDisplayProperties::imageDisplayProperties()
     imageDisplayPropertiesMainLayout->setSpacing( 10 );
     setLayout( imageDisplayPropertiesMainLayout );
 
-    imageDisplayPropertiesSub1Layout = new QHBoxLayout();
-    imageDisplayPropertiesSub2Layout = new QGridLayout();
-    imageDisplayPropertiesSub3Layout = new QHBoxLayout();
-    imageDisplayPropertiesSub4Layout = new QHBoxLayout();
-    imageDisplayPropertiesSub5Layout = new QHBoxLayout();
+    // layouts
+    QHBoxLayout* imageDisplayPropertiesSub1Layout = new QHBoxLayout();
+    QGridLayout* imageDisplayPropertiesSub2Layout = new QGridLayout();
+    QHBoxLayout* imageDisplayPropertiesSub3Layout = new QHBoxLayout();
+    QHBoxLayout* imageDisplayPropertiesSub4Layout = new QHBoxLayout();
+    QHBoxLayout* imageDisplayPropertiesSub5Layout = new QHBoxLayout();
 
     brightnessLabel = new QLabel( "Brightness:", this );
     gradientLabel = new QLabel( "Gradient:\n(Contrast)", this );
@@ -99,9 +101,10 @@ imageDisplayProperties::imageDisplayProperties()
     QLabel* maxLabel = new QLabel( "Maximum:", this );
 
     advancedButton = new QPushButton( "+", this );
-    advancedButton->setToolTip( "Provide full image display properties");
-    advancedButton->setMaximumWidth(30);
+    advancedButton->setToolTip( "Switch between minimal and full image display properties");
+    advancedButton->setMaximumWidth(20);
     advancedButton->setCheckable(true);
+    advancedButton->setContentsMargins(0,0,0,0);
 
     autoBrightnessCheckBox = new QCheckBox( "Auto", this );
     autoBrightnessCheckBox->setToolTip( "Set brightness and contrast to use the full dynamic range of an area when an area is selected");
@@ -239,8 +242,8 @@ imageDisplayProperties::imageDisplayProperties()
     imageDisplayPropertiesMainLayout->addLayout( imageDisplayPropertiesSub2Layout, 1, 0 );
     imageDisplayPropertiesMainLayout->addLayout( imageDisplayPropertiesSub3Layout, 2, 0 );
 
-    imageDisplayPropertiesMainLayout->addWidget( histZoom, 0, 1, 3, 1 );
-    imageDisplayPropertiesMainLayout->addWidget( histScroll, 0, 2, 3, 1 );
+    imageDisplayPropertiesMainLayout->addWidget( histZoom,       0, 1, 3, 1 );
+    imageDisplayPropertiesMainLayout->addWidget( histScroll,     0, 2, 3, 1 );
     imageDisplayPropertiesMainLayout->addWidget( advancedButton, 0, 3, 3, 1, Qt::AlignBottom );
     imageDisplayPropertiesMainLayout->setColumnStretch( 1, 2 );  // Histogram to take all spare room
 
@@ -250,10 +253,13 @@ imageDisplayProperties::imageDisplayProperties()
 
     // Apply the layouts
     adjustSize();
-    QObject::connect( advancedButton, SIGNAL( clicked ( bool ) ), this,  SLOT  ( advencedToggled( bool )) );
-    advencedToggled(false);
+
+    // Prepare to use signals from the advanced / minimal toggle button
+    QObject::connect( advancedButton, SIGNAL( clicked ( bool ) ), this,  SLOT  ( advancedToggled( bool )) );
+    advancedToggled(false);
 }
 
+// Destruction
 imageDisplayProperties::~imageDisplayProperties()
 {
 }
@@ -272,21 +278,25 @@ int imageDisplayProperties::getHighPixel()
     return fullValue;
 }
 
+// Return true if the 'auto brightness and contrast' check box is checked
 bool imageDisplayProperties::getAutoBrightnessContrast()
 {
     return autoBrightnessCheckBox->isChecked();
 }
 
+// Return true if the 'contrast reversal' check box is checked
 bool imageDisplayProperties::getContrastReversal()
 {
     return contrastReversalCheckBox->isChecked();
 }
 
+// Return true if the 'log' check box is checked
 bool imageDisplayProperties::getLog()
 {
     return logCheckBox->isChecked();
 }
 
+// Return true if the 'false colour' check box is checked
 bool imageDisplayProperties::getFalseColour()
 {
     return falseColourCheckBox->isChecked();
@@ -333,28 +343,32 @@ void imageDisplayProperties::falseColourToggled( bool )
 //=============================================
 
 
-// Set brightness and contrast based on a values for black and white
+// Set brightness and contrast controls based on values for black and white
 void imageDisplayProperties::setBrightnessContrast( const unsigned int max, const unsigned int min )
 {
     updateZeroValueFullValue( min, max );
     emit imageDisplayPropertiesChange();
 }
 
+// Set the state of the 'Auto brightness and contrast' check box
 void imageDisplayProperties::setAutoBrightnessContrast( bool autoBrightnessContrast )
 {
     autoBrightnessCheckBox->setChecked( autoBrightnessContrast );
 }
 
+// Set the state of the 'Contrast reversal' check box
 void imageDisplayProperties::setContrastReversal( bool contrastReversal )
 {
     contrastReversalCheckBox->setChecked( contrastReversal );
 }
 
+// Set the state of the 'Log' check box
 void imageDisplayProperties::setLog( bool log )
 {
     logCheckBox->setChecked( log );
 }
 
+// Set the state of the 'False colour' check box
 void imageDisplayProperties::setFalseColour( bool falseColour )
 {
     falseColourCheckBox->setChecked( falseColour );
@@ -377,6 +391,7 @@ void imageDisplayProperties::brightnessSliderValueChanged( int localBrightnessIn
     emit imageDisplayPropertiesChange();
 }
 
+// The local brightness spin box has changed
 void imageDisplayProperties::brightnessSpinBoxChanged( int value )
 {
     if( nonInteractive )
@@ -405,6 +420,7 @@ void imageDisplayProperties::gradientSliderValueChanged( int value )
     emit imageDisplayPropertiesChange();
 }
 
+// The gradient spin box has changed
 void imageDisplayProperties::gradientSpinBoxChanged( int value )
 {
     if( nonInteractive )
@@ -434,6 +450,7 @@ void imageDisplayProperties::minSliderValueChanged( int value )
     emit imageDisplayPropertiesChange();
 }
 
+// The minimum spin box has changed
 void imageDisplayProperties::minSpinBoxChanged( int value )
 {
     if( nonInteractive )
@@ -463,6 +480,7 @@ void imageDisplayProperties::maxSliderValueChanged( int value )
     emit imageDisplayPropertiesChange();
 }
 
+// The maximum spin box has changed
 void imageDisplayProperties::maxSpinBoxChanged( int value )
 {
     if( nonInteractive )
@@ -480,7 +498,7 @@ void imageDisplayProperties::maxSpinBoxChanged( int value )
 
 //=========================================================
 
-// Update the zero and full values based on a brightness change.
+// Update all other values based on a brightness change.
 void imageDisplayProperties::updateBrightness( double val )
 {
     // Brightness ranges from 0.0 (0%) to 1.0 (100%)
@@ -488,7 +506,8 @@ void imageDisplayProperties::updateBrightness( double val )
     if( val < 0.0 )
     {
         val = 0.0;
-    } else if( val > 1.0 )
+    }
+    else if( val > 1.0 )
     {
         val = 1.0;
     }
@@ -496,8 +515,6 @@ void imageDisplayProperties::updateBrightness( double val )
     // Update brightness contrast values according to new brightness
     // Note, this never alters the span, so gradient never changes
     double span = fullValue - zeroValue;
-//    zeroValue = (range-span)*(1.0-val);
-//    fullValue = zeroValue+span;
     fullValue = (range+span)*val;
     zeroValue = fullValue-span;
 
@@ -510,6 +527,7 @@ void imageDisplayProperties::updateBrightness( double val )
     hist->update();
 }
 
+// Update all other values based on a gradient change.
 void imageDisplayProperties::updateGradient( double angularVal )
 {
     // Gradient is range / span
@@ -528,10 +546,6 @@ void imageDisplayProperties::updateGradient( double angularVal )
     double span = (double)range/(double)val;
 
     double low =  mid-(span/2);
-//    if( low < 0.0 )
-//    {
-//        low = 0.0;
-//    }
 
     zeroValue = floor( low + 0.5 );        // Note, round() not in windows math.h. Using floor+0.5 instead
     fullValue = floor( low + span + 0.5 ); // Note, round() not in windows math.h. Using floor+0.5 instead
@@ -544,6 +558,7 @@ void imageDisplayProperties::updateGradient( double angularVal )
     hist->update();
 }
 
+// Update all other values based on a Zero value change.
 void imageDisplayProperties::updateZeroValue( int val )
 {
     if( val >= (int)range )
@@ -565,24 +580,19 @@ void imageDisplayProperties::updateZeroValue( int val )
     hist->update();
 }
 
+// Update all other values based on a Full value change.
 void imageDisplayProperties::updateFullValue( unsigned int val )
 {
     if( val < 1 )
     {
         val = 1;
     }
-//    else if( val > range )
-//    {
-//        val = range;
-//    }
-
 
     fullValue = val;
     if( fullValue <= zeroValue )
     {
         zeroValue = fullValue-1;
     }
-
 
     updateZeroValueInterface();
     updateFullValueInterface();
@@ -592,6 +602,7 @@ void imageDisplayProperties::updateFullValue( unsigned int val )
     hist->update();
 }
 
+// Update all other values based on a Zero and Full value change.
 void imageDisplayProperties::updateZeroValueFullValue( unsigned int min, unsigned int max )
 {
     if( min >= range )
@@ -624,21 +635,13 @@ void imageDisplayProperties::updateZeroValueFullValue( unsigned int min, unsigne
 
 //=========================================================
 
+// Update the brightness controls to reflect current values
 void imageDisplayProperties::updateBrightnessInterface()
 {
     // Calculate brightness (derived)
     unsigned int span = fullValue-zeroValue;
     unsigned int brightnessScale = range+span;
-    double brightness;
-//    if( brightnessScale )
-//    {
-//        brightness = 1.0-((double)zeroValue/(double)brightnessScale);
-//    }
-//    else
-//    {
-//        brightness = 0.5;
-//    }
-    brightness = (double)fullValue/(double)brightnessScale;
+    double brightness = (double)fullValue/(double)brightnessScale;
 
     // Update interface
     nonInteractive = true;
@@ -656,6 +659,7 @@ void imageDisplayProperties::updateBrightnessInterface()
     nonInteractive = false;
 }
 
+// Update the gradient controls to reflect current values
 void imageDisplayProperties::updateGradientInterface()
 {
     // Calculate gradient (derived)
@@ -677,6 +681,7 @@ void imageDisplayProperties::updateGradientInterface()
     nonInteractive = false;
 }
 
+// Update the Zero value controls to reflect current values
 void imageDisplayProperties::updateZeroValueInterface()
 {
     // Update interface
@@ -695,6 +700,7 @@ void imageDisplayProperties::updateZeroValueInterface()
     nonInteractive = false;
 }
 
+// Update the Full value controls to reflect current values
 void imageDisplayProperties::updateFullValueInterface()
 {
     // Update interface
@@ -716,11 +722,11 @@ void imageDisplayProperties::updateFullValueInterface()
 //=========================================================
 
 // Set current image statistics
-void imageDisplayProperties::setStatistics( unsigned int minPIn,
-                                            unsigned int maxPIn,
-                                            unsigned int bitDepth,
-                                            unsigned int binsIn[HISTOGRAM_BINS],
-                                            rgbPixel pixelLookupIn[256] )
+void imageDisplayProperties::setStatistics( unsigned int minPIn,                // Minimum pixel value
+                                            unsigned int maxPIn,                // Maximum pixel value
+                                            unsigned int bitDepth,              // Bit depth
+                                            unsigned int binsIn[HISTOGRAM_BINS],// Histogram bins
+                                            rgbPixel pixelLookupIn[256] )       // Color translation lookup
 {
     // Update image statistics
     minP = minPIn;
@@ -754,6 +760,8 @@ void imageDisplayProperties::setStatistics( unsigned int minPIn,
     statisticsSet = true;
 }
 
+//=========================================================
+
 // The histogram zoom slider has been moved
 void imageDisplayProperties::histZoomSliderValueChanged( int value )
 {
@@ -771,6 +779,8 @@ void imageDisplayProperties::setHistZoom( int value )
     QRect currentGeom = hist->geometry();
     hist->setGeometry( currentGeom.x(), currentGeom.y(), (double)(value)/100*fitWidth, (double)(value)/100*fitHeight );
 }
+
+//=========================================================
 
 // Get the current histogram zoom percentage
 int imageDisplayProperties::getHistZoom()
@@ -813,7 +823,6 @@ void histogram::resizeEvent( QResizeEvent* )
 // Histogram repaint event
 void histogram::paintEvent(QPaintEvent* )
 {
-
     // Do nothing if no image info yet
     if( idp->bins == NULL )
     {
@@ -1070,7 +1079,7 @@ double imageDisplayProperties::fromExponentialTailSlider( int value )
 }
 
 // Translate to a composite exponential-linear slider value.
-// Translate a pixel value to a slider value wherte the slider range is a composite of an
+// Translate a pixel value to a slider value where the slider range is a composite of an
 // exponential range for the first 20% (the head) followed by a linear range for
 // the remaining 80%.
 // This is the inverse function to fromExponentialHeadSlider(). See that function for full details.
@@ -1106,84 +1115,66 @@ int imageDisplayProperties::toExponentialTailSlider( double value )
         return (log10(value-241.207)+6.83)/0.01;
     }
 }
-// slot for advance button toggled
-void imageDisplayProperties::advencedToggled( bool toggled ){
-    if (toggled){
-        // go full detailed properties
-        showAll(true);
-        this->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+
+// Slot for advanced button toggled
+void imageDisplayProperties::advancedToggled( bool toggled )
+{
+    // If checked, show all controls
+    if (toggled)
+    {
+        // Show all controls
+        hideShowAll( this, true );
+        advancedButton->show();
+
+        // Ensure the widget will resize correctly
+        setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+
+        // Change the text to reflect the current state
         advancedButton->setText("-");
     }
-    else{
-        // go minimum details on brightness and contrast only
-        showAll(false);
+
+    // If unchecked, show minimal controls
+    else
+    {
+        // Show minimal controls (brightness and contrast sliders only)
+        hideShowAll( this, false );
+
         brightnessLabel->show();
         gradientLabel->show();
         brightnessSlider->show();
         gradientSlider->show();
+        advancedButton->show();
+
+        // Ensure the widget will resize correctly when presented in a dock
         setMaximumSize(360, 100);
+
+        // Change the text to reflect the current state
         advancedButton->setText("+");
     }
 }
-// helper method to hide/show all the widget
-void imageDisplayProperties::showAll( bool show ){
-    if (show){
-        // show all
-        int count = imageDisplayPropertiesSub1Layout->count();
-        for ( int i = 0; i < count; i++ ){
-            if (imageDisplayPropertiesSub1Layout->itemAt(i)->widget()){
-                imageDisplayPropertiesSub1Layout->itemAt(i)->widget()->show();
-            }
+
+// Hide or show all the widgets in the dialog.
+// Used when switching between minimal or full presentation modes.
+// After blindly hiding all widget, the minimal set should then be shown.
+//
+// This function can be changed to be recursive if the hierarchy of this widget changes
+// such that the widgets in minimal mode are not top level children.
+void imageDisplayProperties::hideShowAll( QObject* obj, bool show )
+{
+    // Show or hide all children of the supplied widget
+    QObjectList objList = obj->children();
+    for( int i = 0; i < objList.size(); i++ )
+    {
+        QWidget* w;
+        QObject* child = objList[i];
+        if( child->isWidgetType() )
+        {
+            w = (QWidget*)child;
+            w->setVisible( show );
         }
-        count = imageDisplayPropertiesSub2Layout->count();
-        for ( int i = 0; i < count; i++ ){
-            if (imageDisplayPropertiesSub2Layout->itemAt(i)->widget()){
-                imageDisplayPropertiesSub2Layout->itemAt(i)->widget()->show();
-            }
-        }
-        count = imageDisplayPropertiesSub3Layout->count();
-        for ( int i = 0; i < count; i++ ){
-            imageDisplayPropertiesSub3Layout->itemAt(i)->widget()->show();
-        }
-        count = imageDisplayPropertiesSub4Layout->count();
-        for ( int i = 0; i < count; i++ ){
-            imageDisplayPropertiesSub4Layout->itemAt(i)->widget()->show();
-        }
-        count = imageDisplayPropertiesSub5Layout->count();
-        for ( int i = 0; i < count; i++ ){
-            imageDisplayPropertiesSub5Layout->itemAt(i)->widget()->show();
-        }
-        histZoom->show();
-        histScroll->show();
-    }
-    else{
-        // hide all
-        int count = imageDisplayPropertiesSub1Layout->count();
-        for ( int i = 0; i < count; i++ ){
-            if (imageDisplayPropertiesSub1Layout->itemAt(i)->widget()){
-                imageDisplayPropertiesSub1Layout->itemAt(i)->widget()->hide();
-            }
-        }
-        count = imageDisplayPropertiesSub2Layout->count();
-        for ( int i = 0; i < count; i++ ){
-            if (imageDisplayPropertiesSub2Layout->itemAt(i)->widget()){
-                imageDisplayPropertiesSub2Layout->itemAt(i)->widget()->hide();
-            }
-        }
-        count = imageDisplayPropertiesSub3Layout->count();
-        for ( int i = 0; i < count; i++ ){
-            imageDisplayPropertiesSub3Layout->itemAt(i)->widget()->hide();
-        }
-        count = imageDisplayPropertiesSub4Layout->count();
-        for ( int i = 0; i < count; i++ ){
-            imageDisplayPropertiesSub4Layout->itemAt(i)->widget()->hide();
-        }
-        count = imageDisplayPropertiesSub5Layout->count();
-        for ( int i = 0; i < count; i++ ){
-            imageDisplayPropertiesSub5Layout->itemAt(i)->widget()->hide();
-        }
-        histZoom->hide();
-        histScroll->hide();
+// UNCOMMENT the line below if the hierarchy of this widget changes
+// such that the widgets in minimal mode are not top level children.
+//        hideShowAll( child, show );
     }
 }
 

@@ -37,18 +37,15 @@
 class imageProcessor : public imageProperties
 {
 public:
-    imageProcessor();
-    QImage displayImage2( QString& errorText );     ///< Display a new image.
-    int getScanOption();                            ///< Determine the way the input pixel data must be scanned to accommodate the required rotate and flip options.
-    void getPixelTranslation();                     ///< Generate a lookup table to convert raw pixel values to display pixel values
-    unsigned int maxPixelValue();                   ///< Determine the maximum pixel value for the current format
-    unsigned int rotatedImageBuffWidth();           ///< Return the image width following any rotation
-    unsigned int rotatedImageBuffHeight();          ///< Return the image height following any rotation
-    imageDisplayProperties::rgbPixel getFalseColor (const unsigned char value);    ///< Get a false color representation for an entry fro the color lookup table
-    int getElementCount();                          ///< Determine the element count expected based on the available dimensions
-    bool validateDimensions();                      ///< Determine if the image dimensional information is valid.
+    // Construction
+    imageProcessor();                                                   ///< Constructor
 
-    // Set functions for dimensions
+    // Image update
+    void setImageBuff();                                                ///< Ensure the image buffer used to process images is appropriatly sized. This is called whenever an image attribute changes that may affect the buffer size required.
+    void setImage( const QByteArray& imageIn, unsigned long dataSize ); ///< Save the image data for analysis processing and display
+    QImage buildImage( QString& errorText );                            ///< Generate a new image.
+
+    // Set functions for dimensions and image attributes
     bool setWidth( unsigned long uValue );          ///< Set the image width
     bool setHeight( unsigned long uValue );         ///< Set the image height
     bool setNumDimensions( unsigned long uValue );  ///< Set the number of dimensions
@@ -60,38 +57,39 @@ public:
     void setClippingLow( unsigned int value );      ///< Set pixel value below which low clip colour is displayed
     void setClippingHigh( unsigned int value );     ///< Set pixel value above which high clip colour is displayed
 
-    void setImageBuff2();                           ///< Ensure the image buffer used to process images is appropriatly sized. this is called whenever an image attribute changes that may affect the buffer size required.
-
-    void generateVSliceData( QVector<QPointF>& vSliceData, int x, unsigned int thickness ); ///< Generate a series of pixel values from a vertical slice through the current image.
-    void generateHSliceData( QVector<QPointF>& hSliceData, int y, unsigned int thickness ); ///< Generate a series of pixel values from a horizontal slice through the current image.
-    void generateProfileData( QVector<QPointF>& profileData, QPoint point1, QPoint point2, unsigned int thickness ); ///< Generate a series of pseudo pixel values from an arbitrary line between two pixels.
-
-    void setImage( const QByteArray& imageIn, unsigned long dataSize ); ///< Save the image data for analysis processing and display
-
-    QPoint rotateFlipToDataPoint( const QPoint& pos );                          ///< Transform a point from the image to the original data according to current rotation and flip options.
-    QRect rotateFlipToDataRectangle( const QPoint& pos1, const QPoint& pos2 );  ///< Transform a rectangle from the image to the original data according to current rotation and flip options
-    QRect rotateFlipToDataRectangle( const QRect& rect );                       ///< Transform a rectangle from the image to the original data according to current rotation and flip options
-
-    QPoint rotateFlipToImagePoint( const QPoint& pos );                         ///< Transform a point from the original data to the image according to current rotation and flip options.
-    QRect rotateFlipToImageRectangle( const QPoint& pos1, const QPoint& pos2 ); ///< Transform a rectangle from the original data to the image according to current rotation and flip options
-    QRect rotateFlipToImageRectangle( const QRect& rect );                      ///< Transform a rectangle from the original data to the image according to current rotation and flip options
-
-    const unsigned char* getImageDataPtr( QPoint& pos );    ///< Return a pointer to pixel data in the original image data.
-
-    int getPixelValueFromData( const unsigned char* ptr );            ///< Return a number representing a pixel intensity given a pointer into an image data buffer.
-    double getFloatingPixelValueFromData( const unsigned char* ptr ); ///< Return a floating point number representing a pixel intensity given a pointer into an image data buffer.
-
-    void ownImageData();        ///< Take ownership of the image data
-    void releaseImageData();    ///< Release the image data
-
-    QImage copyImage();         ///< Return a QImage based on the current image
-
+    // Image information
+    int getScanOption();                            ///< Determine the way the input pixel data must be scanned to accommodate the required rotate and flip options.
+    void getPixelTranslation();                     ///< Generate a lookup table to convert raw pixel values to display pixel values
+    unsigned int maxPixelValue();                   ///< Determine the maximum pixel value for the current format
+    unsigned int rotatedImageBuffWidth();           ///< Return the image width following any rotation
+    unsigned int rotatedImageBuffHeight();          ///< Return the image height following any rotation
+    imageDisplayProperties::rgbPixel getFalseColor (const unsigned char value);    ///< Get a false color representation for an entry fro the color lookup table
+    int getElementCount();                                                         ///< Determine the element count expected based on the available dimensions
+    bool validateDimensions();                                                     ///< Determine if the image dimensional information is valid.
     void getPixelRange( const QRect& area, unsigned int* min, unsigned int* max ); ///< Determine the range of pixel values an area of the image
     bool hasImage(){ return image.isEmpty(); }                                     ///< Return true if the current image is empty
     bool hasImageBuff(){ return imageBuff.isEmpty(); }                             ///< Return true if the current image data buffer is empty
+    const unsigned char* getImageDataPtr( QPoint& pos );                           ///< Return a pointer to pixel data in the original image data.
+    int getPixelValueFromData( const unsigned char* ptr );                         ///< Return a number representing a pixel intensity given a pointer into an image data buffer.
+    double getFloatingPixelValueFromData( const unsigned char* ptr );              ///< Return a floating point number representing a pixel intensity given a pointer into an image data buffer.
+
+    QImage copyImage();         ///< Return a QImage based on the current image
+
+    void generateVSliceData( QVector<QPointF>& vSliceData, int x, unsigned int thickness );                          ///< Generate a series of pixel values from a vertical slice through the current image.
+    void generateHSliceData( QVector<QPointF>& hSliceData, int y, unsigned int thickness );                          ///< Generate a series of pixel values from a horizontal slice through the current image.
+    void generateProfileData( QVector<QPointF>& profileData, QPoint point1, QPoint point2, unsigned int thickness ); ///< Generate a series of pseudo pixel values from an arbitrary line between two pixels.
+
+    // Transformations
+    QRect rotateFlipToDataRectangle( const QRect& rect );                       ///< Transform a rectangle from the image to the original data according to current rotation and flip options
+    QRect rotateFlipToDataRectangle( const QPoint& pos1, const QPoint& pos2 );  ///< Transform a rectangle from the image to the original data according to current rotation and flip options
+    QPoint rotateFlipToDataPoint( const QPoint& pos );                          ///< Transform a point from the image to the original data according to current rotation and flip options.
+
+    QRect rotateFlipToImageRectangle( const QRect& rect );                      ///< Transform a rectangle from the original data to the image according to current rotation and flip options
+    QRect rotateFlipToImageRectangle( const QPoint& pos1, const QPoint& pos2 ); ///< Transform a rectangle from the original data to the image according to current rotation and flip options
+    QPoint rotateFlipToImagePoint( const QPoint& pos );                         ///< Transform a point from the original data to the image according to current rotation and flip options.
 
 private:
-    unsigned int bins[HISTOGRAM_BINS];                                             ///< Bins used for generating a pixel histogram
+    unsigned int bins[HISTOGRAM_BINS];                                          ///< Bins used for generating a pixel histogram
 };
 
 #endif // IMAGEPROCESSOR_H
