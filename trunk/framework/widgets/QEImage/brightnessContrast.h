@@ -123,7 +123,7 @@ private slots:
     void contrastReversalToggled( bool );
     void logToggled( bool );
     void falseColourToggled( bool );
-    void advencedToggled( bool );
+    void advancedToggled( bool );
 
 private:
     // Local brightness and contrast controls and monitors
@@ -148,12 +148,6 @@ private:
     QLabel* brightnessLabel;
     QLabel* gradientLabel;
     QPushButton* advancedButton;    // advanced toggle button
-    // layouts
-    QHBoxLayout* imageDisplayPropertiesSub1Layout;
-    QGridLayout* imageDisplayPropertiesSub2Layout;
-    QHBoxLayout* imageDisplayPropertiesSub3Layout;
-    QHBoxLayout* imageDisplayPropertiesSub4Layout;
-    QHBoxLayout* imageDisplayPropertiesSub5Layout;
 
     // Flags to avoid loops when setting controls
     bool nonInteractive;
@@ -186,8 +180,9 @@ private:
     double fromExponentialTailSlider( int value ); // Translate from a composite linear-exponential slider value.
     int toExponentialHeadSlider( double value );   // Translate to a composite exponential-linear slider value.
     int toExponentialTailSlider( double value );   // Translate to a composite linear-exponential slider value.
-    // show/hide
-    void showAll( bool show );
+
+    // Manage minimal / full presentation
+    void hideShowAll( QObject* obj, bool show );   // Hide or show all the widgets in the dialog.
 
 public:
 

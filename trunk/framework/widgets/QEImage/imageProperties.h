@@ -101,10 +101,7 @@ protected:
     unsigned long imageDataSize;      // Size of elements in image data (originating from CA data type)
     unsigned long elementsPerPixel;   // Number of data elements per pixel. Derived from image dimension 0 (only when there are three dimensions)
     unsigned long bytesPerPixel;      // Bytes in input data per pixel (imageDataSize * elementsPerPixel)
-    QByteArray image;                 // Buffer to hold original image data. WARNING To avoid expensive memory copies, data is
-                                      // generated using QByteArray::fromRawData(), where the raw data is the original CA update
-                                      // data. This data is held until a subsequent update. The data in this QByteArray will
-                                      // be valid only until the next update arrives.
+    QByteArray image;                 // Buffer to hold original image data.
     unsigned long receivedImageSize;  // Size as received on last CA update.
     QString previousMessageText;      // Previous message text - avoid repeats.
     QByteArray imageBuff;             // Buffer to hold data converted to format for generating QImage.

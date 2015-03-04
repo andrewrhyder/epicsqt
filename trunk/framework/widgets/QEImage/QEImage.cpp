@@ -871,8 +871,7 @@ void QEImage::setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateT
 
     // Update the image buffer according to the new size
     // This will do nothing unless both width and height are available
-    // Note, this is also called in displayImage() next, but only if the image buffer empty.
-    setImageBuff();
+    setImageSize();
 
     // Update the image.
     // This is required if image data for an enlarged image arrived before the width and height.
@@ -884,9 +883,6 @@ void QEImage::setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateT
     // variable connection to reflect the elements we now need.
     if( dimensionChange && iProcessor.validateDimensions() )
     {
-        // Clear any current image as the data in it is not our own and will be lost when the connection is re-established
-        iProcessor.releaseImageData();
-
         // Re-establish the image connection. This will set request the appropriate array size.
         establishConnection( IMAGE_VARIABLE );
     }
@@ -1316,7 +1312,13 @@ void QEImage::playingBack( bool playing )
 //====================================================
 
 // Update image from non CA souce (no associated CA timestamp or alarm info available)
-void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long elements, unsigned long width, unsigned long height, imageDataFormats::formatOptions format, unsigned int depth )
+void QEImage::setImage( const QByteArray& imageIn,
+                        unsigned long dataSize,
+                        unsigned long elements,
+                        unsigned long width,
+                        unsigned long height,
+                        imageDataFormats::formatOptions format,
+                        unsigned int depth )
 {
     //!!! Should the format, bit depth, width and height be clobered like this? (especially where we are altering properties, like bitDepth)
     //!!! Perhaps CA delivered and MPEG delivered images should maintain their own attributes?
@@ -1336,10 +1338,13 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, unsig
     iProcessor.setImageBuffHeight( height );
 
     // Update the image buffer according to the new size.
-    setImageBuff();
+    setImageSize();
 
+    // Generate QCa like alarm and time info
     QCaAlarmInfo alarmInfo;
     QCaDateTime dateTime = QCaDateTime( QDateTime::currentDateTime() );
+
+    // Call the standard CA set image
     setImage( imageIn, dataSize, alarmInfo, dateTime, 0 );
 }
 
@@ -1350,7 +1355,11 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, unsig
         Note: Drawing into a QImage with QImage::Format_Indexed8 is not supported.
         Note: Do not render into ARGB32 images using QPainter. Using QImage::Format_ARGB32_Premultiplied is significantly faster.
  */
-void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& time, const unsigned int& )
+void QEImage::setImage( const QByteArray& imageIn,
+                        unsigned long dataSize,
+                        QCaAlarmInfo& alarmInfo,
+                        QCaDateTime& time,
+                        const unsigned int& )
 {
     // If the display is paused, do nothing
     if (paused)
@@ -1406,7 +1415,7 @@ void QEImage::displayImage()
     // Set up the image buffer if not done already
     if( !iProcessor.hasImageBuff() )
     {
-        setImageBuff();
+        setImageSize();
     }
 
     // Now an image can be displayed, set the initial scroll bar positions if not set before
@@ -1420,7 +1429,7 @@ void QEImage::displayImage()
     // Process the image data. Hopefully a presentable QImage will be result.
     QString messageText;
     QImage frameImage;
-    frameImage = iProcessor.displayImage2( messageText );
+    frameImage = iProcessor.buildImage( messageText );
 
     // If there was an error processing the image, report it.
     if( !messageText.isEmpty() )
@@ -1462,7 +1471,7 @@ QSize QEImage::getVedioDestinationSize()
 }
 
 // Set the image buffer used for generating images so it will be large enough to hold the processed image.
-void QEImage::setImageBuff()
+void QEImage::setImageSize()
 {
     // Do nothing if there are no image dimensions yet
     if( !iProcessor.getImageBuffWidth() || !iProcessor.getImageBuffHeight() )
@@ -1494,7 +1503,7 @@ void QEImage::setImageBuff()
     }
 
     // Set the image buffer used for generating images so it will be large enough to hold the processed image.
-    iProcessor.setImageBuff2();
+    iProcessor.setImageBuff();
 }
 
 //=================================================================================================
@@ -1518,6 +1527,8 @@ void QEImage::setImageFile( QString name )
     QByteArray baData;
     baData.resize( iDataSize );
     char* baDataPtr = baData.data();
+
+    //!!! memcpy will be more efficient.
     for( int i = 0; i < iDataSize; i++ )
     {
         baDataPtr[i] = iDataPtr[i];
@@ -1538,7 +1549,7 @@ void QEImage::setImageFile( QString name )
     iProcessor.setBitDepth( 8 );
 
 
-    setImageBuff();
+    setImageSize();
 
     // Use the image data just like it came from a waveform variable
     setImage( baData, 4, alarmInfo, time, 0 );
@@ -1824,15 +1835,6 @@ void QEImage::pauseClicked()
     // Not paused, so pause
     else
     {
-
-        // Force a deep copy of the image data as it will be used while paused if the user
-        // interacts with the image - even by just hovering over it and causing pixel information to be displayed.
-        // For efficiency, the image data was generated from the original update data using QByteArray::fromRawData().
-        // The data system keeps the raw data until the next update so QByteArray instances like 'image' will remain vaild.
-        // The data system discards it and replaces it will the latest data after each update. So if not using the latest
-        // data (such as when paused) the data in 'image' would become stale after an update.
-        iProcessor.ownImageData();
-
         // Pause the display
         pauseButton->setIcon( *playButtonIcon );
         pauseButton->setToolTip("Resume image display");
@@ -1914,7 +1916,7 @@ void QEImage::saveClicked()
 // Update the video widget if the QEImage has changed
 void QEImage::resizeEvent(QResizeEvent* )
 {
-    setImageBuff();
+    setImageSize();
 }
 
 
@@ -2199,7 +2201,7 @@ void QEImage::setZoom( int zoomIn )
         zoom = zoomIn;
 
     // Resize and rescale
-    setImageBuff();
+    setImageSize();
 
     // Update the info area
     infoUpdateZoom( zoom );
@@ -2218,7 +2220,7 @@ void QEImage::setRotation( imageProperties::rotationOptions rotationIn )
     iProcessor.setRotation( rotationIn );
 
     // Adjust the size of the image to maintain aspect ratio if required
-    setImageBuff();
+    setImageSize();
 
     // Present the updated image
     displayImage();
@@ -2287,7 +2289,7 @@ void QEImage::setResizeOption( resizeOptions resizeOptionIn )
     resizeOption = resizeOptionIn;
 
     // Resize and rescale
-    setImageBuff();
+    setImageSize();
 
     // Present the updated image
     displayImage();
@@ -4234,7 +4236,6 @@ void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool ini
 historicImage::historicImage( QByteArray imageIn, unsigned long dataSizeIn, QCaAlarmInfo& alarmInfoIn, QCaDateTime& timeIn )
 {
     image = imageIn;
-    image.resize( image.count()+1); // force deep copy. original image data is only valid until the next update
 
     dataSize = dataSizeIn;
     alarmInfo = alarmInfoIn;

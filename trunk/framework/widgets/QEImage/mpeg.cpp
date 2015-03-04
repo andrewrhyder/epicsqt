@@ -266,9 +266,6 @@ mpegSource::mpegSource()
 {
     ff = NULL;
     mso = new mpegSourceObject( this );
-
-    buff = NULL;
-    buffSize=0;
 }
 
 mpegSource::~mpegSource()
@@ -337,25 +334,14 @@ void mpegSource::updateImage(FFBuffer *newbuf) {
 
     // Ensure an adequate buffer to hold the image data with no line gaps is allocated.
     // (re)allocate if not present of not the right size
-    int newBuffSize = newbuf->width * newbuf->height * 3;   //!!!??? * 3 for color only
-    if( buffSize != newBuffSize )
-    {
-        // Free last buffer, if re-allocating
-        if( buff )
-        {
-            free( buff );
-        }
-
-        // Allocate buffer
-        buffSize = newBuffSize;
-        buff = (char*)malloc( newBuffSize );
-    }
+    int buffSize = newbuf->width * newbuf->height * 3;   //!!!??? * 3 for color only
+    ba.resize( buffSize );
 
     // Populate buffer with no line gaps
     // (Each horizontal line of pixels in in a larger horizontal line of storage.
     //  Observed example: each line was 1624 pixels stored in 1664 bytes with
     //  trailing 40 bytes of value 128 before start of pixel on next line)
-    char* buffPtr = buff;
+    char* buffPtr = (char*)ba.data();
 
     // Set up default image information
     unsigned long dataSize = 1;
@@ -449,15 +435,7 @@ void mpegSource::updateImage(FFBuffer *newbuf) {
         break;
     }
 
-
     // Deliver image update
-    QByteArray ba;
-#if QT_VERSION >= 0x040700
-    ba.setRawData( (const char*)(buff), buffSize );
-#else
-    ba = QByteArray::fromRawData( buff, buffSize );
-#endif
-
     setImage( ba, dataSize, elementsPerPixel, newbuf->width, newbuf->height, format, depth );
 
     // Unlock buffer

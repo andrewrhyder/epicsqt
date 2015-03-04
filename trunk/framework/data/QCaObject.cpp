@@ -52,21 +52,32 @@ QCaEventFilter QCaObject::eventFilter;
    In other words, the event object does not need to be set up in any way.
    It just need to have a suitable event loop running.
 */
-QCaObject::QCaObject( const QString& newRecordName, QObject *newEventHandler,
-                      const unsigned int variableIndexIn, unsigned char signalsToSendIn,
-                      priorities priorityIn ) {
+QCaObject::QCaObject( const QString& newRecordName,
+                      QObject *newEventHandler,
+                      const unsigned int variableIndexIn,
+                      unsigned char signalsToSendIn,
+                      priorities priorityIn )
+{
     initialise( newRecordName, newEventHandler, variableIndexIn, NULL, signalsToSendIn, priorityIn );
 }
 
-QCaObject::QCaObject( const QString& newRecordName, QObject *newEventHandler,
-                      const unsigned int variableIndexIn, UserMessage* userMessageIn,
-                      unsigned char signalsToSendIn, priorities priorityIn ) {
+QCaObject::QCaObject( const QString& newRecordName,
+                      QObject *newEventHandler,
+                      const unsigned int variableIndexIn,
+                      UserMessage* userMessageIn,
+                      unsigned char signalsToSendIn,
+                      priorities priorityIn )
+{
     initialise( newRecordName, newEventHandler, variableIndexIn, userMessageIn, signalsToSendIn, priorityIn );
 }
 
-void QCaObject::initialise( const QString& newRecordName, QObject *newEventHandler,
-                            const unsigned int variableIndexIn, UserMessage* userMessageIn,
-                            unsigned char signalsToSendIn, priorities priorityIn ) {
+void QCaObject::initialise( const QString& newRecordName,
+                            QObject *newEventHandler,
+                            const unsigned int variableIndexIn,
+                            UserMessage* userMessageIn,
+                            unsigned char signalsToSendIn,
+                            priorities priorityIn )
+{
 
     // Initialise variables
     arrayIndex = 0;
@@ -580,8 +591,6 @@ bool QCaObject::writeData( const QVariant& newData ) {
     posts via an event.
 */
 void QCaObject::signalCallback( caobject::callback_reasons newReason ) {
-// Testing qDebug() << "QCaObject::signalCallback()";
-
     // Initialise data package.
     // It is really of type carecord::CaRecord*
     void* dataPackage = NULL;
@@ -611,7 +620,6 @@ void QCaObject::signalCallback( caobject::callback_reasons newReason ) {
                     delete (carecord::CaRecord*)(event->dataPtr);
                     event->dataPtr = dataPackage;
                     replaced = true;
-//Testing                    qDebug() << "========================data replaced in queue";
                 }
                 break;
             }
@@ -1078,6 +1086,7 @@ void QCaObject::processData( void* newDataPtr ) {
         char* data;
         unsigned long dataSize = 0;
 
+        // Get a pointer to the data
         switch( newData->getType() ) {
             case generic::GENERIC_STRING         : newData->getString       ( (char**)          (&data) ); dataSize = 1; break;
             case generic::GENERIC_SHORT          : newData->getShort        ( (short**)         (&data) ); dataSize = 2; break;
@@ -1090,12 +1099,11 @@ void QCaObject::processData( void* newDataPtr ) {
             case generic::GENERIC_UNKNOWN        : data = NULL;                                            dataSize = 0; break;
         }
 
+        // Build a byte array from the data
         unsigned long arraySize = arrayCount * dataSize;
-#if QT_VERSION >= 0x040700
-        byteArrayValue.setRawData( data, arraySize );
-#else
-        byteArrayValue = QByteArray::fromRawData( data, arraySize );
-#endif
+        byteArrayValue.resize( arraySize );
+        char* baData = byteArrayValue.data();
+        memcpy( baData, data, arraySize );
 
         // Save the data just about emited so it can be re-sent if required
         lastByteArrayValue = byteArrayValue;
@@ -1108,7 +1116,11 @@ void QCaObject::processData( void* newDataPtr ) {
 
         // Delete any old data now it is no longer referenced by byte arrays
         if( lastNewData )
+        {
             delete (carecord::CaRecord*)lastNewData;
+        }
+
+        // Save the current event data for later deletion
         lastNewData = (void*)newData;
     }
 
@@ -1458,5 +1470,3 @@ QCaDateTime QCaObject::getDateTime ()
 {
     return lastTimeStamp;
 }
-
-// end

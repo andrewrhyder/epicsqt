@@ -37,290 +37,47 @@ imageProcessor::imageProcessor()
 {
 }
 
-// Determine the maximum pixel value for the current format
-unsigned int imageProcessor::maxPixelValue()
+// Set the image buffer used for generating images so it will be large enough to hold the processed image.
+void imageProcessor::setImageBuff()
 {
-    double result = 0;
+    // Do nothing if there are no image dimensions yet
+    if( !imageBuffWidth || !imageBuffHeight )
+        return;
 
-    switch( mFormatOption )
-    {
-        case imageDataFormats::BAYERGB:
-        case imageDataFormats::BAYERBG:
-        case imageDataFormats::BAYERGR:
-        case imageDataFormats::BAYERRG:
-        case imageDataFormats::MONO:
-            result = (1<<bitDepth)-1;
-            break;
+    // Determine buffer size
+    unsigned long buffSize = IMAGEBUFF_BYTES_PER_PIXEL * imageBuffWidth * imageBuffHeight;
 
-        case imageDataFormats::RGB1:
-        case imageDataFormats::RGB2:
-        case imageDataFormats::RGB3:
-            result = (1<<8)-1; //???!!! not done yet probably correct
-            break;
-
-        case imageDataFormats::YUV444:
-        case imageDataFormats::YUV422:
-        case imageDataFormats::YUV421:
-            result = (1<<8)-1; //???!!! not done yet probably correct
-            break;
-    }
-
-    if( result == 0 )
-    {
-        result = 255;
-    }
-
-    return result;
+    // Resize buffer
+    imageBuff.resize( buffSize );
 }
 
-// Return the image width following any rotation
-unsigned int imageProcessor::rotatedImageBuffWidth()
+// Save the image data for analysis, processing and display
+void imageProcessor::setImage( const QByteArray& imageIn, unsigned long dataSize )
 {
-    switch( rotation)
-    {
-        default:
-        case ROTATION_0:
-        case ROTATION_180:
-            return imageBuffWidth;
+    // Save the current image
+    image = imageIn;
+    receivedImageSize = (unsigned long) image.size ();
+    imageDataSize = dataSize;
 
-        case ROTATION_90_RIGHT:
-        case ROTATION_90_LEFT:
-            return imageBuffHeight;
-    }
+    // Calculate the number of bytes per pixel.
+    // If the number of elements per pixel is known (derived from the image dimension zero if there are three dimensions)
+    // then it is the image data element size * the number of elements per pixel
+    // If the number of elements per pixel is not known (number of dimensions is not know or not three or dimension zero is not present)
+    // then the elements per pixel will default to 1.
+    bytesPerPixel = imageDataSize * elementsPerPixel;
 }
 
-// Return the image height following any rotation
-unsigned int imageProcessor::rotatedImageBuffHeight()
-{
-    switch( rotation)
-    {
-        default:
-        case ROTATION_0:
-        case ROTATION_180:
-            return imageBuffHeight;
-
-        case ROTATION_90_RIGHT:
-        case ROTATION_90_LEFT:
-            return imageBuffWidth;
-    }
-}
-
-// Generate a lookup table to convert raw pixel values to display pixel values taking into
-// account, clipping, and contrast reversal.
-// Note, the table will be used to translate each colour in an RGB format.
-//
-void imageProcessor::getPixelTranslation()
-{
-    // Maximum pixel value for 8 bit
-    #define MAX_VALUE 255
-
-    // If there is an image options control, get the relevent options
-    bool contrastReversal;
-    bool logBrightness;
-
-    if( imageDisplayProps )
-    {
-        contrastReversal = imageDisplayProps->getContrastReversal();
-        logBrightness = imageDisplayProps->getLog();
-    }
-    else
-    {
-        contrastReversal = false;
-        logBrightness = false;
-    }
-
-    // If there is an image options control, and we have retrieved high and low pixels from an image, get the relevent options
-    if( imageDisplayProps && imageDisplayProps->statisticsValid() )
-    {
-        pixelLow = imageDisplayProps->getLowPixel();
-        pixelHigh = imageDisplayProps->getHighPixel();
-    }
-    else
-    {
-        pixelLow = 0;
-        pixelHigh = maxPixelValue();
-    }
-
-    // Loop populating table with pixel translations for every pixel value
-    unsigned int value = 0;
-    for( value = 0; value <= MAX_VALUE; value++ )
-    {
-        // Alpha always 100%
-        pixelLookup[value].p[3] = 0xff;
-
-        // Assume no clipping
-        bool clipped = false;
-        if( clippingOn && (clippingHigh > 0 || clippingLow > 0 ))
-        {
-            // If clipping high, set pixel to solid 'clip high' color
-            if( clippingHigh > 0 && value >= clippingHigh )
-            {
-                pixelLookup[value].p[0] = 0x80;
-                pixelLookup[value].p[1] = 0x80;
-                pixelLookup[value].p[2] = 0xff;
-                clipped = true;
-            }
-            // If clipping low, set pixel to solid 'clip low' color
-            else if( clippingLow > 0 && value <= clippingLow )
-            {
-                pixelLookup[value].p[0] = 0xff;
-                pixelLookup[value].p[1] = 0x80;
-                pixelLookup[value].p[2] = 0x80;
-                clipped = true;
-            }
-        }
-
-        // Translate pixel value if not clipped
-        if( !clipped )
-        {
-            // Start with original value
-            int translatedValue = value;
-
-            // Logarithmic brightness if required
-            if( logBrightness )
-            {
-                translatedValue = int( log10( value+1 ) * 105.8864 );
-            }
-
-            // Reverse contrast if required
-            if( contrastReversal )
-            {
-                translatedValue = MAX_VALUE - translatedValue;
-            }
-
-            // Save translated pixel
-            if( imageDisplayProps->getFalseColour() )
-            {
-                pixelLookup[value] = getFalseColor ((unsigned char)translatedValue);
-            }
-            else
-            {
-                pixelLookup[value].p[0] = (unsigned char)translatedValue;
-                pixelLookup[value].p[1] = (unsigned char)translatedValue;
-                pixelLookup[value].p[2] = (unsigned char)translatedValue;
-            }
-        }
-
-    }
-
-    return;
-}
-
-// Determine the way the input pixel data must be scanned to accommodate the required
-// rotate and flip options. This is used when generating the image data, and also when
-// transforming points in the image back to references in the original pixel data.
-int imageProcessor::getScanOption()
-{
-    // Depending on the flipping and rotating options pixel drawing can start in any of
-    // the four corners and start scanning either vertically or horizontally.
-    // The 8 scanning options are shown numbered here:
-    //
-    //    o----->1         2<-----o
-    //    |                       |
-    //    |                       |
-    //    |                       |
-    //    v                       v
-    //    5                       6
-    //
-    //
-    //
-    //    7                       8
-    //    ^                       ^
-    //    |                       |
-    //    |                       |
-    //    |                       |
-    //    o----->3         4<-----o
-    //
-    //
-    // The rotation and flip properties can be set in 16 combinations, but these 16
-    // options can only specify the 8 possible scan options as follows:
-    // (for example rotating 180 degrees, then flipping both vertically and horizontally
-    // is the same as doing no rotation or flipping at all - scan option 1)
-    //
-    //  rot vflip hflip scan_option
-    //    0   0     0      1
-    //    0   0     1      2
-    //    0   1     0      3
-    //    0   1     1      4
-    //  R90   0     0      7
-    //  R90   0     1      5
-    //  R90   1     0      8
-    //  R90   1     1      6
-    //  L90   0     0      6
-    //  L90   0     1      8
-    //  L90   1     0      5
-    //  L90   1     1      7
-    //  180   0     0      4
-    //  180   0     1      3
-    //  180   1     0      2
-    //  180   1     1      1
-    //
-    // Determine the scan option as shown in the above diagram
-    switch( rotation )
-    {                                               // vh v!h     !vh !v!h
-        case ROTATION_0:        return flipVert?flipHoz?4:3:flipHoz?2:1;
-        case ROTATION_90_RIGHT: return flipVert?flipHoz?6:8:flipHoz?5:7;
-        case ROTATION_90_LEFT:  return flipVert?flipHoz?7:5:flipHoz?8:6;
-        case ROTATION_180:      return flipVert?flipHoz?1:2:flipHoz?3:4;
-        default:                return 1; // Sanity check
-    }
-}
-
-// Get a false color representation for an entry from the color lookup table
-imageDisplayProperties::rgbPixel imageProcessor::getFalseColor (const unsigned char value) {
-
-    const int max = 0xFF;
-    const int half = 0x80;
-    const int lightness_slope = 4;
-    const int low_hue = 240;    // blue.
-    const int high_hue = 0;     // red
-
-    int bp1;
-    int bp2;
-    imageDisplayProperties::rgbPixel result;
-    int h, l;
-    QColor c;
-
-    // Range of inputs broken into three bands:
-    // [0 .. bp1], [bp1 .. bp2] and [bp2 .. max]
-    //
-    bp1 = half / lightness_slope;
-    bp2 = max - (max - half) / lightness_slope;
-
-    if( value < bp1 ){
-        // Constant hue (blue), lightness ramps up to 128
-        h = low_hue;
-        l = lightness_slope*value;
-    } else if( value > bp2 ){
-        // Constant hue (red), lightness ramps up from 128 to 255
-        h = high_hue;
-        l = max - lightness_slope*(max-value);
-    } else {
-        // The bit in the middle.
-        // Contant lightness, hue varies blue to red.
-        h = ((value - bp1)*high_hue + (bp2 - value)*low_hue) / (bp2 - bp1);
-        l = half;
-    }
-
-    c.setHsl( h, max, l );   // Saturation always 100%
-
-    result.p[0] = (unsigned char) c.blue();
-    result.p[1] = (unsigned char) c.green();
-    result.p[2] = (unsigned char) c.red();
-    result.p[3] = (unsigned char) max; // Alpha always 100%
-
-    return result;
-}
-
-// Display a new image.
-QImage imageProcessor::displayImage2( QString& errorText )
+// Generate a new image.
+QImage imageProcessor::buildImage( QString& errorText )
 {
     // Initially no errors
     errorText.clear();
 
     // Do nothing if there is no image, or are no image dimensions yet
     if( image.isEmpty() || !imageBuffWidth || !imageBuffHeight )
+    {
         return QImage();
+    }
 
     // Do we have enough (or any) data
     //
@@ -329,7 +86,8 @@ QImage imageProcessor::displayImage2( QString& errorText )
     {
         // Do nothing if no image data.
         //
-        if( receivedImageSize == 0 ) {
+        if( receivedImageSize == 0 )
+        {
             return QImage();
         }
 
@@ -1084,46 +842,6 @@ QImage imageProcessor::displayImage2( QString& errorText )
     return frameImage;
 }
 
-// Determine the element count expected based on the available dimensions
-int imageProcessor::getElementCount()
-{
-    // If we already have the image dimensions (and the elements per pixel if required), update the image
-    // size we need here before the subscription.
-    // (we should have image dimensions as a connection is only established once these have been read)
-    if( imageBuffWidth && imageBuffHeight && ( numDimensions !=3 || imageDimension0))
-    {
-        // element count is at least width x height
-        unsigned int elementCount = imageBuffWidth * imageBuffHeight;
-
-        // Regardless of the souce of the width and height (either from width and height variables or from
-        // the appropriate area detector dimension variables), if the number of area detector dimensions
-        // is 3, then the first dimension is the number or elements per pixel so the element count needs to
-        // be multiplied by the first area detector dimension.
-
-        // It is possible for the image dimensions to change dynamically. For example to change from
-        // 3 dimensions to 2. In this example, the first dimension may change from being the data elements
-        // per pixel to being the image width before the 'number of dimensions' variable changes. This results
-        // in a window where the first dimension is assumed to be the data elements per pixel (num dimensions is 3)
-        // but it is actually the image width (much larger) this can result in crashes where a huge number of bytes
-        // per pixel is assumed and data arrays are overrun. If the dimensions appear odd, 32 was chosen as being large enough to cater for the
-        // largest number of elements per pixel. It is reasonable for image widths to be less than 32, so code must
-        // still handle invalid bytes per pixel calculations.
-        if( numDimensions == 3 && imageDimension0 && imageDimension0 <= 32 )
-        {
-            elementCount = elementCount * elementsPerPixel;
-        }
-
-        return elementCount;
-    }
-
-    // We can't determine the element count yet.
-    else
-    {
-        return 0;
-    }
-}
-
-
 // Set the image width
 // Return true of the width changes as a result.
 bool imageProcessor::setWidth( unsigned long uValue )
@@ -1227,6 +945,352 @@ bool imageProcessor::setDimension2( unsigned long uValue )
     }
 }
 
+// Set clipping flag. If true, setClippingLow() and setClippingHigh() are used to set clipping values
+void imageProcessor::setClippingOn( bool clippingOnIn )
+{
+    if( clippingOn != clippingOnIn )
+    {
+        clippingOn = clippingOnIn;
+        pixelLookupValid = false;
+    }
+}
+
+// Set pixel value below which low clip colour is displayed
+void imageProcessor::setClippingLow( unsigned int value )
+{
+    if( clippingLow != (unsigned int)value )
+    {
+        clippingLow = value;
+        pixelLookupValid = false;
+    }
+}
+
+// Set pixel value above which high clip colour is displayed
+void imageProcessor::setClippingHigh( unsigned int value )
+{
+    if( clippingHigh != (unsigned int)value )
+    {
+        clippingHigh = value;
+        pixelLookupValid = false;
+    }
+}
+
+// Determine the way the input pixel data must be scanned to accommodate the required
+// rotate and flip options. This is used when generating the image data, and also when
+// transforming points in the image back to references in the original pixel data.
+int imageProcessor::getScanOption()
+{
+    // Depending on the flipping and rotating options pixel drawing can start in any of
+    // the four corners and start scanning either vertically or horizontally.
+    // The 8 scanning options are shown numbered here:
+    //
+    //    o----->1         2<-----o
+    //    |                       |
+    //    |                       |
+    //    |                       |
+    //    v                       v
+    //    5                       6
+    //
+    //
+    //
+    //    7                       8
+    //    ^                       ^
+    //    |                       |
+    //    |                       |
+    //    |                       |
+    //    o----->3         4<-----o
+    //
+    //
+    // The rotation and flip properties can be set in 16 combinations, but these 16
+    // options can only specify the 8 possible scan options as follows:
+    // (for example rotating 180 degrees, then flipping both vertically and horizontally
+    // is the same as doing no rotation or flipping at all - scan option 1)
+    //
+    //  rot vflip hflip scan_option
+    //    0   0     0      1
+    //    0   0     1      2
+    //    0   1     0      3
+    //    0   1     1      4
+    //  R90   0     0      7
+    //  R90   0     1      5
+    //  R90   1     0      8
+    //  R90   1     1      6
+    //  L90   0     0      6
+    //  L90   0     1      8
+    //  L90   1     0      5
+    //  L90   1     1      7
+    //  180   0     0      4
+    //  180   0     1      3
+    //  180   1     0      2
+    //  180   1     1      1
+    //
+    // Determine the scan option as shown in the above diagram
+    switch( rotation )
+    {                                               // vh v!h     !vh !v!h
+        case ROTATION_0:        return flipVert?flipHoz?4:3:flipHoz?2:1;
+        case ROTATION_90_RIGHT: return flipVert?flipHoz?6:8:flipHoz?5:7;
+        case ROTATION_90_LEFT:  return flipVert?flipHoz?7:5:flipHoz?8:6;
+        case ROTATION_180:      return flipVert?flipHoz?1:2:flipHoz?3:4;
+        default:                return 1; // Sanity check
+    }
+}
+
+// Generate a lookup table to convert raw pixel values to display pixel values taking into
+// account, clipping, and contrast reversal.
+// Note, the table will be used to translate each colour in an RGB format.
+//
+void imageProcessor::getPixelTranslation()
+{
+    // Maximum pixel value for 8 bit
+    #define MAX_VALUE 255
+
+    // If there is an image options control, get the relevent options
+    bool contrastReversal;
+    bool logBrightness;
+
+    if( imageDisplayProps )
+    {
+        contrastReversal = imageDisplayProps->getContrastReversal();
+        logBrightness = imageDisplayProps->getLog();
+    }
+    else
+    {
+        contrastReversal = false;
+        logBrightness = false;
+    }
+
+    // If there is an image options control, and we have retrieved high and low pixels from an image, get the relevent options
+    if( imageDisplayProps && imageDisplayProps->statisticsValid() )
+    {
+        pixelLow = imageDisplayProps->getLowPixel();
+        pixelHigh = imageDisplayProps->getHighPixel();
+    }
+    else
+    {
+        pixelLow = 0;
+        pixelHigh = maxPixelValue();
+    }
+
+    // Loop populating table with pixel translations for every pixel value
+    unsigned int value = 0;
+    for( value = 0; value <= MAX_VALUE; value++ )
+    {
+        // Alpha always 100%
+        pixelLookup[value].p[3] = 0xff;
+
+        // Assume no clipping
+        bool clipped = false;
+        if( clippingOn && (clippingHigh > 0 || clippingLow > 0 ))
+        {
+            // If clipping high, set pixel to solid 'clip high' color
+            if( clippingHigh > 0 && value >= clippingHigh )
+            {
+                pixelLookup[value].p[0] = 0x80;
+                pixelLookup[value].p[1] = 0x80;
+                pixelLookup[value].p[2] = 0xff;
+                clipped = true;
+            }
+            // If clipping low, set pixel to solid 'clip low' color
+            else if( clippingLow > 0 && value <= clippingLow )
+            {
+                pixelLookup[value].p[0] = 0xff;
+                pixelLookup[value].p[1] = 0x80;
+                pixelLookup[value].p[2] = 0x80;
+                clipped = true;
+            }
+        }
+
+        // Translate pixel value if not clipped
+        if( !clipped )
+        {
+            // Start with original value
+            int translatedValue = value;
+
+            // Logarithmic brightness if required
+            if( logBrightness )
+            {
+                translatedValue = int( log10( value+1 ) * 105.8864 );
+            }
+
+            // Reverse contrast if required
+            if( contrastReversal )
+            {
+                translatedValue = MAX_VALUE - translatedValue;
+            }
+
+            // Save translated pixel
+            if( imageDisplayProps->getFalseColour() )
+            {
+                pixelLookup[value] = getFalseColor ((unsigned char)translatedValue);
+            }
+            else
+            {
+                pixelLookup[value].p[0] = (unsigned char)translatedValue;
+                pixelLookup[value].p[1] = (unsigned char)translatedValue;
+                pixelLookup[value].p[2] = (unsigned char)translatedValue;
+            }
+        }
+
+    }
+
+    return;
+}
+
+// Determine the maximum pixel value for the current format
+unsigned int imageProcessor::maxPixelValue()
+{
+    double result = 0;
+
+    switch( mFormatOption )
+    {
+        case imageDataFormats::BAYERGB:
+        case imageDataFormats::BAYERBG:
+        case imageDataFormats::BAYERGR:
+        case imageDataFormats::BAYERRG:
+        case imageDataFormats::MONO:
+            result = (1<<bitDepth)-1;
+            break;
+
+        case imageDataFormats::RGB1:
+        case imageDataFormats::RGB2:
+        case imageDataFormats::RGB3:
+            result = (1<<8)-1; //???!!! not done yet probably correct
+            break;
+
+        case imageDataFormats::YUV444:
+        case imageDataFormats::YUV422:
+        case imageDataFormats::YUV421:
+            result = (1<<8)-1; //???!!! not done yet probably correct
+            break;
+    }
+
+    if( result == 0 )
+    {
+        result = 255;
+    }
+
+    return result;
+}
+
+// Return the image width following any rotation
+unsigned int imageProcessor::rotatedImageBuffWidth()
+{
+    switch( rotation)
+    {
+        default:
+        case ROTATION_0:
+        case ROTATION_180:
+            return imageBuffWidth;
+
+        case ROTATION_90_RIGHT:
+        case ROTATION_90_LEFT:
+            return imageBuffHeight;
+    }
+}
+
+// Return the image height following any rotation
+unsigned int imageProcessor::rotatedImageBuffHeight()
+{
+    switch( rotation)
+    {
+        default:
+        case ROTATION_0:
+        case ROTATION_180:
+            return imageBuffHeight;
+
+        case ROTATION_90_RIGHT:
+        case ROTATION_90_LEFT:
+            return imageBuffWidth;
+    }
+}
+
+// Get a false color representation for an entry from the color lookup table
+imageDisplayProperties::rgbPixel imageProcessor::getFalseColor (const unsigned char value) {
+
+    const int max = 0xFF;
+    const int half = 0x80;
+    const int lightness_slope = 4;
+    const int low_hue = 240;    // blue.
+    const int high_hue = 0;     // red
+
+    int bp1;
+    int bp2;
+    imageDisplayProperties::rgbPixel result;
+    int h, l;
+    QColor c;
+
+    // Range of inputs broken into three bands:
+    // [0 .. bp1], [bp1 .. bp2] and [bp2 .. max]
+    //
+    bp1 = half / lightness_slope;
+    bp2 = max - (max - half) / lightness_slope;
+
+    if( value < bp1 ){
+        // Constant hue (blue), lightness ramps up to 128
+        h = low_hue;
+        l = lightness_slope*value;
+    } else if( value > bp2 ){
+        // Constant hue (red), lightness ramps up from 128 to 255
+        h = high_hue;
+        l = max - lightness_slope*(max-value);
+    } else {
+        // The bit in the middle.
+        // Contant lightness, hue varies blue to red.
+        h = ((value - bp1)*high_hue + (bp2 - value)*low_hue) / (bp2 - bp1);
+        l = half;
+    }
+
+    c.setHsl( h, max, l );   // Saturation always 100%
+
+    result.p[0] = (unsigned char) c.blue();
+    result.p[1] = (unsigned char) c.green();
+    result.p[2] = (unsigned char) c.red();
+    result.p[3] = (unsigned char) max; // Alpha always 100%
+
+    return result;
+}
+
+
+// Determine the element count expected based on the available dimensions
+int imageProcessor::getElementCount()
+{
+    // If we already have the image dimensions (and the elements per pixel if required), update the image
+    // size we need here before the subscription.
+    // (we should have image dimensions as a connection is only established once these have been read)
+    if( imageBuffWidth && imageBuffHeight && ( numDimensions !=3 || imageDimension0))
+    {
+        // element count is at least width x height
+        unsigned int elementCount = imageBuffWidth * imageBuffHeight;
+
+        // Regardless of the souce of the width and height (either from width and height variables or from
+        // the appropriate area detector dimension variables), if the number of area detector dimensions
+        // is 3, then the first dimension is the number or elements per pixel so the element count needs to
+        // be multiplied by the first area detector dimension.
+
+        // It is possible for the image dimensions to change dynamically. For example to change from
+        // 3 dimensions to 2. In this example, the first dimension may change from being the data elements
+        // per pixel to being the image width before the 'number of dimensions' variable changes. This results
+        // in a window where the first dimension is assumed to be the data elements per pixel (num dimensions is 3)
+        // but it is actually the image width (much larger) this can result in crashes where a huge number of bytes
+        // per pixel is assumed and data arrays are overrun. If the dimensions appear odd, 32 was chosen as being large enough to cater for the
+        // largest number of elements per pixel. It is reasonable for image widths to be less than 32, so code must
+        // still handle invalid bytes per pixel calculations.
+        if( numDimensions == 3 && imageDimension0 && imageDimension0 <= 32 )
+        {
+            elementCount = elementCount * elementsPerPixel;
+        }
+
+        return elementCount;
+    }
+
+    // We can't determine the element count yet.
+    else
+    {
+        return 0;
+    }
+}
+
+
 // Determine if the image dimensional information is valid.
 // A side effect of this method is to set elementsPerPixel.
 // If an image dimensions change dynamically we may pass through a period where a set of dimensions that are nonsense. For example,
@@ -1261,33 +1325,170 @@ bool imageProcessor::validateDimensions()
     }
 }
 
-// Save the image data for analysis, processing and display
-void imageProcessor::setImage( const QByteArray& imageIn, unsigned long dataSize )
+// Determine the range of pixel values an area of the image
+void imageProcessor::getPixelRange( const QRect& area, unsigned int* min, unsigned int* max )
 {
-    image = imageIn;
-    receivedImageSize = (unsigned long) image.size ();
-    imageDataSize = dataSize;
+    // If the area selected was the the entire image, and the image was not presented at 100%, rounding areas while scaling
+    // may result in area dimensions outside than the actual image by a pixel or so, so limit the area to within the image.
+    unsigned int areaX = (area.topLeft().x()>=0)?area.topLeft().x():0;
+    unsigned int areaY = (area.topLeft().y()>=0)?area.topLeft().y():0;
+    unsigned int areaW = (area.width() <=(int)rotatedImageBuffWidth() )?area.width() :rotatedImageBuffWidth();
+    unsigned int areaH = (area.height()<=(int)rotatedImageBuffHeight())?area.height():rotatedImageBuffHeight();
 
-    // Calculate the number of bytes per pixel.
-    // If the number of elements per pixel is known (derived from the image dimension zero if there are three dimensions)
-    // then it is the image data element size * the number of elements per pixel
-    // If the number of elements per pixel is not known (number of dimensions is not know or not three or dimension zero is not present)
-    // then the elements per pixel will default to 1.
-    bytesPerPixel = imageDataSize * elementsPerPixel;
+    // Set up to step pixel by pixel through the area
+    const unsigned char* data = (unsigned char*)image.constData();
+    unsigned int index = (areaY*rotatedImageBuffWidth()+areaX)*bytesPerPixel;
+
+    // This function is called as the user drags region handles around the
+    // screen. Recalculating min and max pixels for large areas
+    // for each mouse movement event needs to be efficient so speed loop by
+    // extracting width and height. (Compiler can't assume QRect width
+    // and height stays constant so it is evaluated each iteration of for
+    // loop if it was in the form   'for( int i = 0; i < area.height(); i++ )'
+    unsigned int stepW = bytesPerPixel;
+
+    // Calculate the step to the start of the next row in the area selected.
+    unsigned int stepH = (rotatedImageBuffWidth()-areaW)*bytesPerPixel;
+
+    unsigned int maxP = 0;
+    unsigned int minP = UINT_MAX;
+
+    // Determine the maximum and minimum pixel values in the area
+    for( unsigned int i = 0; i < areaH; i++ )
+    {
+        for( unsigned int j = 0; j < areaW; j++ )
+        {
+            unsigned int p = getPixelValueFromData( &(data[index]) );
+            if( p < minP ) minP = p;
+            if( p > maxP ) maxP = p;
+
+            index += stepW;
+        }
+        index += stepH;
+    }
+
+    // Return results
+    *min = minP;
+    *max = maxP;
 }
 
-// Set the image buffer used for generating images so it will be large enough to hold the processed image.
-void imageProcessor::setImageBuff2()
+// Return a pointer to pixel data in the original image data.
+// The position parameter is scaled to the original image size but reflects
+// the displayed rotation and flip options, so it must be transformed first.
+// Return NULL, if there is no image data, or point is beyond end of image data
+const unsigned char* imageProcessor::getImageDataPtr( QPoint& pos )
 {
-    // Do nothing if there are no image dimensions yet
-    if( !imageBuffWidth || !imageBuffHeight )
-        return;
+    QPoint posTr;
 
-    // Determine buffer size
-    unsigned long buffSize = IMAGEBUFF_BYTES_PER_PIXEL * imageBuffWidth * imageBuffHeight;
+    // Transform the position to reflect the original unrotated or flipped data
+    posTr = rotateFlipToDataPoint( pos );
 
-    // Resize buffer
-    imageBuff.resize( buffSize );
+    // Set up reference to start of the data, and the index to the required pixel
+    const unsigned char* data = (unsigned char*)image.constData();
+    int index = (posTr.x()+posTr.y()*imageBuffWidth)*bytesPerPixel;
+
+    // Return a pointer to the pixel data if possible
+    if( !image.isEmpty() && index < image.size() )
+    {
+        return &(data[index]);
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+// Return a number representing a pixel intensity given a pointer into an image data buffer.
+// Note, the pointer is indexed according to the pixel data size which will be at least
+// big enough for the data format.
+int imageProcessor::getPixelValueFromData( const unsigned char* ptr )
+{
+    // Sanity check
+    if( !ptr )
+        return 0;
+
+    // Case the data to the correct size, then return the data as a floating point number.
+    switch( mFormatOption )
+    {
+        case imageDataFormats::BAYERGB:
+        case imageDataFormats::BAYERBG:
+        case imageDataFormats::BAYERGR:
+        case imageDataFormats::BAYERRG:
+        case imageDataFormats::MONO:
+            {
+                unsigned int usableDepth = bitDepth;
+                if( bitDepth > (imageDataSize*8) )
+                {
+                    usableDepth = imageDataSize*8;
+                }
+
+                quint32 mask = (1<<usableDepth)-1;
+
+                return (*((quint32*)ptr))&mask;
+            }
+
+        case imageDataFormats::RGB1:
+            {
+                // for RGB, average all colors
+                unsigned int pixel = *(unsigned int*)ptr;
+                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
+            }
+
+        case imageDataFormats::RGB2:
+            //!!! not done - copy of RGB1
+            {
+                // for RGB, average all colors
+                unsigned int pixel = *(unsigned int*)ptr;
+                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
+            }
+
+        case imageDataFormats::RGB3:
+            //!!! not done - copy of RGB1
+            {
+                // for RGB, average all colors
+                unsigned int pixel = *(unsigned int*)ptr;
+                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
+            }
+
+        case imageDataFormats::YUV444:
+            //!!! not done - copy of RGB1
+            {
+                // for RGB, average all colors
+                unsigned int pixel = *(unsigned int*)ptr;
+                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
+            }
+
+        case imageDataFormats::YUV422:
+            //!!! not done - copy of RGB1
+            {
+                // for RGB, average all colors
+                unsigned int pixel = *(unsigned int*)ptr;
+                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
+            }
+
+        case imageDataFormats::YUV421:
+            //!!! not done - copy of RGB1
+            {
+                // for RGB, average all colors
+                unsigned int pixel = *(unsigned int*)ptr;
+                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
+            }
+    }
+
+    // Avoid compilation warning (not sure why this is required as all cases are handled in switch statements.
+    return *ptr;
+}
+
+// Return a floating point number representing a pixel intensity given a pointer into an image data buffer.
+double imageProcessor::getFloatingPixelValueFromData( const unsigned char* ptr )
+{
+    return getPixelValueFromData( ptr );
+}
+
+// Return a QImage based on the current image
+QImage imageProcessor::copyImage()
+{
+    return QImage((uchar*) imageBuff.constData(), rotatedImageBuffWidth(), rotatedImageBuffHeight(), QImage::Format_RGB32);
 }
 
 // Generate a profile along a line down an image at a given X position
@@ -1641,93 +1842,6 @@ void imageProcessor::generateProfileData( QVector<QPointF>& profileData, QPoint 
     }
 }
 
-// Return a number representing a pixel intensity given a pointer into an image data buffer.
-// Note, the pointer is indexed according to the pixel data size which will be at least
-// big enough for the data format.
-int imageProcessor::getPixelValueFromData( const unsigned char* ptr )
-{
-    // Sanity check
-    if( !ptr )
-        return 0;
-
-    // Case the data to the correct size, then return the data as a floating point number.
-    switch( mFormatOption )
-    {
-        case imageDataFormats::BAYERGB:
-        case imageDataFormats::BAYERBG:
-        case imageDataFormats::BAYERGR:
-        case imageDataFormats::BAYERRG:
-        case imageDataFormats::MONO:
-            {
-                unsigned int usableDepth = bitDepth;
-                if( bitDepth > (imageDataSize*8) )
-                {
-                    usableDepth = imageDataSize*8;
-                }
-
-                quint32 mask = (1<<usableDepth)-1;
-
-                return (*((quint32*)ptr))&mask;
-            }
-
-        case imageDataFormats::RGB1:
-            {
-                // for RGB, average all colors
-                unsigned int pixel = *(unsigned int*)ptr;
-                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
-            }
-
-        case imageDataFormats::RGB2:
-            //!!! not done - copy of RGB1
-            {
-                // for RGB, average all colors
-                unsigned int pixel = *(unsigned int*)ptr;
-                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
-            }
-
-        case imageDataFormats::RGB3:
-            //!!! not done - copy of RGB1
-            {
-                // for RGB, average all colors
-                unsigned int pixel = *(unsigned int*)ptr;
-                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
-            }
-
-        case imageDataFormats::YUV444:
-            //!!! not done - copy of RGB1
-            {
-                // for RGB, average all colors
-                unsigned int pixel = *(unsigned int*)ptr;
-                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
-            }
-
-        case imageDataFormats::YUV422:
-            //!!! not done - copy of RGB1
-            {
-                // for RGB, average all colors
-                unsigned int pixel = *(unsigned int*)ptr;
-                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
-            }
-
-        case imageDataFormats::YUV421:
-            //!!! not done - copy of RGB1
-            {
-                // for RGB, average all colors
-                unsigned int pixel = *(unsigned int*)ptr;
-                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
-            }
-    }
-
-    // Avoid compilation warning (not sure why this is required as all cases are handled in switch statements.
-    return *ptr;
-}
-
-// Return a floating point number representing a pixel intensity given a pointer into an image data buffer.
-double imageProcessor::getFloatingPixelValueFromData( const unsigned char* ptr )
-{
-    return getPixelValueFromData( ptr );
-}
-
 // Transform a rectangle in the displayed image to a rectangle in the
 // original data according to current rotation and flip options.
 QRect imageProcessor::rotateFlipToDataRectangle( const QRect& rect )
@@ -1866,131 +1980,4 @@ QPoint imageProcessor::rotateFlipToImagePoint( const QPoint& pos )
     }
 
     return posTr;
-}
-
-// Return a pointer to pixel data in the original image data.
-// The position parameter is scaled to the original image size but reflects
-// the displayed rotation and flip options, so it must be transformed first.
-// Return NULL, if there is no image data, or point is beyond end of image data
-const unsigned char* imageProcessor::getImageDataPtr( QPoint& pos )
-{
-    QPoint posTr;
-
-    // Transform the position to reflect the original unrotated or flipped data
-    posTr = rotateFlipToDataPoint( pos );
-
-    // Set up reference to start of the data, and the index to the required pixel
-    const unsigned char* data = (unsigned char*)image.constData();
-    int index = (posTr.x()+posTr.y()*imageBuffWidth)*bytesPerPixel;
-
-    // Return a pointer to the pixel data if possible
-    if( !image.isEmpty() && index < image.size() )
-    {
-        return &(data[index]);
-    }
-    else
-    {
-        return NULL;
-    }
-}
-
-// Release the image data
-void imageProcessor::releaseImageData()
-{
-    image.clear();
-}
-
-// Take ownership of the image data
-void imageProcessor::ownImageData()
-{
-    // Force a deep copy of the image data as it will be used while paused if the user
-    // interacts with the image - even by just hovering over it and causing pixel information to be displayed.
-    // For efficiency, the image data was generated from the original update data using QByteArray::fromRawData().
-    // The data system keeps the raw data until the next update so QByteArray instances like 'image' will remain vaild.
-    // The data system discards it and replaces it will the latest data after each update. So if not using the latest
-    // data (such as when paused) the data in 'image' would become stale after an update.
-    image.resize( image.count()+1);
-}
-
-// Return a QImage based on the current image
-QImage imageProcessor::copyImage()
-{
-    return QImage((uchar*) imageBuff.constData(), rotatedImageBuffWidth(), rotatedImageBuffHeight(), QImage::Format_RGB32);
-}
-
-// Set clipping flag. If true, setClippingLow() and setClippingHigh() are used to set clipping values
-void imageProcessor::setClippingOn( bool clippingOnIn )
-{
-    if( clippingOn != clippingOnIn )
-    {
-        clippingOn = clippingOnIn;
-        pixelLookupValid = false;
-    }
-}
-
-// Set pixel value below which low clip colour is displayed
-void imageProcessor::setClippingLow( unsigned int value )
-{
-    if( clippingLow != (unsigned int)value )
-    {
-        clippingLow = value;
-        pixelLookupValid = false;
-    }
-}
-
-// Set pixel value above which high clip colour is displayed
-void imageProcessor::setClippingHigh( unsigned int value )
-{
-    if( clippingHigh != (unsigned int)value )
-    {
-        clippingHigh = value;
-        pixelLookupValid = false;
-    }
-}
-
-// Determine the range of pixel values an area of the image
-void imageProcessor::getPixelRange( const QRect& area, unsigned int* min, unsigned int* max )
-{
-    // If the area selected was the the entire image, and the image was not presented at 100%, rounding areas while scaling
-    // may result in area dimensions outside than the actual image by a pixel or so, so limit the area to within the image.
-    unsigned int areaX = (area.topLeft().x()>=0)?area.topLeft().x():0;
-    unsigned int areaY = (area.topLeft().y()>=0)?area.topLeft().y():0;
-    unsigned int areaW = (area.width() <=(int)rotatedImageBuffWidth() )?area.width() :rotatedImageBuffWidth();
-    unsigned int areaH = (area.height()<=(int)rotatedImageBuffHeight())?area.height():rotatedImageBuffHeight();
-
-    // Set up to step pixel by pixel through the area
-    const unsigned char* data = (unsigned char*)image.constData();
-    unsigned int index = (areaY*rotatedImageBuffWidth()+areaX)*bytesPerPixel;
-
-    // This function is called as the user drags region handles around the
-    // screen. Recalculating min and max pixels for large areas
-    // for each mouse movement event needs to be efficient so speed loop by
-    // extracting width and height. (Compiler can't assume QRect width
-    // and height stays constant so it is evaluated each iteration of for
-    // loop if it was in the form   'for( int i = 0; i < area.height(); i++ )'
-    unsigned int stepW = bytesPerPixel;
-
-    // Calculate the step to the start of the next row in the area selected.
-    unsigned int stepH = (rotatedImageBuffWidth()-areaW)*bytesPerPixel;
-
-    unsigned int maxP = 0;
-    unsigned int minP = UINT_MAX;
-
-    // Determine the maximum and minimum pixel values in the area
-    for( unsigned int i = 0; i < areaH; i++ )
-    {
-        for( unsigned int j = 0; j < areaW; j++ )
-        {
-            unsigned int p = getPixelValueFromData( &(data[index]) );
-            if( p < minP ) minP = p;
-            if( p > maxP ) maxP = p;
-
-            index += stepW;
-        }
-        index += stepH;
-    }
-
-    // Return results
-    *min = minP;
-    *max = maxP;
 }
