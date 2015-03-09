@@ -223,7 +223,7 @@ void QEDragDrop::setAllowDrop( bool allowDropIn )
     owner->setAcceptDrops( allowDrop );
 }
 
-bool QEDragDrop::getAllowDrop()
+bool QEDragDrop::getAllowDrop() const
 {
     return allowDrop;
 }
