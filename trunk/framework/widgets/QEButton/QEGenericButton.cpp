@@ -414,6 +414,49 @@ void QEGenericButton::userClicked( bool checked )
 }
 
 /*
+   Process the QEWidget virtual writeNow hook function.
+   Replicates, to a certain extents part of userPressed, userReleased and userClicked.
+ */
+void QEGenericButton::processWriteNow ( const bool checked )
+{
+    // Get the variable to write to (if any).
+    QEString* qca = (QEString*)getQcaItem(0);
+
+    if( qca ) {
+        QString writeText;
+
+        // Determine the string to write
+        // For now (at least) we assume only one of the witeOnXxxx bools set true.
+        if( writeOnClick )
+        {
+            writeText = checked ? clickCheckedText : clickText;
+        }
+        else if( writeOnPress )
+        {
+            writeText = pressText;
+        }
+        else if( writeOnRelease )
+        {
+            writeText = releaseText;
+        }
+        else
+        {
+            return;   // no write action required
+        }
+        writeText = substituteThis( writeText );
+
+        // Write to the variable
+        QString error;
+        if( !qca->writeString( writeText, error ) )
+        {
+            message_types mt( MESSAGE_TYPE_WARNING, MESSAGE_KIND_EVENT | MESSAGE_KIND_STATUS );
+            error.prepend( qca->getRecordName() + ": " );
+            this->sendMessage( error, mt );
+        }
+    }
+}
+
+/*
   Check the password.
   Return true if there is no password, or if the user enters it correctly.
   Return false if the user cancels, or enteres an incorrect password.

@@ -97,16 +97,45 @@ void QEImage::setup() {
     infoUpdatePaused( paused );
     pauseExternalAction = NULL;
 
-    vSliceThickness = 1;
-    hSliceThickness = 1;
+    vSlice1Thickness = 1;
+    vSlice2Thickness = 1;
+    vSlice3Thickness = 1;
+    vSlice4Thickness = 1;
+    vSlice5Thickness = 1;
+
+    hSlice1Thickness = 1;
+    hSlice2Thickness = 1;
+    hSlice3Thickness = 1;
+    hSlice4Thickness = 1;
+    hSlice5Thickness = 1;
     profileThickness = 1;
 
-    vSliceX = 0;
-    hSliceY = 0;
+    vSlice1X = 0;
+    vSlice2X = 0;
+    vSlice3X = 0;
+    vSlice4X = 0;
+    vSlice5X = 0;
 
-    haveVSliceX = false;
-    haveHSliceY = false;
+    hSlice1Y = 0;
+    hSlice2Y = 0;
+    hSlice3Y = 0;
+    hSlice4Y = 0;
+    hSlice5Y = 0;
+
+    haveVSlice1X = false;
+    haveVSlice2X = false;
+    haveVSlice3X = false;
+    haveVSlice4X = false;
+    haveVSlice5X = false;
+
+    haveHSlice1Y = false;
+    haveHSlice2Y = false;
+    haveHSlice3Y = false;
+    haveHSlice4Y = false;
+    haveHSlice5Y = false;
+
     haveProfileLine = false;
+
     haveSelectedArea1 = false;
     haveSelectedArea2 = false;
     haveSelectedArea3 = false;
@@ -155,8 +184,16 @@ void QEImage::setup() {
 
     // Create the video destination
     videoWidget = new VideoWidget;
-    setVertSliceMarkupColor( QColor(127, 255, 127));
-    setHozSliceMarkupColor(  QColor(255, 100, 100));
+    setVertSlice1MarkupColor( QColor(127, 255, 127));
+    setVertSlice2MarkupColor( QColor(114, 230, 114));  // 90% of slice 1
+    setVertSlice3MarkupColor( QColor(101, 204, 101));  // 80% of slice 1
+    setVertSlice4MarkupColor( QColor( 89, 179,  89));  // 70% of slice 1
+    setVertSlice5MarkupColor( QColor( 76, 153,  76));  // 60% of slice 1
+    setHozSlice1MarkupColor(  QColor(255, 100, 100));
+    setHozSlice2MarkupColor(  QColor(230,  90,  90));  // 90% of slice 1
+    setHozSlice3MarkupColor(  QColor(204,  80,  80));  // 80% of slice 1
+    setHozSlice4MarkupColor(  QColor(179,  70,  70));  // 70% of slice 1
+    setHozSlice5MarkupColor(  QColor(153,  60,  60));  // 60% of slice 1
     setProfileMarkupColor(   QColor(255, 255, 100));
     setAreaMarkupColor(      QColor(100, 100, 255));
     setBeamMarkupColor(      QColor(255,   0,   0));
@@ -579,10 +616,28 @@ qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
         case CLIPPING_LOW_VARIABLE:
         case CLIPPING_HIGH_VARIABLE:
 
-        case PROFILE_H_VARIABLE:
-        case PROFILE_H_THICKNESS_VARIABLE:
-        case PROFILE_V_VARIABLE:
-        case PROFILE_V_THICKNESS_VARIABLE:
+        case PROFILE_H1_VARIABLE:
+        case PROFILE_H1_THICKNESS_VARIABLE:
+        case PROFILE_H2_VARIABLE:
+        case PROFILE_H2_THICKNESS_VARIABLE:
+        case PROFILE_H3_VARIABLE:
+        case PROFILE_H3_THICKNESS_VARIABLE:
+        case PROFILE_H4_VARIABLE:
+        case PROFILE_H4_THICKNESS_VARIABLE:
+        case PROFILE_H5_VARIABLE:
+        case PROFILE_H5_THICKNESS_VARIABLE:
+
+        case PROFILE_V1_VARIABLE:
+        case PROFILE_V1_THICKNESS_VARIABLE:
+        case PROFILE_V2_VARIABLE:
+        case PROFILE_V2_THICKNESS_VARIABLE:
+        case PROFILE_V3_VARIABLE:
+        case PROFILE_V3_THICKNESS_VARIABLE:
+        case PROFILE_V4_VARIABLE:
+        case PROFILE_V4_THICKNESS_VARIABLE:
+        case PROFILE_V5_VARIABLE:
+        case PROFILE_V5_THICKNESS_VARIABLE:
+
         case LINE_PROFILE_X1_VARIABLE:
         case LINE_PROFILE_Y1_VARIABLE:
         case LINE_PROFILE_X2_VARIABLE:
@@ -728,10 +783,26 @@ void QEImage::establishConnection( unsigned int variableIndex ) {
             break;
 
         // Connect to line profile variables
-        case PROFILE_H_VARIABLE:
-        case PROFILE_H_THICKNESS_VARIABLE:
-        case PROFILE_V_VARIABLE:
-        case PROFILE_V_THICKNESS_VARIABLE:
+        case PROFILE_H1_VARIABLE:
+        case PROFILE_H1_THICKNESS_VARIABLE:
+        case PROFILE_H2_VARIABLE:
+        case PROFILE_H2_THICKNESS_VARIABLE:
+        case PROFILE_H3_VARIABLE:
+        case PROFILE_H3_THICKNESS_VARIABLE:
+        case PROFILE_H4_VARIABLE:
+        case PROFILE_H4_THICKNESS_VARIABLE:
+        case PROFILE_H5_VARIABLE:
+        case PROFILE_H5_THICKNESS_VARIABLE:
+        case PROFILE_V1_VARIABLE:
+        case PROFILE_V1_THICKNESS_VARIABLE:
+        case PROFILE_V2_VARIABLE:
+        case PROFILE_V2_THICKNESS_VARIABLE:
+        case PROFILE_V3_VARIABLE:
+        case PROFILE_V3_THICKNESS_VARIABLE:
+        case PROFILE_V4_VARIABLE:
+        case PROFILE_V4_THICKNESS_VARIABLE:
+        case PROFILE_V5_VARIABLE:
+        case PROFILE_V5_THICKNESS_VARIABLE:
         case LINE_PROFILE_X1_VARIABLE:
         case LINE_PROFILE_Y1_VARIABLE:
         case LINE_PROFILE_X2_VARIABLE:
@@ -1062,10 +1133,26 @@ void QEImage::setProfile( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTim
     {
         switch( variableIndex )
         {
-            case PROFILE_H_VARIABLE:              hSliceY = 0;               break;
-            case PROFILE_V_VARIABLE:              vSliceX = 0;               break;
-            case PROFILE_H_THICKNESS_VARIABLE:    hSliceThickness = 1;       break;
-            case PROFILE_V_THICKNESS_VARIABLE:    vSliceThickness = 1;       break;
+            case PROFILE_H1_VARIABLE:             hSlice1Y = 0;              break;
+            case PROFILE_H2_VARIABLE:             hSlice2Y = 0;              break;
+            case PROFILE_H3_VARIABLE:             hSlice3Y = 0;              break;
+            case PROFILE_H4_VARIABLE:             hSlice4Y = 0;              break;
+            case PROFILE_H5_VARIABLE:             hSlice5Y = 0;              break;
+            case PROFILE_V1_VARIABLE:             vSlice1X = 0;              break;
+            case PROFILE_V2_VARIABLE:             vSlice2X = 0;              break;
+            case PROFILE_V3_VARIABLE:             vSlice3X = 0;              break;
+            case PROFILE_V4_VARIABLE:             vSlice4X = 0;              break;
+            case PROFILE_V5_VARIABLE:             vSlice5X = 0;              break;
+            case PROFILE_H1_THICKNESS_VARIABLE:   hSlice1Thickness = 1;      break;
+            case PROFILE_H2_THICKNESS_VARIABLE:   hSlice2Thickness = 1;      break;
+            case PROFILE_H3_THICKNESS_VARIABLE:   hSlice3Thickness = 1;      break;
+            case PROFILE_H4_THICKNESS_VARIABLE:   hSlice4Thickness = 1;      break;
+            case PROFILE_H5_THICKNESS_VARIABLE:   hSlice5Thickness = 1;      break;
+            case PROFILE_V1_THICKNESS_VARIABLE:   vSlice1Thickness = 1;      break;
+            case PROFILE_V2_THICKNESS_VARIABLE:   vSlice2Thickness = 1;      break;
+            case PROFILE_V3_THICKNESS_VARIABLE:   vSlice3Thickness = 1;      break;
+            case PROFILE_V4_THICKNESS_VARIABLE:   vSlice4Thickness = 1;      break;
+            case PROFILE_V5_THICKNESS_VARIABLE:   vSlice5Thickness = 1;      break;
             case LINE_PROFILE_X1_VARIABLE:        lineProfileInfo.clearX1(); break;
             case LINE_PROFILE_Y1_VARIABLE:        lineProfileInfo.clearY1(); break;
             case LINE_PROFILE_X2_VARIABLE:        lineProfileInfo.clearX2(); break;
@@ -1081,10 +1168,26 @@ void QEImage::setProfile( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTim
         // Save the tageting data
         switch( variableIndex )
         {
-            case PROFILE_H_VARIABLE:              hSliceY = value;                 break;
-            case PROFILE_V_VARIABLE:              vSliceX = value;                 break;
-            case PROFILE_H_THICKNESS_VARIABLE:    hSliceThickness = value;         break;
-            case PROFILE_V_THICKNESS_VARIABLE:    vSliceThickness = value;         break;
+            case PROFILE_H1_VARIABLE:             hSlice1Y = value;                break;
+            case PROFILE_H2_VARIABLE:             hSlice2Y = value;                break;
+            case PROFILE_H3_VARIABLE:             hSlice3Y = value;                break;
+            case PROFILE_H4_VARIABLE:             hSlice4Y = value;                break;
+            case PROFILE_H5_VARIABLE:             hSlice5Y = value;                break;
+            case PROFILE_V1_VARIABLE:             vSlice1X = value;                break;
+            case PROFILE_V2_VARIABLE:             vSlice2X = value;                break;
+            case PROFILE_V3_VARIABLE:             vSlice3X = value;                break;
+            case PROFILE_V4_VARIABLE:             vSlice4X = value;                break;
+            case PROFILE_V5_VARIABLE:             vSlice5X = value;                break;
+            case PROFILE_H1_THICKNESS_VARIABLE:   hSlice1Thickness = value;        break;
+            case PROFILE_H2_THICKNESS_VARIABLE:   hSlice2Thickness = value;        break;
+            case PROFILE_H3_THICKNESS_VARIABLE:   hSlice3Thickness = value;        break;
+            case PROFILE_H4_THICKNESS_VARIABLE:   hSlice4Thickness = value;        break;
+            case PROFILE_H5_THICKNESS_VARIABLE:   hSlice5Thickness = value;        break;
+            case PROFILE_V1_THICKNESS_VARIABLE:   vSlice1Thickness = value;        break;
+            case PROFILE_V2_THICKNESS_VARIABLE:   vSlice2Thickness = value;        break;
+            case PROFILE_V3_THICKNESS_VARIABLE:   vSlice3Thickness = value;        break;
+            case PROFILE_V4_THICKNESS_VARIABLE:   vSlice4Thickness = value;        break;
+            case PROFILE_V5_THICKNESS_VARIABLE:   vSlice5Thickness = value;        break;
             case LINE_PROFILE_X1_VARIABLE:        lineProfileInfo.setX1( value );  break;
             case LINE_PROFILE_Y1_VARIABLE:        lineProfileInfo.setY1( value );  break;
             case LINE_PROFILE_X2_VARIABLE:        lineProfileInfo.setX2( value );  break;
@@ -1108,17 +1211,73 @@ void QEImage::useProfileData( const unsigned int& variableIndex )
 {
     switch( variableIndex )
     {
-        case PROFILE_H_VARIABLE:
-            if( sMenu->isEnabled( imageContextMenu::ICM_SELECT_HSLICE ) )
+        case PROFILE_H1_VARIABLE:
+            if( sMenu->isEnabled( imageContextMenu::ICM_SELECT_HSLICE1 ) )
             {
-                videoWidget->markupHProfileChange( hSliceY, displayMarkups );
+                videoWidget->markupH1ProfileChange( hSlice1Y, displayMarkups );
             }
             break;
 
-        case PROFILE_V_VARIABLE:
-            if( sMenu->isEnabled( imageContextMenu::ICM_SELECT_VSLICE ) )
+        case PROFILE_H2_VARIABLE:
+            if( sMenu->isEnabled( imageContextMenu::ICM_SELECT_HSLICE2 ) )
             {
-                videoWidget->markupVProfileChange(  vSliceX, displayMarkups );
+                videoWidget->markupH2ProfileChange( hSlice2Y, displayMarkups );
+            }
+            break;
+
+        case PROFILE_H3_VARIABLE:
+            if( sMenu->isEnabled( imageContextMenu::ICM_SELECT_HSLICE3 ) )
+            {
+                videoWidget->markupH3ProfileChange( hSlice3Y, displayMarkups );
+            }
+            break;
+
+        case PROFILE_H4_VARIABLE:
+            if( sMenu->isEnabled( imageContextMenu::ICM_SELECT_HSLICE4 ) )
+            {
+                videoWidget->markupH4ProfileChange( hSlice4Y, displayMarkups );
+            }
+            break;
+
+        case PROFILE_H5_VARIABLE:
+            if( sMenu->isEnabled( imageContextMenu::ICM_SELECT_HSLICE5 ) )
+            {
+                videoWidget->markupH5ProfileChange( hSlice5Y, displayMarkups );
+            }
+            break;
+
+        case PROFILE_V1_VARIABLE:
+            if( sMenu->isEnabled( imageContextMenu::ICM_SELECT_VSLICE1 ) )
+            {
+                videoWidget->markupV1ProfileChange(  vSlice1X, displayMarkups );
+            }
+            break;
+
+        case PROFILE_V2_VARIABLE:
+            if( sMenu->isEnabled( imageContextMenu::ICM_SELECT_VSLICE2 ) )
+            {
+                videoWidget->markupV2ProfileChange(  vSlice2X, displayMarkups );
+            }
+            break;
+
+        case PROFILE_V3_VARIABLE:
+            if( sMenu->isEnabled( imageContextMenu::ICM_SELECT_VSLICE3 ) )
+            {
+                videoWidget->markupV3ProfileChange(  vSlice3X, displayMarkups );
+            }
+            break;
+
+        case PROFILE_V4_VARIABLE:
+            if( sMenu->isEnabled( imageContextMenu::ICM_SELECT_VSLICE4 ) )
+            {
+                videoWidget->markupV4ProfileChange(  vSlice4X, displayMarkups );
+            }
+            break;
+
+        case PROFILE_V5_VARIABLE:
+            if( sMenu->isEnabled( imageContextMenu::ICM_SELECT_VSLICE5 ) )
+            {
+                videoWidget->markupV5ProfileChange(  vSlice5X, displayMarkups );
             }
             break;
 
@@ -1280,8 +1439,16 @@ void QEImage::useAllMarkupData()
     useROIData( ROI4_W_VARIABLE );
     useROIData( ROI4_H_VARIABLE );
 
-    useProfileData( PROFILE_H_VARIABLE);
-    useProfileData( PROFILE_V_VARIABLE );
+    useProfileData( PROFILE_H1_VARIABLE);
+    useProfileData( PROFILE_H2_VARIABLE);
+    useProfileData( PROFILE_H3_VARIABLE);
+    useProfileData( PROFILE_H4_VARIABLE);
+    useProfileData( PROFILE_H5_VARIABLE);
+    useProfileData( PROFILE_V1_VARIABLE );
+    useProfileData( PROFILE_V2_VARIABLE );
+    useProfileData( PROFILE_V3_VARIABLE );
+    useProfileData( PROFILE_V4_VARIABLE );
+    useProfileData( PROFILE_V5_VARIABLE );
     useProfileData( LINE_PROFILE_X1_VARIABLE ); //!!! all 4 of these requried???
     useProfileData( LINE_PROFILE_Y1_VARIABLE );
     useProfileData( LINE_PROFILE_X2_VARIABLE );
@@ -1561,13 +1728,13 @@ void QEImage::setImageFile( QString name )
 // This is called after displaying the image.
 void QEImage::updateMarkupData()
 {
-    if( haveVSliceX )
+    if( haveVSlice1X )
     {
-        generateVSlice( vSliceX, vSliceThickness );
+        generateVSlice( vSlice1X, vSlice1Thickness );
     }
-    if( haveHSliceY )
+    if( haveHSlice1Y )
     {
-        generateHSlice( hSliceY, hSliceThickness );
+        generateHSlice( hSlice1Y, hSlice1Thickness );
     }
     if( haveProfileLine )
     {
@@ -1781,30 +1948,142 @@ void QEImage::lineProfileChanged()
     return;
 }
 
-// Horizontal line profile changed
-void QEImage::hozProfileChanged()
+// Horizontal line profile 1 changed
+void QEImage::hozProfile1Changed()
 {
-    // Write the horizontal line profile variable.
+    // Write the horizontal line 1 profile variable.
     QEInteger *qca;
-    qca = (QEInteger*)getQcaItem( PROFILE_H_VARIABLE );
-    if( qca ) qca->writeInteger( hSliceY );
+    qca = (QEInteger*)getQcaItem( PROFILE_H1_VARIABLE );
+    if( qca ) qca->writeInteger( hSlice1Y );
 
-    qca = (QEInteger*)getQcaItem( PROFILE_H_THICKNESS_VARIABLE );
-    if( qca ) qca->writeInteger( hSliceThickness );
+    qca = (QEInteger*)getQcaItem( PROFILE_H1_THICKNESS_VARIABLE );
+    if( qca ) qca->writeInteger( hSlice1Thickness );
 
     return;
 }
 
-// Vertical line profile changed
-void QEImage::vertProfileChanged()
+// Horizontal line profile 2 changed
+void QEImage::hozProfile2Changed()
 {
-    // Write the horizontal line profile variable.
+    // Write the horizontal line 2 profile variable.
     QEInteger *qca;
-    qca = (QEInteger*)getQcaItem( PROFILE_V_VARIABLE );
-    if( qca ) qca->writeInteger( vSliceX );
+    qca = (QEInteger*)getQcaItem( PROFILE_H2_VARIABLE );
+    if( qca ) qca->writeInteger( hSlice2Y );
 
-    qca = (QEInteger*)getQcaItem( PROFILE_V_THICKNESS_VARIABLE );
-    if( qca ) qca->writeInteger( vSliceThickness );
+    qca = (QEInteger*)getQcaItem( PROFILE_H2_THICKNESS_VARIABLE );
+    if( qca ) qca->writeInteger( hSlice2Thickness );
+
+    return;
+}
+
+// Horizontal line profile 3 changed
+void QEImage::hozProfile3Changed()
+{
+    // Write the horizontal line 3 profile variable.
+    QEInteger *qca;
+    qca = (QEInteger*)getQcaItem( PROFILE_H3_VARIABLE );
+    if( qca ) qca->writeInteger( hSlice3Y );
+
+    qca = (QEInteger*)getQcaItem( PROFILE_H3_THICKNESS_VARIABLE );
+    if( qca ) qca->writeInteger( hSlice3Thickness );
+
+    return;
+}
+
+// Horizontal line profile 4 changed
+void QEImage::hozProfile4Changed()
+{
+    // Write the horizontal line 4 profile variable.
+    QEInteger *qca;
+    qca = (QEInteger*)getQcaItem( PROFILE_H4_VARIABLE );
+    if( qca ) qca->writeInteger( hSlice4Y );
+
+    qca = (QEInteger*)getQcaItem( PROFILE_H4_THICKNESS_VARIABLE );
+    if( qca ) qca->writeInteger( hSlice4Thickness );
+
+    return;
+}
+
+// Horizontal line profile 5 changed
+void QEImage::hozProfile5Changed()
+{
+    // Write the horizontal line 4 profile variable.
+    QEInteger *qca;
+    qca = (QEInteger*)getQcaItem( PROFILE_H5_VARIABLE );
+    if( qca ) qca->writeInteger( hSlice5Y );
+
+    qca = (QEInteger*)getQcaItem( PROFILE_H5_THICKNESS_VARIABLE );
+    if( qca ) qca->writeInteger( hSlice5Thickness );
+
+    return;
+}
+
+// Vertical line profile 1 changed
+void QEImage::vertProfile1Changed()
+{
+    // Write the vertical line profile variable.
+    QEInteger *qca;
+    qca = (QEInteger*)getQcaItem( PROFILE_V1_VARIABLE );
+    if( qca ) qca->writeInteger( vSlice1X );
+
+    qca = (QEInteger*)getQcaItem( PROFILE_V1_THICKNESS_VARIABLE );
+    if( qca ) qca->writeInteger( vSlice1Thickness );
+
+    return;
+}
+
+// Vertical line profile 2 changed
+void QEImage::vertProfile2Changed()
+{
+    // Write the vertical line 2 profile variable.
+    QEInteger *qca;
+    qca = (QEInteger*)getQcaItem( PROFILE_V2_VARIABLE );
+    if( qca ) qca->writeInteger( vSlice2X );
+
+    qca = (QEInteger*)getQcaItem( PROFILE_V2_THICKNESS_VARIABLE );
+    if( qca ) qca->writeInteger( vSlice2Thickness );
+
+    return;
+}
+
+// Vertical line profile 3 changed
+void QEImage::vertProfile3Changed()
+{
+    // Write the vertical line 3 profile variable.
+    QEInteger *qca;
+    qca = (QEInteger*)getQcaItem( PROFILE_V3_VARIABLE );
+    if( qca ) qca->writeInteger( vSlice3X );
+
+    qca = (QEInteger*)getQcaItem( PROFILE_V3_THICKNESS_VARIABLE );
+    if( qca ) qca->writeInteger( vSlice3Thickness );
+
+    return;
+}
+
+// Vertical line profile 4 changed
+void QEImage::vertProfile4Changed()
+{
+    // Write the vertical line 4 profile variable.
+    QEInteger *qca;
+    qca = (QEInteger*)getQcaItem( PROFILE_V4_VARIABLE );
+    if( qca ) qca->writeInteger( vSlice4X );
+
+    qca = (QEInteger*)getQcaItem( PROFILE_V4_THICKNESS_VARIABLE );
+    if( qca ) qca->writeInteger( vSlice4Thickness );
+
+    return;
+}
+
+// Vertical line profile 5 changed
+void QEImage::vertProfile5Changed()
+{
+    // Write the vertical line 5 profile variable.
+    QEInteger *qca;
+    qca = (QEInteger*)getQcaItem( PROFILE_V5_VARIABLE );
+    if( qca ) qca->writeInteger( vSlice5X );
+
+    qca = (QEInteger*)getQcaItem( PROFILE_V5_THICKNESS_VARIABLE );
+    if( qca ) qca->writeInteger( vSlice5Thickness );
 
     return;
 }
@@ -1954,47 +2233,223 @@ void QEImage::doContrastReversal( bool /*contrastReversal*/ )
     redraw();
 }
 
-// Manage vertical slice selection
-void QEImage::doEnableVertSliceSelection( bool enableVSliceSelection )
+// Manage vertical slice 1 selection
+void QEImage::doEnableVertSlice1Selection( bool enableVSliceSelection )
 {
-    sMenu->enable( imageContextMenu::ICM_SELECT_VSLICE, enableVSliceSelection );
-    mdMenu->enable( imageContextMenu::ICM_DISPLAY_VSLICE, enableVSliceSelection );
+    sMenu->enable( imageContextMenu::ICM_SELECT_VSLICE1, enableVSliceSelection );
+    mdMenu->enable( imageContextMenu::ICM_DISPLAY_VSLICE1, enableVSliceSelection );
 
     // If disabling, and it is the current mode, then default to panning
     if( !enableVSliceSelection )
     {
-        if( getSelectionOption() == SO_VSLICE )
+        if( getSelectionOption() == SO_VSLICE1 )
         {
             sMenu->setChecked( QEImage::SO_PANNING );
             panModeClicked();
         }
-        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_V_SLICE );
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_V1_SLICE );
     }
     else
     {
-        videoWidget->showMarkup( imageMarkup::MARKUP_ID_V_SLICE );
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_V1_SLICE );
     }
 }
 
-// Enable horizontal slice selection
-void QEImage::doEnableHozSliceSelection( bool enableHSliceSelection )
+// Manage vertical slice 2 selection
+void QEImage::doEnableVertSlice2Selection( bool enableVSliceSelection )
 {
-    sMenu->enable( imageContextMenu::ICM_SELECT_HSLICE, enableHSliceSelection );
-    mdMenu->enable( imageContextMenu::ICM_DISPLAY_HSLICE, enableHSliceSelection );
+    sMenu->enable( imageContextMenu::ICM_SELECT_VSLICE2, enableVSliceSelection );
+    mdMenu->enable( imageContextMenu::ICM_DISPLAY_VSLICE2, enableVSliceSelection );
+
+    // If disabling, and it is the current mode, then default to panning
+    if( !enableVSliceSelection )
+    {
+        if( getSelectionOption() == SO_VSLICE2 )
+        {
+            sMenu->setChecked( QEImage::SO_PANNING );
+            panModeClicked();
+        }
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_V2_SLICE );
+    }
+    else
+    {
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_V2_SLICE );
+    }
+}
+
+// Manage vertical slice 3 selection
+void QEImage::doEnableVertSlice3Selection( bool enableVSliceSelection )
+{
+    sMenu->enable( imageContextMenu::ICM_SELECT_VSLICE3, enableVSliceSelection );
+    mdMenu->enable( imageContextMenu::ICM_DISPLAY_VSLICE3, enableVSliceSelection );
+
+    // If disabling, and it is the current mode, then default to panning
+    if( !enableVSliceSelection )
+    {
+        if( getSelectionOption() == SO_VSLICE3 )
+        {
+            sMenu->setChecked( QEImage::SO_PANNING );
+            panModeClicked();
+        }
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_V3_SLICE );
+    }
+    else
+    {
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_V3_SLICE );
+    }
+}
+
+// Manage vertical slice 4 selection
+void QEImage::doEnableVertSlice4Selection( bool enableVSliceSelection )
+{
+    sMenu->enable( imageContextMenu::ICM_SELECT_VSLICE4, enableVSliceSelection );
+    mdMenu->enable( imageContextMenu::ICM_DISPLAY_VSLICE4, enableVSliceSelection );
+
+    // If disabling, and it is the current mode, then default to panning
+    if( !enableVSliceSelection )
+    {
+        if( getSelectionOption() == SO_VSLICE4 )
+        {
+            sMenu->setChecked( QEImage::SO_PANNING );
+            panModeClicked();
+        }
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_V4_SLICE );
+    }
+    else
+    {
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_V4_SLICE );
+    }
+}
+
+// Manage vertical slice selection
+void QEImage::doEnableVertSlice5Selection( bool enableVSliceSelection )
+{
+    sMenu->enable( imageContextMenu::ICM_SELECT_VSLICE5, enableVSliceSelection );
+    mdMenu->enable( imageContextMenu::ICM_DISPLAY_VSLICE5, enableVSliceSelection );
+
+    // If disabling, and it is the current mode, then default to panning
+    if( !enableVSliceSelection )
+    {
+        if( getSelectionOption() == SO_VSLICE5 )
+        {
+            sMenu->setChecked( QEImage::SO_PANNING );
+            panModeClicked();
+        }
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_V5_SLICE );
+    }
+    else
+    {
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_V5_SLICE );
+    }
+}
+
+// Enable horizontal slice 1 selection
+void QEImage::doEnableHozSlice1Selection( bool enableHSliceSelection )
+{
+    sMenu->enable( imageContextMenu::ICM_SELECT_HSLICE1, enableHSliceSelection );
+    mdMenu->enable( imageContextMenu::ICM_DISPLAY_HSLICE1, enableHSliceSelection );
 
     // If disabling, and it is the current mode, then default to panning
     if( !enableHSliceSelection )
     {
-        if( getSelectionOption() == SO_HSLICE )
+        if( getSelectionOption() == SO_HSLICE1 )
         {
             sMenu->setChecked( QEImage::SO_PANNING );
             panModeClicked();
         }
-        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_H_SLICE );
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_H1_SLICE );
     }
     else
     {
-        videoWidget->showMarkup( imageMarkup::MARKUP_ID_H_SLICE );
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_H1_SLICE );
+    }
+}
+
+// Enable horizontal slice 2 selection
+void QEImage::doEnableHozSlice2Selection( bool enableHSliceSelection )
+{
+    sMenu->enable( imageContextMenu::ICM_SELECT_HSLICE2, enableHSliceSelection );
+    mdMenu->enable( imageContextMenu::ICM_DISPLAY_HSLICE2, enableHSliceSelection );
+
+    // If disabling, and it is the current mode, then default to panning
+    if( !enableHSliceSelection )
+    {
+        if( getSelectionOption() == SO_HSLICE2 )
+        {
+            sMenu->setChecked( QEImage::SO_PANNING );
+            panModeClicked();
+        }
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_H2_SLICE );
+    }
+    else
+    {
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_H2_SLICE );
+    }
+}
+
+// Enable horizontal slice 3 selection
+void QEImage::doEnableHozSlice3Selection( bool enableHSliceSelection )
+{
+    sMenu->enable( imageContextMenu::ICM_SELECT_HSLICE3, enableHSliceSelection );
+    mdMenu->enable( imageContextMenu::ICM_DISPLAY_HSLICE3, enableHSliceSelection );
+
+    // If disabling, and it is the current mode, then default to panning
+    if( !enableHSliceSelection )
+    {
+        if( getSelectionOption() == SO_HSLICE3 )
+        {
+            sMenu->setChecked( QEImage::SO_PANNING );
+            panModeClicked();
+        }
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_H3_SLICE );
+    }
+    else
+    {
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_H3_SLICE );
+    }
+}
+
+// Enable horizontal slice 4 selection
+void QEImage::doEnableHozSlice4Selection( bool enableHSliceSelection )
+{
+    sMenu->enable( imageContextMenu::ICM_SELECT_HSLICE4, enableHSliceSelection );
+    mdMenu->enable( imageContextMenu::ICM_DISPLAY_HSLICE4, enableHSliceSelection );
+
+    // If disabling, and it is the current mode, then default to panning
+    if( !enableHSliceSelection )
+    {
+        if( getSelectionOption() == SO_HSLICE4 )
+        {
+            sMenu->setChecked( QEImage::SO_PANNING );
+            panModeClicked();
+        }
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_H4_SLICE );
+    }
+    else
+    {
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_H4_SLICE );
+    }
+}
+
+// Enable horizontal slice 5 selection
+void QEImage::doEnableHozSlice5Selection( bool enableHSliceSelection )
+{
+    sMenu->enable( imageContextMenu::ICM_SELECT_HSLICE5, enableHSliceSelection );
+    mdMenu->enable( imageContextMenu::ICM_DISPLAY_HSLICE5, enableHSliceSelection );
+
+    // If disabling, and it is the current mode, then default to panning
+    if( !enableHSliceSelection )
+    {
+        if( getSelectionOption() == SO_HSLICE5 )
+        {
+            sMenu->setChecked( QEImage::SO_PANNING );
+            panModeClicked();
+        }
+        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_H5_SLICE );
+    }
+    else
+    {
+        videoWidget->showMarkup( imageMarkup::MARKUP_ID_H5_SLICE );
     }
 }
 
@@ -2016,9 +2471,9 @@ void QEImage::doEnableAreaSelection( /*imageContextMenu::imageContextMenuOptions
     if( !enableAreaSelection )
     {
         if( ( ( getSelectionOption() == SO_AREA1 ) ||
-            ( getSelectionOption() == SO_AREA2 ) ||
-            ( getSelectionOption() == SO_AREA3 ) ||
-            ( getSelectionOption() == SO_AREA4 )))
+              ( getSelectionOption() == SO_AREA2 ) ||
+              ( getSelectionOption() == SO_AREA3 ) ||
+              ( getSelectionOption() == SO_AREA4 )))
         {
             sMenu->setChecked( QEImage::SO_PANNING );
             panModeClicked();
@@ -2358,26 +2813,114 @@ bool QEImage::getUseFalseColour()
     return imageDisplayProps->getFalseColour();
 }
 
-// Vertical slice markup colour
-void QEImage::setVertSliceMarkupColor(QColor markupColor )
+// Vertical slice 1 markup colour
+void QEImage::setVertSlice1MarkupColor(QColor markupColor )
 {
-    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_V_SLICE, markupColor );
+    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_V1_SLICE, markupColor );
 }
 
-QColor QEImage::getVertSliceMarkupColor()
+QColor QEImage::getVertSlice1MarkupColor()
 {
-    return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_V_SLICE );
+    return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_V1_SLICE );
 }
 
-// Horizontal slice markup colour
-void QEImage::setHozSliceMarkupColor(QColor markupColor )
+// Vertical slice 2markup colour
+void QEImage::setVertSlice2MarkupColor(QColor markupColor )
 {
-    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_H_SLICE, markupColor );
+    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_V2_SLICE, markupColor );
 }
 
-QColor QEImage::getHozSliceMarkupColor()
+QColor QEImage::getVertSlice2MarkupColor()
 {
-    return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_H_SLICE );
+    return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_V2_SLICE );
+}
+
+// Vertical slice 3 markup colour
+void QEImage::setVertSlice3MarkupColor(QColor markupColor )
+{
+    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_V3_SLICE, markupColor );
+}
+
+QColor QEImage::getVertSlice3MarkupColor()
+{
+    return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_V3_SLICE );
+}
+
+// Vertical slice 4 markup colour
+void QEImage::setVertSlice4MarkupColor(QColor markupColor )
+{
+    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_V4_SLICE, markupColor );
+}
+
+QColor QEImage::getVertSlice4MarkupColor()
+{
+    return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_V4_SLICE );
+}
+
+// Vertical slice 5 markup colour
+void QEImage::setVertSlice5MarkupColor(QColor markupColor )
+{
+    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_V5_SLICE, markupColor );
+}
+
+QColor QEImage::getVertSlice5MarkupColor()
+{
+    return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_V5_SLICE );
+}
+
+// Horizontal slice 1 markup colour
+void QEImage::setHozSlice1MarkupColor(QColor markupColor )
+{
+    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_H1_SLICE, markupColor );
+}
+
+QColor QEImage::getHozSlice1MarkupColor()
+{
+    return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_H1_SLICE );
+}
+
+// Horizontal slice 2 markup colour
+void QEImage::setHozSlice2MarkupColor(QColor markupColor )
+{
+    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_H2_SLICE, markupColor );
+}
+
+QColor QEImage::getHozSlice2MarkupColor()
+{
+    return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_H2_SLICE );
+}
+
+// Horizontal slice 3 markup colour
+void QEImage::setHozSlice3MarkupColor(QColor markupColor )
+{
+    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_H3_SLICE, markupColor );
+}
+
+QColor QEImage::getHozSlice3MarkupColor()
+{
+    return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_H3_SLICE );
+}
+
+// Horizontal slice 4 markup colour
+void QEImage::setHozSlice4MarkupColor(QColor markupColor )
+{
+    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_H4_SLICE, markupColor );
+}
+
+QColor QEImage::getHozSlice4MarkupColor()
+{
+    return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_H4_SLICE );
+}
+
+// Horizontal slice 5 markup colour
+void QEImage::setHozSlice5MarkupColor(QColor markupColor )
+{
+    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_H5_SLICE, markupColor );
+}
+
+QColor QEImage::getHozSlice5MarkupColor()
+{
+    return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_H5_SLICE );
 }
 
 // Profile markup colour
@@ -2493,26 +3036,114 @@ bool QEImage::getLog()
     return imageDisplayProps->getLog();
 }
 
-// Enable vertical slice selection
-void QEImage::setEnableVertSliceSelection( bool enableVSliceSelection )
+// Enable vertical slice 1 selection
+void QEImage::setEnableVertSlice1Selection( bool enableVSliceSelection )
 {
-    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_VERT, enableVSliceSelection );
+    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_VERT1, enableVSliceSelection );
 }
 
-bool QEImage::getEnableVertSliceSelection()
+bool QEImage::getEnableVertSlice1Selection()
 {
-    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_VERT );
+    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_VERT1 );
 }
 
-// Enable horizontal slice selection
-void QEImage::setEnableHozSliceSelection( bool enableHSliceSelection )
+// Enable vertical slice 2 selection
+void QEImage::setEnableVertSlice2Selection( bool enableVSliceSelection )
 {
-    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_HOZ, enableHSliceSelection );
+    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_VERT2, enableVSliceSelection );
 }
 
-bool QEImage::getEnableHozSliceSelection()
+bool QEImage::getEnableVertSlice2Selection()
 {
-    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_HOZ );
+    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_VERT2 );
+}
+
+// Enable vertical slice 3 selection
+void QEImage::setEnableVertSlice3Selection( bool enableVSliceSelection )
+{
+    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_VERT3, enableVSliceSelection );
+}
+
+bool QEImage::getEnableVertSlice3Selection()
+{
+    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_VERT3 );
+}
+
+// Enable vertical slice 4 selection
+void QEImage::setEnableVertSlice4Selection( bool enableVSliceSelection )
+{
+    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_VERT4, enableVSliceSelection );
+}
+
+bool QEImage::getEnableVertSlice4Selection()
+{
+    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_VERT4 );
+}
+
+// Enable vertical slice 5 selection
+void QEImage::setEnableVertSlice5Selection( bool enableVSliceSelection )
+{
+    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_VERT5, enableVSliceSelection );
+}
+
+bool QEImage::getEnableVertSlice5Selection()
+{
+    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_VERT5 );
+}
+
+// Enable horizontal slice 1 selection
+void QEImage::setEnableHozSlice1Selection( bool enableHSliceSelection )
+{
+    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_HOZ1, enableHSliceSelection );
+}
+
+bool QEImage::getEnableHozSlice1Selection()
+{
+    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_HOZ1 );
+}
+
+// Enable horizontal slice 2 selection
+void QEImage::setEnableHozSlice2Selection( bool enableHSliceSelection )
+{
+    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_HOZ2, enableHSliceSelection );
+}
+
+bool QEImage::getEnableHozSlice2Selection()
+{
+    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_HOZ2 );
+}
+
+// Enable horizontal slice 3 selection
+void QEImage::setEnableHozSlice3Selection( bool enableHSliceSelection )
+{
+    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_HOZ3, enableHSliceSelection );
+}
+
+bool QEImage::getEnableHozSlice3Selection()
+{
+    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_HOZ3 );
+}
+
+// Enable horizontal slice 4 selection
+void QEImage::setEnableHozSlice4Selection( bool enableHSliceSelection )
+{
+    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_HOZ4, enableHSliceSelection );
+}
+
+bool QEImage::getEnableHozSlice4Selection()
+{
+    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_HOZ4 );
+}
+
+// Enable horizontal slice 5 selection
+void QEImage::setEnableHozSlice5Selection( bool enableHSliceSelection )
+{
+    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_HOZ4, enableHSliceSelection );
+}
+
+bool QEImage::getEnableHozSlice5Selection()
+{
+    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_HOZ4 );
 }
 
 // Enable area 1 selection (used for ROI and zoom)
@@ -2630,26 +3261,114 @@ bool QEImage::getEnableVertSlicePresentation()
 
 //=====================
 
-// Display vertical slice selection
-void QEImage::setDisplayVertSliceSelection( bool displayVSliceSelection )
+// Display vertical slice 1 selection
+void QEImage::setDisplayVertSlice1Selection( bool displayVSliceSelection )
 {
-    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_V_SLICE, displayVSliceSelection );
+    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_V1_SLICE, displayVSliceSelection );
 }
 
-bool QEImage::getDisplayVertSliceSelection()
+bool QEImage::getDisplayVertSlice1Selection()
 {
-    return videoWidget->isMarkupVisible( imageMarkup::MARKUP_ID_V_SLICE );
+    return videoWidget->isMarkupVisible( imageMarkup::MARKUP_ID_V1_SLICE );
 }
 
-// Display horizontal slice selection
-void QEImage::setDisplayHozSliceSelection( bool displayHSliceSelection )
+// Display vertical slice 2 selection
+void QEImage::setDisplayVertSlice2Selection( bool displayVSliceSelection )
 {
-    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_H_SLICE, displayHSliceSelection );
+    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_V2_SLICE, displayVSliceSelection );
 }
 
-bool QEImage::getDisplayHozSliceSelection()
+bool QEImage::getDisplayVertSlice2Selection()
 {
-    return videoWidget->isMarkupVisible( imageMarkup::MARKUP_ID_H_SLICE );
+    return videoWidget->isMarkupVisible( imageMarkup::MARKUP_ID_V2_SLICE );
+}
+
+// Display vertical slice 3 selection
+void QEImage::setDisplayVertSlice3Selection( bool displayVSliceSelection )
+{
+    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_V3_SLICE, displayVSliceSelection );
+}
+
+bool QEImage::getDisplayVertSlice3Selection()
+{
+    return videoWidget->isMarkupVisible( imageMarkup::MARKUP_ID_V3_SLICE );
+}
+
+// Display vertical slice 4 selection
+void QEImage::setDisplayVertSlice4Selection( bool displayVSliceSelection )
+{
+    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_V4_SLICE, displayVSliceSelection );
+}
+
+bool QEImage::getDisplayVertSlice4Selection()
+{
+    return videoWidget->isMarkupVisible( imageMarkup::MARKUP_ID_V4_SLICE );
+}
+
+// Display vertical slice 5 selection
+void QEImage::setDisplayVertSlice5Selection( bool displayVSliceSelection )
+{
+    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_V5_SLICE, displayVSliceSelection );
+}
+
+bool QEImage::getDisplayVertSlice5Selection()
+{
+    return videoWidget->isMarkupVisible( imageMarkup::MARKUP_ID_V5_SLICE );
+}
+
+// Display horizontal slice 1 selection
+void QEImage::setDisplayHozSlice1Selection( bool displayHSliceSelection )
+{
+    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_H1_SLICE, displayHSliceSelection );
+}
+
+bool QEImage::getDisplayHozSlice1Selection()
+{
+    return videoWidget->isMarkupVisible( imageMarkup::MARKUP_ID_H1_SLICE );
+}
+
+// Display horizontal slice 2 selection
+void QEImage::setDisplayHozSlice2Selection( bool displayHSliceSelection )
+{
+    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_H2_SLICE, displayHSliceSelection );
+}
+
+bool QEImage::getDisplayHozSlice2Selection()
+{
+    return videoWidget->isMarkupVisible( imageMarkup::MARKUP_ID_H2_SLICE );
+}
+
+// Display horizontal slice 3 selection
+void QEImage::setDisplayHozSlice3Selection( bool displayHSliceSelection )
+{
+    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_H3_SLICE, displayHSliceSelection );
+}
+
+bool QEImage::getDisplayHozSlice3Selection()
+{
+    return videoWidget->isMarkupVisible( imageMarkup::MARKUP_ID_H3_SLICE );
+}
+
+// Display horizontal slice 4 selection
+void QEImage::setDisplayHozSlice4Selection( bool displayHSliceSelection )
+{
+    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_H4_SLICE, displayHSliceSelection );
+}
+
+bool QEImage::getDisplayHozSlice4Selection()
+{
+    return videoWidget->isMarkupVisible( imageMarkup::MARKUP_ID_H4_SLICE );
+}
+
+// Display horizontal slice 5 selection
+void QEImage::setDisplayHozSlice5Selection( bool displayHSliceSelection )
+{
+    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_H5_SLICE, displayHSliceSelection );
+}
+
+bool QEImage::getDisplayHozSlice5Selection()
+{
+    return videoWidget->isMarkupVisible( imageMarkup::MARKUP_ID_H5_SLICE );
 }
 
 // Display area 1 selection (used for ROI and zoom)
@@ -2844,14 +3563,46 @@ void QEImage::setProgramStartupOption2( applicationLauncher::programStartupOptio
 applicationLauncher::programStartupOptions QEImage::getProgramStartupOption2(){ return programLauncher2.getProgramStartupOption(); }
 
 // Legends
-QString QEImage::getHozSliceLegend()                      { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_H_SLICE );        }
-void    QEImage::setHozSliceLegend      ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_H_SLICE, legend );
-                                                                   mdMenu->setItemText( imageContextMenu::ICM_DISPLAY_HSLICE, legend );
-                                                                   sMenu->setItemText( imageContextMenu::ICM_SELECT_HSLICE, legend ); }
-QString QEImage::getVertSliceLegend()                     { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_V_SLICE );        }
-void    QEImage::setVertSliceLegend     ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_V_SLICE, legend );
-                                                                   mdMenu->setItemText( imageContextMenu::ICM_DISPLAY_VSLICE, legend );
-                                                                   sMenu->setItemText( imageContextMenu::ICM_SELECT_VSLICE, legend ); }
+QString QEImage::getHozSlice1Legend()                      { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_H1_SLICE );        }
+void    QEImage::setHozSlice1Legend      ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_H1_SLICE, legend );
+                                                                   mdMenu->setItemText( imageContextMenu::ICM_DISPLAY_HSLICE1, legend );
+                                                                   sMenu->setItemText( imageContextMenu::ICM_SELECT_HSLICE1, legend ); }
+QString QEImage::getHozSlice2Legend()                      { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_H2_SLICE );        }
+void    QEImage::setHozSlice2Legend      ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_H2_SLICE, legend );
+                                                                   mdMenu->setItemText( imageContextMenu::ICM_DISPLAY_HSLICE2, legend );
+                                                                   sMenu->setItemText( imageContextMenu::ICM_SELECT_HSLICE2, legend ); }
+QString QEImage::getHozSlice3Legend()                      { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_H3_SLICE );        }
+void    QEImage::setHozSlice3Legend      ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_H3_SLICE, legend );
+                                                                   mdMenu->setItemText( imageContextMenu::ICM_DISPLAY_HSLICE3, legend );
+                                                                   sMenu->setItemText( imageContextMenu::ICM_SELECT_HSLICE3, legend ); }
+QString QEImage::getHozSlice4Legend()                      { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_H4_SLICE );        }
+void    QEImage::setHozSlice4Legend      ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_H4_SLICE, legend );
+                                                                   mdMenu->setItemText( imageContextMenu::ICM_DISPLAY_HSLICE4, legend );
+                                                                   sMenu->setItemText( imageContextMenu::ICM_SELECT_HSLICE4, legend ); }
+QString QEImage::getHozSlice5Legend()                      { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_H5_SLICE );        }
+void    QEImage::setHozSlice5Legend      ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_H5_SLICE, legend );
+                                                                   mdMenu->setItemText( imageContextMenu::ICM_DISPLAY_HSLICE5, legend );
+                                                                   sMenu->setItemText( imageContextMenu::ICM_SELECT_HSLICE5, legend ); }
+QString QEImage::getVertSlice1Legend()                     { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_V1_SLICE );        }
+void    QEImage::setVertSlice1Legend     ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_V1_SLICE, legend );
+                                                                   mdMenu->setItemText( imageContextMenu::ICM_DISPLAY_VSLICE1, legend );
+                                                                   sMenu->setItemText( imageContextMenu::ICM_SELECT_VSLICE1, legend ); }
+QString QEImage::getVertSlice2Legend()                     { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_V2_SLICE );        }
+void    QEImage::setVertSlice2Legend     ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_V2_SLICE, legend );
+                                                                   mdMenu->setItemText( imageContextMenu::ICM_DISPLAY_VSLICE2, legend );
+                                                                   sMenu->setItemText( imageContextMenu::ICM_SELECT_VSLICE2, legend ); }
+QString QEImage::getVertSlice3Legend()                     { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_V3_SLICE );        }
+void    QEImage::setVertSlice3Legend     ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_V3_SLICE, legend );
+                                                                   mdMenu->setItemText( imageContextMenu::ICM_DISPLAY_VSLICE3, legend );
+                                                                   sMenu->setItemText( imageContextMenu::ICM_SELECT_VSLICE3, legend ); }
+QString QEImage::getVertSlice4Legend()                     { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_V4_SLICE );        }
+void    QEImage::setVertSlice4Legend     ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_V4_SLICE, legend );
+                                                                   mdMenu->setItemText( imageContextMenu::ICM_DISPLAY_VSLICE4, legend );
+                                                                   sMenu->setItemText( imageContextMenu::ICM_SELECT_VSLICE4, legend ); }
+QString QEImage::getVertSlice5Legend()                     { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_V5_SLICE );        }
+void    QEImage::setVertSlice5Legend     ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_V5_SLICE, legend );
+                                                                   mdMenu->setItemText( imageContextMenu::ICM_DISPLAY_VSLICE5, legend );
+                                                                   sMenu->setItemText( imageContextMenu::ICM_SELECT_VSLICE5, legend ); }
 QString QEImage::getprofileLegend()                       { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_LINE );           }
 void    QEImage::setProfileLegend       ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_LINE,    legend );
                                                                    mdMenu->setItemText( imageContextMenu::ICM_DISPLAY_PROFILE, legend );
@@ -3008,16 +3759,64 @@ void QEImage::panModeClicked()
     videoWidget->setPanning( true );
 }
 
-void QEImage::vSliceSelectModeClicked()
+void QEImage::vSlice1SelectModeClicked()
 {
     videoWidget->setPanning( false );
-    videoWidget->setMode(  imageMarkup::MARKUP_ID_V_SLICE );
+    videoWidget->setMode(  imageMarkup::MARKUP_ID_V1_SLICE );
 }
 
-void QEImage::hSliceSelectModeClicked()
+void QEImage::vSlice2SelectModeClicked()
 {
     videoWidget->setPanning( false );
-    videoWidget->setMode(  imageMarkup::MARKUP_ID_H_SLICE );
+    videoWidget->setMode(  imageMarkup::MARKUP_ID_V2_SLICE );
+}
+
+void QEImage::vSlice3SelectModeClicked()
+{
+    videoWidget->setPanning( false );
+    videoWidget->setMode(  imageMarkup::MARKUP_ID_V3_SLICE );
+}
+
+void QEImage::vSlice4SelectModeClicked()
+{
+    videoWidget->setPanning( false );
+    videoWidget->setMode(  imageMarkup::MARKUP_ID_V4_SLICE );
+}
+
+void QEImage::vSlice5SelectModeClicked()
+{
+    videoWidget->setPanning( false );
+    videoWidget->setMode(  imageMarkup::MARKUP_ID_V5_SLICE );
+}
+
+void QEImage::hSlice1SelectModeClicked()
+{
+    videoWidget->setPanning( false );
+    videoWidget->setMode(  imageMarkup::MARKUP_ID_H1_SLICE );
+}
+
+void QEImage::hSlice2SelectModeClicked()
+{
+    videoWidget->setPanning( false );
+    videoWidget->setMode(  imageMarkup::MARKUP_ID_H2_SLICE );
+}
+
+void QEImage::hSlice3SelectModeClicked()
+{
+    videoWidget->setPanning( false );
+    videoWidget->setMode(  imageMarkup::MARKUP_ID_H3_SLICE );
+}
+
+void QEImage::hSlice4SelectModeClicked()
+{
+    videoWidget->setPanning( false );
+    videoWidget->setMode(  imageMarkup::MARKUP_ID_H4_SLICE );
+}
+
+void QEImage::hSlice5SelectModeClicked()
+{
+    videoWidget->setPanning( false );
+    videoWidget->setMode(  imageMarkup::MARKUP_ID_H5_SLICE );
 }
 
 void QEImage::area1SelectModeClicked()
@@ -3093,30 +3892,128 @@ void QEImage::userSelection( imageMarkup::markupIds mode,   // Markup being mani
     {
         switch( mode )
         {
-            case imageMarkup::MARKUP_ID_V_SLICE:
-                vSliceX = point1.x();
-                vSliceThickness = thickness;
-                haveVSliceX = true;
+            case imageMarkup::MARKUP_ID_V1_SLICE:
+                vSlice1X = point1.x();
+                vSlice1Thickness = thickness;
+                haveVSlice1X = true;
+
+                // Only first vertical slice has profile data
                 if( enableVertSlicePresentation )
                 {
                     QTimer::singleShot( 0, this, SLOT(setVSliceControlsVisible() ) );
-                    generateVSlice(  vSliceX, vSliceThickness );
-                    mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_VSLICE, true );
+                    generateVSlice(  vSlice1X, vSlice1Thickness );
                 }
-                vertProfileChanged();
+
+                // Is this OK outside if????!!!!!
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_VSLICE1, true );
+
+                vertProfile1Changed();
                 break;
 
-            case imageMarkup::MARKUP_ID_H_SLICE:
-                hSliceY = point1.y();
-                hSliceThickness = thickness;
-                haveHSliceY = true;
+            case imageMarkup::MARKUP_ID_V2_SLICE:
+                vSlice2X = point1.x();
+                vSlice2Thickness = thickness;
+                haveVSlice2X = true;
+
+                // Is this OK outside if????!!!!!
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_VSLICE2, true );
+
+                vertProfile2Changed();
+                break;
+
+            case imageMarkup::MARKUP_ID_V3_SLICE:
+                vSlice3X = point1.x();
+                vSlice3Thickness = thickness;
+                haveVSlice3X = true;
+
+                // Is this OK outside if????!!!!!
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_VSLICE3, true );
+
+                vertProfile3Changed();
+                break;
+
+            case imageMarkup::MARKUP_ID_V4_SLICE:
+                vSlice4X = point1.x();
+                vSlice4Thickness = thickness;
+                haveVSlice4X = true;
+
+                // Is this OK outside if????!!!!!
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_VSLICE4, true );
+
+                vertProfile4Changed();
+                break;
+
+            case imageMarkup::MARKUP_ID_V5_SLICE:
+                vSlice5X = point1.x();
+                vSlice5Thickness = thickness;
+                haveVSlice5X = true;
+
+                // Is this OK outside if????!!!!!
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_VSLICE5, true );
+
+                vertProfile5Changed();
+                break;
+
+            case imageMarkup::MARKUP_ID_H1_SLICE:
+                hSlice1Y = point1.y();
+                hSlice1Thickness = thickness;
+                haveHSlice1Y = true;
+
+                // Only first horizontal slice has profile data
                 if( enableHozSlicePresentation )
                 {
                     QTimer::singleShot( 0, this, SLOT(setHSliceControlsVisible() ) );
-                    generateHSlice( hSliceY, hSliceThickness );
-                    mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_HSLICE, true );
+                    generateHSlice( hSlice1Y, hSlice1Thickness );
                 }
-                hozProfileChanged();
+
+                // Is this OK outside if????!!!!!
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_HSLICE1, true );
+
+                hozProfile1Changed();
+                break;
+
+            case imageMarkup::MARKUP_ID_H2_SLICE:
+                hSlice2Y = point1.y();
+                hSlice2Thickness = thickness;
+                haveHSlice2Y = true;
+
+                // Is this OK outside if????!!!!!
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_HSLICE2, true );
+
+                hozProfile2Changed();
+                break;
+
+            case imageMarkup::MARKUP_ID_H3_SLICE:
+                hSlice3Y = point1.y();
+                hSlice3Thickness = thickness;
+                haveHSlice3Y = true;
+
+                // Is this OK outside if????!!!!!
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_HSLICE3, true );
+
+                hozProfile3Changed();
+                break;
+
+            case imageMarkup::MARKUP_ID_H4_SLICE:
+                hSlice4Y = point1.y();
+                hSlice4Thickness = thickness;
+                haveHSlice4Y = true;
+
+                // Is this OK outside if????!!!!!
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_HSLICE4, true );
+
+                hozProfile4Changed();
+                break;
+
+            case imageMarkup::MARKUP_ID_H5_SLICE:
+                hSlice5Y = point1.y();
+                hSlice5Thickness = thickness;
+                haveHSlice5Y = true;
+
+                // Is this OK outside if????!!!!!
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_HSLICE5, true );
+
+                hozProfile5Changed();
                 break;
 
             case imageMarkup::MARKUP_ID_REGION1:
@@ -3259,20 +4156,75 @@ void QEImage::userSelection( imageMarkup::markupIds mode,   // Markup being mani
     {
         switch( mode )
         {
-            case imageMarkup::MARKUP_ID_V_SLICE:
-                vSliceX = 0;
-                haveVSliceX = false;
-                QTimer::singleShot( 0, this, SLOT(setVSliceControlsNotVisible() ) );
-                infoUpdateVertProfile();
-                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_VSLICE, false );
+            case imageMarkup::MARKUP_ID_V1_SLICE:
+                vSlice1X = 0;
+                haveVSlice1X = false;
+
+                QTimer::singleShot( 0, this, SLOT(setVSliceControlsNotVisible() ) );  // Only for first slice
+                infoUpdateVertProfile();    // Only for first slice
+
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_VSLICE1, false );
                 break;
 
-            case imageMarkup::MARKUP_ID_H_SLICE:
-                hSliceY = 0;
-                haveHSliceY = false;
-                QTimer::singleShot( 0, this, SLOT(setHSliceControlsNotVisible() ) );
-                infoUpdateHozProfile();
-                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_HSLICE, false );
+            case imageMarkup::MARKUP_ID_V2_SLICE:
+                vSlice2X = 0;
+                haveVSlice2X = false;
+
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_VSLICE2, false );
+                break;
+
+            case imageMarkup::MARKUP_ID_V3_SLICE:
+                vSlice3X = 0;
+                haveVSlice3X = false;
+
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_VSLICE3, false );
+                break;
+
+            case imageMarkup::MARKUP_ID_V4_SLICE:
+                vSlice4X = 0;
+                haveVSlice4X = false;
+
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_VSLICE4, false );
+                break;
+
+            case imageMarkup::MARKUP_ID_V5_SLICE:
+                vSlice5X = 0;
+                haveVSlice5X = false;
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_VSLICE5, false );
+                break;
+
+            case imageMarkup::MARKUP_ID_H1_SLICE:
+                hSlice1Y = 0;
+                haveHSlice1Y = false;
+
+                QTimer::singleShot( 0, this, SLOT(setHSliceControlsNotVisible() ) );  // Only for first slice
+                infoUpdateHozProfile();  // Only for first slice
+
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_HSLICE1, false );
+                break;
+
+            case imageMarkup::MARKUP_ID_H2_SLICE:
+                hSlice2Y = 0;
+                haveHSlice2Y = false;
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_HSLICE2, false );
+                break;
+
+            case imageMarkup::MARKUP_ID_H3_SLICE:
+                hSlice3Y = 0;
+                haveHSlice3Y = false;
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_HSLICE3, false );
+                break;
+
+            case imageMarkup::MARKUP_ID_H4_SLICE:
+                hSlice4Y = 0;
+                haveHSlice4Y = false;
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_HSLICE4, false );
+                break;
+
+            case imageMarkup::MARKUP_ID_H5_SLICE:
+                hSlice5Y = 0;
+                haveHSlice5Y = false;
+                mdMenu->setDisplayed( imageContextMenu::ICM_DISPLAY_HSLICE5, false );
                 break;
 
             case imageMarkup::MARKUP_ID_REGION1:
@@ -3890,8 +4842,16 @@ void QEImage::optionAction( imageContextMenu::imageContextMenuOptions option, bo
         case imageContextMenu::ICM_ENABLE_CURSOR_PIXEL:              showInfo                  ( checked );     break;
         case imageContextMenu::ICM_ABOUT_IMAGE:                      showImageAboutDialog();                    break;
         case imageContextMenu::ICM_ENABLE_TIME:                      videoWidget->setShowTime  ( checked );     break;
-        case imageContextMenu::ICM_ENABLE_VERT:                      doEnableVertSliceSelection( checked );     break;
-        case imageContextMenu::ICM_ENABLE_HOZ:                       doEnableHozSliceSelection ( checked );     break;
+        case imageContextMenu::ICM_ENABLE_VERT1:                     doEnableVertSlice1Selection( checked );    break;
+        case imageContextMenu::ICM_ENABLE_VERT2:                     doEnableVertSlice2Selection( checked );    break;
+        case imageContextMenu::ICM_ENABLE_VERT3:                     doEnableVertSlice3Selection( checked );    break;
+        case imageContextMenu::ICM_ENABLE_VERT4:                     doEnableVertSlice4Selection( checked );    break;
+        case imageContextMenu::ICM_ENABLE_VERT5:                     doEnableVertSlice5Selection( checked );    break;
+        case imageContextMenu::ICM_ENABLE_HOZ1:                      doEnableHozSlice1Selection ( checked );    break;
+        case imageContextMenu::ICM_ENABLE_HOZ2:                      doEnableHozSlice2Selection ( checked );    break;
+        case imageContextMenu::ICM_ENABLE_HOZ3:                      doEnableHozSlice3Selection ( checked );    break;
+        case imageContextMenu::ICM_ENABLE_HOZ4:                      doEnableHozSlice4Selection ( checked );    break;
+        case imageContextMenu::ICM_ENABLE_HOZ5:                      doEnableHozSlice5Selection ( checked );    break;
         case imageContextMenu::ICM_ENABLE_AREA1:                     doEnableAreaSelection     ( checked );     break;
         case imageContextMenu::ICM_ENABLE_AREA2:                     doEnableAreaSelection     ( checked );     break;
         case imageContextMenu::ICM_ENABLE_AREA3:                     doEnableAreaSelection     ( checked );     break;
@@ -3965,8 +4925,16 @@ void QEImage::selectMenuTriggered( QAction* selectedItem )
         case imageContextMenu::ICM_NONE: break;
 
         case imageContextMenu::ICM_SELECT_PAN:          panModeClicked();           break;
-        case imageContextMenu::ICM_SELECT_VSLICE:       vSliceSelectModeClicked();  break;
-        case imageContextMenu::ICM_SELECT_HSLICE:       hSliceSelectModeClicked();  break;
+        case imageContextMenu::ICM_SELECT_VSLICE1:      vSlice1SelectModeClicked(); break;
+        case imageContextMenu::ICM_SELECT_VSLICE2:      vSlice2SelectModeClicked(); break;
+        case imageContextMenu::ICM_SELECT_VSLICE3:      vSlice3SelectModeClicked(); break;
+        case imageContextMenu::ICM_SELECT_VSLICE4:      vSlice4SelectModeClicked(); break;
+        case imageContextMenu::ICM_SELECT_VSLICE5:      vSlice5SelectModeClicked(); break;
+        case imageContextMenu::ICM_SELECT_HSLICE1:      hSlice1SelectModeClicked(); break;
+        case imageContextMenu::ICM_SELECT_HSLICE2:      hSlice2SelectModeClicked(); break;
+        case imageContextMenu::ICM_SELECT_HSLICE3:      hSlice3SelectModeClicked(); break;
+        case imageContextMenu::ICM_SELECT_HSLICE4:      hSlice4SelectModeClicked(); break;
+        case imageContextMenu::ICM_SELECT_HSLICE5:      hSlice5SelectModeClicked(); break;
         case imageContextMenu::ICM_SELECT_AREA1:        area1SelectModeClicked();   break;
         case imageContextMenu::ICM_SELECT_AREA2:        area2SelectModeClicked();   break;
         case imageContextMenu::ICM_SELECT_AREA3:        area3SelectModeClicked();   break;
@@ -3985,8 +4953,16 @@ void QEImage::markupDisplayMenuTriggered( QAction* selectedItem )
         default:
         case imageContextMenu::ICM_NONE: break;
 
-        case imageContextMenu::ICM_DISPLAY_VSLICE:     videoWidget->displayMarkup( imageMarkup::MARKUP_ID_V_SLICE,   selectedItem->isChecked() ); break;
-        case imageContextMenu::ICM_DISPLAY_HSLICE:     videoWidget->displayMarkup( imageMarkup::MARKUP_ID_H_SLICE,   selectedItem->isChecked() ); break;
+        case imageContextMenu::ICM_DISPLAY_VSLICE1:    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_V1_SLICE,  selectedItem->isChecked() ); break;
+        case imageContextMenu::ICM_DISPLAY_VSLICE2:    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_V2_SLICE,  selectedItem->isChecked() ); break;
+        case imageContextMenu::ICM_DISPLAY_VSLICE3:    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_V3_SLICE,  selectedItem->isChecked() ); break;
+        case imageContextMenu::ICM_DISPLAY_VSLICE4:    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_V4_SLICE,  selectedItem->isChecked() ); break;
+        case imageContextMenu::ICM_DISPLAY_VSLICE5:    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_V5_SLICE,  selectedItem->isChecked() ); break;
+        case imageContextMenu::ICM_DISPLAY_HSLICE1:    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_H1_SLICE,  selectedItem->isChecked() ); break;
+        case imageContextMenu::ICM_DISPLAY_HSLICE2:    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_H2_SLICE,  selectedItem->isChecked() ); break;
+        case imageContextMenu::ICM_DISPLAY_HSLICE3:    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_H3_SLICE,  selectedItem->isChecked() ); break;
+        case imageContextMenu::ICM_DISPLAY_HSLICE4:    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_H4_SLICE,  selectedItem->isChecked() ); break;
+        case imageContextMenu::ICM_DISPLAY_HSLICE5:    videoWidget->displayMarkup( imageMarkup::MARKUP_ID_H5_SLICE,  selectedItem->isChecked() ); break;
         case imageContextMenu::ICM_DISPLAY_AREA1:      videoWidget->displayMarkup( imageMarkup::MARKUP_ID_REGION1,   selectedItem->isChecked() ); break;
         case imageContextMenu::ICM_DISPLAY_AREA2:      videoWidget->displayMarkup( imageMarkup::MARKUP_ID_REGION2,   selectedItem->isChecked() ); break;
         case imageContextMenu::ICM_DISPLAY_AREA3:      videoWidget->displayMarkup( imageMarkup::MARKUP_ID_REGION3,   selectedItem->isChecked() ); break;
@@ -4012,8 +4988,16 @@ QEImage::selectOptions QEImage::getSelectionOption()
     {
         switch( videoWidget->getMode() )
         {
-        case imageMarkup::MARKUP_ID_V_SLICE:  return SO_VSLICE;
-        case imageMarkup::MARKUP_ID_H_SLICE:  return SO_HSLICE;
+        case imageMarkup::MARKUP_ID_V1_SLICE:  return SO_VSLICE1;
+        case imageMarkup::MARKUP_ID_V2_SLICE:  return SO_VSLICE2;
+        case imageMarkup::MARKUP_ID_V3_SLICE:  return SO_VSLICE3;
+        case imageMarkup::MARKUP_ID_V4_SLICE:  return SO_VSLICE4;
+        case imageMarkup::MARKUP_ID_V5_SLICE:  return SO_VSLICE5;
+        case imageMarkup::MARKUP_ID_H1_SLICE:  return SO_HSLICE1;
+        case imageMarkup::MARKUP_ID_H2_SLICE:  return SO_HSLICE2;
+        case imageMarkup::MARKUP_ID_H3_SLICE:  return SO_HSLICE3;
+        case imageMarkup::MARKUP_ID_H4_SLICE:  return SO_HSLICE4;
+        case imageMarkup::MARKUP_ID_H5_SLICE:  return SO_HSLICE5;
         case imageMarkup::MARKUP_ID_REGION1:  return SO_AREA1;
         case imageMarkup::MARKUP_ID_REGION2:  return SO_AREA2;
         case imageMarkup::MARKUP_ID_REGION3:  return SO_AREA3;
@@ -4274,8 +5258,16 @@ void QEImage::saveConfiguration( PersistanceManager* pm )
     pvElement.addValue( "enableTargetSelection",        (bool)(getEnableTargetSelection()) );
     pvElement.addValue( "enableBeamSelection",          (bool)(getEnableBeamSelection()) );
 
-    pvElement.addValue( "displayVertSliceSelection",    (bool)(getDisplayVertSliceSelection()) );
-    pvElement.addValue( "displayHozSliceSelection",     (bool)(getDisplayHozSliceSelection()) );
+    pvElement.addValue( "displayVertSlice1Selection",   (bool)(getDisplayVertSlice1Selection()) );
+    pvElement.addValue( "displayVertSlice2Selection",   (bool)(getDisplayVertSlice2Selection()) );
+    pvElement.addValue( "displayVertSlice3Selection",   (bool)(getDisplayVertSlice3Selection()) );
+    pvElement.addValue( "displayVertSlice4Selection",   (bool)(getDisplayVertSlice4Selection()) );
+    pvElement.addValue( "displayVertSlice5Selection",   (bool)(getDisplayVertSlice5Selection()) );
+    pvElement.addValue( "displayHozSlice1Selection",    (bool)(getDisplayHozSlice1Selection()) );
+    pvElement.addValue( "displayHozSlice2Selection",    (bool)(getDisplayHozSlice2Selection()) );
+    pvElement.addValue( "displayHozSlice3Selection",    (bool)(getDisplayHozSlice3Selection()) );
+    pvElement.addValue( "displayHozSlice4Selection",    (bool)(getDisplayHozSlice4Selection()) );
+    pvElement.addValue( "displayHozSlice5Selection",    (bool)(getDisplayHozSlice5Selection()) );
     pvElement.addValue( "displayProfileSelection",      (bool)(getDisplayProfileSelection()) );
     pvElement.addValue( "displayArea1Selection",        (bool)(getDisplayArea1Selection()) );
     pvElement.addValue( "displayArea2Selection",        (bool)(getDisplayArea2Selection()) );
@@ -4367,8 +5359,18 @@ void QEImage::restoreConfiguration (PersistanceManager* pm, restorePhases restor
         status = pvElement.getValue( "enableTargetSelection",       bval ); if( status ) { setEnableTargetSelection(       bval ); }
         status = pvElement.getValue( "enableBeamSelection",         bval ); if( status ) { setEnableBeamSelection(         bval ); }
 
-        status = pvElement.getValue( "displayVertSliceSelection",   bval ); if( status ) { setDisplayVertSliceSelection(   bval ); }
-        status = pvElement.getValue( "displayHozSliceSelection",    bval ); if( status ) { setDisplayHozSliceSelection(    bval ); }
+        status = pvElement.getValue( "displayVertSliceSelection",   bval ); if( status ) { setDisplayVertSlice1Selection(   bval ); } // For backward compatibility with before aditional slices
+        status = pvElement.getValue( "displayVertSlice1Selection",  bval ); if( status ) { setDisplayVertSlice1Selection(   bval ); }
+        status = pvElement.getValue( "displayVertSlice2Selection",  bval ); if( status ) { setDisplayVertSlice2Selection(   bval ); }
+        status = pvElement.getValue( "displayVertSlice3Selection",  bval ); if( status ) { setDisplayVertSlice3Selection(   bval ); }
+        status = pvElement.getValue( "displayVertSlice4Selection",  bval ); if( status ) { setDisplayVertSlice4Selection(   bval ); }
+        status = pvElement.getValue( "displayVertSlice5Selection",  bval ); if( status ) { setDisplayVertSlice5Selection(   bval ); }
+        status = pvElement.getValue( "displayHozSliceSelection",    bval ); if( status ) { setDisplayHozSlice1Selection(    bval ); } // For backward compatibility with before aditional slices
+        status = pvElement.getValue( "displayHozSlice1Selection",   bval ); if( status ) { setDisplayHozSlice1Selection(    bval ); }
+        status = pvElement.getValue( "displayHozSlice2Selection",   bval ); if( status ) { setDisplayHozSlice2Selection(    bval ); }
+        status = pvElement.getValue( "displayHozSlice3Selection",   bval ); if( status ) { setDisplayHozSlice3Selection(    bval ); }
+        status = pvElement.getValue( "displayHozSlice4Selection",   bval ); if( status ) { setDisplayHozSlice4Selection(    bval ); }
+        status = pvElement.getValue( "displayHozSlice5Selection",   bval ); if( status ) { setDisplayHozSlice5Selection(    bval ); }
         status = pvElement.getValue( "displayProfileSelection",     bval ); if( status ) { setDisplayProfileSelection(     bval ); }
         status = pvElement.getValue( "displayArea1Selection",       bval ); if( status ) { setDisplayArea1Selection(       bval ); }
         status = pvElement.getValue( "displayArea2Selection",       bval ); if( status ) { setDisplayArea2Selection(       bval ); }

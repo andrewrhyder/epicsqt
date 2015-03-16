@@ -66,8 +66,16 @@ private slots:
     void on_checkBoxRecorder_clicked(bool checked);
     void on_checkBoxButtonBar_clicked(bool checked);
     void on_checkBoxArbitraryProfile_clicked(bool checked);
-    void on_checkBoxHorizontalProfile_clicked(bool checked);
-    void on_checkBoxVerticalProfile_clicked(bool checked);
+    void on_checkBoxHorizontalProfile1_clicked(bool checked);
+    void on_checkBoxHorizontalProfile2_clicked(bool checked);
+    void on_checkBoxHorizontalProfile3_clicked(bool checked);
+    void on_checkBoxHorizontalProfile4_clicked(bool checked);
+    void on_checkBoxHorizontalProfile5_clicked(bool checked);
+    void on_checkBoxVerticalProfile1_clicked(bool checked);
+    void on_checkBoxVerticalProfile2_clicked(bool checked);
+    void on_checkBoxVerticalProfile3_clicked(bool checked);
+    void on_checkBoxVerticalProfile4_clicked(bool checked);
+    void on_checkBoxVerticalProfile5_clicked(bool checked);
 
 signals:
     void optionChange( imageContextMenu::imageContextMenuOptions option, bool checked );    // Emitted when an option changed

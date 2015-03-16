@@ -184,6 +184,10 @@ protected:
     void userReleased();
     void userClicked( bool checked );
 
+    // write the click/clockChecked/press/release text value (of the associated button object) into the PV immediately.
+    // performs no other action such as run command, open ui file.
+    void processWriteNow( const bool checked );
+
     virtual updateOptions getDefaultUpdateOption() = 0;
 
     void startGui( const QEActionRequests & request );
