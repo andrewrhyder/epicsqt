@@ -99,8 +99,16 @@ public:
                      MARKUP_ID_REGION2,
                      MARKUP_ID_REGION3,
                      MARKUP_ID_REGION4,
-                     MARKUP_ID_H_SLICE,
-                     MARKUP_ID_V_SLICE,
+                     MARKUP_ID_H1_SLICE,
+                     MARKUP_ID_H2_SLICE,
+                     MARKUP_ID_H3_SLICE,
+                     MARKUP_ID_H4_SLICE,
+                     MARKUP_ID_H5_SLICE,
+                     MARKUP_ID_V1_SLICE,
+                     MARKUP_ID_V2_SLICE,
+                     MARKUP_ID_V3_SLICE,
+                     MARKUP_ID_V4_SLICE,
+                     MARKUP_ID_V5_SLICE,
                      MARKUP_ID_LINE,
                      MARKUP_ID_TARGET,
                      MARKUP_ID_BEAM,
@@ -121,8 +129,16 @@ public:
     bool showMarkupMenu( const QPoint& pos, const QPoint& globalPos );// Show the markup menu if required
 
     void markupRegionValueChange( int areaIndex, QRect area, bool displayMarkups );  // Region of interest data has changed. Change markups to match
-    void markupHProfileChange( int y, bool displayMarkups );                         // Horizontal profile data has changed. Change markups to match
-    void markupVProfileChange( int x, bool displayMarkups );                         // Horizontal profile data has changed. Change markups to match
+    void markupH1ProfileChange( int y, bool displayMarkups );                         // Horizontal slice 1 data has changed. Change markups to match
+    void markupH2ProfileChange( int y, bool displayMarkups );                         // Horizontal slice 2 data has changed. Change markups to match
+    void markupH3ProfileChange( int y, bool displayMarkups );                         // Horizontal slice 3 data has changed. Change markups to match
+    void markupH4ProfileChange( int y, bool displayMarkups );                         // Horizontal slice 4 data has changed. Change markups to match
+    void markupH5ProfileChange( int y, bool displayMarkups );                         // Horizontal slice 5 data has changed. Change markups to match
+    void markupV1ProfileChange( int x, bool displayMarkups );                         // Vertical slice 1 data has changed. Change markups to match
+    void markupV2ProfileChange( int x, bool displayMarkups );                         // Vertical slice 2 data has changed. Change markups to match
+    void markupV3ProfileChange( int x, bool displayMarkups );                         // Vertical slice 3 data has changed. Change markups to match
+    void markupV4ProfileChange( int x, bool displayMarkups );                         // Vertical slice 4 data has changed. Change markups to match
+    void markupV5ProfileChange( int x, bool displayMarkups );                         // Vertical slice 5 data has changed. Change markups to match
     void markupLineProfileChange( QPoint start, QPoint end, bool displayMarkups );   // Arbitrary profile data has changed. Change markups to match
     void markupTargetValueChange( QPoint point, bool displayMarkups );               // Target position data has changed. Change markup to match
     void markupBeamValueChange( QPoint point, bool displayMarkups );                 // Beam position data has changed. Change markup to match

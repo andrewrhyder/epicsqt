@@ -22,8 +22,16 @@ private:
 
     QAction* getAction( imageContextMenu::imageContextMenuOptions option );
 
-    QAction* hSliceAction;
-    QAction* vSliceAction;
+    QAction* hSlice1Action;
+    QAction* hSlice2Action;
+    QAction* hSlice3Action;
+    QAction* hSlice4Action;
+    QAction* hSlice5Action;
+    QAction* vSlice1Action;
+    QAction* vSlice2Action;
+    QAction* vSlice3Action;
+    QAction* vSlice4Action;
+    QAction* vSlice5Action;
     QAction* area1Action;
     QAction* area2Action;
     QAction* area3Action;

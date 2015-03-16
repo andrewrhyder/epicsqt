@@ -229,13 +229,13 @@ void imageInfo::infoUpdateBeam( const int x, const int y )
 // Update the vertical profile information
 void imageInfo::infoUpdateVertProfile( const int x, const unsigned int thickness )
 {
-    currentVertPixelLabel->setText( QString( "V: %1 x %2" ).arg( x ).arg( thickness ) );
+    currentVertPixelLabel->setText( QString( "V1: %1 x %2" ).arg( x ).arg( thickness ) );
 }
 
 // Update the horizontal profile information
 void imageInfo::infoUpdateHozProfile( const int y, const unsigned int thickness )
 {
-    currentHozPixelLabel->setText( QString( "H: %1 x %2" ).arg( y ).arg( thickness ) );
+    currentHozPixelLabel->setText( QString( "H1: %1 x %2" ).arg( y ).arg( thickness ) );
 }
 
 // Update the arbitrary profile information

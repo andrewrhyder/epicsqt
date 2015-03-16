@@ -41,8 +41,16 @@ markupDisplayMenu::markupDisplayMenu( QWidget *parent) : QMenu(parent)
     addAction( ACTION );
 
     // Create the buttons (with default titles - these will be overridden by changes to the markup legend properties)
-    NEW_MARKUP_DISPLAY_MENU_BUTTON( "Horizontal Line", ICM_DISPLAY_HSLICE,    hSliceAction    )
-    NEW_MARKUP_DISPLAY_MENU_BUTTON( "Vertical Line",   ICM_DISPLAY_VSLICE,    vSliceAction    )
+    NEW_MARKUP_DISPLAY_MENU_BUTTON( "Horizontal Line 1", ICM_DISPLAY_HSLICE1,    hSlice1Action    )
+    NEW_MARKUP_DISPLAY_MENU_BUTTON( "Horizontal Line 2", ICM_DISPLAY_HSLICE2,    hSlice2Action    )
+    NEW_MARKUP_DISPLAY_MENU_BUTTON( "Horizontal Line 3", ICM_DISPLAY_HSLICE3,    hSlice3Action    )
+    NEW_MARKUP_DISPLAY_MENU_BUTTON( "Horizontal Line 4", ICM_DISPLAY_HSLICE4,    hSlice4Action    )
+    NEW_MARKUP_DISPLAY_MENU_BUTTON( "Horizontal Line 5", ICM_DISPLAY_HSLICE5,    hSlice5Action    )
+    NEW_MARKUP_DISPLAY_MENU_BUTTON( "Vertical Line 1",   ICM_DISPLAY_VSLICE1,    vSlice1Action    )
+    NEW_MARKUP_DISPLAY_MENU_BUTTON( "Vertical Line 2",   ICM_DISPLAY_VSLICE2,    vSlice2Action    )
+    NEW_MARKUP_DISPLAY_MENU_BUTTON( "Vertical Line 3",   ICM_DISPLAY_VSLICE3,    vSlice3Action    )
+    NEW_MARKUP_DISPLAY_MENU_BUTTON( "Vertical Line 4",   ICM_DISPLAY_VSLICE4,    vSlice4Action    )
+    NEW_MARKUP_DISPLAY_MENU_BUTTON( "Vertical Line 5",   ICM_DISPLAY_VSLICE5,    vSlice5Action    )
     NEW_MARKUP_DISPLAY_MENU_BUTTON( "Area 1",          ICM_DISPLAY_AREA1,     area1Action     )
     NEW_MARKUP_DISPLAY_MENU_BUTTON( "Area 2",          ICM_DISPLAY_AREA2,     area2Action     )
     NEW_MARKUP_DISPLAY_MENU_BUTTON( "Area 3",          ICM_DISPLAY_AREA3,     area3Action     )
@@ -108,8 +116,16 @@ QAction* markupDisplayMenu::getAction( imageContextMenu::imageContextMenuOptions
 {
     switch( option )
     {
-        case imageContextMenu::ICM_DISPLAY_HSLICE:    return hSliceAction;
-        case imageContextMenu::ICM_DISPLAY_VSLICE:    return vSliceAction;
+        case imageContextMenu::ICM_DISPLAY_HSLICE1:   return hSlice1Action;
+        case imageContextMenu::ICM_DISPLAY_HSLICE2:   return hSlice2Action;
+        case imageContextMenu::ICM_DISPLAY_HSLICE3:   return hSlice3Action;
+        case imageContextMenu::ICM_DISPLAY_HSLICE4:   return hSlice4Action;
+        case imageContextMenu::ICM_DISPLAY_HSLICE5:   return hSlice5Action;
+        case imageContextMenu::ICM_DISPLAY_VSLICE1:   return vSlice1Action;
+        case imageContextMenu::ICM_DISPLAY_VSLICE2:   return vSlice2Action;
+        case imageContextMenu::ICM_DISPLAY_VSLICE3:   return vSlice3Action;
+        case imageContextMenu::ICM_DISPLAY_VSLICE4:   return vSlice4Action;
+        case imageContextMenu::ICM_DISPLAY_VSLICE5:   return vSlice5Action;
         case imageContextMenu::ICM_DISPLAY_AREA1:     return area1Action;
         case imageContextMenu::ICM_DISPLAY_AREA2:     return area2Action;
         case imageContextMenu::ICM_DISPLAY_AREA3:     return area3Action;

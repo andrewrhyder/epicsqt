@@ -52,8 +52,16 @@ imageMarkup::imageMarkup()
     legendFontMetrics = new QFontMetrics( legendFont );
 
     items.resize(MARKUP_ID_COUNT );
-    items[MARKUP_ID_H_SLICE]   = new markupHLine(  this, true,  true, "slice" );
-    items[MARKUP_ID_V_SLICE]   = new markupVLine(  this, true,  true, "slice" );
+    items[MARKUP_ID_H1_SLICE]   = new markupHLine(  this, true,  true, "slice 1" );
+    items[MARKUP_ID_H2_SLICE]   = new markupHLine(  this, true,  true, "slice 2" );
+    items[MARKUP_ID_H3_SLICE]   = new markupHLine(  this, true,  true, "slice 3" );
+    items[MARKUP_ID_H4_SLICE]   = new markupHLine(  this, true,  true, "slice 4" );
+    items[MARKUP_ID_H5_SLICE]   = new markupHLine(  this, true,  true, "slice 5" );
+    items[MARKUP_ID_V1_SLICE]   = new markupVLine(  this, true,  true, "slice 1" );
+    items[MARKUP_ID_V2_SLICE]   = new markupVLine(  this, true,  true, "slice 2" );
+    items[MARKUP_ID_V3_SLICE]   = new markupVLine(  this, true,  true, "slice 3" );
+    items[MARKUP_ID_V4_SLICE]   = new markupVLine(  this, true,  true, "slice 4" );
+    items[MARKUP_ID_V5_SLICE]   = new markupVLine(  this, true,  true, "slice 5" );
     items[MARKUP_ID_LINE]      = new markupLine(   this, true,  true, "profile" );
     items[MARKUP_ID_REGION1]   = new markupRegion( this, true,  true, "region 1" );
     items[MARKUP_ID_REGION2]   = new markupRegion( this, true,  true, "region 2" );
@@ -216,8 +224,16 @@ bool imageMarkup::markupMousePressEvent(QMouseEvent *event, bool panning)
             case MARKUP_ID_NONE:
                 break;
 
-            case MARKUP_ID_H_SLICE:
-            case MARKUP_ID_V_SLICE:
+            case MARKUP_ID_H1_SLICE:
+            case MARKUP_ID_H2_SLICE:
+            case MARKUP_ID_H3_SLICE:
+            case MARKUP_ID_H4_SLICE:
+            case MARKUP_ID_H5_SLICE:
+            case MARKUP_ID_V1_SLICE:
+            case MARKUP_ID_V2_SLICE:
+            case MARKUP_ID_V3_SLICE:
+            case MARKUP_ID_V4_SLICE:
+            case MARKUP_ID_V5_SLICE:
             case MARKUP_ID_TARGET:
             case MARKUP_ID_BEAM:
                 activeItem = mode;
@@ -385,18 +401,74 @@ void imageMarkup::markupRegionValueChange( int areaIndex, QRect area, bool displ
     markupValueChange( region, displayMarkups, area.topLeft(), area.bottomRight() );
 }
 
-// A horizontal profile value has changed.
+// Horizontal slice 1 value has changed.
 // Update the markup
-void imageMarkup::markupHProfileChange( int y, bool displayMarkups )
+void imageMarkup::markupH1ProfileChange( int y, bool displayMarkups )
 {
-    markupValueChange( MARKUP_ID_H_SLICE, displayMarkups, QPoint( 0, y ) );
+    markupValueChange( MARKUP_ID_H1_SLICE, displayMarkups, QPoint( 0, y ) );
 }
 
-// A vertical profile value has changed.
+// Horizontal slice 2 value has changed.
 // Update the markup
-void imageMarkup::markupVProfileChange( int x, bool displayMarkups )
+void imageMarkup::markupH2ProfileChange( int y, bool displayMarkups )
 {
-    markupValueChange( MARKUP_ID_V_SLICE, displayMarkups, QPoint( x, 0 ) );
+    markupValueChange( MARKUP_ID_H2_SLICE, displayMarkups, QPoint( 0, y ) );
+}
+
+// Horizontal slice 3 value has changed.
+// Update the markup
+void imageMarkup::markupH3ProfileChange( int y, bool displayMarkups )
+{
+    markupValueChange( MARKUP_ID_H3_SLICE, displayMarkups, QPoint( 0, y ) );
+}
+
+// Horizontal slice 4 value has changed.
+// Update the markup
+void imageMarkup::markupH4ProfileChange( int y, bool displayMarkups )
+{
+    markupValueChange( MARKUP_ID_H4_SLICE, displayMarkups, QPoint( 0, y ) );
+}
+
+// Horizontal slice 5 value has changed.
+// Update the markup
+void imageMarkup::markupH5ProfileChange( int y, bool displayMarkups )
+{
+    markupValueChange( MARKUP_ID_H5_SLICE, displayMarkups, QPoint( 0, y ) );
+}
+
+// Vertical slice 1 value has changed.
+// Update the markup
+void imageMarkup::markupV1ProfileChange( int x, bool displayMarkups )
+{
+    markupValueChange( MARKUP_ID_V1_SLICE, displayMarkups, QPoint( x, 0 ) );
+}
+
+// Vertical slice 2 value has changed.
+// Update the markup
+void imageMarkup::markupV2ProfileChange( int x, bool displayMarkups )
+{
+    markupValueChange( MARKUP_ID_V2_SLICE, displayMarkups, QPoint( x, 0 ) );
+}
+
+// Vertical slice 3 value has changed.
+// Update the markup
+void imageMarkup::markupV3ProfileChange( int x, bool displayMarkups )
+{
+    markupValueChange( MARKUP_ID_V3_SLICE, displayMarkups, QPoint( x, 0 ) );
+}
+
+// Vertical slice 4 value has changed.
+// Update the markup
+void imageMarkup::markupV4ProfileChange( int x, bool displayMarkups )
+{
+    markupValueChange( MARKUP_ID_V4_SLICE, displayMarkups, QPoint( x, 0 ) );
+}
+
+// Vertical slice 5 value has changed.
+// Update the markup
+void imageMarkup::markupV5ProfileChange( int x, bool displayMarkups )
+{
+    markupValueChange( MARKUP_ID_V5_SLICE, displayMarkups, QPoint( x, 0 ) );
 }
 
 // An arbitrary line profile value has changed.
@@ -471,8 +543,16 @@ imageMarkup::markupIds imageMarkup::getActionMode()
 {
     switch( activeItem )
     {
-        case MARKUP_ID_H_SLICE:
-        case MARKUP_ID_V_SLICE:
+        case MARKUP_ID_H1_SLICE:
+        case MARKUP_ID_H2_SLICE:
+        case MARKUP_ID_H3_SLICE:
+        case MARKUP_ID_H4_SLICE:
+        case MARKUP_ID_H5_SLICE:
+        case MARKUP_ID_V1_SLICE:
+        case MARKUP_ID_V2_SLICE:
+        case MARKUP_ID_V3_SLICE:
+        case MARKUP_ID_V4_SLICE:
+        case MARKUP_ID_V5_SLICE:
         case MARKUP_ID_LINE:
         case MARKUP_ID_REGION1:
         case MARKUP_ID_REGION2:

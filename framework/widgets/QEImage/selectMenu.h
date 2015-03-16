@@ -55,8 +55,16 @@ private:
     QAction* getAction( imageContextMenu::imageContextMenuOptions option );
 
     QAction* actionPan;
-    QAction* actionHSlice;
-    QAction* actionVSlice;
+    QAction* actionHSlice1;
+    QAction* actionHSlice2;
+    QAction* actionHSlice3;
+    QAction* actionHSlice4;
+    QAction* actionHSlice5;
+    QAction* actionVSlice1;
+    QAction* actionVSlice2;
+    QAction* actionVSlice3;
+    QAction* actionVSlice4;
+    QAction* actionVSlice5;
     QAction* actionArea1;
     QAction* actionArea2;
     QAction* actionArea3;

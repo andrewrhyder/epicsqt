@@ -183,8 +183,16 @@ public:
     /// Internal use only. Selection options. What will happen when the user interacts with the image area
     enum selectOptions{ SO_NONE,                                ///< Do nothing
                         SO_PANNING,                             ///< User is panning
-                        SO_VSLICE,                              ///< Select the vertical slice point
-                        SO_HSLICE,                              ///< Select the horizontal slice point
+                        SO_VSLICE1,                             ///< Select the vertical slice 1 point
+                        SO_VSLICE2,                             ///< Select the vertical slice 2 point
+                        SO_VSLICE3,                             ///< Select the vertical slice 3 point
+                        SO_VSLICE4,                             ///< Select the vertical slice 4 point
+                        SO_VSLICE5,                             ///< Select the vertical slice 5 point
+                        SO_HSLICE1,                             ///< Select the horizontal slice 1 point
+                        SO_HSLICE2,                             ///< Select the horizontal slice 2 point
+                        SO_HSLICE3,                             ///< Select the horizontal slice 3 point
+                        SO_HSLICE4,                             ///< Select the horizontal slice 4 point
+                        SO_HSLICE5,                             ///< Select the horizontal slice 5 point
                         SO_AREA1, SO_AREA2, SO_AREA3, SO_AREA4, ///< User is selecting an area (for region of interest)
                         SO_PROFILE,                             ///< Select an arbitrary line across the image (to determine a profile)
                         SO_TARGET,                              ///< Mark the target point
@@ -241,11 +249,35 @@ public:
     void setUseFalseColour(bool pValue);                                ///< Access function for #useFalseColour property - refer to #useFalseColour property for details
     bool getUseFalseColour();                                           ///< Access function for #useFalseColour property - refer to #useFalseColour property for details
 
-    void setVertSliceMarkupColor(QColor pValue);                        ///< Access function for #vertSliceColor property - refer to #vertSliceColor property for details
-    QColor getVertSliceMarkupColor();                                   ///< Access function for #vertSliceColor property - refer to #vertSliceColor property for details
+    void setVertSlice1MarkupColor(QColor pValue);                        ///< Access function for #vertSliceColor property - refer to #vertSliceColor property for details
+    QColor getVertSlice1MarkupColor();                                   ///< Access function for #vertSliceColor property - refer to #vertSliceColor property for details
 
-    void setHozSliceMarkupColor(QColor pValue);                         ///< Access function for #hozSliceColor property - refer to #hozSliceColor property for details
-    QColor getHozSliceMarkupColor();                                    ///< Access function for #hozSliceColor property - refer to #hozSliceColor property for details
+    void setVertSlice2MarkupColor(QColor pValue);                        ///< Access function for #vertSlice2Color property - refer to #vertSlice2Color property for details
+    QColor getVertSlice2MarkupColor();                                   ///< Access function for #vertSlice2Color property - refer to #vertSlice2Color property for details
+
+    void setVertSlice3MarkupColor(QColor pValue);                        ///< Access function for #vertSlice3Color property - refer to #vertSlice3Color property for details
+    QColor getVertSlice3MarkupColor();                                   ///< Access function for #vertSlice3Color property - refer to #vertSlice3Color property for details
+
+    void setVertSlice4MarkupColor(QColor pValue);                        ///< Access function for #vertSlice4Color property - refer to #vertSlice4Color property for details
+    QColor getVertSlice4MarkupColor();                                   ///< Access function for #vertSlice4Color property - refer to #vertSlice4Color property for details
+
+    void setVertSlice5MarkupColor(QColor pValue);                        ///< Access function for #vertSlice5Color property - refer to #vertSlice5Color property for details
+    QColor getVertSlice5MarkupColor();                                   ///< Access function for #vertSlice5Color property - refer to #vertSlice5Color property for details
+
+    void setHozSlice1MarkupColor(QColor pValue);                         ///< Access function for #hozSliceColor property - refer to #hozSliceColor property for details
+    QColor getHozSlice1MarkupColor();                                    ///< Access function for #hozSliceColor property - refer to #hozSliceColor property for details
+
+    void setHozSlice2MarkupColor(QColor pValue);                         ///< Access function for #hozSlice2Color property - refer to #hozSlice2Color property for details
+    QColor getHozSlice2MarkupColor();                                    ///< Access function for #hozSlice2Color property - refer to #hozSlice2Color property for details
+
+    void setHozSlice3MarkupColor(QColor pValue);                         ///< Access function for #hozSlice3Color property - refer to #hozSlice3Color property for details
+    QColor getHozSlice3MarkupColor();                                    ///< Access function for #hozSlice3Color property - refer to #hozSlice3Color property for details
+
+    void setHozSlice4MarkupColor(QColor pValue);                         ///< Access function for #hozSlice4Color property - refer to #hozSlice4Color property for details
+    QColor getHozSlice4MarkupColor();                                    ///< Access function for #hozSlice4Color property - refer to #hozSlice4Color property for details
+
+    void setHozSlice5MarkupColor(QColor pValue);                         ///< Access function for #hozSlice5Color property - refer to #hozSlice5Color property for details
+    QColor getHozSlice5MarkupColor();                                    ///< Access function for #hozSlice5Color property - refer to #hozSlice5Color property for details
 
     void setProfileMarkupColor(QColor pValue);                          ///< Access function for #profileColor property - refer to #profileColor property for details
     QColor getProfileMarkupColor();                                     ///< Access function for #profileColor property - refer to #profileColor property for details
@@ -274,11 +306,35 @@ public:
     void setLog( bool log );                                            ///< Access function for #logBrightness property - refer to #logBrightness property for details
     bool getLog();                                                      ///< Access function for #logBrightness property - refer to #logBrightness property for details
 
-    void setEnableVertSliceSelection( bool enableVSliceSelection );     ///< Access function for #enableVertSliceSelection property - refer to #enableVertSliceSelection property for details
-    bool getEnableVertSliceSelection();                                 ///< Access function for #enableVertSliceSelection property - refer to #enableVertSliceSelection property for details
+    void setEnableVertSlice1Selection( bool enableVSliceSelection );     ///< Access function for #enableVertSlice1Selection property - refer to #enableVertSlice1Selection property for details
+    bool getEnableVertSlice1Selection();                                 ///< Access function for #enableVertSlice1Selection property - refer to #enableVertSlice1Selection property for details
 
-    void setEnableHozSliceSelection( bool enableHSliceSelection );      ///< Access function for #enableHozSliceSelection property - refer to #enableHozSliceSelection property for details
-    bool getEnableHozSliceSelection();                                  ///< Access function for #enableHozSliceSelection property - refer to #enableHozSliceSelection property for details
+    void setEnableVertSlice2Selection( bool enableVSliceSelection );     ///< Access function for #enableVertSlice2Selection property - refer to #enableVertSlice2Selection property for details
+    bool getEnableVertSlice2Selection();                                 ///< Access function for #enableVertSlice2Selection property - refer to #enableVertSlice2Selection property for details
+
+    void setEnableVertSlice3Selection( bool enableVSliceSelection );     ///< Access function for #enableVertSlice3Selection property - refer to #enableVertSlice3Selection property for details
+    bool getEnableVertSlice3Selection();                                 ///< Access function for #enableVertSlice3Selection property - refer to #enableVertSlice3Selection property for details
+
+    void setEnableVertSlice4Selection( bool enableVSliceSelection );     ///< Access function for #enableVertSlice4Selection property - refer to #enableVertSlice4Selection property for details
+    bool getEnableVertSlice4Selection();                                 ///< Access function for #enableVertSlice4Selection property - refer to #enableVertSlice4Selection property for details
+
+    void setEnableVertSlice5Selection( bool enableVSliceSelection );     ///< Access function for #enableVertSlice5Selection property - refer to #enableVertSlice5Selection property for details
+    bool getEnableVertSlice5Selection();                                 ///< Access function for #enableVertSlice5Selection property - refer to #enableVertSlice5Selection property for details
+
+    void setEnableHozSlice1Selection( bool enableHSliceSelection );      ///< Access function for #enableHozSlice1Selection property - refer to #enableHozSlice1Selection property for details
+    bool getEnableHozSlice1Selection();                                  ///< Access function for #enableHozSlice1Selection property - refer to #enableHozSlice1Selection property for details
+
+    void setEnableHozSlice2Selection( bool enableHSliceSelection );      ///< Access function for #enableHozSlice2Selection property - refer to #enableHozSlice2Selection property for details
+    bool getEnableHozSlice2Selection();                                  ///< Access function for #enableHozSlice2Selection property - refer to #enableHozSlice2Selection property for details
+
+    void setEnableHozSlice3Selection( bool enableHSliceSelection );      ///< Access function for #enableHozSlice3Selection property - refer to #enableHozSlice3Selection property for details
+    bool getEnableHozSlice3Selection();                                  ///< Access function for #enableHozSlice3Selection property - refer to #enableHozSlice3Selection property for details
+
+    void setEnableHozSlice4Selection( bool enableHSliceSelection );      ///< Access function for #enableHozSlice4Selection property - refer to #enableHozSlice4Selection property for details
+    bool getEnableHozSlice4Selection();                                  ///< Access function for #enableHozSlice4Selection property - refer to #enableHozSlice4Selection property for details
+
+    void setEnableHozSlice5Selection( bool enableHSliceSelection );      ///< Access function for #enableHozSlice5Selection property - refer to #enableHozSlice5Selection property for details
+    bool getEnableHozSlice5Selection();                                  ///< Access function for #enableHozSlice5Selection property - refer to #enableHozSlice5Selection property for details
 
     void setEnableArea1Selection( bool enableAreaSelectionIn );          ///< Access function for #enableArea1Selection property - refer to #enableArea1Selection property for details
     bool getEnableArea1Selection();                                      ///< Access function for #enableArea1Selection property - refer to #enableArea1Selection property for details
@@ -325,13 +381,37 @@ public:
     void setEnableVertSlicePresentation( bool enableVertSlicePresentationIn ); ///< Access function for #enableVertSlicePresentation property - refer to #enableVertSlicePresentation property for details
     bool getEnableVertSlicePresentation();                                     ///< Access function for #enableVertSlicePresentation property - refer to #enableVertSlicePresentation property for details
 
+    void setDisplayVertSlice1Selection( bool displayVSliceSelection );         ///< Access function for #displayVertSlice1Selection property - refer to #displayVertSlice1Selection property for details
+    bool getDisplayVertSlice1Selection();                                      ///< Access function for #displayVertSlice1Selection property - refer to #displayVertSlice1Selection property for details
+
+    void setDisplayVertSlice2Selection( bool displayVSliceSelection );         ///< Access function for #displayVertSlice2Selection property - refer to #displayVertSlice2Selection property for details
+    bool getDisplayVertSlice2Selection();                                      ///< Access function for #displayVertSlice2Selection property - refer to #displayVertSlice2Selection property for details
+
+    void setDisplayVertSlice3Selection( bool displayVSliceSelection );         ///< Access function for #displayVertSlice3Selection property - refer to #displayVertSlice3Selection property for details
+    bool getDisplayVertSlice3Selection();                                      ///< Access function for #displayVertSlice3Selection property - refer to #displayVertSlice3Selection property for details
+
+    void setDisplayVertSlice4Selection( bool displayVSliceSelection );         ///< Access function for #displayVertSlice4Selection property - refer to #displayVertSlice4Selection property for details
+    bool getDisplayVertSlice4Selection();                                      ///< Access function for #displayVertSlice4Selection property - refer to #displayVertSlice4Selection property for details
+
+    void setDisplayVertSlice5Selection( bool displayVSliceSelection );         ///< Access function for #displayVertSlice5Selection property - refer to #displayVertSlice5Selection property for details
+    bool getDisplayVertSlice5Selection();                                      ///< Access function for #displayVertSlice5Selection property - refer to #displayVertSlice5Selection property for details
 
 
-    void setDisplayVertSliceSelection( bool displayVSliceSelection );         ///< Access function for #displayVertSliceSelection property - refer to #displayVertSliceSelection property for details
-    bool getDisplayVertSliceSelection();                                        ///< Access function for #displayVertSliceSelection property - refer to #displayVertSliceSelection property for details
+    void setDisplayHozSlice1Selection( bool displayHSliceSelection );            ///< Access function for #displayHozSlice1Selection property - refer to #displayHozSlice1Selection property for details
+    bool getDisplayHozSlice1Selection();                                         ///< Access function for #displayHozSlice1Selection property - refer to #displayHozSlice1Selection property for details
 
-    void setDisplayHozSliceSelection( bool displayHSliceSelection );            ///< Access function for #displayHozSliceSelection property - refer to #displayHozSliceSelection property for details
-    bool getDisplayHozSliceSelection();                                         ///< Access function for #displayHozSliceSelection property - refer to #displayHozSliceSelection property for details
+    void setDisplayHozSlice2Selection( bool displayHSliceSelection );            ///< Access function for #displayHozSlice2Selection property - refer to #displayHozSlice2Selection property for details
+    bool getDisplayHozSlice2Selection();                                         ///< Access function for #displayHozSlice2Selection property - refer to #displayHozSlice2Selection property for details
+
+    void setDisplayHozSlice3Selection( bool displayHSliceSelection );            ///< Access function for #displayHozSlice3Selection property - refer to #displayHozSlice3Selection property for details
+    bool getDisplayHozSlice3Selection();                                         ///< Access function for #displayHozSlice3Selection property - refer to #displayHozSlice3Selection property for details
+
+    void setDisplayHozSlice4Selection( bool displayHSliceSelection );            ///< Access function for #displayHozSlice4Selection property - refer to #displayHozSlice4Selection property for details
+    bool getDisplayHozSlice4Selection();                                         ///< Access function for #displayHozSlice4Selection property - refer to #displayHozSlice4Selection property for details
+
+    void setDisplayHozSlice5Selection( bool displayHSliceSelection );            ///< Access function for #displayHozSlice5Selection property - refer to #displayHozSlice5Selection property for details
+    bool getDisplayHozSlice5Selection();                                         ///< Access function for #displayHozSlice5Selection property - refer to #displayHozSlice5Selection property for details
+
 
     void setDisplayArea1Selection( bool displayAreaSelection );                 ///< Access function for #displayArea1Selection property - refer to #displayArea1Selection property for details
     bool getDisplayArea1Selection();                                            ///< Access function for #displayArea1Selection property - refer to #displayArea1Selection property for details
@@ -388,10 +468,26 @@ public:
     applicationLauncher::programStartupOptions getProgramStartupOption2();                            ///< Access function for #programStartupOption2 property - refer to #programStartupOption2 property for details
 
 
-    QString getHozSliceLegend();                       ///< Access function for #hozSliceLegend property - refer to #hozSliceLegend property for details
-    void setHozSliceLegend( QString legend );           ///< Access function for #hozSliceLegend property - refer to #hozSliceLegend property for details
-    QString getVertSliceLegend();                      ///< Access function for #vertSliceLegend property - refer to #vertSliceLegend property for details
-    void setVertSliceLegend( QString legend );          ///< Access function for #vertSliceLegend property - refer to #vertSliceLegend property for details
+    QString getHozSlice1Legend();                       ///< Access function for #hozSlice1Legend property - refer to #hozSlice1Legend property for details
+    void setHozSlice1Legend( QString legend );          ///< Access function for #hozSlice1Legend property - refer to #hozSlice1Legend property for details
+    QString getHozSlice2Legend();                       ///< Access function for #hozSlice2Legend property - refer to #hozSlice2Legend property for details
+    void setHozSlice2Legend( QString legend );          ///< Access function for #hozSlice2Legend property - refer to #hozSlice2Legend property for details
+    QString getHozSlice3Legend();                       ///< Access function for #hozSlice3Legend property - refer to #hozSlice3Legend property for details
+    void setHozSlice3Legend( QString legend );          ///< Access function for #hozSlice3Legend property - refer to #hozSlice3Legend property for details
+    QString getHozSlice4Legend();                       ///< Access function for #hozSlice4Legend property - refer to #hozSlice4Legend property for details
+    void setHozSlice4Legend( QString legend );          ///< Access function for #hozSlice4Legend property - refer to #hozSlice4Legend property for details
+    QString getHozSlice5Legend();                       ///< Access function for #hozSlice5Legend property - refer to #hozSlice5Legend property for details
+    void setHozSlice5Legend( QString legend );          ///< Access function for #hozSlice5Legend property - refer to #hozSlice5Legend property for details
+    QString getVertSlice1Legend();                      ///< Access function for #vertSlice1Legend property - refer to #vertSlice1Legend property for details
+    void setVertSlice1Legend( QString legend );         ///< Access function for #vertSlice1Legend property - refer to #vertSlice1Legend property for details
+    QString getVertSlice2Legend();                      ///< Access function for #vertSlice2Legend property - refer to #vertSlice2Legend property for details
+    void setVertSlice2Legend( QString legend );         ///< Access function for #vertSlice2Legend property - refer to #vertSlice2Legend property for details
+    QString getVertSlice3Legend();                      ///< Access function for #vertSlice3Legend property - refer to #vertSlice3Legend property for details
+    void setVertSlice3Legend( QString legend );         ///< Access function for #vertSlice3Legend property - refer to #vertSlice3Legend property for details
+    QString getVertSlice4Legend();                      ///< Access function for #vertSlice4Legend property - refer to #vertSlice4Legend property for details
+    void setVertSlice4Legend( QString legend );         ///< Access function for #vertSlice4Legend property - refer to #vertSlice4Legend property for details
+    QString getVertSlice5Legend();                      ///< Access function for #vertSlice5Legend property - refer to #vertSlice5Legend property for details
+    void setVertSlice5Legend( QString legend );         ///< Access function for #vertSlice5Legend property - refer to #vertSlice5Legend property for details
     QString getprofileLegend();                        ///< Access function for #profileLegend property - refer to #profileLegend property for details
     void setProfileLegend( QString legend );            ///< Access function for #profileLegend property - refer to #profileLegend property for details
     QString getAreaSelection1Legend();                 ///< Access function for #areaSelection1Legend property - refer to #areaSelection1Legend property for details
@@ -435,8 +531,16 @@ public:
                           BEAM_X_VARIABLE, BEAM_Y_VARIABLE,
                           TARGET_TRIGGER_VARIABLE,
                           CLIPPING_ONOFF_VARIABLE, CLIPPING_LOW_VARIABLE, CLIPPING_HIGH_VARIABLE,
-                          PROFILE_H_VARIABLE, PROFILE_H_THICKNESS_VARIABLE,
-                          PROFILE_V_VARIABLE, PROFILE_V_THICKNESS_VARIABLE,
+                          PROFILE_H1_VARIABLE, PROFILE_H1_THICKNESS_VARIABLE,
+                          PROFILE_H2_VARIABLE, PROFILE_H2_THICKNESS_VARIABLE,
+                          PROFILE_H3_VARIABLE, PROFILE_H3_THICKNESS_VARIABLE,
+                          PROFILE_H4_VARIABLE, PROFILE_H4_THICKNESS_VARIABLE,
+                          PROFILE_H5_VARIABLE, PROFILE_H5_THICKNESS_VARIABLE,
+                          PROFILE_V1_VARIABLE, PROFILE_V1_THICKNESS_VARIABLE,
+                          PROFILE_V2_VARIABLE, PROFILE_V2_THICKNESS_VARIABLE,
+                          PROFILE_V3_VARIABLE, PROFILE_V3_THICKNESS_VARIABLE,
+                          PROFILE_V4_VARIABLE, PROFILE_V4_THICKNESS_VARIABLE,
+                          PROFILE_V5_VARIABLE, PROFILE_V5_THICKNESS_VARIABLE,
                           LINE_PROFILE_X1_VARIABLE, LINE_PROFILE_Y1_VARIABLE, LINE_PROFILE_X2_VARIABLE, LINE_PROFILE_Y2_VARIABLE, LINE_PROFILE_THICKNESS_VARIABLE,
                           PROFILE_H_ARRAY, PROFILE_V_ARRAY, PROFILE_LINE_ARRAY,
                           ELLIPSE_X_VARIABLE, ELLIPSE_Y_VARIABLE, ELLIPSE_W_VARIABLE, ELLIPSE_H_VARIABLE,
@@ -467,8 +571,16 @@ private slots:
     void setEllipse( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
 
     // Menu choice slots
-    void vSliceSelectModeClicked();
-    void hSliceSelectModeClicked();
+    void vSlice1SelectModeClicked();
+    void vSlice2SelectModeClicked();
+    void vSlice3SelectModeClicked();
+    void vSlice4SelectModeClicked();
+    void vSlice5SelectModeClicked();
+    void hSlice1SelectModeClicked();
+    void hSlice2SelectModeClicked();
+    void hSlice3SelectModeClicked();
+    void hSlice4SelectModeClicked();
+    void hSlice5SelectModeClicked();
     void area1SelectModeClicked();
     void area2SelectModeClicked();
     void area3SelectModeClicked();
@@ -523,8 +635,8 @@ public slots:
     void setImageFile( QString name );
     // Slots to allow external setting of selection menu options
     void setSelectPanMode()     { sMenu->setChecked(  QEImage::SO_PANNING ); panModeClicked(); }            ///< Framework use only. Slot to allow external setting of selection menu options
-    void setSelectVSliceMode()  { sMenu->setChecked(  QEImage::SO_VSLICE );  vSliceSelectModeClicked(); }   ///< Framework use only. Slot to allow external setting of selection menu options
-    void setSelectHSliceMode()  { sMenu->setChecked(  QEImage::SO_HSLICE );  hSliceSelectModeClicked(); }   ///< Framework use only. Slot to allow external setting of selection menu options
+    void setSelectVSliceMode()  { sMenu->setChecked(  QEImage::SO_VSLICE1 );  vSlice1SelectModeClicked(); }   ///< Framework use only. Slot to allow external setting of selection menu options
+    void setSelectHSliceMode()  { sMenu->setChecked(  QEImage::SO_HSLICE1 );  hSlice1SelectModeClicked(); }   ///< Framework use only. Slot to allow external setting of selection menu options
     void setSelectArea1Mode()   { sMenu->setChecked(  QEImage::SO_AREA1 );   area1SelectModeClicked(); }    ///< Framework use only. Slot to allow external setting of selection menu options
     void setSelectArea2Mode()   { sMenu->setChecked(  QEImage::SO_AREA2 );   area2SelectModeClicked(); }    ///< Framework use only. Slot to allow external setting of selection menu options
     void setSelectArea3Mode()   { sMenu->setChecked(  QEImage::SO_AREA3 );   area3SelectModeClicked(); }    ///< Framework use only. Slot to allow external setting of selection menu options
@@ -532,6 +644,16 @@ public slots:
     void setSelectProfileMode() { sMenu->setChecked(  QEImage::SO_PROFILE ); profileSelectModeClicked(); }  ///< Framework use only. Slot to allow external setting of selection menu options
     void setSelectTargetMode()  { sMenu->setChecked(  QEImage::SO_TARGET );  targetSelectModeClicked(); }   ///< Framework use only. Slot to allow external setting of selection menu options
     void setSelectBeamMode()    { sMenu->setChecked(  QEImage::SO_BEAM );    beamSelectModeClicked(); }     ///< Framework use only. Slot to allow external setting of selection menu options
+    void setSelectVSlice1Mode()  { sMenu->setChecked(  QEImage::SO_VSLICE1 );  vSlice1SelectModeClicked(); }   ///< Framework use only. Slot to allow external setting of selection menu options
+    void setSelectVSlice2Mode()  { sMenu->setChecked(  QEImage::SO_VSLICE2 );  vSlice2SelectModeClicked(); }   ///< Framework use only. Slot to allow external setting of selection menu options
+    void setSelectVSlice3Mode()  { sMenu->setChecked(  QEImage::SO_VSLICE3 );  vSlice3SelectModeClicked(); }   ///< Framework use only. Slot to allow external setting of selection menu options
+    void setSelectVSlice4Mode()  { sMenu->setChecked(  QEImage::SO_VSLICE4 );  vSlice4SelectModeClicked(); }   ///< Framework use only. Slot to allow external setting of selection menu options
+    void setSelectVSlice5Mode()  { sMenu->setChecked(  QEImage::SO_VSLICE5 );  vSlice5SelectModeClicked(); }   ///< Framework use only. Slot to allow external setting of selection menu options
+    void setSelectHSlice1Mode()  { sMenu->setChecked(  QEImage::SO_HSLICE1 );  hSlice1SelectModeClicked(); }   ///< Framework use only. Slot to allow external setting of selection menu options
+    void setSelectHSlice2Mode()  { sMenu->setChecked(  QEImage::SO_HSLICE2 );  hSlice2SelectModeClicked(); }   ///< Framework use only. Slot to allow external setting of selection menu options
+    void setSelectHSlice3Mode()  { sMenu->setChecked(  QEImage::SO_HSLICE3 );  hSlice3SelectModeClicked(); }   ///< Framework use only. Slot to allow external setting of selection menu options
+    void setSelectHSlice4Mode()  { sMenu->setChecked(  QEImage::SO_HSLICE4 );  hSlice4SelectModeClicked(); }   ///< Framework use only. Slot to allow external setting of selection menu options
+    void setSelectHSlice5Mode()  { sMenu->setChecked(  QEImage::SO_HSLICE5 );  hSlice5SelectModeClicked(); }   ///< Framework use only. Slot to allow external setting of selection menu options
 
     // Slots to allow external operation of control buttons
     void pauseClicked();           ///< Framework use only. Slot to allow external setting of selection menu options
@@ -585,8 +707,18 @@ signals:
     void roi4Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
 
     void lineProfileChanged();  ///< Framework use only. Slot to allow external setting of selection menu options
-    void hozProfileChanged();   ///< Framework use only. Slot to allow external setting of selection menu options
-    void vertProfileChanged();  ///< Framework use only. Slot to allow external setting of selection menu options
+
+    void hozProfile1Changed();   ///< Framework use only. Slot to allow external setting of selection menu options
+    void hozProfile2Changed();   ///< Framework use only. Slot to allow external setting of selection menu options
+    void hozProfile3Changed();   ///< Framework use only. Slot to allow external setting of selection menu options
+    void hozProfile4Changed();   ///< Framework use only. Slot to allow external setting of selection menu options
+    void hozProfile5Changed();   ///< Framework use only. Slot to allow external setting of selection menu options
+
+    void vertProfile1Changed();  ///< Framework use only. Slot to allow external setting of selection menu options
+    void vertProfile2Changed();  ///< Framework use only. Slot to allow external setting of selection menu options
+    void vertProfile3Changed();  ///< Framework use only. Slot to allow external setting of selection menu options
+    void vertProfile4Changed();  ///< Framework use only. Slot to allow external setting of selection menu options
+    void vertProfile5Changed();  ///< Framework use only. Slot to allow external setting of selection menu options
 
 
     void actionRequest( QString action, QStringList arguments, bool initialise, QAction* originator ); // Perform a named action
@@ -680,11 +812,27 @@ signals:
     areaInfo roiInfo[4];
 
     // User selected information
-    int vSliceX;
-    unsigned int vSliceThickness;
+    int vSlice1X;
+    unsigned int vSlice1Thickness;
+    int vSlice2X;
+    unsigned int vSlice2Thickness;
+    int vSlice3X;
+    unsigned int vSlice3Thickness;
+    int vSlice4X;
+    unsigned int vSlice4Thickness;
+    int vSlice5X;
+    unsigned int vSlice5Thickness;
 
-    int hSliceY;
-    unsigned int hSliceThickness;
+    int hSlice1Y;
+    unsigned int hSlice1Thickness;
+    int hSlice2Y;
+    unsigned int hSlice2Thickness;
+    int hSlice3Y;
+    unsigned int hSlice3Thickness;
+    int hSlice4Y;
+    unsigned int hSlice4Thickness;
+    int hSlice5Y;
+    unsigned int hSlice5Thickness;
 
     areaInfo lineProfileInfo;
     areaInfo ellipseInfo;
@@ -704,8 +852,16 @@ signals:
     pointInfo targetInfo;
     pointInfo beamInfo;
 
-    bool haveVSliceX;
-    bool haveHSliceY;
+    bool haveVSlice1X;
+    bool haveVSlice2X;
+    bool haveVSlice3X;
+    bool haveVSlice4X;
+    bool haveVSlice5X;
+    bool haveHSlice1Y;
+    bool haveHSlice2Y;
+    bool haveHSlice3Y;
+    bool haveHSlice4Y;
+    bool haveHSlice5Y;
     bool haveProfileLine;
     bool haveSelectedArea1;
     bool haveSelectedArea2;
@@ -742,8 +898,16 @@ signals:
     void doEnableImageDisplayProperties( bool enableBrightnessContrast );
     void doEnableRecording( bool enableRecording );
     void doContrastReversal( bool contrastReversal );
-    void doEnableVertSliceSelection( bool enableVSliceSelection );
-    void doEnableHozSliceSelection( bool enableHSliceSelection );
+    void doEnableVertSlice1Selection( bool enableVSliceSelection );
+    void doEnableVertSlice2Selection( bool enableVSliceSelection );
+    void doEnableVertSlice3Selection( bool enableVSliceSelection );
+    void doEnableVertSlice4Selection( bool enableVSliceSelection );
+    void doEnableVertSlice5Selection( bool enableVSliceSelection );
+    void doEnableHozSlice1Selection( bool enableHSliceSelection );
+    void doEnableHozSlice2Selection( bool enableHSliceSelection );
+    void doEnableHozSlice3Selection( bool enableHSliceSelection );
+    void doEnableHozSlice4Selection( bool enableHSliceSelection );
+    void doEnableHozSlice5Selection( bool enableHSliceSelection );
     void doEnableAreaSelection( /*imageContextMenu::imageContextMenuOptions area,*/ bool enableAreaSelection );
     void doEnableProfileSelection( bool enableProfileSelection );
     void doEnableTargetSelection( bool enableTargetSelection );
@@ -956,84 +1120,172 @@ protected:
     Q_PROPERTY(QString clippingHighVariable READ getVariableName32Property WRITE setVariableName32Property)
 
     VARIABLE_PROPERTY_ACCESS(33)
+    // Deprecated. Use profileHoz1Variable instead
+    Q_PROPERTY(QString profileHozVariable READ getVariableName33Property WRITE setVariableName33Property DESIGNABLE false)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector horizontal profile.
-    Q_PROPERTY(QString profileHozVariable READ getVariableName33Property WRITE setVariableName33Property)
+    /// This variable is used to write the areadetector first horizontal profile.
+    Q_PROPERTY(QString profileHoz1Variable READ getVariableName33Property WRITE setVariableName33Property)
 
     VARIABLE_PROPERTY_ACCESS(34)
+    // Deprecated. Use profileHoz1ThicknessVariable instead
+    Q_PROPERTY(QString profileHozThicknessVariable READ getVariableName34Property WRITE setVariableName34Property DESIGNABLE false)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector horizontal profile thickness.
-    Q_PROPERTY(QString profileHozThicknessVariable READ getVariableName34Property WRITE setVariableName34Property)
+    /// This variable is used to write the areadetector first horizontal profile thickness.
+    Q_PROPERTY(QString profileHoz1ThicknessVariable READ getVariableName34Property WRITE setVariableName34Property)
 
     VARIABLE_PROPERTY_ACCESS(35)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector vertical profile.
-    Q_PROPERTY(QString profileVertVariable READ getVariableName35Property WRITE setVariableName35Property)
+    /// This variable is used to write the areadetector second horizontal profile.
+    Q_PROPERTY(QString profileHoz2Variable READ getVariableName35Property WRITE setVariableName35Property)
 
     VARIABLE_PROPERTY_ACCESS(36)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector vertical profile.
-    Q_PROPERTY(QString profileVertThicknessVariable READ getVariableName36Property WRITE setVariableName36Property)
+    /// This variable is used to write the areadetector second horizontal profile thickness.
+    Q_PROPERTY(QString profileHoz2ThicknessVariable READ getVariableName36Property WRITE setVariableName36Property)
 
     VARIABLE_PROPERTY_ACCESS(37)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector arbitrary line profile start X.
-    Q_PROPERTY(QString lineProfileX1Variable READ getVariableName37Property WRITE setVariableName37Property)
+    /// This variable is used to write the areadetector third horizontal profile.
+    Q_PROPERTY(QString profileHoz3Variable READ getVariableName37Property WRITE setVariableName37Property)
 
     VARIABLE_PROPERTY_ACCESS(38)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector arbitrary line profile start Y.
-    Q_PROPERTY(QString lineProfileY1Variable READ getVariableName38Property WRITE setVariableName38Property)
+    /// This variable is used to write the areadetector third horizontal profile thickness.
+    Q_PROPERTY(QString profileHoz3ThicknessVariable READ getVariableName38Property WRITE setVariableName38Property)
 
     VARIABLE_PROPERTY_ACCESS(39)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector arbitrary line profile end X.
-    Q_PROPERTY(QString lineProfileX2Variable READ getVariableName39Property WRITE setVariableName39Property)
+    /// This variable is used to write the areadetector fourth horizontal profile.
+    Q_PROPERTY(QString profileHoz4Variable READ getVariableName39Property WRITE setVariableName39Property)
 
     VARIABLE_PROPERTY_ACCESS(40)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector arbitrary line profile end Y.
-    Q_PROPERTY(QString lineProfileY2Variable READ getVariableName40Property WRITE setVariableName40Property)
+    /// This variable is used to write the areadetector fourth horizontal profile thickness.
+    Q_PROPERTY(QString profileHoz4ThicknessVariable READ getVariableName40Property WRITE setVariableName40Property)
 
     VARIABLE_PROPERTY_ACCESS(41)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector arbitrary line profile end Y.
-    Q_PROPERTY(QString lineProfileThicknessVariable READ getVariableName41Property WRITE setVariableName41Property)
+    /// This variable is used to write the areadetector fifth horizontal profile.
+    Q_PROPERTY(QString profileHoz5Variable READ getVariableName41Property WRITE setVariableName41Property)
 
     VARIABLE_PROPERTY_ACCESS(42)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector horizontal profile array.
-    Q_PROPERTY(QString profileHozArrayVariable READ getVariableName42Property WRITE setVariableName42Property)
+    /// This variable is used to write the areadetector fifth horizontal profile thickness.
+    Q_PROPERTY(QString profileHoz5ThicknessVariable READ getVariableName42Property WRITE setVariableName42Property)
 
     VARIABLE_PROPERTY_ACCESS(43)
+    // Deprecated. Use profileVert1Variable instead
+    Q_PROPERTY(QString profileVertVariable READ getVariableName43Property WRITE setVariableName43Property DESIGNABLE false)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector vertical profile array.
-    Q_PROPERTY(QString profileVertArrayVariable READ getVariableName43Property WRITE setVariableName43Property)
+    /// This variable is used to write the areadetector first vertical profile.
+    Q_PROPERTY(QString profileVert1Variable READ getVariableName43Property WRITE setVariableName43Property)
 
     VARIABLE_PROPERTY_ACCESS(44)
+    // Deprecated. Use profileVert1ThicknessVariable instead
+    Q_PROPERTY(QString profileVertThicknessVariable READ getVariableName44Property WRITE setVariableName44Property DESIGNABLE false)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector arbitrary line profile array.
-    Q_PROPERTY(QString lineProfileArrayVariable READ getVariableName44Property WRITE setVariableName44Property)
+    /// This variable is used to write the areadetector first vertical profile.
+    Q_PROPERTY(QString profileVert1ThicknessVariable READ getVariableName44Property WRITE setVariableName44Property)
 
     VARIABLE_PROPERTY_ACCESS(45)
     /// EPICS variable name (CA PV).
-    /// This variable is used to read an ellipse X (center or top left corner of bounding rectangle depending on property ellipseDefinition).
-    Q_PROPERTY(QString ellipseXVariable READ getVariableName45Property WRITE setVariableName45Property)
+    /// This variable is used to write the areadetector second vertical profile.
+    Q_PROPERTY(QString profileVert2Variable READ getVariableName45Property WRITE setVariableName45Property)
 
     VARIABLE_PROPERTY_ACCESS(46)
     /// EPICS variable name (CA PV).
-    /// This variable is used to read an ellipse Y (center or top left corner of bounding rectangle depending on property ellipseDefinition).
-    Q_PROPERTY(QString ellipseYVariable READ getVariableName46Property WRITE setVariableName46Property)
+    /// This variable is used to write the areadetector second vertical profile.
+    Q_PROPERTY(QString profileVert2ThicknessVariable READ getVariableName46Property WRITE setVariableName46Property)
 
     VARIABLE_PROPERTY_ACCESS(47)
     /// EPICS variable name (CA PV).
-    /// This variable is used to read an ellipse width.
-    Q_PROPERTY(QString ellipseWVariable READ getVariableName47Property WRITE setVariableName47Property)
+    /// This variable is used to write the areadetector third vertical profile.
+    Q_PROPERTY(QString profileVert3Variable READ getVariableName47Property WRITE setVariableName47Property)
 
     VARIABLE_PROPERTY_ACCESS(48)
     /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector third vertical profile.
+    Q_PROPERTY(QString profileVert3ThicknessVariable READ getVariableName48Property WRITE setVariableName48Property)
+
+    VARIABLE_PROPERTY_ACCESS(49)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector fourth vertical profile.
+    Q_PROPERTY(QString profileVert4Variable READ getVariableName49Property WRITE setVariableName49Property)
+
+    VARIABLE_PROPERTY_ACCESS(50)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector fourth vertical profile.
+    Q_PROPERTY(QString profileVert4ThicknessVariable READ getVariableName50Property WRITE setVariableName50Property)
+
+    VARIABLE_PROPERTY_ACCESS(51)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector fifth vertical profile.
+    Q_PROPERTY(QString profileVert5Variable READ getVariableName51Property WRITE setVariableName51Property)
+
+    VARIABLE_PROPERTY_ACCESS(52)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector fifth vertical profile.
+    Q_PROPERTY(QString profileVert5ThicknessVariable READ getVariableName52Property WRITE setVariableName52Property)
+
+    VARIABLE_PROPERTY_ACCESS(53)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector arbitrary line profile start X.
+    Q_PROPERTY(QString lineProfileX1Variable READ getVariableName53Property WRITE setVariableName53Property)
+
+    VARIABLE_PROPERTY_ACCESS(54)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector arbitrary line profile start Y.
+    Q_PROPERTY(QString lineProfileY1Variable READ getVariableName54Property WRITE setVariableName54Property)
+
+    VARIABLE_PROPERTY_ACCESS(55)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector arbitrary line profile end X.
+    Q_PROPERTY(QString lineProfileX2Variable READ getVariableName55Property WRITE setVariableName55Property)
+
+    VARIABLE_PROPERTY_ACCESS(56)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector arbitrary line profile end Y.
+    Q_PROPERTY(QString lineProfileY2Variable READ getVariableName56Property WRITE setVariableName56Property)
+
+    VARIABLE_PROPERTY_ACCESS(57)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector arbitrary line profile end Y.
+    Q_PROPERTY(QString lineProfileThicknessVariable READ getVariableName57Property WRITE setVariableName57Property)
+
+    VARIABLE_PROPERTY_ACCESS(58)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector horizontal profile array.
+    Q_PROPERTY(QString profileHozArrayVariable READ getVariableName58Property WRITE setVariableName58Property)
+
+    VARIABLE_PROPERTY_ACCESS(59)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector vertical profile array.
+    Q_PROPERTY(QString profileVertArrayVariable READ getVariableName59Property WRITE setVariableName59Property)
+
+    VARIABLE_PROPERTY_ACCESS(60)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector arbitrary line profile array.
+    Q_PROPERTY(QString lineProfileArrayVariable READ getVariableName60Property WRITE setVariableName60Property)
+
+    VARIABLE_PROPERTY_ACCESS(61)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to read an ellipse X (center or top left corner of bounding rectangle depending on property ellipseDefinition).
+    Q_PROPERTY(QString ellipseXVariable READ getVariableName61Property WRITE setVariableName61Property)
+
+    VARIABLE_PROPERTY_ACCESS(62)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to read an ellipse Y (center or top left corner of bounding rectangle depending on property ellipseDefinition).
+    Q_PROPERTY(QString ellipseYVariable READ getVariableName62Property WRITE setVariableName62Property)
+
+    VARIABLE_PROPERTY_ACCESS(63)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to read an ellipse width.
+    Q_PROPERTY(QString ellipseWVariable READ getVariableName63Property WRITE setVariableName63Property)
+
+    VARIABLE_PROPERTY_ACCESS(64)
+    /// EPICS variable name (CA PV).
     /// This variable is used to read an ellipse height
-    Q_PROPERTY(QString ellipseHVariable READ getVariableName48Property WRITE setVariableName48Property)
+    Q_PROPERTY(QString ellipseHVariable READ getVariableName64Property WRITE setVariableName64Property)
 
 #undef VARIABLE_PROPERTY_ACCESS
 
@@ -1212,15 +1464,63 @@ public:
 
     //=========
 
+    // This property is deprecated. Use enableVertSlice1Selection instead.
+    // If true, the option to select a vertical slice through the image will be available to the user.
+    // This will be used to generate a horizontal pixel profile, and write the position of the slice to the optional variable specified by the #profileVert1Variable property.
+    // The profile will only be presented to the user if enableVertSlicePresentation property is true.
+    Q_PROPERTY(bool enableVertSliceSelection READ getEnableVertSlice1Selection WRITE setEnableVertSlice1Selection DESIGNABLE false)
+
     /// If true, the option to select a vertical slice through the image will be available to the user.
-    /// This will be used to generate a horizontal pixel profile, and write the position of the slice to the optional variable specified by the #profileVertVariable property.
+    /// This will be used to generate a horizontal pixel profile, and write the position of the slice to the optional variable specified by the #profileVert1Variable property.
     /// The profile will only be presented to the user if #enableVertSlicePresentation property is true.
-    Q_PROPERTY(bool enableVertSliceSelection READ getEnableVertSliceSelection WRITE setEnableVertSliceSelection)
+    Q_PROPERTY(bool enableVertSlice1Selection READ getEnableVertSlice1Selection WRITE setEnableVertSlice1Selection)
+
+    /// If true, the option to select a second vertical slice through the image will be available to the user.
+    /// This will be used to write the position of the slice to the optional variable specified by the #profileVert2Variable property.
+    Q_PROPERTY(bool enableVertSlice2Selection READ getEnableVertSlice2Selection WRITE setEnableVertSlice2Selection)
+
+    /// If true, the option to select a third vertical slice through the image will be available to the user.
+    /// This will be used to write the position of the slice to the optional variable specified by the #profileVert3Variable property.
+    Q_PROPERTY(bool enableVertSlice3Selection READ getEnableVertSlice3Selection WRITE setEnableVertSlice3Selection)
+
+    /// If true, the option to select a fourth vertical slice through the image will be available to the user.
+    /// This will be used to write the position of the slice to the optional variable specified by the #profileVert4Variable property.
+    Q_PROPERTY(bool enableVertSlice4Selection READ getEnableVertSlice4Selection WRITE setEnableVertSlice4Selection)
+
+    /// If true, the option to select a fifth vertical slice through the image will be available to the user.
+    /// This will be used to write the position of the slice to the optional variable specified by the #profileVert5Variable property.
+    Q_PROPERTY(bool enableVertSlice5Selection READ getEnableVertSlice5Selection WRITE setEnableVertSlice5Selection)
+
+    //=========
+
+    // This property is deprecated. Use enableHozSlice1Selection instead.
+    // If true, the option to select a horizontal slice through the image will be available to the user.
+    // This will be used to generate a horizontal pixel profile, and write the position of the slice to the optional variable specified by the profileHoz1Variable property.
+    // The profile will only be presented to the user if enableHozSlicePresentation property is true.
+    Q_PROPERTY(bool enableHozSliceSelection READ getEnableHozSlice1Selection WRITE setEnableHozSlice1Selection  DESIGNABLE false)
 
     /// If true, the option to select a horizontal slice through the image will be available to the user.
-    /// This will be used to generate a horizontal pixel profile, and write the position of the slice to the optional variable specified by the #profileHozVariable property.
-    /// The profile will only be presented to the user if #enableHozSlicePresentation property is true.
-    Q_PROPERTY(bool enableHozSliceSelection READ getEnableHozSliceSelection WRITE setEnableHozSliceSelection)
+    /// This will be used to generate a horizontal pixel profile, and write the position of the slice to the optional variable specified by the profileHoz1Variable property.
+    /// The profile will only be presented to the user if enableHozSlicePresentation property is true.
+    Q_PROPERTY(bool enableHozSlice1Selection READ getEnableHozSlice1Selection WRITE setEnableHozSlice1Selection)
+
+    /// If true, the option to select a second horizontal slice through the image will be available to the user.
+    /// This will be used to write the position of the slice to the optional variable specified by the #profileHoz2Variable property.
+    Q_PROPERTY(bool enableHozSlice2Selection READ getEnableHozSlice2Selection WRITE setEnableHozSlice2Selection)
+
+    /// If true, the option to select a third horizontal slice through the image will be available to the user.
+    /// This will be used to write the position of the slice to the optional variable specified by the #profileHoz3Variable property.
+    Q_PROPERTY(bool enableHozSlice3Selection READ getEnableHozSlice3Selection WRITE setEnableHozSlice3Selection)
+
+    /// If true, the option to select a fourth horizontal slice through the image will be available to the user.
+    /// This will be used to write the position of the slice to the optional variable specified by the #profileHoz4Variable property.
+    Q_PROPERTY(bool enableHozSlice4Selection READ getEnableHozSlice4Selection WRITE setEnableHozSlice4Selection)
+
+    /// If true, the option to select a fifth horizontal slice through the image will be available to the user.
+    /// This will be used to write the position of the slice to the optional variable specified by the #profileHoz5Variable property.
+    Q_PROPERTY(bool enableHozSlice5Selection READ getEnableHozSlice5Selection WRITE setEnableHozSlice5Selection)
+
+    //=========
 
     /// If true, the option to select an arbitrary line through any part of the image will be available to the user.
     /// This will be used to generate a pixel profile.
@@ -1271,13 +1571,41 @@ public:
 
     //=========
 
-    /// Name of horizontal slice profile markup
-    Q_PROPERTY(QString hozSliceLegend READ getHozSliceLegend WRITE setHozSliceLegend)
+    // Deprecated. Name of horizontal slice profile markup
+    Q_PROPERTY(QString hozSliceLegend READ getHozSlice1Legend WRITE setHozSlice1Legend DESIGNABLE false)
+    /// Name of horizontal slice 1 markup
+    Q_PROPERTY(QString hozSlice1Legend READ getHozSlice1Legend WRITE setHozSlice1Legend)
 
-    /// Name of vertical slice profile markup
-    Q_PROPERTY(QString vertSliceLegend READ getVertSliceLegend WRITE setVertSliceLegend)
+    /// Name of horizontal slice 2 markup
+    Q_PROPERTY(QString hozSlice2Legend READ getHozSlice2Legend WRITE setHozSlice2Legend)
 
-    /// Name of arbitrary priofile markup
+    /// Name of horizontal slice 3 markup
+    Q_PROPERTY(QString hozSlice3Legend READ getHozSlice3Legend WRITE setHozSlice3Legend)
+
+    /// Name of horizontal slice 4 markup
+    Q_PROPERTY(QString hozSlice4Legend READ getHozSlice4Legend WRITE setHozSlice4Legend)
+
+    /// Name of horizontal slice 5 markup
+    Q_PROPERTY(QString hozSlice5Legend READ getHozSlice5Legend WRITE setHozSlice5Legend)
+
+    // Deprecated. Name of vertical slice profile markup
+    Q_PROPERTY(QString vertSliceLegend READ getVertSlice1Legend WRITE setVertSlice1Legend DESIGNABLE false)
+    /// Name of vertical slice 1 markup
+    Q_PROPERTY(QString vertSlice1Legend READ getVertSlice1Legend WRITE setVertSlice1Legend)
+
+    /// Name of vertical slice 2 markup
+    Q_PROPERTY(QString vertSlice2Legend READ getVertSlice2Legend WRITE setVertSlice2Legend)
+
+    /// Name of vertical slice 3 markup
+    Q_PROPERTY(QString vertSlice3Legend READ getVertSlice3Legend WRITE setVertSlice3Legend)
+
+    /// Name of vertical slice 4 markup
+    Q_PROPERTY(QString vertSlice4Legend READ getVertSlice4Legend WRITE setVertSlice4Legend)
+
+    /// Name of vertical slice 5 markup
+    Q_PROPERTY(QString vertSlice5Legend READ getVertSlice5Legend WRITE setVertSlice5Legend)
+
+    /// Name of arbitrary profile markup
     Q_PROPERTY(QString profileLegend READ getprofileLegend WRITE setProfileLegend)
 
     /// Name of area selection 1 markup
@@ -1305,13 +1633,59 @@ public:
 
     //=========
 
-    /// If true, the selected vertical slice will be displayed on the image. Note, this property is ignored unless the #enableVertSliceSelection property is true.
-    ///
-    Q_PROPERTY(bool displayVertSliceSelection READ getDisplayVertSliceSelection WRITE setDisplayVertSliceSelection)
+    // Deprecated. If true, the selected vertical slice will be displayed on the image. Note, this property is ignored unless the #enableVertSliceSelection property is true.
+    Q_PROPERTY(bool displayVertSliceSelection READ getDisplayVertSlice1Selection WRITE setDisplayVertSlice1Selection DESIGNABLE false)
 
-    /// If true, the selected horizontal slice will be displayed on the image. Note, this property is ignored unless the #enableHozSliceSelection property is true.
+    /// If true, the selected vertical slice 1 will be displayed on the image. Note, this property is ignored unless the #enableVertSlice1Selection property is true.
     ///
-    Q_PROPERTY(bool displayHozSliceSelection READ getDisplayHozSliceSelection WRITE setDisplayHozSliceSelection)
+    Q_PROPERTY(bool displayVertSliceSelection READ getDisplayVertSlice1Selection WRITE setDisplayVertSlice1Selection)
+
+    /// If true, the selected vertical slice 2 will be displayed on the image. Note, this property is ignored unless the #enableVertSlice2Selection property is true.
+    ///
+    Q_PROPERTY(bool displayVertSliceSelection READ getDisplayVertSlice2Selection WRITE setDisplayVertSlice2Selection)
+
+    /// If true, the selected vertical slice 3 will be displayed on the image. Note, this property is ignored unless the #enableVertSlice3Selection property is true.
+    ///
+    Q_PROPERTY(bool displayVertSliceSelection READ getDisplayVertSlice3Selection WRITE setDisplayVertSlice3Selection)
+
+    /// If true, the selected vertical slice 4 will be displayed on the image. Note, this property is ignored unless the #enableVertSlice4Selection property is true.
+    ///
+    Q_PROPERTY(bool displayVertSliceSelection READ getDisplayVertSlice4Selection WRITE setDisplayVertSlice4Selection)
+
+    /// If true, the selected vertical slice 5 will be displayed on the image. Note, this property is ignored unless the #enableVertSlice5Selection property is true.
+    ///
+    Q_PROPERTY(bool displayVertSliceSelection READ getDisplayVertSlice5Selection WRITE setDisplayVertSlice5Selection)
+
+    //=========
+
+    // Deprecated. If true, the selected horizontal slice will be displayed on the image. Note, this property is ignored unless the #enableHozSliceSelection property is true.
+    Q_PROPERTY(bool displayHozSliceSelection READ getDisplayHozSlice1Selection WRITE setDisplayHozSlice1Selection DESIGNABLE false)
+
+    /// If true, the selected horizontal slice will be displayed on the image. Note, this property is ignored unless the #enableHozSlice1Selection property is true.
+    ///
+    Q_PROPERTY(bool displayHozSlice1Selection READ getDisplayHozSlice1Selection WRITE setDisplayHozSlice1Selection)
+
+    /// If true, the selected horizontal slice will be displayed on the image. Note, this property is ignored unless the #enableHozSlice2Selection property is true.
+    ///
+    Q_PROPERTY(bool displayHozSlice2Selection READ getDisplayHozSlice2Selection WRITE setDisplayHozSlice2Selection)
+
+    /// If true, the selected horizontal slice will be displayed on the image. Note, this property is ignored unless the #enableHozSlice3Selection property is true.
+    ///
+    Q_PROPERTY(bool displayHozSlice3Selection READ getDisplayHozSlice3Selection WRITE setDisplayHozSlice3Selection)
+
+    /// If true, the selected horizontal slice will be displayed on the image. Note, this property is ignored unless the #enableHozSlice4Selection property is true.
+    ///
+    Q_PROPERTY(bool displayHozSlice4Selection READ getDisplayHozSlice4Selection WRITE setDisplayHozSlice4Selection)
+
+    /// If true, the selected horizontal slice will be displayed on the image. Note, this property is ignored unless the #enableHozSlice5Selection property is true.
+    ///
+    Q_PROPERTY(bool displayHozSlice5Selection READ getDisplayHozSlice5Selection WRITE setDisplayHozSlice5Selection)
+
+    //=========
+
+    /// If true, the selected arbirtary line will be displayed on the image. Note, this property is ignored unless the #enableProfileSelection property is true.
+    ///
+    Q_PROPERTY(bool displayProfileSelection READ getDisplayProfileSelection WRITE setDisplayProfileSelection)
 
     /// If true, the selected arbirtary line will be displayed on the image. Note, this property is ignored unless the #enableProfileSelection property is true.
     ///
@@ -1401,13 +1775,51 @@ public:
     ///
     Q_PROPERTY(bool useFalseColour READ getUseFalseColour WRITE setUseFalseColour)
 
-    /// Used to select the color of the vertical slice markup.
-    ///
-    Q_PROPERTY(QColor vertSliceColor READ getVertSliceMarkupColor WRITE setVertSliceMarkupColor)
+    // Deprecated. Used to select the color of the vertical slice markup.
+    Q_PROPERTY(QColor vertSliceColor READ getVertSlice1MarkupColor WRITE setVertSlice1MarkupColor DESIGNABLE false)
 
-    /// Used to select the color of the horizontal slice markup.
+    /// Used to select the color of the vertical slice 1 markup.
     ///
-    Q_PROPERTY(QColor hozSliceColor READ getHozSliceMarkupColor WRITE setHozSliceMarkupColor)
+    Q_PROPERTY(QColor vertSlice1Color READ getVertSlice1MarkupColor WRITE setVertSlice1MarkupColor)
+
+    /// Used to select the color of the vertical slice 2 markup.
+    ///
+    Q_PROPERTY(QColor vertSlice2Color READ getVertSlice2MarkupColor WRITE setVertSlice2MarkupColor)
+
+    /// Used to select the color of the vertical slice 3 markup.
+    ///
+    Q_PROPERTY(QColor vertSlice3Color READ getVertSlice3MarkupColor WRITE setVertSlice3MarkupColor)
+
+    /// Used to select the color of the vertical slice 4 markup.
+    ///
+    Q_PROPERTY(QColor vertSlice4Color READ getVertSlice4MarkupColor WRITE setVertSlice4MarkupColor)
+
+    /// Used to select the color of the vertical slice 5 markup.
+    ///
+    Q_PROPERTY(QColor vertSlice5Color READ getVertSlice5MarkupColor WRITE setVertSlice5MarkupColor)
+
+    // Deprecated. Used to select the color of the horizontal slice markup.
+    Q_PROPERTY(QColor hozSliceColor READ getHozSlice1MarkupColor WRITE setHozSlice1MarkupColor)
+
+    /// Used to select the color of the horizontal slice 1 markup.
+    ///
+    Q_PROPERTY(QColor hozSlice1Color READ getHozSlice1MarkupColor WRITE setHozSlice1MarkupColor)
+
+    /// Used to select the color of the horizontal slice 2 markup.
+    ///
+    Q_PROPERTY(QColor hozSlice2Color READ getHozSlice2MarkupColor WRITE setHozSlice2MarkupColor)
+
+    /// Used to select the color of the horizontal slice 3 markup.
+    ///
+    Q_PROPERTY(QColor hozSlice3Color READ getHozSlice3MarkupColor WRITE setHozSlice3MarkupColor)
+
+    /// Used to select the color of the horizontal slice 4 markup.
+    ///
+    Q_PROPERTY(QColor hozSlice4Color READ getHozSlice4MarkupColor WRITE setHozSlice4MarkupColor)
+
+    /// Used to select the color of the horizontal slice 5 markup.
+    ///
+    Q_PROPERTY(QColor hozSlice5Color READ getHozSlice5MarkupColor WRITE setHozSlice5MarkupColor)
 
     /// Used to select the color of the arbitrarty profile line markup.
     ///

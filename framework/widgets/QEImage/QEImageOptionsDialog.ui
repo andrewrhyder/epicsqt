@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>472</width>
-    <height>304</height>
+    <width>537</width>
+    <height>536</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,23 +23,79 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QCheckBox" name="checkBoxVerticalProfile">
+         <widget class="QCheckBox" name="checkBoxVerticalProfile1">
           <property name="text">
-           <string>Vertical line profile</string>
+           <string>Vertical line slice 1 and profile</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="checkBoxHorizontalProfile">
+         <widget class="QCheckBox" name="checkBoxVerticalProfile2">
           <property name="text">
-           <string>Horizontal line profile</string>
+           <string>Vertical line slice 2</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBoxVerticalProfile3">
+          <property name="text">
+           <string>Vertical line slice 3</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBoxVerticalProfile4">
+          <property name="text">
+           <string>Vertical line slice 4</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBoxVerticalProfile5">
+          <property name="text">
+           <string>Vertical line slice 5</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBoxHorizontalProfile1">
+          <property name="text">
+           <string>Horizontal line slice 1 and profile</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBoxHorizontalProfile2">
+          <property name="text">
+           <string>Horizontal line slice 2</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBoxHorizontalProfile3">
+          <property name="text">
+           <string>Horizontal line slice 3</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBoxHorizontalProfile4">
+          <property name="text">
+           <string>Horizontal line slice 4</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBoxHorizontalProfile5">
+          <property name="text">
+           <string>Horizontal line slice 5</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QCheckBox" name="checkBoxArbitraryProfile">
           <property name="text">
-           <string>Arbitrary line profile</string>
+           <string>Arbitrary line slice and profile</string>
           </property>
          </widget>
         </item>
