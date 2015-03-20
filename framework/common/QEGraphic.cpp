@@ -598,10 +598,13 @@ void QEGraphic::attchOwnCurve (QwtPlotCurve* curve)
 //
 QwtPlotCurve* QEGraphic::createCurveData (const DoubleVector& xData, const DoubleVector& yData)
 {
+   const int curveLength = MIN (xData.size (), yData.size ());
+
+   if (curveLength <= 1) return NULL;  // sainity check
+
    QwtPlotCurve* curve;
    DoubleVector useXData;
    DoubleVector useYData;
-   int n;
    curve = new QwtPlotCurve ();
 
    // Set curve propeties using current curve attributes.
@@ -616,8 +619,7 @@ QwtPlotCurve* QEGraphic::createCurveData (const DoubleVector& xData, const Doubl
    //
    useXData.clear();
    useYData.clear();
-   n = MIN (xData.size (), yData.size ());
-   for (int j = 0; j < n; j++) {
+   for (int j = 0; j < curveLength; j++) {
       double x, y;
 
       x = this->xAxis->scaleValue (xData.value (j));
@@ -646,7 +648,7 @@ void QEGraphic::plotCurveData (const DoubleVector& xData, const DoubleVector& yD
 {
    QwtPlotCurve* curve;
    curve = this->createCurveData (xData, yData);
-   this->userCurveList.append (curve);
+   if (curve) this->userCurveList.append (curve);
 }
 
 //------------------------------------------------------------------------------
@@ -655,7 +657,7 @@ void QEGraphic::plotMarkupCurveData (const DoubleVector& xData, const DoubleVect
 {
    QwtPlotCurve* curve;
    curve = this->createCurveData (xData, yData);
-   this->markupCurveList.append (curve);
+    if (curve) this->markupCurveList.append (curve);
 }
 
 //------------------------------------------------------------------------------
