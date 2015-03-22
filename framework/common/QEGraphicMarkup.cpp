@@ -26,6 +26,7 @@
 
 #include <QDebug>
 #include <QColor>
+#include <QEPlatform.h>
 #include <QECommon.h>
 #include "QEGraphic.h"
 #include "QEGraphicMarkup.h"
@@ -46,8 +47,9 @@
 QEGraphicMarkup::QEGraphicMarkup (QEGraphic* ownerIn)
 {
    this->owner = ownerIn;
+   this->inUse = false;
    this->visible = false;
-   this->enabled = true;
+   this->enabled = false;
    this->selected = false;
    this->cursor = Qt::CrossCursor;
    this->activationButton = Qt::LeftButton;
@@ -66,9 +68,9 @@ QEGraphicMarkup::~QEGraphicMarkup ()
 
 //-----------------------------------------------------------------------------
 //
-void QEGraphicMarkup::setCurrentPosition (const QPointF& currentPosition)
+void QEGraphicMarkup::setCurrentPosition (const QPointF& currentPositionIn)
 {
-   this->current = currentPosition;
+   this->current = currentPositionIn;
 }
 
 //-----------------------------------------------------------------------------
@@ -147,9 +149,25 @@ QEGraphic* QEGraphicMarkup::getOwner () const
 
 //-----------------------------------------------------------------------------
 //
+void QEGraphicMarkup::setInUse (const bool inUseIn)
+{
+   this->inUse = inUseIn;
+   if (!this->inUse) this->setVisible (false);  // if not in use, cannot be visible.
+}
+
+//-----------------------------------------------------------------------------
+//
+bool QEGraphicMarkup::isInUse () const
+{
+   return this->inUse;
+}
+
+//-----------------------------------------------------------------------------
+//
 void QEGraphicMarkup::setVisible (const bool isVisibleIn)
 {
    this->visible = isVisibleIn;
+   if (!this->visible) this->setEnabled (false);   // if not visible, cannot be enabled.
 }
 
 //-----------------------------------------------------------------------------
@@ -161,9 +179,10 @@ bool QEGraphicMarkup::isVisible () const
 
 //-----------------------------------------------------------------------------
 //
-void QEGraphicMarkup::setEnabled (const bool isActiveIn)
+void QEGraphicMarkup::setEnabled (const bool isEnabledIn)
 {
-   this->enabled = isActiveIn;
+   this->enabled = isEnabledIn;
+   if (!this->enabled) this->setSelected (false);   // if not enabled, cannot be selected.
 }
 
 //-----------------------------------------------------------------------------
@@ -209,7 +228,7 @@ QEGraphicAreaMarkup::QEGraphicAreaMarkup (QEGraphic* ownerIn) : QEGraphicMarkup 
 //
 void QEGraphicAreaMarkup::mousePress (const QPointF& realMousePosition, const Qt::MouseButton button)
 {
-   if (button == this->activationButton) {
+   if (this->isInUse () && (button == this->activationButton)) {
       this->origin = realMousePosition;
       this->current = realMousePosition;
       this->setVisible (true);
@@ -277,16 +296,6 @@ void QEGraphicAreaMarkup::plotMarkup ()
 //
 QEGraphicLineMarkup::QEGraphicLineMarkup (QEGraphic* ownerIn) : QEGraphicMarkup (ownerIn)
 {
-// Pick correct definition for middle button.
-// Note, at time of writing (building on qt4.6 through qt5.3) MidButton would
-// work for all, but it is due to be removed in the future.
-//
-#if QT_VERSION < 0x040700
-#define MIDDLE_BUTTON Qt::MidButton
-#else
-#define MIDDLE_BUTTON Qt::MiddleButton
-#endif
-
    this->pen.setColor(QColor (0x80C0E0));  // blueish
    this->origin = QPointF (0.0, 0.0);
    this->activationButton = MIDDLE_BUTTON;
@@ -303,7 +312,7 @@ QPointF QEGraphicLineMarkup::getSlope () const
 //
 void QEGraphicLineMarkup::mousePress (const QPointF& realMousePosition, const Qt::MouseButton button)
 {
-   if (button == this->activationButton) {
+   if (this->isInUse () && (button == this->activationButton)) {
       this->origin = realMousePosition;
       this->current = realMousePosition;
       this->setVisible (true);
@@ -390,6 +399,8 @@ void QEGraphicCrosshairsMarkup::mouseMove (const QPointF& realMousePosition)
 //
 void QEGraphicCrosshairsMarkup::setVisible (const bool visibleIn)
 {
+   if (!this->isInUse()) return;
+
    double xmin;
    double xmax;
    double ymin;
@@ -444,20 +455,36 @@ QEGraphicHVBaseMarkup::QEGraphicHVBaseMarkup
 
 //-----------------------------------------------------------------------------
 //
+void QEGraphicHVBaseMarkup::setInUse  (const bool inUse)
+{
+   QEGraphicMarkup::setInUse (inUse);
+   // When in use, there markss are always partially visible.
+   this->setVisible (inUse);
+}
+
+//-----------------------------------------------------------------------------
+//
 void QEGraphicHVBaseMarkup::mousePress (const QPointF& realMousePosition, const Qt::MouseButton button)
 {
+   if (!this->isInUse()) return;
+
    switch (button) {
       case Qt::LeftButton:
          this->current = realMousePosition;
          this->setEnabled (true);
          break;
 
-      case Qt::RightButton:
+      case MIDDLE_BUTTON:
          this->setEnabled (false);
          this->setSelected (false);
+         break;
+
+      case Qt::RightButton:
+         this->setSelected (false);
+         break;
 
       default:
-         this->setSelected (false);
+         break;
    }
 }
 

@@ -28,9 +28,11 @@
 #ifndef QE_PLATFORM_H
 #define QE_PLATFORM_H
 
+
+#include <Qt>
 #include <QEPluginLibrary_global.h>
 
-/// Geneal purpose platform specific functions used to nide compiler, environment
+/// Geneal purpose platform specific functions used to hide compiler, environment
 /// and version specific features. This locates all the #indef and the like tests
 /// into one centralised and consistent location.
 /// We use a class of static methods as opposed to a set of regular functions.
@@ -44,5 +46,15 @@ public:
 protected:
    QEPlatform () { }
 };
+
+/// Pick correct definition for middle button.
+/// Note, at time of writing (building on qt4.6 through qt5.3) MidButton would
+/// work for all, but it is due to be removed in the future.
+///
+#if QT_VERSION < 0x040700
+#define MIDDLE_BUTTON Qt::MidButton
+#else
+#define MIDDLE_BUTTON Qt::MiddleButton
+#endif
 
 # endif // QE_PLATFORM_H

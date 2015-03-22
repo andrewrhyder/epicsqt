@@ -44,6 +44,9 @@ public:
    void setCurrentPosition (const QPointF& currentPosition);
    QPointF getCurrentPosition () const;
 
+   virtual void setInUse (const bool inUse);   // in use or permitted.
+   virtual bool isInUse () const;
+
    virtual void setVisible (const bool visible);
    virtual bool isVisible () const;
 
@@ -85,6 +88,7 @@ protected:
    QBrush brush;
    QCursor cursor;
    Qt::MouseButton activationButton;
+   bool inUse;
    bool visible;
    bool enabled;
    bool selected;
@@ -158,6 +162,7 @@ class QEGraphicHVBaseMarkup : public QEGraphicMarkup {
 public:
    explicit QEGraphicHVBaseMarkup (QEGraphic* owner, const int instance);
 
+   void setInUse     (const bool inUse);
    void mousePress   (const QPointF& realMousePosition, const Qt::MouseButton button);
    void mouseRelease (const QPointF& realMousePosition, const Qt::MouseButton button);
    void mouseMove    (const QPointF& realMousePosition);

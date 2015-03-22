@@ -228,6 +228,9 @@ void QEPlotter::createInternalWidgets ()
    this->plotLayout->setSpacing (4);
 
    this->plotArea = new QEGraphic (this->plotFrame);
+   this->plotArea->setAvailableMarkups
+         (QEGraphic::Area | QEGraphic::Line | QEGraphic::CrossHair);
+
    this->plotLayout->addWidget (this->plotArea);
 
    QObject::connect (this->plotArea, SIGNAL (mouseMove     (const QPointF&)),

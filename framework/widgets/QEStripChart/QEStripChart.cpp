@@ -282,6 +282,13 @@ void QEStripChart::createInternalWidgets ()
 
    this->plotArea = new QEGraphic (this->plotFrame);
 
+   this->plotArea->setAvailableMarkups
+         (QEGraphic::Area | QEGraphic::Line |
+          QEGraphic::VerticalLine_1 | QEGraphic::VerticalLine_2 |
+          QEGraphic::HorizontalLine_1 | QEGraphic::HorizontalLine_2 |
+          QEGraphic::HorizontalLine_3 | QEGraphic::HorizontalLine_4);
+
+
    QObject::connect (this->plotArea, SIGNAL (mouseMove     (const QPointF&)),
                      this,           SLOT   (plotMouseMove (const QPointF&)));
 

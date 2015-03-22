@@ -79,6 +79,28 @@ public:
       SelectBySize };  // estimated major interval = ((max - min) / (widget size / value)),
                        // i.e. value represents major interval expressed as a pixel size
 
+   // Markup selection enumeration flags.
+   //
+   enum Markup {
+      None              = 0x0000,
+      Area              = 0x0001,
+      Line              = 0x0002,
+      CrossHair         = 0x0004,
+      HorizontalLine_1  = 0x0010,
+      HorizontalLine_2  = 0x0020,
+      HorizontalLine_3  = 0x0040,
+      HorizontalLine_4  = 0x0080,
+      VerticalLine_1    = 0x0100,
+      VerticalLine_2    = 0x0200,
+      VerticalLine_3    = 0x0400,
+      VerticalLine_4    = 0x0800
+   };
+
+   Q_DECLARE_FLAGS (MarkupFlags, Markup)
+   //
+   // The associated operator declaration is at end of header outsie of class.
+   // By default, there are no markups set as in use.
+   //
    explicit QEGraphic (QWidget* parent = 0);
    explicit QEGraphic (const QString &title, QWidget* parent = 0);
    ~QEGraphic ();
@@ -95,6 +117,11 @@ public:
    void setBackgroundColour (const QColor colour);
 
    void setGridPen (const QPen& pen);
+
+   // Set/Get the set of in use, i.e. permitted, markups.
+   //
+   void setAvailableMarkups (const MarkupFlags markups);
+   MarkupFlags getAvailableMarkups () const;
 
    void setCrosshairsVisible (const bool isVisible);
    void setCrosshairsVisible (const bool isVisible, const QPointF& position);
@@ -114,7 +141,7 @@ public:
 
    bool rightButtonPressed () const;    // to allow inhibition of context menu - depricated.
 
-   QPointF getRealMousePosition () const;   // cuurrent mouse position in real world coords
+   QPointF getRealMousePosition () const;   // current mouse position in real world coords
 
    bool globalPosIsOverCanvas (const QPoint& golbalPos) const;
 
@@ -310,5 +337,7 @@ private slots:
    friend class QEGraphicHorizontalMarkup;
    friend class QEGraphicVerticalMarkup;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS (QEGraphic::MarkupFlags)
 
 # endif  // QE_GRAPHIC_H

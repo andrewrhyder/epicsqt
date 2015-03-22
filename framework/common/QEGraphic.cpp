@@ -28,12 +28,12 @@
 
 #include <QDebug>
 #include <qevent.h>       // QEvent maps to qcoreevent.h, not qevent.h
-#include <QECommon.h>
-
 #include <qwt_scale_engine.h>
 
-#include "QEGraphicMarkup.h"
-#include "QEGraphic.h"
+#include <QECommon.h>
+#include <QEPlatform.h>
+#include <QEGraphicMarkup.h>
+#include <QEGraphic.h>
 
 #define DEBUG qDebug () << "QEGraphic" << __FUNCTION__ <<  __LINE__
 
@@ -57,6 +57,23 @@
 #define VERTICAL_2_MARKUP      8
 #define VERTICAL_3_MARKUP      9
 #define VERTICAL_4_MARKUP     10
+#define NUMBER_OF_MARKUPS     11
+
+// Slot to QEGraphic::Markup must be consistant.
+//
+static const QEGraphic::Markup  indexToMarkup [NUMBER_OF_MARKUPS] = {
+   QEGraphic::Area,
+   QEGraphic::Line,
+   QEGraphic::CrossHair,
+   QEGraphic::HorizontalLine_1,
+   QEGraphic::HorizontalLine_2,
+   QEGraphic::HorizontalLine_3,
+   QEGraphic::HorizontalLine_4,
+   QEGraphic::VerticalLine_1,
+   QEGraphic::VerticalLine_2,
+   QEGraphic::VerticalLine_3,
+   QEGraphic::VerticalLine_4
+};
 
 
 //==============================================================================
@@ -151,8 +168,10 @@ void QEGraphic::Axis::setRange (const double minIn, const double maxIn,
 //
 void QEGraphic::Axis::getRange (double& min, double& max)
 {
-    min = this->useMin;
-    max = this->useMax;
+   // Use use apply reverse scaling/offset here to get real-world coordinates.
+   //
+   min = (this->useMin - this->offset) / this->scale;
+   max = (this->useMax - this->offset) / this->scale;
 }
 
 //------------------------------------------------------------------------------
@@ -324,9 +343,9 @@ void QEGraphic::Axis::setLogarithmic (const bool isLogarithmicIn)
 
       if (this->isLogarithmic) {
 #if QWT_VERSION >= 0x060100
-        this->plot->setAxisScaleEngine (this->axisId, new QwtLogScaleEngine);
+         this->plot->setAxisScaleEngine (this->axisId, new QwtLogScaleEngine);
 #else
-        this->plot->setAxisScaleEngine (this->axisId, new QwtLog10ScaleEngine);
+         this->plot->setAxisScaleEngine (this->axisId, new QwtLog10ScaleEngine);
 #endif
       } else {
          this->plot->setAxisScaleEngine (this->axisId, new QwtLinearScaleEngine);
@@ -385,6 +404,8 @@ void QEGraphic::construct ()
       this->markups [j] = NULL;
    }
 
+   // Construct markups.
+   //
    this->markups [AREA_MARKUP] = new QEGraphicAreaMarkup (this);
    this->markups [LINE_MARKUP] = new QEGraphicLineMarkup (this);
    this->markups [CROSSHAIRES_MARKUP] = new QEGraphicCrosshairsMarkup (this);
@@ -396,6 +417,8 @@ void QEGraphic::construct ()
    this->markups [VERTICAL_2_MARKUP] = new QEGraphicVerticalMarkup (this, 2);
    this->markups [VERTICAL_3_MARKUP] = new QEGraphicVerticalMarkup (this, 3);
    this->markups [VERTICAL_4_MARKUP] = new QEGraphicVerticalMarkup (this, 4);
+
+   this->setAvailableMarkups ( None );  // default availability
 
    // Set defaults.
    //
@@ -487,6 +510,35 @@ void QEGraphic::setBackgroundColour (const QColor colour)
 void QEGraphic::setGridPen (const QPen& pen)
 {
    this->plotGrid->setPen (pen);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEGraphic::setAvailableMarkups (const MarkupFlags markupFlag)
+{
+   for (int j = 0; j < ARRAY_LENGTH (this->markups); j++) {
+      QEGraphicMarkup* markup = this->markups [j];
+      if (markup) {
+          markup->setInUse (indexToMarkup [j] & markupFlag);
+      }
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+QEGraphic::MarkupFlags QEGraphic::getAvailableMarkups () const
+{
+   QEGraphic::MarkupFlags result = None;
+
+   for (int j = 0; j < ARRAY_LENGTH (this->markups); j++) {
+      QEGraphicMarkup* markup = this->markups [j];
+      if (markup) {
+         if (markup->isInUse ()) {
+            result |= indexToMarkup [j];
+         }
+      }
+   }
+   return result;
 }
 
 //------------------------------------------------------------------------------
@@ -657,7 +709,7 @@ void QEGraphic::plotMarkupCurveData (const DoubleVector& xData, const DoubleVect
 {
    QwtPlotCurve* curve;
    curve = this->createCurveData (xData, yData);
-    if (curve) this->markupCurveList.append (curve);
+   if (curve) this->markupCurveList.append (curve);
 }
 
 //------------------------------------------------------------------------------
@@ -725,7 +777,6 @@ bool QEGraphic::globalPosIsOverCanvas (const QPoint& golbalPos) const
           (canvasPos.y () >= 0) && (canvasPos.y () < canvasGeo.height ());
 }
 
-
 //------------------------------------------------------------------------------
 //
 QPoint QEGraphic::pixelDistance (const QPointF& from, const QPointF& to) const
@@ -776,18 +827,8 @@ void QEGraphic::canvasMousePress (QMouseEvent* mouseEvent)
 
    search = NULL;
 
-// Pick correct definition for middle button.
-// Note, at time of writing (building on qt4.6 through qt5.3) MidButton would
-// work for all, but it is due to be removed in the future.
-#if QT_VERSION < 0x040700
-#define MIDDLE_BUTTON Qt::MidButton
-#else
-#define MIDDLE_BUTTON Qt::MiddleButton
-#endif
-
    // We can always "find" AREA_MARKUP/LINE_MARKUP.
    //
-
    if (button == Qt::LeftButton) {
       search = this->markups [AREA_MARKUP];
    } else if (button == MIDDLE_BUTTON) {
