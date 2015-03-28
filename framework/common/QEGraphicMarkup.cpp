@@ -28,7 +28,7 @@
 #include <QColor>
 #include <QEPlatform.h>
 #include <QECommon.h>
-#include "QEGraphic.h"
+#include <QEGraphic.h>
 #include "QEGraphicMarkup.h"
 
 #define DEBUG qDebug () << "QEGraphicMarkup" << __FUNCTION__ << __LINE__ << "::"
@@ -44,9 +44,11 @@
 // QEGraphicMarkup - base class
 //=============================================================================
 //
-QEGraphicMarkup::QEGraphicMarkup (QEGraphic* ownerIn)
+QEGraphicMarkup::QEGraphicMarkup (QEGraphicNames::Markups markupIn, QEGraphic* ownerIn) :
+    markup (markupIn)
 {
    this->owner = ownerIn;
+   this->positon = QPointF (0.0, 0.0);
    this->inUse = false;
    this->visible = false;
    this->enabled = false;
@@ -54,7 +56,7 @@ QEGraphicMarkup::QEGraphicMarkup (QEGraphic* ownerIn)
    this->cursor = Qt::CrossCursor;
    this->activationButton = Qt::LeftButton;
 
-   this->current = QPointF (0.0, 0.0);
+   this->positon = QPointF (0.0, 0.0);
    this->pen.setColor (QColor (0,0,0));
    this->pen.setStyle (Qt::SolidLine);
    this->pen.setWidth (1);
@@ -70,14 +72,14 @@ QEGraphicMarkup::~QEGraphicMarkup ()
 //
 void QEGraphicMarkup::setCurrentPosition (const QPointF& currentPositionIn)
 {
-   this->current = currentPositionIn;
+   this->positon = currentPositionIn;
 }
 
 //-----------------------------------------------------------------------------
 //
 QPointF QEGraphicMarkup::getCurrentPosition () const
 {
-   return this->current;
+   return this->positon;
 }
 
 //-----------------------------------------------------------------------------
@@ -132,8 +134,8 @@ void QEGraphicMarkup::plot ()
 
 //-----------------------------------------------------------------------------
 //
-void QEGraphicMarkup::plotCurve (const QEGraphic::DoubleVector& xData,
-                                 const QEGraphic::DoubleVector& yData)
+void QEGraphicMarkup::plotCurve (const QEGraphicNames::DoubleVector& xData,
+                                 const QEGraphicNames::DoubleVector& yData)
 {
    this->owner->setCurvePen   (this->pen);
    this->owner->setCurveBrush (this->brush);
@@ -207,18 +209,28 @@ bool QEGraphicMarkup::isSelected () const
 }
 
 //-----------------------------------------------------------------------------
+//
+void QEGraphicMarkup::emitCurrentPostion ()
+{
+   if (this->isSelected () && this->owner) {
+      emit this->owner->markupMove (this->markup, this->positon);
+   }
+}
+
+//-----------------------------------------------------------------------------
 // Place holders
 //
 void QEGraphicMarkup::mousePress (const QPointF&, const Qt::MouseButton) { }
-void QEGraphicMarkup::mouseRelease   (const QPointF&, const Qt::MouseButton) { }
-void QEGraphicMarkup::mouseMove (const QPointF&) { }
+void QEGraphicMarkup::mouseRelease (const QPointF&, const Qt::MouseButton) { }
+void QEGraphicMarkup::mouseMove (const QPointF&) {}
 
 
 //=============================================================================
 // QEGraphicAreaMarkup
 //=============================================================================
 //
-QEGraphicAreaMarkup::QEGraphicAreaMarkup (QEGraphic* ownerIn) : QEGraphicMarkup (ownerIn)
+QEGraphicAreaMarkup::QEGraphicAreaMarkup (QEGraphic* ownerIn) :
+   QEGraphicMarkup (QEGraphicNames::Area, ownerIn)
 {
    this->pen.setColor (QColor (0xC08080));   // redish gray
    this->origin = QPointF (0.0, 0.0);
@@ -228,10 +240,13 @@ QEGraphicAreaMarkup::QEGraphicAreaMarkup (QEGraphic* ownerIn) : QEGraphicMarkup 
 //
 void QEGraphicAreaMarkup::mousePress (const QPointF& realMousePosition, const Qt::MouseButton button)
 {
-   if (this->isInUse () && (button == this->activationButton)) {
+   if (!this->isInUse()) return;
+
+   if (button == this->activationButton) {
       this->origin = realMousePosition;
-      this->current = realMousePosition;
+      this->positon = realMousePosition;
       this->setVisible (true);
+      this->emitCurrentPostion ();
    }
 }
 
@@ -240,9 +255,9 @@ void QEGraphicAreaMarkup::mousePress (const QPointF& realMousePosition, const Qt
 void QEGraphicAreaMarkup::mouseRelease (const QPointF& realMousePosition, const Qt::MouseButton button)
 {
    if (button == this->activationButton) {
-      this->current = realMousePosition;
+      this->positon = realMousePosition;
       if (this->isValidArea ()) {
-         emit this->getOwner()->areaDefinition (this->origin, this->current);
+         emit this->getOwner()->areaDefinition (this->origin, this->positon);
       }
       this->setSelected (false);
       this->setVisible (false);
@@ -253,10 +268,11 @@ void QEGraphicAreaMarkup::mouseRelease (const QPointF& realMousePosition, const 
 //
 void QEGraphicAreaMarkup::mouseMove  (const QPointF& realMousePosition)
 {
-   this->current = realMousePosition;
+   this->positon = realMousePosition;
    bool valid = this->isValidArea ();
    this->pen.setColor (valid ? QColor (0x60E060)    // greenish
                              : QColor (0xC08080));  // redish gray
+   this->emitCurrentPostion ();
 }
 
 //-----------------------------------------------------------------------------
@@ -265,7 +281,7 @@ void QEGraphicAreaMarkup::mouseMove  (const QPointF& realMousePosition)
 bool QEGraphicAreaMarkup::isValidArea () const
 {
    const int minDiff = 8;
-   const QPoint diff = this->getOwner()->pixelDistance (this->origin, this->current);
+   const QPoint diff = this->getOwner()->pixelDistance (this->origin, this->positon);
 
    bool xokay = ((diff.x () > minDiff) && (diff.x () > ABS (3 * diff.y ())));
    bool yokay = ((diff.y () > minDiff) && (diff.y () > ABS (3 * diff.x ())));
@@ -277,14 +293,14 @@ bool QEGraphicAreaMarkup::isValidArea () const
 //
 void QEGraphicAreaMarkup::plotMarkup ()
 {
-   QEGraphic::DoubleVector xdata;
-   QEGraphic::DoubleVector ydata;
+   QEGraphicNames::DoubleVector xdata;
+   QEGraphicNames::DoubleVector ydata;
 
-   xdata << this->current.x ();  ydata << this->current.y ();
-   xdata << this->origin.x ();   ydata << this->current.y ();
+   xdata << this->positon.x ();  ydata << this->positon.y ();
+   xdata << this->origin.x ();   ydata << this->positon.y ();
    xdata << this->origin.x ();   ydata << this->origin.y ();
-   xdata << this->current.x ();  ydata << this->origin.y ();
-   xdata << this->current.x ();  ydata << this->current.y ();
+   xdata << this->positon.x ();  ydata << this->origin.y ();
+   xdata << this->positon.x ();  ydata << this->positon.y ();
 
    this->plotCurve (xdata, ydata);
 }
@@ -294,7 +310,8 @@ void QEGraphicAreaMarkup::plotMarkup ()
 // QEGraphicLineMarkup
 //=============================================================================
 //
-QEGraphicLineMarkup::QEGraphicLineMarkup (QEGraphic* ownerIn) : QEGraphicMarkup (ownerIn)
+QEGraphicLineMarkup::QEGraphicLineMarkup (QEGraphic* ownerIn) :
+   QEGraphicMarkup (QEGraphicNames::Line, ownerIn)
 {
    this->pen.setColor(QColor (0x80C0E0));  // blueish
    this->origin = QPointF (0.0, 0.0);
@@ -305,17 +322,20 @@ QEGraphicLineMarkup::QEGraphicLineMarkup (QEGraphic* ownerIn) : QEGraphicMarkup 
 //
 QPointF QEGraphicLineMarkup::getSlope () const
 {
-   return this->current - this->origin;
+   return this->positon - this->origin;
 }
 
 //-----------------------------------------------------------------------------
 //
 void QEGraphicLineMarkup::mousePress (const QPointF& realMousePosition, const Qt::MouseButton button)
 {
-   if (this->isInUse () && (button == this->activationButton)) {
+   if (!this->isInUse()) return;
+
+   if (button == this->activationButton) {
       this->origin = realMousePosition;
-      this->current = realMousePosition;
+      this->positon = realMousePosition;
       this->setVisible (true);
+      this->emitCurrentPostion ();
    }
 }
 
@@ -324,8 +344,8 @@ void QEGraphicLineMarkup::mousePress (const QPointF& realMousePosition, const Qt
 void QEGraphicLineMarkup::mouseRelease (const QPointF& realMousePosition, const Qt::MouseButton button)
 {
    if (button == this->activationButton) {
-      this->current = realMousePosition;
-      emit this->getOwner()->lineDefinition (this->origin, this->current);
+      this->positon = realMousePosition;
+      emit this->getOwner()->lineDefinition (this->origin, this->positon);
       this->setSelected (false);
       this->setVisible (false);
    }
@@ -335,17 +355,18 @@ void QEGraphicLineMarkup::mouseRelease (const QPointF& realMousePosition, const 
 //
 void QEGraphicLineMarkup::mouseMove    (const QPointF& realMousePosition)
 {
-   this->current = realMousePosition;
+   this->positon = realMousePosition;
+   this->emitCurrentPostion ();
 }
 
 //-----------------------------------------------------------------------------
 //
 void QEGraphicLineMarkup::plotMarkup ()
 {
-   QEGraphic::DoubleVector xdata;
-   QEGraphic::DoubleVector ydata;
+   QEGraphicNames::DoubleVector xdata;
+   QEGraphicNames::DoubleVector ydata;
 
-   xdata << this->current.x ();  ydata << this->current.y ();
+   xdata << this->positon.x ();  ydata << this->positon.y ();
    xdata << this->origin.x ();   ydata << this->origin.y ();
 
    this->plotCurve (xdata, ydata);
@@ -356,7 +377,8 @@ void QEGraphicLineMarkup::plotMarkup ()
 // QEGraphicCrosshairsMarkup
 //=============================================================================
 //
-QEGraphicCrosshairsMarkup::QEGraphicCrosshairsMarkup (QEGraphic* ownerIn) : QEGraphicMarkup (ownerIn)
+QEGraphicCrosshairsMarkup::QEGraphicCrosshairsMarkup (QEGraphic* ownerIn) :
+   QEGraphicMarkup (QEGraphicNames::CrossHair, ownerIn)
 {
    this->pen.setColor (QColor (0xA0A0A0));  // light grayish
    this->cursor = Qt::PointingHandCursor;
@@ -366,23 +388,24 @@ QEGraphicCrosshairsMarkup::QEGraphicCrosshairsMarkup (QEGraphic* ownerIn) : QEGr
 //
 bool QEGraphicCrosshairsMarkup::isOver (const QPointF& point, int& distance) const
 {
-   return this->isOverHere (this->current, point, distance);
+   return this->isOverHere (this->positon, point, distance);
 }
 
 //-----------------------------------------------------------------------------
 //
 void QEGraphicCrosshairsMarkup::mousePress (const QPointF& realMousePosition, const Qt::MouseButton)
 {
-   this->current = realMousePosition;
-   emit this->getOwner()->crosshairsMove (this->current);
+   this->positon = realMousePosition;
    this->pen.setColor (QColor (0x606060));  // dark grayish
+   emit this->getOwner()->crosshairsMove (this->positon);  // depricated
+   this->emitCurrentPostion ();
 }
 
 //-----------------------------------------------------------------------------
 //
 void QEGraphicCrosshairsMarkup::mouseRelease (const QPointF& realMousePosition, const Qt::MouseButton)
 {
-   this->current = realMousePosition;
+   this->positon = realMousePosition;
    this->setSelected (false);
    this->pen.setColor (QColor (0xA0A0A0));  // light grayish
 }
@@ -391,8 +414,9 @@ void QEGraphicCrosshairsMarkup::mouseRelease (const QPointF& realMousePosition, 
 //
 void QEGraphicCrosshairsMarkup::mouseMove (const QPointF& realMousePosition)
 {
-   this->current = realMousePosition;
-   emit this->getOwner()->crosshairsMove (this->current);
+   this->positon = realMousePosition;
+   emit this->getOwner()->crosshairsMove (this->positon);  // depreciated
+   this->emitCurrentPostion ();
 }
 
 //-----------------------------------------------------------------------------
@@ -414,7 +438,7 @@ void QEGraphicCrosshairsMarkup::setVisible (const bool visibleIn)
       this->getOwner()->yAxis->getRange (ymin, ymax);
 
       middle = QPointF ((xmin + xmax)/2.0, (ymin + ymax)/2.0);
-      this->current = middle;
+      this->positon = middle;
    }
 }
 
@@ -422,21 +446,21 @@ void QEGraphicCrosshairsMarkup::setVisible (const bool visibleIn)
 //
 void QEGraphicCrosshairsMarkup::plotMarkup ()
 {
-   QEGraphic::DoubleVector xdata;
-   QEGraphic::DoubleVector ydata;
+   QEGraphicNames::DoubleVector xdata;
+   QEGraphicNames::DoubleVector ydata;
    double min;
    double max;
 
    this->getOwner()->yAxis->getRange (min, max);
    xdata.clear ();    ydata.clear ();
-   xdata << current.x ();  ydata << min;
-   xdata << current.x ();  ydata << max;
+   xdata << positon.x ();  ydata << min;
+   xdata << positon.x ();  ydata << max;
    this->plotCurve (xdata, ydata);
 
    this->getOwner()->xAxis->getRange (min, max);
    xdata.clear ();  ydata.clear ();
-   xdata << min;    ydata << current.y ();
-   xdata << max;    ydata << current.y ();
+   xdata << min;    ydata << positon.y ();
+   xdata << max;    ydata << positon.y ();
    this->plotCurve (xdata, ydata);
 }
 
@@ -446,11 +470,8 @@ void QEGraphicCrosshairsMarkup::plotMarkup ()
 //=============================================================================
 //
 QEGraphicHVBaseMarkup::QEGraphicHVBaseMarkup
-    (QEGraphic* ownerIn, const int instanceIn) : QEGraphicMarkup (ownerIn)
+    (QEGraphicNames::Markups markup, QEGraphic* ownerIn) : QEGraphicMarkup (markup, ownerIn)
 {
-   this->instance = instanceIn;
-   this->visible = false;
-   this->enabled = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -458,7 +479,7 @@ QEGraphicHVBaseMarkup::QEGraphicHVBaseMarkup
 void QEGraphicHVBaseMarkup::setInUse  (const bool inUse)
 {
    QEGraphicMarkup::setInUse (inUse);
-   // When in use, there markss are always partially visible.
+   // When in use, there markups are always partially visible.
    this->setVisible (inUse);
 }
 
@@ -470,8 +491,9 @@ void QEGraphicHVBaseMarkup::mousePress (const QPointF& realMousePosition, const 
 
    switch (button) {
       case Qt::LeftButton:
-         this->current = realMousePosition;
+         this->positon = realMousePosition;
          this->setEnabled (true);
+         this->emitCurrentPostion ();
          break;
 
       case MIDDLE_BUTTON:
@@ -492,7 +514,7 @@ void QEGraphicHVBaseMarkup::mousePress (const QPointF& realMousePosition, const 
 //
 void QEGraphicHVBaseMarkup::mouseRelease (const QPointF& realMousePosition, const Qt::MouseButton)
 {
-   this->current = realMousePosition;
+   this->positon = realMousePosition;
    this->setSelected (false);
 }
 
@@ -500,7 +522,8 @@ void QEGraphicHVBaseMarkup::mouseRelease (const QPointF& realMousePosition, cons
 //
 void QEGraphicHVBaseMarkup::mouseMove (const QPointF& realMousePosition)
 {
-   this->current = realMousePosition;
+   this->positon = realMousePosition;
+   this->emitCurrentPostion ();
 }
 
 //-----------------------------------------------------------------------------
@@ -520,8 +543,8 @@ void QEGraphicHVBaseMarkup::plotMarkup ()
    QPoint item [6];
    double xmin, xmax;
    double ymin, ymax;
-   QEGraphic::DoubleVector xdata;
-   QEGraphic::DoubleVector ydata;
+   QEGraphicNames::DoubleVector xdata;
+   QEGraphicNames::DoubleVector ydata;
    QPointF poiF;
    QPoint  poi;
    QPointF itemF;
@@ -565,16 +588,15 @@ void QEGraphicHVBaseMarkup::plotMarkup ()
 //=============================================================================
 //
 QEGraphicHorizontalMarkup::QEGraphicHorizontalMarkup
-   (QEGraphic* ownerIn, const int instanceIn) : QEGraphicHVBaseMarkup (ownerIn, instanceIn)
+   (const QEGraphicNames::Markups markup, QEGraphic* ownerIn) : QEGraphicHVBaseMarkup (markup, ownerIn)
 {
    this->cursor = Qt::SplitVCursor;
 
-   if (instance > 2) {
-      this->setColours (0xff0000);    // red
+   if (markup >= QEGraphicNames::HorizontalLine_3) {
+      this->setColours (0xff0000);    // red (3 and 4)
    } else {
-      this->setColours (0x00ff00);    // green
+      this->setColours (0x00ff00);    // green (1 and 2)
    }
-   this->current.setY (instance * 0.02);
 }
 
 //-----------------------------------------------------------------------------
@@ -588,9 +610,9 @@ bool QEGraphicHorizontalMarkup::isOver (const QPointF& point, int& distance) con
    this->getOwner()->xAxis->getRange (xmin, xmax);
    if (this->isEnabled ()) {
       // Allow any x to match.
-      poiF = QPointF (point.x (), this->current.y ());
+      poiF = QPointF (point.x (), this->positon.y ());
    } else {
-      poiF = QPointF (xmax, this->current.y());
+      poiF = QPointF (xmax, this->positon.y());
    }
 
    return this->isOverHere (poiF, point, distance);
@@ -601,7 +623,7 @@ bool QEGraphicHorizontalMarkup::isOver (const QPointF& point, int& distance) con
 void QEGraphicHorizontalMarkup::getLine (double& xmin, double& xmax, double& ymin, double& ymax)
 {
    this->getOwner()->xAxis->getRange (xmin, xmax);
-   ymin = ymax = this->current.y ();
+   ymin = ymax = this->positon.y ();
 }
 
 //-----------------------------------------------------------------------------
@@ -622,16 +644,16 @@ void QEGraphicHorizontalMarkup::getShape (QPoint shape [])
 //=============================================================================
 //
 QEGraphicVerticalMarkup::QEGraphicVerticalMarkup
-   (QEGraphic* ownerIn, const int instanceIn) : QEGraphicHVBaseMarkup (ownerIn, instanceIn)
+   (const QEGraphicNames::Markups markup, QEGraphic* ownerIn) :
+   QEGraphicHVBaseMarkup (markup, ownerIn)
 {
    this->cursor = Qt::SplitHCursor;
 
-   if (instance > 2) {
-      this->setColours (0xff00ff);    // purple
+   if (markup >= QEGraphicNames::VerticalLine_3) {
+      this->setColours (0xff00ff);    // purple (3 and 4)
    } else {
-      this->setColours (0x0000ff);    // blue
+      this->setColours (0x0000ff);    // blue (1 and 2)
    }
-   this->current.setX (instance * 0.02);
 }
 
 //-----------------------------------------------------------------------------
@@ -645,9 +667,9 @@ bool QEGraphicVerticalMarkup::isOver (const QPointF& point, int& distance) const
    this->getOwner()->yAxis->getRange (ymin, ymax);
    if (this->isEnabled ()) {
       // Allow any y to match.
-      poiF = QPointF (this->current.x (), point.y ());
+      poiF = QPointF (this->positon.x (), point.y ());
    } else {
-      poiF = QPointF (this->current.x (), ymax);
+      poiF = QPointF (this->positon.x (), ymax);
    }
 
    return this->isOverHere (poiF, point, distance);
@@ -657,7 +679,7 @@ bool QEGraphicVerticalMarkup::isOver (const QPointF& point, int& distance) const
 //
 void QEGraphicVerticalMarkup::getLine (double& xmin, double& xmax, double& ymin, double& ymax)
 {
-   xmin = xmax = this->current.x ();
+   xmin = xmax = this->positon.x ();
    this->getOwner()->yAxis->getRange (ymin, ymax);
 }
 

@@ -50,6 +50,7 @@
 #include <QEExpressionEvaluation.h>
 #include <QCaVariableNamePropertyManager.h>
 #include <QEResizeableFrame.h>
+#include <QEGraphicNames.h>
 
 #include <QEStripChartRangeDialog.h>
 #include "QEPlotterNames.h"
@@ -558,7 +559,7 @@ private slots:
 
    void scaleSelect    (const QPointF& origin, const QPointF& offset);
    void lineSelected   (const QPointF& origin, const QPointF& offset);
-   void crosshairsMove (const QPointF& posn);
+   void markupMove     (const QEGraphicNames::Markups markup, const QPointF& position);
 
    friend class DataSets;
 };

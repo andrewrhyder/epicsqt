@@ -229,12 +229,15 @@ void QEPlotter::createInternalWidgets ()
 
    this->plotArea = new QEGraphic (this->plotFrame);
    this->plotArea->setAvailableMarkups
-         (QEGraphic::Area | QEGraphic::Line | QEGraphic::CrossHair);
+         (QEGraphicNames::Area | QEGraphicNames::Line | QEGraphicNames::CrossHair);
 
    this->plotLayout->addWidget (this->plotArea);
 
    QObject::connect (this->plotArea, SIGNAL (mouseMove     (const QPointF&)),
                      this,           SLOT   (plotMouseMove (const QPointF&)));
+
+   QObject::connect (this->plotArea, SIGNAL (markupMove     (const QEGraphicNames::Markups, const QPointF&)),
+                     this,           SLOT   (markupMove     (const QEGraphicNames::Markups, const QPointF&)));
 
    QObject::connect (this->plotArea, SIGNAL (wheelRotate   (const QPointF&, const int)),
                      this,           SLOT   (zoomInOut     (const QPointF&, const int)));
@@ -244,9 +247,6 @@ void QEPlotter::createInternalWidgets ()
 
    QObject::connect (this->plotArea, SIGNAL (lineDefinition (const QPointF&, const QPointF&)),
                      this,           SLOT   (lineSelected   (const QPointF&, const QPointF&)));
-
-   QObject::connect (this->plotArea, SIGNAL (crosshairsMove (const QPointF&)),
-                     this,           SLOT   (crosshairsMove (const QPointF&)));
 
    // Create the resizeable frame.
    //
@@ -1090,10 +1090,13 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
       case QEPlotterNames::PLOTTER_SHOW_HIDE_CROSSHAIRS:
          this->crosshairsAreRequired = !this->crosshairsAreRequired;
          if (this->contextMenuIsOverGraphic) {
-            this->plotArea->setCrosshairsVisible (this->crosshairsAreRequired,
-                                                  this->contextMenuRequestPosition);
+            // Display cross hairs at current mouse location.
+            //
+            this->plotArea->setMarkupVisible (QEGraphicNames::CrossHair, this->crosshairsAreRequired);
+            this->plotArea->setMarkupPosition (QEGraphicNames::CrossHair, this->contextMenuRequestPosition);
          } else {
-            this->plotArea->setCrosshairsVisible (this->crosshairsAreRequired);
+            // Mouse not over the graphic - use previos location.
+            this->plotArea->setMarkupVisible (QEGraphicNames::CrossHair, this->crosshairsAreRequired);
          }
          this->replotIsRequired = true;
          break;
@@ -1585,13 +1588,14 @@ int QEPlotter::getCrosshairIndex () const
 
 //------------------------------------------------------------------------------
 //
-void QEPlotter::crosshairsMove (const QPointF& posn)
+void QEPlotter::markupMove (const QEGraphicNames::Markups markup, const QPointF& position)
 {
-   // Determine and emit new vertical crosshair index if required.
-   //
-   this->calcCrosshairIndex (posn.x ());
+   if (markup == QEGraphicNames::CrossHair) {
+      // Determine and emit new vertical crosshair index if required.
+      //
+      this->calcCrosshairIndex (position.x ());
+   }
 }
-
 
 //------------------------------------------------------------------------------
 //
