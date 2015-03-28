@@ -19,6 +19,7 @@ HEADERS += \
    common/QEPVNameSelectDialog.h \
    common/QEGraphic.h \
    common/QEGraphicMarkup.h \
+   common/QEGraphicNames.h \
    common/QEOneToOne.h \
    common/QEPlatform.h \
    common/QEScaling.h \

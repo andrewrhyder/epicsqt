@@ -109,7 +109,7 @@ QEPVNameLists::~QEPVNameLists ()
 
 //------------------------------------------------------------------------------
 //
-void QEPVNameLists::prependOrMoveToFirst (const QString & item)
+void QEPVNameLists::prependOrMoveToFirst (const QString& item)
 {
    QMutexLocker locker (this->mutex);
 
@@ -130,7 +130,7 @@ void QEPVNameLists::prependOrMoveToFirst (const QString & item)
 
 //------------------------------------------------------------------------------
 //
-void QEPVNameLists::saveConfiguration (PMElement & parentElement)
+void QEPVNameLists::saveConfiguration (PMElement& parentElement)
 {
    PMElement predefinedElement = parentElement.addElement ("Predefined");
    int number;
@@ -148,7 +148,7 @@ void QEPVNameLists::saveConfiguration (PMElement & parentElement)
 
 //------------------------------------------------------------------------------
 //
-void QEPVNameLists::restoreConfiguration (PMElement & parentElement)
+void QEPVNameLists::restoreConfiguration (PMElement& parentElement)
 {
    PMElement predefinedElement = parentElement.getElement ("Predefined");
    int number;
@@ -180,7 +180,7 @@ void QEPVNameLists::restoreConfiguration (PMElement & parentElement)
 //------------------------------------------------------------------------------
 // This is a static list shared amongst all instances of the strip chart widget.
 //
-static QEPVNameLists predefinedPVNameList;
+static QEPVNameLists* predefinedPVNameList = NULL;
 
 
 //==============================================================================
@@ -252,7 +252,7 @@ void QEStripChart::createInternalWidgets ()
    // Create widgets (parented by chart) and chart item that manages these.
    //
    for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
-      QEStripChartItem * chartItem  = new QEStripChartItem (this, slot, this->pvFrame);
+      QEStripChartItem* chartItem  = new QEStripChartItem (this, slot, this->pvFrame);
 
       // Add to grid.
       //
@@ -282,15 +282,29 @@ void QEStripChart::createInternalWidgets ()
 
    this->plotArea = new QEGraphic (this->plotFrame);
 
+   // Select the markups available on the strip chart.
+   //
    this->plotArea->setAvailableMarkups
-         (QEGraphic::Area | QEGraphic::Line |
-          QEGraphic::VerticalLine_1 | QEGraphic::VerticalLine_2 |
-          QEGraphic::HorizontalLine_1 | QEGraphic::HorizontalLine_2 |
-          QEGraphic::HorizontalLine_3 | QEGraphic::HorizontalLine_4);
+         (QEGraphicNames::Area | QEGraphicNames::Line |
+          QEGraphicNames::VerticalLine_1 | QEGraphicNames::VerticalLine_2 |
+          QEGraphicNames::HorizontalLine_1 | QEGraphicNames::HorizontalLine_2 |
+          QEGraphicNames::HorizontalLine_3 | QEGraphicNames::HorizontalLine_4);
 
+   // Set up the initial markup positions.
+   //
+   this->plotArea->setMarkupPosition (QEGraphicNames::HorizontalLine_1, QPointF (0.0,  5.0));
+   this->plotArea->setMarkupPosition (QEGraphicNames::HorizontalLine_2, QPointF (0.0, 10.0));
+   this->plotArea->setMarkupPosition (QEGraphicNames::HorizontalLine_3, QPointF (0.0, 15.0));
+   this->plotArea->setMarkupPosition (QEGraphicNames::HorizontalLine_4, QPointF (0.0, 20.0));
+
+   this->plotArea->setMarkupPosition (QEGraphicNames::VerticalLine_1, QPointF (-10.0, 0));
+   this->plotArea->setMarkupPosition (QEGraphicNames::VerticalLine_2, QPointF ( -5.0, 0));
 
    QObject::connect (this->plotArea, SIGNAL (mouseMove     (const QPointF&)),
                      this,           SLOT   (plotMouseMove (const QPointF&)));
+
+   QObject::connect (this->plotArea, SIGNAL (markupMove     (const QEGraphicNames::Markups, const QPointF&)),
+                     this,           SLOT   (markupMove     (const QEGraphicNames::Markups, const QPointF&)));
 
    QObject::connect (this->plotArea, SIGNAL (wheelRotate   (const QPointF&, const int)),
                      this,           SLOT   (zoomInOut     (const QPointF&, const int)));
@@ -478,7 +492,7 @@ void QEStripChart::plotData ()
    QString durationImage = QEUtilities::intervalToString ((double )this->getDuration (), 0, true);
    this->toolBar->setDurationStatus (durationImage);
 
-   QEStripChartNames meta;   // allows access to enumeration metta data.
+   QEStripChartNames meta;   // allows access to enumeration meta data.
    QString yRangeStatus;
 
    yRangeStatus = QEUtilities::enumToString (meta, "ChartYRanges", this->chartYScale);
@@ -621,6 +635,14 @@ void QEStripChart::plotMouseMove  (const QPointF& posn)
 
 //------------------------------------------------------------------------------
 //
+void QEStripChart::markupMove (const QEGraphicNames::Markups /* markup */,
+                               const QPointF& /* position */)
+{
+   // qDebug () << markup << " at " << position;
+}
+
+//------------------------------------------------------------------------------
+//
 void QEStripChart::captureState (QEStripChartState& chartState)
 {
    // Capture current state.
@@ -707,6 +729,10 @@ QEStripChart::QEStripChart (QWidget * parent) : QEFrame (parent)
 
    this->setMinimumSize (1080, 400);   // keep this and sizeHint consistant
 
+   // Construct common object if needs be.
+   //
+   if (!predefinedPVNameList) predefinedPVNameList = new QEPVNameLists ();
+
    // Construct internal widgets for this chart.
    //
    this->createInternalWidgets ();
@@ -728,6 +754,8 @@ QEStripChart::QEStripChart (QWidget * parent) : QEFrame (parent)
    this->plotArea->setXRange (-this->duration / this->timeScale, 0.0, QEGraphic::SelectByValue, 5, true);
    this->plotArea->setYRange (this->yMinimum, this->yMaximum, QEGraphic::SelectBySize, 40, true);
 
+   // Variables are managed by the strip chart item widgets.
+   //
    this->variableNameSubstitutions = "";
    this->setNumVariables (0);
 
@@ -737,7 +765,7 @@ QEStripChart::QEStripChart (QWidget * parent) : QEFrame (parent)
    this->timeDialog = new QEStripChartTimeDialog (this);
    this->yRangeDialog = new QEStripChartRangeDialog (this);
 
-   // Refresh the stip chart at 1Hz.
+   // Refresh the strip chart at 1Hz.
    //
    this->tickTimer = new QTimer (this);
    this->tickTimerCount = 0;
@@ -1079,7 +1107,7 @@ void QEStripChart::playModeSelected (const QEStripChartNames::PlayModes mode)
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::zoomInOut      (const QPointF& about, const int zoomAmount)
+void QEStripChart::zoomInOut (const QPointF& about, const int zoomAmount)
 {
    if (zoomAmount) {
       // We really only need the sign of the zoomAmount.
@@ -1125,21 +1153,21 @@ void QEStripChart::readArchiveSelected ()
 //
 void QEStripChart::addToPredefinedList (const QString & pvName)
 {
-   predefinedPVNameList.prependOrMoveToFirst (pvName);
+   predefinedPVNameList->prependOrMoveToFirst (pvName);
 }
 
 //------------------------------------------------------------------------------
 //
 QStringList QEStripChart::getPredefinedPVNameList () const
 {
-   return QStringList (predefinedPVNameList);
+   return QStringList (*predefinedPVNameList);
 }
 
 //------------------------------------------------------------------------------
 //
 QString QEStripChart::getPredefinedItem (int i) const
 {
-   return predefinedPVNameList.value (i, "");
+   return predefinedPVNameList->value (i, "");
 }
 
 //------------------------------------------------------------------------------
@@ -1335,7 +1363,7 @@ void QEStripChart::saveConfiguration (PersistanceManager* pm)
    // How can we avoid doing this mutiple times??
    //
    PMElement commonElement = pm->addNamedConfiguration ("QEStripChart_Common");
-   predefinedPVNameList.saveConfiguration (commonElement);
+   predefinedPVNameList->saveConfiguration (commonElement);
 
    // Now do form instance specific stuff.
    //
@@ -1362,7 +1390,7 @@ void QEStripChart::saveConfiguration (PersistanceManager* pm)
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::restoreConfiguration (PersistanceManager * pm, restorePhases restorePhase)
+void QEStripChart::restoreConfiguration (PersistanceManager* pm, restorePhases restorePhase)
 {
    if (restorePhase != FRAMEWORK) return;
 
@@ -1372,7 +1400,7 @@ void QEStripChart::restoreConfiguration (PersistanceManager * pm, restorePhases 
    // How can we avoid doing this mutiple times??
    //
    PMElement commonElement = pm->getNamedConfiguration ("QEStripChart_Common");
-   predefinedPVNameList.restoreConfiguration (commonElement);
+   predefinedPVNameList->restoreConfiguration (commonElement);
 
    // Now do form instance specific stuff.
    //

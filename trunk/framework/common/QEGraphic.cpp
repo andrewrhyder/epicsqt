@@ -44,37 +44,6 @@
 
 #define NUMBER_TRANISTION_STEPS   6
 
-// Each markup has a pre-allocated slot.
-//
-#define AREA_MARKUP            0
-#define LINE_MARKUP            1
-#define CROSSHAIRES_MARKUP     2
-#define HORIZONTAL_1_MARKUP    3
-#define HORIZONTAL_2_MARKUP    4
-#define HORIZONTAL_3_MARKUP    5
-#define HORIZONTAL_4_MARKUP    6
-#define VERTICAL_1_MARKUP      7
-#define VERTICAL_2_MARKUP      8
-#define VERTICAL_3_MARKUP      9
-#define VERTICAL_4_MARKUP     10
-#define NUMBER_OF_MARKUPS     11
-
-// Slot to QEGraphic::Markup must be consistant.
-//
-static const QEGraphic::Markup  indexToMarkup [NUMBER_OF_MARKUPS] = {
-   QEGraphic::Area,
-   QEGraphic::Line,
-   QEGraphic::CrossHair,
-   QEGraphic::HorizontalLine_1,
-   QEGraphic::HorizontalLine_2,
-   QEGraphic::HorizontalLine_3,
-   QEGraphic::HorizontalLine_4,
-   QEGraphic::VerticalLine_1,
-   QEGraphic::VerticalLine_2,
-   QEGraphic::VerticalLine_3,
-   QEGraphic::VerticalLine_4
-};
-
 
 //==============================================================================
 // QEGraphic::Axis class
@@ -400,25 +369,23 @@ void QEGraphic::construct ()
    this->xAxis = new Axis (this->plot, QwtPlot::xBottom);
    this->yAxis = new Axis (this->plot, QwtPlot::yLeft);
 
-   for (int j = 0; j < ARRAY_LENGTH (this->markups); j++) {
-      this->markups [j] = NULL;
-   }
-
-   // Construct markups.
+   // Construct markups and insert into marksup set.
    //
-   this->markups [AREA_MARKUP] = new QEGraphicAreaMarkup (this);
-   this->markups [LINE_MARKUP] = new QEGraphicLineMarkup (this);
-   this->markups [CROSSHAIRES_MARKUP] = new QEGraphicCrosshairsMarkup (this);
-   this->markups [HORIZONTAL_1_MARKUP] = new QEGraphicHorizontalMarkup (this, 1);
-   this->markups [HORIZONTAL_2_MARKUP] = new QEGraphicHorizontalMarkup (this, 2);
-   this->markups [HORIZONTAL_3_MARKUP] = new QEGraphicHorizontalMarkup (this, 3);
-   this->markups [HORIZONTAL_4_MARKUP] = new QEGraphicHorizontalMarkup (this, 4);
-   this->markups [VERTICAL_1_MARKUP] = new QEGraphicVerticalMarkup (this, 1);
-   this->markups [VERTICAL_2_MARKUP] = new QEGraphicVerticalMarkup (this, 2);
-   this->markups [VERTICAL_3_MARKUP] = new QEGraphicVerticalMarkup (this, 3);
-   this->markups [VERTICAL_4_MARKUP] = new QEGraphicVerticalMarkup (this, 4);
+   this->graphicMarkupsSet = new QEGraphicMarkupSets;
+   this->graphicMarkupsSet->insert (Area,             new QEGraphicAreaMarkup (this));
+   this->graphicMarkupsSet->insert (Line,             new QEGraphicLineMarkup (this));
+   this->graphicMarkupsSet->insert (CrossHair,        new QEGraphicCrosshairsMarkup (this));
+   // There are multiple instances - we need to be explicit.
+   this->graphicMarkupsSet->insert (HorizontalLine_1, new QEGraphicHorizontalMarkup (HorizontalLine_1, this));
+   this->graphicMarkupsSet->insert (HorizontalLine_2, new QEGraphicHorizontalMarkup (HorizontalLine_2, this));
+   this->graphicMarkupsSet->insert (HorizontalLine_3, new QEGraphicHorizontalMarkup (HorizontalLine_3, this));
+   this->graphicMarkupsSet->insert (HorizontalLine_4, new QEGraphicHorizontalMarkup (HorizontalLine_4, this));
+   this->graphicMarkupsSet->insert (VerticalLine_1,   new QEGraphicVerticalMarkup (VerticalLine_1, this));
+   this->graphicMarkupsSet->insert (VerticalLine_2,   new QEGraphicVerticalMarkup (VerticalLine_2, this));
+   this->graphicMarkupsSet->insert (VerticalLine_3,   new QEGraphicVerticalMarkup (VerticalLine_3, this));
+   this->graphicMarkupsSet->insert (VerticalLine_4,   new QEGraphicVerticalMarkup (VerticalLine_4, this));
 
-   this->setAvailableMarkups ( None );  // default availability
+   this->setAvailableMarkups (None);  // default availability
 
    // Set defaults.
    //
@@ -462,11 +429,15 @@ QEGraphic::~QEGraphic ()
    delete this->xAxis;
    delete this->yAxis;
 
-   for (int j = 0; j < ARRAY_LENGTH (this->markups); j++) {
-      if (this->markups [j]) {
-         delete this->markups [j];
+   const MarkupLists keys = this->graphicMarkupsSet->keys ();
+   for (int j = 0; j < keys.count (); j++) {
+      QEGraphicMarkup* graphicMarkup = this->graphicMarkupsSet->value (keys.value (j), NULL);
+      if (graphicMarkup) {
+         delete graphicMarkup;
       }
    }
+   this->graphicMarkupsSet->clear ();
+   delete this->graphicMarkupsSet;
 }
 
 //------------------------------------------------------------------------------
@@ -516,10 +487,12 @@ void QEGraphic::setGridPen (const QPen& pen)
 //
 void QEGraphic::setAvailableMarkups (const MarkupFlags markupFlag)
 {
-   for (int j = 0; j < ARRAY_LENGTH (this->markups); j++) {
-      QEGraphicMarkup* markup = this->markups [j];
-      if (markup) {
-          markup->setInUse (indexToMarkup [j] & markupFlag);
+   const MarkupLists keys = this->graphicMarkupsSet->keys ();
+   for (int j = 0; j < keys.count (); j++) {
+      const Markups markup = keys.value (j);
+      QEGraphicMarkup* graphicMarkup = this->graphicMarkupsSet->value (markup, NULL);
+      if (graphicMarkup) {
+         graphicMarkup->setInUse (markup & markupFlag);
       }
    }
 }
@@ -530,11 +503,13 @@ QEGraphic::MarkupFlags QEGraphic::getAvailableMarkups () const
 {
    QEGraphic::MarkupFlags result = None;
 
-   for (int j = 0; j < ARRAY_LENGTH (this->markups); j++) {
-      QEGraphicMarkup* markup = this->markups [j];
-      if (markup) {
-         if (markup->isInUse ()) {
-            result |= indexToMarkup [j];
+   const MarkupLists keys = this->graphicMarkupsSet->keys ();
+   for (int j = 0; j < keys.count (); j++) {
+      const Markups markup = keys.value (j);
+      QEGraphicMarkup* graphicMarkup = this->graphicMarkupsSet->value (markup, NULL);
+      if (graphicMarkup) {
+         if (graphicMarkup->isInUse ()) {
+            result |= markup;
          }
       }
    }
@@ -543,35 +518,68 @@ QEGraphic::MarkupFlags QEGraphic::getAvailableMarkups () const
 
 //------------------------------------------------------------------------------
 //
+void QEGraphic::setMarkupVisible (const Markups markup, const bool isVisible)
+{
+   QEGraphicMarkup* graphicMarkup = this->graphicMarkupsSet->value (markup, NULL);
+   if (graphicMarkup && graphicMarkup->isInUse ()) {
+      graphicMarkup->setVisible (isVisible);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+bool QEGraphic::getMarkupVisible (const Markups markup) const
+{
+   bool result = false;
+   QEGraphicMarkup* graphicMarkup = this->graphicMarkupsSet->value (markup, NULL);
+   if (graphicMarkup) {
+       result = graphicMarkup->isVisible ();
+   }
+   return result;
+}
+
+//------------------------------------------------------------------------------
+//
+void QEGraphic::setMarkupPosition (const Markups markup, const QPointF& position)
+{
+   QEGraphicMarkup* graphicMarkup = this->graphicMarkupsSet->value (markup, NULL);
+   if (graphicMarkup && graphicMarkup->isInUse ()) {
+      graphicMarkup->setCurrentPosition (position);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+QPointF QEGraphic::getMarkupPosition (const Markups markup) const
+{
+   QPointF result (0.0, 0.0);
+   QEGraphicMarkup* graphicMarkup = this->graphicMarkupsSet->value (markup, NULL);
+   if (graphicMarkup && graphicMarkup->isInUse ()) {
+      result = graphicMarkup->getCurrentPosition ();
+   }
+   return result;
+}
+
+//------------------------------------------------------------------------------
+// Depreciated
 void QEGraphic::setCrosshairsVisible (const bool isVisible)
 {
-   QEGraphicMarkup* markup = this->markups [CROSSHAIRES_MARKUP];
-   if (markup) {
-      markup->setVisible (isVisible);
-   }
+   this->setMarkupVisible (QEGraphic::CrossHair, isVisible);
 }
 
 //------------------------------------------------------------------------------
-//
+// Depreciated
 void QEGraphic::setCrosshairsVisible (const bool isVisible, const QPointF& position)
 {
-   QEGraphicMarkup* markup = this->markups [CROSSHAIRES_MARKUP];
-   if (markup) {
-      markup->setVisible (isVisible);
-      markup->setCurrentPosition (position);
-   }
+   this->setMarkupVisible (QEGraphic::CrossHair, isVisible);
+   this->setMarkupPosition (QEGraphic::CrossHair, position);
 }
 
 //------------------------------------------------------------------------------
-//
+// Depreciated
 bool QEGraphic::getCrosshairsVisible () const
 {
-   QEGraphicMarkup* markup = this->markups [CROSSHAIRES_MARKUP];
-   if (markup) {
-      return markup->isVisible ();
-   } else {
-      return false;
-   }
+   return this->getMarkupVisible (QEGraphic::CrossHair);
 }
 
 //------------------------------------------------------------------------------
@@ -716,9 +724,11 @@ void QEGraphic::plotMarkupCurveData (const DoubleVector& xData, const DoubleVect
 //
 void QEGraphic::plotMarkups ()
 {
-   for (int j = 0; j < ARRAY_LENGTH (this->markups); j++) {
-      if (this->markups [j]) {
-         this->markups [j]->plot ();
+   const MarkupLists keys = this->graphicMarkupsSet->keys ();
+   for (int j = 0; j < keys.count (); j++) {
+      QEGraphicMarkup* graphicMarkup = this->graphicMarkupsSet->value (keys.value (j), NULL);
+      if (graphicMarkup) {
+         graphicMarkup->plot ();
       }
    }
 }
@@ -744,7 +754,7 @@ bool QEGraphic::rightButtonPressed () const
 bool QEGraphic::getSlopeIsDefined (QPointF& slope) const
 {
    bool result;
-   QEGraphicLineMarkup* markup = static_cast <QEGraphicLineMarkup*> (this->markups [LINE_MARKUP]);
+   QEGraphicLineMarkup* markup = static_cast <QEGraphicLineMarkup*> (this->graphicMarkupsSet->value (Line, NULL));
 
    if (markup && markup->isVisible ()) {
       slope = markup->getSlope ();
@@ -796,22 +806,24 @@ QEGraphicMarkup* QEGraphic::mouseIsOverMarkup ()
    search = NULL;
    minDistance = 100000;  // some unfeasible large distance. A real distance much smaller.
 
-   for (int j = 0; j < ARRAY_LENGTH (this->markups); j++) {
-      QEGraphicMarkup* markup = this->markups [j];
-      if (markup) {
+   const MarkupLists keys = this->graphicMarkupsSet->keys ();
+   for (int j = 0; j < keys.count (); j++) {
+      QEGraphicMarkup* graphicMarkup = this->graphicMarkupsSet->value (keys.value (j), NULL);
+      if (graphicMarkup) {
          int dist;
-         if (markup->isOver (this->realMousePosition, dist)) {
+         if (graphicMarkup->isOver (this->realMousePosition, dist)) {
             // Note: <=  operator. All things being equal this means:
             // Last in, best dressed.  That is essentially the same as the
             // plotMarkups, i.e. we find the markup the user can see.
             //
             if (dist <= minDistance) {
                minDistance = dist;
-               search = markup;
+               search = graphicMarkup;
             }
          }
       }
    }
+
    return search;
 }
 
@@ -827,12 +839,12 @@ void QEGraphic::canvasMousePress (QMouseEvent* mouseEvent)
 
    search = NULL;
 
-   // We can always "find" AREA_MARKUP/LINE_MARKUP.
+   // We can always "find" the Area and Line markups.
    //
    if (button == Qt::LeftButton) {
-      search = this->markups [AREA_MARKUP];
+      search = this->graphicMarkupsSet->value (QEGraphic::Area, NULL);
    } else if (button == MIDDLE_BUTTON) {
-      search = this->markups [LINE_MARKUP];
+      search = this->graphicMarkupsSet->value (QEGraphic::Line, NULL);
    }
 
    // Is press over/closer an existing/visible markup?
@@ -847,10 +859,11 @@ void QEGraphic::canvasMousePress (QMouseEvent* mouseEvent)
       search->setSelected (true);
    }
 
-   for (int j = 0; j < ARRAY_LENGTH (this->markups); j++) {
-      QEGraphicMarkup* markup = this->markups [j];
-      if (markup && markup->isSelected ()) {
-         markup->mousePress (this->realMousePosition, button);
+   const MarkupLists keys = this->graphicMarkupsSet->keys ();
+   for (int j = 0; j < keys.count (); j++) {
+      QEGraphicMarkup* graphicMarkup = this->graphicMarkupsSet->value (keys.value (j), NULL);
+      if (graphicMarkup && graphicMarkup->isSelected ()) {
+         graphicMarkup->mousePress (this->realMousePosition, button);
       }
    }
 
@@ -872,11 +885,12 @@ void QEGraphic::canvasMouseRelease (QMouseEvent* mouseEvent)
    button = mouseEvent->button ();
    this->realMousePosition = this->pointToReal (mouseEvent->pos ());
 
-   for (int j = 0; j < ARRAY_LENGTH (this->markups); j++) {
-      QEGraphicMarkup* markup = this->markups [j];
-      if (markup && markup->isSelected ()) {
-         markup->mouseRelease (this->realMousePosition, button);
-         this->plot->canvas()->setCursor (Qt::CrossCursor);
+   const MarkupLists keys = this->graphicMarkupsSet->keys ();
+   for (int j = 0; j < keys.count (); j++) {
+      QEGraphicMarkup* graphicMarkup = this->graphicMarkupsSet->value (keys.value (j), NULL);
+      if (graphicMarkup && graphicMarkup->isSelected ()) {
+         graphicMarkup->mouseRelease (this->realMousePosition, button);
+         this->plot->canvas()->setCursor (Qt::CrossCursor);   // default cursor
       }
    }
 
@@ -897,10 +911,11 @@ void QEGraphic::canvasMouseMove (QMouseEvent* mouseEvent, const bool isButtonAct
    this->realMousePosition = this->pointToReal (mouseEvent->pos ());
 
    replotIsRequired = false;
-   for (int j = 0; j < ARRAY_LENGTH (this->markups); j++) {
-      QEGraphicMarkup* markup = this->markups [j];
-      if (markup && markup->isSelected ()) {
-         markup->mouseMove (this->realMousePosition);
+   MarkupLists keys = this->graphicMarkupsSet->keys ();
+   for (int j = 0; j < keys.count (); j++) {
+      QEGraphicMarkup* graphicMarkup = this->graphicMarkupsSet->value (keys.value (j), NULL);
+      if (graphicMarkup && graphicMarkup->isSelected ()) {
+         graphicMarkup->mouseMove (this->realMousePosition);
          // A selected item will need replotted.
          //
          replotIsRequired = true;

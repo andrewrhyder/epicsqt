@@ -24,9 +24,13 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
+#ifndef QE_GRAPHIC_H
+#define QE_GRAPHIC_H
+
 #include <QEvent>
 #include <QHBoxLayout>
 #include <QList>
+#include <QMap>
 #include <QObject>
 #include <QTimer>
 #include <QWidget>
@@ -37,11 +41,9 @@
 #include <qwt_plot_curve.h>
 #include <qwt_plot_grid.h>
 
+#include <QEGraphicNames.h>
 #include <QEPluginLibrary_global.h>
 #include <QEDisplayRanges.h>
-
-#ifndef QE_GRAPHIC_H
-#define QE_GRAPHIC_H
 
 class QEGraphicMarkup;  // differed declaration
 
@@ -66,39 +68,9 @@ class QEGraphicMarkup;  // differed declaration
 ///
 /// h) Provides wrapper functions to hide QWT version API changes.
 ///
-class QEPLUGINLIBRARYSHARED_EXPORT QEGraphic : public QWidget {
+class QEPLUGINLIBRARYSHARED_EXPORT QEGraphic : public QWidget, public QEGraphicNames {
    Q_OBJECT
 public:
-   typedef QVector<double> DoubleVector;
-
-   // Determines how the associated value is used to find and estimated major value.
-   // The estimated value is then rounded to something more appropriate
-   //
-   enum AxisMajorIntervalModes {
-      SelectByValue,   // estimated major interval = (max - min) / value.
-      SelectBySize };  // estimated major interval = ((max - min) / (widget size / value)),
-                       // i.e. value represents major interval expressed as a pixel size
-
-   // Markup selection enumeration flags.
-   //
-   enum Markup {
-      None              = 0x0000,
-      Area              = 0x0001,
-      Line              = 0x0002,
-      CrossHair         = 0x0004,
-      HorizontalLine_1  = 0x0010,
-      HorizontalLine_2  = 0x0020,
-      HorizontalLine_3  = 0x0040,
-      HorizontalLine_4  = 0x0080,
-      VerticalLine_1    = 0x0100,
-      VerticalLine_2    = 0x0200,
-      VerticalLine_3    = 0x0400,
-      VerticalLine_4    = 0x0800
-   };
-
-   Q_DECLARE_FLAGS (MarkupFlags, Markup)
-   //
-   // The associated operator declaration is at end of header outsie of class.
    // By default, there are no markups set as in use.
    //
    explicit QEGraphic (QWidget* parent = 0);
@@ -120,9 +92,19 @@ public:
 
    // Set/Get the set of in use, i.e. permitted, markups.
    //
-   void setAvailableMarkups (const MarkupFlags markups);
+   void setAvailableMarkups (const MarkupFlags graphicMarkupsSet);
    MarkupFlags getAvailableMarkups () const;
 
+   void setMarkupVisible (const Markups markup, const bool isVisible);
+   bool getMarkupVisible (const Markups markup) const;
+
+   // When a mark has only an x or y postion, the y or x value is igmored.
+   //
+   void setMarkupPosition (const Markups markup, const QPointF& position);
+   QPointF getMarkupPosition (const Markups markup) const;
+
+   // Depricated - use setMarkupPosition/setMarkupVisible instead.
+   //
    void setCrosshairsVisible (const bool isVisible);
    void setCrosshairsVisible (const bool isVisible, const QPointF& position);
    bool getCrosshairsVisible () const;
@@ -215,6 +197,7 @@ signals:
    void areaDefinition (const QPointF& from, const QPointF& to);
    void lineDefinition (const QPointF& from, const QPointF& to);
    void crosshairsMove (const QPointF& posn);
+   void markupMove     (const QEGraphicNames::Markups markup, const QPointF& position);
 
 protected:
    void canvasMousePress (QMouseEvent* mouseEvent);
@@ -301,7 +284,13 @@ private:
 
    Axis* xAxis;
    Axis* yAxis;
-   QEGraphicMarkup* markups [11];          // set of available markups.
+
+   // We use a map (as oppsed to a hash) because the iteration order is predictable
+   // and consistant.
+   //
+   typedef QMap <Markups, QEGraphicMarkup*> QEGraphicMarkupSets;
+   typedef QList<Markups> MarkupLists;
+   QEGraphicMarkupSets* graphicMarkupsSet;      // set of available markups.
 
    QHBoxLayout *layout;
    QwtPlot* plot;
@@ -337,7 +326,5 @@ private slots:
    friend class QEGraphicHorizontalMarkup;
    friend class QEGraphicVerticalMarkup;
 };
-
-Q_DECLARE_OPERATORS_FOR_FLAGS (QEGraphic::MarkupFlags)
 
 # endif  // QE_GRAPHIC_H

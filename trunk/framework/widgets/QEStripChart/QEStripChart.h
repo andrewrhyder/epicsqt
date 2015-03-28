@@ -24,8 +24,8 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-#ifndef QESTRIPCHART_H
-#define QESTRIPCHART_H
+#ifndef QE_STRIP_CHART_H
+#define QE_STRIP_CHART_H
 
 #include <QAction>
 #include <QBoxLayout>
@@ -51,6 +51,7 @@
 #include <persistanceManager.h>
 #include <QEResizeableFrame.h>
 #include <QEPVNameSelectDialog.h>
+#include <QEGraphicNames.h>
 
 #include "QEStripChartNames.h"
 #include "QEStripChartToolBar.h"
@@ -332,6 +333,8 @@ private slots:
    void zoomInOut      (const QPointF& about, const int zoomAmount);
    void scaleSelect    (const QPointF& origin, const QPointF& offset);
    void lineSelected   (const QPointF& origin, const QPointF& offset);
+   void markupMove     (const QEGraphicNames::Markups markup, const QPointF& position);
+
 };
 
-# endif  // QESTRIPCHART_H
+#endif   // QE_STRIP_CHART_H

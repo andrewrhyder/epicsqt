@@ -31,14 +31,16 @@
 #include <QObject>
 #include <QPen>
 #include <QPoint>
-#include <QEGraphic.h>
+#include <QEGraphicNames.h>
+
+class QEGraphic;  // differed declaration - avoid mutual header inclusion
 
 //-----------------------------------------------------------------------------
 // Base class for all QEGraphic markups.
 //
 class QEGraphicMarkup {
 public:
-   explicit QEGraphicMarkup (QEGraphic* owner);
+   explicit QEGraphicMarkup (QEGraphicNames::Markups markup, QEGraphic* owner);
    virtual ~QEGraphicMarkup ();
 
    void setCurrentPosition (const QPointF& currentPosition);
@@ -75,15 +77,19 @@ protected:
    // Conveniance utility function to set owner curve pen/brush and then call
    // owner plot curve function.
    //
-   void plotCurve (const QEGraphic::DoubleVector& xData,
-                   const QEGraphic::DoubleVector& yData);
+   void plotCurve (const QEGraphicNames::DoubleVector& xData,
+                   const QEGraphicNames::DoubleVector& yData);
+
+   // Emits the current markup postion from the QEGraphic owner.
+   //
+   void emitCurrentPostion ();
 
    // All concrete classes must provide a means to draw a markup.
    // This is only called when the markup is visible.
    //
    virtual void plotMarkup () = 0;
 
-   QPointF current;   // notional current position
+   QPointF positon;   // notional current position
    QPen pen;
    QBrush brush;
    QCursor cursor;
@@ -92,7 +98,7 @@ protected:
    bool visible;
    bool enabled;
    bool selected;
-
+   const QEGraphicNames::Markups markup;   // own type indicator.
 private:
    QEGraphic* owner;
 };
@@ -160,7 +166,7 @@ protected:
 //
 class QEGraphicHVBaseMarkup : public QEGraphicMarkup {
 public:
-   explicit QEGraphicHVBaseMarkup (QEGraphic* owner, const int instance);
+   explicit QEGraphicHVBaseMarkup (QEGraphicNames::Markups markup, QEGraphic* owner);
 
    void setInUse     (const bool inUse);
    void mousePress   (const QPointF& realMousePosition, const Qt::MouseButton button);
@@ -174,7 +180,6 @@ protected:
    virtual void getLine (double& xmin, double& xmax, double& ymin, double& ymax) = 0;
    virtual void getShape (QPoint shape []) = 0;
 
-   int instance;
    QColor brushDisabled;
    QColor brushEnabled;
    QColor brushSelected;
@@ -186,7 +191,7 @@ protected:
 //
 class QEGraphicHorizontalMarkup : public QEGraphicHVBaseMarkup {
 public:
-   explicit QEGraphicHorizontalMarkup (QEGraphic* owner, const int instance);
+   explicit QEGraphicHorizontalMarkup (const QEGraphicNames::Markups markup, QEGraphic* owner);
    bool isOver (const QPointF& point, int& distance) const;
 protected:
    void getLine (double& xmin, double& xmax, double& ymin, double& ymax);
@@ -199,11 +204,11 @@ protected:
 //
 class QEGraphicVerticalMarkup : public QEGraphicHVBaseMarkup {
 public:
-   explicit QEGraphicVerticalMarkup (QEGraphic* owner, const int instance);
+   explicit QEGraphicVerticalMarkup (const QEGraphicNames::Markups markup, QEGraphic* owner);
    bool isOver (const QPointF& point, int& distance) const;
 protected:
    void getLine (double& xmin, double& xmax, double& ymin, double& ymax);
    void getShape (QPoint shape []);
 };
 
-#endif  //  QE_GRAPHIC_MARKUP_H
+#endif  // QE_GRAPHIC_MARKUP_H
