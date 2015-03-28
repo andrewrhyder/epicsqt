@@ -55,6 +55,7 @@ public:
    Q_PROPERTY (double baseLine         READ getBaseLine         WRITE setBaseLine)
    Q_PROPERTY (bool   logScale         READ getLogScale         WRITE setLogScale)
    // Where possible I spell colour properly.
+   Q_PROPERTY (QColor backgroundColour READ getBackgroundColour WRITE setBackgroundColour)
    Q_PROPERTY (QColor barColour        READ getBarColour        WRITE setBarColour)
    Q_PROPERTY (bool   drawBorder       READ getDrawBorder       WRITE setDrawBorder)
    Q_PROPERTY (Qt::Orientation orientation READ getOrientation  WRITE setOrientation)
@@ -90,6 +91,7 @@ public:
    PROPERTY_ACCESS (bool,   AutoBarGapWidths)
    PROPERTY_ACCESS (bool,   LogScale)
    PROPERTY_ACCESS (bool,   DrawBorder)
+   PROPERTY_ACCESS (QColor, BackgroundColour)
    PROPERTY_ACCESS (QColor, BarColour)
    PROPERTY_ACCESS (Qt::Orientation, Orientation)
    //
@@ -166,6 +168,7 @@ private:
    // the propery names.
    //
    QColor mBarColour;
+   QColor mBackgroundColour;
 
    double mMinimum;
    double mMaximum;

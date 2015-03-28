@@ -114,19 +114,19 @@ QColor QEUtilities::darkColour (const QColor& lightColour)
 QColor QEUtilities::blandColour (const QColor& vibrantColour)
 {
    QColor result;
-   int h, s, l, a;
+   int r, g, b, a;
 
-   vibrantColour.getHsl (&h, &s, &l, &a);
+   vibrantColour.getRgb (&r, &g, &b, &a);
 
-   // 50% saturation and 50% co-lightness.
+   // Move 66.6% of the way towards grey.
    //
-   s = s / 2;
-   l = 255 - ((255 - l)/ 2);
+   r = (r + 256) / 3;
+   g = (g + 256) / 3;
+   b = (b + 256) / 3;
 
-   result.setHsl (h, s, l, a);
+   result.setRgb (r, g, b, a);
    return result;
 }
-
 
 //------------------------------------------------------------------------------
 //

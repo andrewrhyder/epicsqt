@@ -88,6 +88,7 @@ public:
    Q_PROPERTY (double baseLine         READ getBaseLine         WRITE setBaseLine)
    Q_PROPERTY (bool   logScale         READ getLogScale         WRITE setLogScale  )
    // When dislayAlarmState set ture, this property value effectively ignored.
+   Q_PROPERTY (QColor backgroundColour READ getBackgroundColour WRITE setBackgroundColour)
    Q_PROPERTY (QColor barColour        READ getBarColour        WRITE setBarColour)
    Q_PROPERTY (bool   drawBorder       READ getDrawBorder       WRITE setDrawBorder)
    Q_PROPERTY (Qt::Orientation orientation READ getOrientation  WRITE setOrientation)
@@ -233,6 +234,7 @@ public:
    QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, bool,   getAutoBarGapWidths, setAutoBarGapWidths)
    QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, bool,   getLogScale,    setLogScale)
    QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, bool,   getDrawBorder,  setDrawBorder)
+   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, QColor, getBackgroundColour, setBackgroundColour)
    QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, QColor, getBarColour,   setBarColour)
    QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, Qt::Orientation, getOrientation, setOrientation)
 

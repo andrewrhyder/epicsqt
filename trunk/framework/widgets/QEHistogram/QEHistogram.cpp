@@ -28,6 +28,7 @@
 #include <QBrush>
 #include <QPen>
 
+#include <QECommon.h>
 #include <QEScaling.h>
 #include <QEHistogram.h>
 #include <QECommon.h>
@@ -72,7 +73,8 @@ QEHistogram::QEHistogram (QWidget *parent) : QFrame (parent)
 
    // And local properties.
    //
-   this->mBarColour = QColor (55, 155, 255);   // blue
+   this->mBackgroundColour = QColor (255, 255, 255);   // white
+   this->mBarColour = QColor (55, 155, 255);           // blue
    this->mDrawBorder = true;
    this->mAutoScale = false;
    this->mAutoBarGapWidths = false;
@@ -452,6 +454,7 @@ void QEHistogram::paintGrid (QPainter& painter) const
 {
    const int axisOffset = QEScaling::scale (4);
 
+   QColor penColour;
    QPen pen;
    int j;
    double value;
@@ -462,11 +465,11 @@ void QEHistogram::paintGrid (QPainter& painter) const
    QString text;
    int x;
 
-   if (this->isEnabled ()) {
-      pen.setColor (QColor (0, 0, 0));        // black
-   } else {
-      pen.setColor (QColor (128, 128, 128));  // gray
+   penColour = QEUtilities::fontColour (this->getBackgroundColour ()); // black/white
+   if (!this->isEnabled ()) {
+      penColour = QEUtilities::blandColour (penColour);   // washed/greyed out
    }
+   pen.setColor (penColour);
    pen.setWidth (1);
    pen.setStyle (Qt::DashLine);
    painter.setPen (pen);
@@ -520,6 +523,8 @@ void QEHistogram::paintAllItems ()
    QEDisplayRanges displayRange;
    double useMinimum;
    double useMaximum;
+
+   this->setStyleSheet (QEUtilities::colourToStyle (this->getBackgroundColour ()));
 
    // Draw everything with antialiasing off.
    //
@@ -703,6 +708,7 @@ PROPERTY_ACCESS (bool,   AutoScale,        value,                               
 PROPERTY_ACCESS (bool,   AutoBarGapWidths, value,                                                 NO_EXTRA)
 PROPERTY_ACCESS (bool,   LogScale,         value,                                                 NO_EXTRA)
 PROPERTY_ACCESS (bool,   DrawBorder,       value,                                                 NO_EXTRA)
+PROPERTY_ACCESS (QColor, BackgroundColour, value,                                                 NO_EXTRA)
 PROPERTY_ACCESS (QColor, BarColour,        value,                                                 NO_EXTRA)
 PROPERTY_ACCESS (Qt::Orientation,  Orientation,  value,                                           NO_EXTRA)
 PROPERTY_ACCESS (int,    TestSize,         LIMIT (value, 0, MAX_CAPACITY),                        this->createTestData ())
