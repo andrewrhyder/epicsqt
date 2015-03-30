@@ -94,7 +94,6 @@ void QEByteArray::forwardDataChanged( const QByteArray &value,
                                       QCaDateTime& timeStamp,
                                       const unsigned int& variableIndex  )
 {
-    qDebug() << "QEByteArray::forwardDataChanged()";
     emit byteArrayChanged( value, dataSize, alarmInfo, timeStamp, variableIndex );
 }
 

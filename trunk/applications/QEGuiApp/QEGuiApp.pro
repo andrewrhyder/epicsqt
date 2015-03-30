@@ -144,10 +144,57 @@ RESOURCES += ./src/QEGui.qrc
 # PSI's caQtDM integration
 isEmpty( _QE_CAQTDM ) {
 } else {
-    INCLUDEPATH += $$(QE_CAQTDM)/caQtDM_Lib/src \
-                   $$(QE_CAQTDM)/caQtDM_QtControls/src \
-                   $(QWTINCLUDE)
-    LIBS += -L$$(QE_CAQTDM)/caQtDM_Lib -lcaQtDM_Lib
+
+    # Note,the following checks for QWT are repeated in framework.pro - keep in sync
+    # Check QWT is accessable. Check there is a chance QMAKEFEATURES includes a path to
+    # the qwt features directory, or that QWT_INCLUDE_PATH is defined.
+    # Note, qwt install may set up QMAKEFEATURES to point to the product features file, rather than
+    # the directory. Not sure if this is wrong, but changing it to the directory works (C:\Qwt-6.0.1\features\qwt.prf  to  C:\Qwt-6.0.1\features)
+    _QWT_INCLUDE_PATH = $$(QWT_INCLUDE_PATH)
+    isEmpty( _QWT_INCLUDE_PATH ) {
+        _QMAKEFEATURES = $$(QMAKEFEATURES)
+        _QWT_FEATURE = $$find( _QMAKEFEATURES, [Q|q][W|w][T|t] )
+        isEmpty( _QWT_FEATURE ) {
+            error( "Qwt does not appear to be available. It is required when building QEGui with caQtDM integration. I've checked if 'qwt' is in QMAKEFEATURES or if QWT_INCLUDE_PATH is defined" )
+        }
+    }
+
+    # The following QWT include path and library path are only required if
+    # qwt was not installed fully, with qwt available as a Qt 'feature'.
+    # When installed as a Qt 'feature' all that is needed is CONFIG += qwt (above)
+    INCLUDEPATH += $$(QWT_INCLUDE_PATH)
+    #win32:LIBS += -LC:/qwt-6.0.1/lib
+    win32:LIBS += -LC:/qwt-6.1.0/lib
+    #win32:LIBS += -LC:/qwt-6.1.1/lib
+
+    # Depending on build, the qwt library below may need to be -lqwt or -lqwt6
+    # The 'scope' labels Debug and Release need to have first letter capitalised for it to work in win32.
+    win32 {
+        Debug {
+            warning( "Using qwtd (not qwt) for this debug build" )
+            LIBS += -lqwtd
+        }
+        Release {
+            warning( "Using qwt (not qwtd) for this release build" )
+            LIBS += -lqwt
+        }
+    }
+
+    unix {
+        _QWT_ROOT = $$(QWT_ROOT)
+        isEmpty( _QWT_ROOT ) {
+            warning( "QWT_ROOT is not defined, so using default location of QWT library" )
+            LIBS += -lqwt
+        } else {
+            warning( "Using QWT_ROOT environment variable to locate QWT library" )
+            LIBS += -L$$_QWT_ROOT/lib -lqwt
+        }
+    }
+
+    INCLUDEPATH += $(QE_CAQTDM)/caQtDM_Lib/src \
+                   $(QE_CAQTDM)/caQtDM_QtControls/src \
+                   $(QWT_INCLUDE_PATH)
+    LIBS += -L$(QE_CAQTDM)/caQtDM_Lib -lcaQtDM_Lib
 }
 #===========================================================
 
