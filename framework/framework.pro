@@ -186,6 +186,8 @@ LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) \
 #===========================================================
 # QWT
 #
+# Note, the following checks for QWT are repeated in QEGuiApp.pro - keep in sync
+#
 # Check QWT is accessable. Check there is a chance QMAKEFEATURES includes a path to
 # the qwt features directory, or that QWT_INCLUDE_PATH is defined.
 # Note, qwt install may set up QMAKEFEATURES to point to the product features file, rather than
@@ -195,7 +197,7 @@ isEmpty( _QWT_INCLUDE_PATH ) {
     _QMAKEFEATURES = $$(QMAKEFEATURES)
     _QWT_FEATURE = $$find( _QMAKEFEATURES, [Q|q][W|w][T|t] )
     isEmpty( _QWT_FEATURE ) {
-        error( "Qwt does not appear to be available. I've checked if 'qwt' is in QMAKEFEATURES or if QWT_INCLUDE_PATH is defined" )
+        error( "Qwt does not appear to be available. It is required when building the QE framework. I've checked if 'qwt' is in QMAKEFEATURES or if QWT_INCLUDE_PATH is defined" )
     }
 }
 
@@ -208,7 +210,7 @@ win32:LIBS += -LC:/qwt-6.1.0/lib
 #win32:LIBS += -LC:/qwt-6.1.1/lib
 
 # Depending on build, the qwt library below may need to be -lqwt or -lqwt6
-#The 'scope' labels Debug and Release need to have first letter capitalised for it to work in win32.
+# The 'scope' labels Debug and Release need to have first letter capitalised for it to work in win32.
 win32 {
     Debug {
         warning( "Using qwtd (not qwt) for this debug build" )
@@ -221,7 +223,14 @@ win32 {
 }
 
 unix {
-    LIBS += -lqwt
+    _QWT_ROOT = $$(QWT_ROOT)
+    isEmpty( _QWT_ROOT ) {
+        warning( "QWT_ROOT is not defined, so using default location of QWT library" )
+        LIBS += -lqwt
+    } else {
+        warning( "Using QWT_ROOT environment variable to locate QWT library" )
+        LIBS += -L$$_QWT_ROOT/lib -lqwt
+    }
 }
 
 # ffmpeg stuff
