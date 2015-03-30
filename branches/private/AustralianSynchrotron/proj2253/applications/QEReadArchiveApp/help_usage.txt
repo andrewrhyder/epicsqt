@@ -1,4 +1,0 @@
-
-usage: qerad  [--utc] [--raw] [--fixed=<time>] output_file start_time  end_time  pv_names...
-       qerad  --help | -h
-
