@@ -109,6 +109,7 @@ public:
                                   ICM_SELECT_TARGET,
                                   ICM_SELECT_BEAM,
                                   ICM_CLEAR_MARKUP,
+                                  ICM_SET_LEGEND,
                                   ICM_THICKNESS_ONE_MARKUP,
                                   ICM_THICKNESS_SELECT_MARKUP,
                                   ICM_COPY_PLOT_DATA,

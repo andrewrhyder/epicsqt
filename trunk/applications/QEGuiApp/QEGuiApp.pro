@@ -63,9 +63,9 @@ INCLUDEPATH += O.$$(EPICS_HOST_ARCH)/ui_headers
 
 _QE_CAQTDM = $$(QE_CAQTDM)
 isEmpty( _QE_CAQTDM ) {
-    warning( "Integration with PSI's caQtDM will NOT be included in QEGui. If you want caQtDM integrated, download and build it and define the environment variable QE_CAQTDM to point to the caQtDM_Project directory." )
+    message( "Integration with PSI's caQtDM will NOT be included in QEGui. If you want caQtDM integrated, download and build it and define the environment variable QE_CAQTDM to point to the caQtDM_Project directory." )
 } else {
-    warning( "Integration with PSI's caQtDM will be included in QEGui. caQtDM libraries and include files will be expected and be located using the QE_CAQTDM environment variable (which will should point to the to point to the caQtDM_Project directory). Undefine environment variable QE_CAQTDM if you do not want caQtDM integration." )
+    message( "Integration with PSI's caQtDM will be included in QEGui. caQtDM libraries and include files will be expected and be located using the QE_CAQTDM environment variable (which will should point to the to point to the caQtDM_Project directory). Undefine environment variable QE_CAQTDM if you do not want caQtDM integration." )
     DEFINES += QE_USE_CAQTDM
 }
 #===========================================================
@@ -171,11 +171,11 @@ isEmpty( _QE_CAQTDM ) {
     # The 'scope' labels Debug and Release need to have first letter capitalised for it to work in win32.
     win32 {
         Debug {
-            warning( "Using qwtd (not qwt) for this debug build" )
+            message( "Using qwtd (not qwt) for this debug build" )
             LIBS += -lqwtd
         }
         Release {
-            warning( "Using qwt (not qwtd) for this release build" )
+            message( "Using qwt (not qwtd) for this release build" )
             LIBS += -lqwt
         }
     }
@@ -183,10 +183,10 @@ isEmpty( _QE_CAQTDM ) {
     unix {
         _QWT_ROOT = $$(QWT_ROOT)
         isEmpty( _QWT_ROOT ) {
-            warning( "QWT_ROOT is not defined, so using default location of QWT library" )
+            message( "QWT_ROOT is not defined, so using default location of QWT library" )
             LIBS += -lqwt
         } else {
-            warning( "Using QWT_ROOT environment variable to locate QWT library" )
+            message( "Using QWT_ROOT environment variable to locate QWT library" )
             LIBS += -L$$_QWT_ROOT/lib -lqwt
         }
     }

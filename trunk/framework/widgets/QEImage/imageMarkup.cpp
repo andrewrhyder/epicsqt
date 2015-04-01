@@ -38,6 +38,8 @@
 #include <QEImageMarkupThickness.h>
 
 #include <imageContextMenu.h>
+#include <imageMarkupLegendSetText.h>
+
 
 // Constructor
 imageMarkup::imageMarkup()
@@ -802,6 +804,7 @@ bool imageMarkup::showMarkupMenu( const QPoint& pos, const QPoint& globalPos )
 
     //                      Title                            checkable  checked                 option
     menu.addMenuItem(       "Hide",                          false,     false,                  imageContextMenu::ICM_CLEAR_MARKUP             );
+    menu.addMenuItem(       "Set Legend",                    false,     false,                  imageContextMenu::ICM_SET_LEGEND             );
 
     // If any thickness, add thickness options (zero means item has no concept of thickness)
     if( items[activeItem]->getThickness() )
@@ -824,6 +827,16 @@ bool imageMarkup::showMarkupMenu( const QPoint& pos, const QPoint& globalPos )
 
         case imageContextMenu::ICM_CLEAR_MARKUP:
             clearMarkup( activeItem );
+            break;
+
+        case imageContextMenu::ICM_SET_LEGEND:
+            {
+                imageMarkupLegendSetText legendEditor( items[activeItem]->getLegend() );
+                if( legendEditor.exec() == QDialog::Accepted )
+                {
+                    items[activeItem]->setLegend( legendEditor.getLegend() );
+                }
+            }
             break;
 
         case imageContextMenu::ICM_THICKNESS_ONE_MARKUP:

@@ -28,6 +28,8 @@
 
 #include <ContainerProfile.h>
 
+class changeEventFilter; // Forward declaration
+
 /*!
   This class adds common style support to all QE widgets if required.
 
@@ -61,13 +63,19 @@
   Note, this class notes the initial style when instantiated and uses that style as the base style for
   all style changes. This means any style changes not performed through this class will be lost the next
   time this class changes the style.
+
+  Note, the stylesheet built by this class is not actually applied if the widget being managed is disabled.
+  Instead it is noted and applied if and when the widget becomed enabled.
+  Changes that affect the style will still cause a regeneration of the style while the widget is disabled, but the
+  updated style will not be applied until the widget is enabled.
 */
 
 class styleManager {
+    friend class changeEventFilter; // The event filter is really part of this style manager class
 
 public:
     styleManager( QWidget* ownerIn );
-    virtual ~styleManager(){}
+    ~styleManager();
 
     void setStyleDefault( QString style );  //!< Set the default Style Sheet string.
                                             //!< The syntax is the standard Qt Style Sheet syntax. For example, 'background-color: red'.
@@ -108,21 +116,48 @@ public:
     void styleUserLevelChanged( userLevelTypes::userLevels levelIn );/**< Set the current user level.*/
 
 private:
-    QWidget* owner;             // Widget to which style sheet strings will be applied
+    void enabledChange();               // Called to notify the manager that the enabled state of the widget has changed
 
-    QString userUserStyle;      // Style to apply to widget when current user is a 'user'
-    QString userScientistStyle; // Style to apply to widget when current user is a 'scientist'
-    QString userEngineerStyle;  // Style to apply to widget when current user is a 'engineer'
+    QWidget* owner;                     // Widget to which style sheet strings will be applied
+    QString currentStyle;               // Current style sheet (or that that will be applied when not disabled). This is kept up to date as components change even if it not being applied to the widget due to the widget being disabled.
 
-    QString defaultStyleSheet;  // Style sheet prior to any manipulation by this class
-    QString statusStyleSheet;   // Style to apply to reflect current status
-    QString dataStyleSheet;     // Style to apply to reflect current data
-    QString propertyStyleSheet; // Style to apply to implement a QE widget property
-    QString connectionStyleSheet;// Style to apply to reflect current connection state
+    QString userUserStyle;              // Style to apply to widget when current user is a 'user'
+    QString userScientistStyle;         // Style to apply to widget when current user is a 'scientist'
+    QString userEngineerStyle;          // Style to apply to widget when current user is a 'engineer'
 
-    void updateStyleSheet();    // Update the style sheet with the various style sheet components used to modify the label style (alarm info, enumeration color)
+    QString defaultStyleSheet;          // Style sheet prior to any manipulation by this class
+    QString statusStyleSheet;           // Style to apply to reflect current status
+    QString dataStyleSheet;             // Style to apply to reflect current data
+    QString propertyStyleSheet;         // Style to apply to implement a QE widget property
+    QString connectionStyleSheet;       // Style to apply to reflect current connection state
 
-    userLevelTypes::userLevels level;           // Current user level - used to select appropriate user style
+    void updateStyleSheet();            // Update the style sheet with the various style sheet components used to modify the label style (alarm info, enumeration color)
+
+    userLevelTypes::userLevels level;   // Current user level - used to select appropriate user style
+
+    changeEventFilter* eventFilter;     // Event filter to catch enables and disabled (all styles are removed when disabled)
 };
+
+// Event filter that will be added to the widget mening managed by the styleManager class.
+// This filter will be used to catch change events to keep a track of the enabled/disabled
+// state of the widget as the style is only applied if the widget is enabled allowing the
+// full disabled look to be displayed.
+// Note, the filter functionality cant be added to the styleManager class itself
+// as it is not a QObject (and can't be as it is a base class to QE widgets and
+// there can't be more than a single base class that is a QObject)
+class changeEventFilter : public QObject
+{
+    Q_OBJECT
+
+public:
+    changeEventFilter( styleManager* managerIn ){ manager = managerIn; }
+
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
+
+private:
+    styleManager* manager;  // Events are passed back to the manager
+};
+
 
 #endif // STYLEMANAGER_H

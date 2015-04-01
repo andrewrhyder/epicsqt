@@ -55,7 +55,8 @@ HEADERS += \
     widgets/QEImage/screenSelectDialog.h \
     widgets/QEImage/colourConversion.h \
     widgets/QEImage/imageProcessor.h \
-    widgets/QEImage/imageProperties.h
+    widgets/QEImage/imageProperties.h \
+    widgets/QEImage/imageMarkupLegendSetText.h
 
 isEmpty( _QE_FFMPEG ) {
 
@@ -91,7 +92,8 @@ SOURCES += \
     widgets/QEImage/recording.cpp \
     widgets/QEImage/screenSelectDialog.cpp \
     widgets/QEImage/imageProcessor.cpp \
-    widgets/QEImage/imageProperties.cpp
+    widgets/QEImage/imageProperties.cpp \
+    widgets/QEImage/imageMarkupLegendSetText.cpp
 
 isEmpty( _QE_FFMPEG ) {
 } else {
@@ -107,4 +109,5 @@ FORMS += \
     widgets/QEImage/QEImageOptionsDialog.ui \
     widgets/QEImage/QEImageMarkupThickness.ui \
     widgets/QEImage/recording.ui \
-    widgets/QEImage/screenSelectDialog.ui
+    widgets/QEImage/screenSelectDialog.ui \
+    widgets/QEImage/imageMarkupLegendSetText.ui
