@@ -53,6 +53,8 @@ public:
    Q_PROPERTY (double minimum          READ getMinimum          WRITE setMinimum)
    Q_PROPERTY (double maximum          READ getMaximum          WRITE setMaximum)
    Q_PROPERTY (double baseLine         READ getBaseLine         WRITE setBaseLine)
+   Q_PROPERTY (bool   showScale        READ getShowScale        WRITE setShowScale)
+   Q_PROPERTY (bool   showGrid         READ getShowGrid         WRITE setShowGrid)
    Q_PROPERTY (bool   logScale         READ getLogScale         WRITE setLogScale)
    // Where possible I spell colour properly.
    Q_PROPERTY (QColor backgroundColour READ getBackgroundColour WRITE setBackgroundColour)
@@ -89,6 +91,8 @@ public:
    PROPERTY_ACCESS (double, BaseLine)
    PROPERTY_ACCESS (bool,   AutoScale)
    PROPERTY_ACCESS (bool,   AutoBarGapWidths)
+   PROPERTY_ACCESS (bool,   ShowScale)
+   PROPERTY_ACCESS (bool,   ShowGrid)
    PROPERTY_ACCESS (bool,   LogScale)
    PROPERTY_ACCESS (bool,   DrawBorder)
    PROPERTY_ACCESS (QColor, BackgroundColour)
@@ -178,6 +182,8 @@ private:
    bool mAutoBarGapWidths;
    bool mAutoScale;
    bool mDrawBorder;
+   bool mShowScale;
+   bool mShowGrid;
    bool mLogScale;
    Qt::Orientation mOrientation;
    int mTestSize;

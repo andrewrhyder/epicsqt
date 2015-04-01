@@ -41,6 +41,7 @@ QEWaveformHistogram::QEWaveformHistogram (QWidget * parent) : QEFrame (parent)
    //
    this->setFrameShape (QFrame::Panel);
    this->setFrameShadow (QFrame::Plain);
+   this->setVariableAsToolTip (true);
 
    // Create internal widget.
    //

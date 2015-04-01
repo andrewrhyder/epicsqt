@@ -78,6 +78,8 @@ QEHistogram::QEHistogram (QWidget *parent) : QFrame (parent)
    this->mDrawBorder = true;
    this->mAutoScale = false;
    this->mAutoBarGapWidths = false;
+   this->mShowScale = true;
+   this->mShowGrid = true;
    this->mLogScale = false;
 
    this->mGap = 3;                // 0 .. 10
@@ -427,23 +429,26 @@ QString QEHistogram::coordinateText (const double value) const
 //
 int QEHistogram::maxPaintTextWidth (QPainter& painter) const
 {
-   QFontMetrics fm = painter.fontMetrics ();
    int result;
-   int j;
-   double value;
-   QString text;
-   int w;
 
-   result = 1;
-   for (j = 0; true; j++) {
-      value = this->drawMinimum + (j*this->drawMajor);
-      if (value > this->drawMaximum) break;
-      if (j > 1000) break;  // sainity check
+   if (this->mShowScale) {
+      // yes - scale present. Find required text width.
+      //
+      QFontMetrics fm = painter.fontMetrics ();
+      result = 1;
+      for (int j = 0; true; j++) {
+         double value = this->drawMinimum + (j*this->drawMajor);
+         if (value > this->drawMaximum) break;
+         if (j > 1000) break;  // sainity check
 
-      text = this->coordinateText (value);
-      w = fm.width (text);
-      if (result < w) result = w;
-
+         QString text = this->coordinateText (value);
+         int w = fm.width (text);
+         if (result < w) result = w;
+      }
+   } else {
+      // no scale - use minimal "text" width.
+      //
+      result = 0;
    }
    return result;
 }
@@ -486,19 +491,21 @@ void QEHistogram::paintGrid (QPainter& painter) const
       //
       y = this->paintArea.bottom () - (int) (fraction * this->paintArea.height ());
 
-      if (j > 0) {
+      if (this->mShowGrid && (j > 0)) {
          painter.drawLine (this->paintArea.left () - axisOffset, y,
                            this->paintArea.right(), y);
       }
 
-      // Centre text. For height, pointSize seems better than fm.height ()
-      // painter.drawText needs bottom left coordinates.
-      //
-      text = this->coordinateText (value);
-      x = this->paintArea.left () - fm.width (text) - 2 * axisOffset;
-      y = y +  (pf.pointSize () + 1)/2;
+      if (this->mShowScale) {
+         // Centre text. For height, pointSize seems better than fm.height ()
+         // painter.drawText needs bottom left coordinates.
+         //
+         text = this->coordinateText (value);
+         x = this->paintArea.left () - fm.width (text) - 2 * axisOffset;
+         y = y +  (pf.pointSize () + 1)/2;
 
-      painter.drawText (x, y, text);
+         painter.drawText (x, y, text);
+      }
    }
 
    pen.setWidth (1);
@@ -517,21 +524,23 @@ void QEHistogram::paintGrid (QPainter& painter) const
 void QEHistogram::paintAllItems ()
 {
    const int numberGrid = 5;   // approx number of y grid lines.
-   const int extra = QEScaling::scale (16);
+   const int extra = QEScaling::scale (8);
 
-   QPainter painter (this->histogramArea);
-   QEDisplayRanges displayRange;
-   double useMinimum;
-   double useMaximum;
-
-   this->setStyleSheet (QEUtilities::colourToStyle (this->getBackgroundColour ()));
+   // Only apply style on change as this casues a new paint event.
+   // Maybe we just just paint a rectangle of the appropriate colour.
+   //
+   QString ownStyle = QEUtilities::colourToStyle (this->getBackgroundColour ());
+   if (this->styleSheet() != ownStyle) {
+      this->setStyleSheet (ownStyle);
+   }
 
    // Draw everything with antialiasing off.
    //
+   QPainter painter (this->histogramArea);
    painter.setRenderHint (QPainter::Antialiasing, false);
 
-   useMinimum = this->mMinimum;
-   useMaximum = this->mMaximum;
+   double useMinimum = this->mMinimum;
+   double useMaximum = this->mMaximum;
    if (this->mAutoScale) {
       bool foundValue = false;
       double searchMinimum = +1.0E25;
@@ -560,6 +569,7 @@ void QEHistogram::paintAllItems ()
 
    // Now calc draw min max  - log of min / max if necessary.
    //
+   QEDisplayRanges displayRange;
    displayRange.setRange (useMinimum, useMaximum);
 
    if (this->mLogScale) {
@@ -584,7 +594,7 @@ void QEHistogram::paintAllItems ()
    this->paintArea.setLeft (this->maxPaintTextWidth (painter) + extra);
    this->paintArea.setRight (hostWidgetArea.width () - 2);
 
-   // Do grid and axis - not this might tweak useMinimum/useMaximum.
+   // Do grid and axis - note this might tweak useMinimum/useMaximum.
    //
    this->paintGrid (painter);
 
@@ -706,6 +716,8 @@ PROPERTY_ACCESS (double, Maximum,          LIMIT (value, this->mMinimum + MINIMU
 PROPERTY_ACCESS (double, BaseLine,         value,                                                 NO_EXTRA)
 PROPERTY_ACCESS (bool,   AutoScale,        value,                                                 NO_EXTRA)
 PROPERTY_ACCESS (bool,   AutoBarGapWidths, value,                                                 NO_EXTRA)
+PROPERTY_ACCESS (bool,   ShowScale,        value,                                                 NO_EXTRA)
+PROPERTY_ACCESS (bool,   ShowGrid,         value,                                                 NO_EXTRA)
 PROPERTY_ACCESS (bool,   LogScale,         value,                                                 NO_EXTRA)
 PROPERTY_ACCESS (bool,   DrawBorder,       value,                                                 NO_EXTRA)
 PROPERTY_ACCESS (QColor, BackgroundColour, value,                                                 NO_EXTRA)
