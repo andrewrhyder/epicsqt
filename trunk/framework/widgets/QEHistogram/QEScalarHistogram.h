@@ -86,6 +86,8 @@ public:
    Q_PROPERTY (double minimum          READ getMinimum          WRITE setMinimum)
    Q_PROPERTY (double maximum          READ getMaximum          WRITE setMaximum)
    Q_PROPERTY (double baseLine         READ getBaseLine         WRITE setBaseLine)
+   Q_PROPERTY (bool   showScale        READ getShowScale        WRITE setShowScale)
+   Q_PROPERTY (bool   showGrid         READ getShowGrid         WRITE setShowGrid)
    Q_PROPERTY (bool   logScale         READ getLogScale         WRITE setLogScale  )
    // When dislayAlarmState set ture, this property value effectively ignored.
    Q_PROPERTY (QColor backgroundColour READ getBackgroundColour WRITE setBackgroundColour)
@@ -232,6 +234,8 @@ public:
    QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, int,    getGap,         setGap)
    QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, int,    getBarWidth,    setBarWidth)
    QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, bool,   getAutoBarGapWidths, setAutoBarGapWidths)
+   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, bool,   getShowScale,  setShowScale)
+   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, bool,   getShowGrid,   setShowGrid)
    QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, bool,   getLogScale,    setLogScale)
    QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, bool,   getDrawBorder,  setDrawBorder)
    QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (histogram, QColor, getBackgroundColour, setBackgroundColour)
