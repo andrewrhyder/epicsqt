@@ -41,7 +41,27 @@ styleManager::styleManager( QWidget* ownerIn )
     owner = ownerIn;
     defaultStyleSheet = "";
     level = userLevelTypes::USERLEVEL_USER;
+
+    // Note the current style sheet.
+    // This will be kept up to date as this manager manages changes to the component
+    // parts of the style, even if the style is not currently being applied to the widget
+    // because it is disabled.
+    // This means that when the widget is re-enabled, the currentStyle can just be applied.
+    currentStyle = owner->styleSheet();
+
+    // Add an event filter to catch enables and disabled (all styles are removed when disabled)
+    eventFilter = new changeEventFilter( this );
+    owner->installEventFilter(eventFilter);
 }
+
+// Destruction
+styleManager::~styleManager()
+{
+    // Remove the event filter to catch enables and disabled
+    owner->removeEventFilter( eventFilter );
+    delete eventFilter;
+}
+
 
 // Allow the default style sheet to be programatically set.
 void styleManager::setStyleDefault( QString styleIn )
@@ -138,7 +158,8 @@ void styleManager::updatePropertyStyle( QString style )
     updateStyleSheet();
 }
 
-// Update the style sheet with the various style sheet components used to modify the label style (user level, connection state, alarm info, enumeration color)
+// Update the style sheet with the various style sheet components used to modify the
+// style (user level, connection state, alarm info, enumeration color)
 void styleManager::updateStyleSheet()
 {
     // Note,for QE widgets the styleSheet is now a non-designable property,
@@ -189,11 +210,15 @@ void styleManager::updateStyleSheet()
 
     newStyleSheet.append( userLevelStyle );
 
-    if( newStyleSheet.compare( owner->styleSheet() ))
+    // Apply the new style sheet if the widget is enabled (and it is different to the current one)
+    if( owner->isEnabled() && newStyleSheet.compare( owner->styleSheet() ))
     {
         owner->setStyleSheet( newStyleSheet );
     }
 
+    // Keep an up-to-date copy of the style sheet. It will be applied to the widget if
+    // the widget changes from being disabeld to enabled .
+    currentStyle = newStyleSheet;
 }
 
 // Set the current user level.
@@ -208,4 +233,33 @@ void styleManager::styleUserLevelChanged( userLevelTypes::userLevels levelIn )
     }
 }
 
-// end
+// Called to notify the manager that the enabled state of the widget has changed.
+// Styles are removed while disabled so the 'disabled' look is not hidden by
+// the applied style)
+// Styles are re-applied when enabled. The re-applied style is current and may
+// have been calculated by the manager while the widget was disabled.
+void styleManager::enabledChange()
+{
+    if( owner->isEnabled() )
+    {
+        owner->setStyleSheet( currentStyle );
+    }
+    else
+    {
+        owner->setStyleSheet( "" );
+    }
+}
+
+// Change Event Filter used to note when the widget becomes enabled or disabled.
+// (styles are removed while disabled so the 'disabled' look is not hidden by the applied style)
+bool changeEventFilter::eventFilter(QObject *obj, QEvent *event)
+{
+    // If the enabled state has changed, report this to the style manager
+    if ( event->type() == QEvent::EnabledChange )
+    {
+        manager->enabledChange();
+    }
+
+    // Do standard event processing.
+    return QObject::eventFilter(obj, event);
+}

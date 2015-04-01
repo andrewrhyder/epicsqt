@@ -465,10 +465,13 @@ void QEImage::recorderDestroyed( QObject* ){ recorder = NULL; }
 // (within this widget, or hosted by the application containing this widget)
 void QEImage::presentControls()
 {
+    // Build the title prefix (if requried) for any external controls hosted by the application.
     QString name = getName();
-    if (!name.isEmpty()){
+    if (!name.isEmpty())
+    {
         name.append(" - ");
     }
+
     // If components are being hosted by the application, hide any associated labels within the widget and
     // hand over the components to the application.
     // (Note, if components are not being hosted, they should always exist, but if something

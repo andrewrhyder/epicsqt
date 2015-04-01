@@ -90,7 +90,9 @@ void QEGenericButton::dataSetup()
     isConnected = false;
     updateOption = getDefaultUpdateOption();
 
+    // Initially, there is no specific style based on the usage of this button.
     getQWidget()->setProperty( STYLE_OPTION, "" );
+
     // set control PV for cursor style
     setControlPV(0);
 }
@@ -807,12 +809,21 @@ void QEGenericButton::startGui( const QEActionRequests & request )
 }
 
 // Calculate style based on the widget usage and set a dynamic propert for style options.
-void QEGenericButton::calcStyleOption () {
-    // update stylesheet
+// When the dynamic property is set it can be used in style sheets to target a style at
+// all QE buttons with a particular function as follows:
+//  QEPushButton[StyleOption=”PV”]     {color:purple}
+//  QEPushButton[StyleOption=”Program”]{color:red}
+//  QEPushButton[StyleOption=”UI”]     {color:green}
+//  QEPushButton                       {color:blue}
+//  QEPushButton:!enabled              {color:grey}
+
+void QEGenericButton::calcStyleOption ()
+{
+    // Get the button
     QWidget* button = getQWidget();
     if (!button) return;    // sanity check
 
-    // Prioritise button usage.
+    // Set the dynamic property based on a prioritised button usage.
     if( !getSubstitutedVariableName( 0 ).isEmpty() ){
        button->setProperty( STYLE_OPTION, "PV");
 
@@ -826,6 +837,7 @@ void QEGenericButton::calcStyleOption () {
        button->setProperty( STYLE_OPTION, "");
     }
 
+    // Ensure all dynamic aspects of the button style is reapplied
     button->style()->unpolish(button);
     button->style()->polish(button);
     button->update();

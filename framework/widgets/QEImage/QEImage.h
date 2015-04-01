@@ -1905,6 +1905,9 @@ public:
     /// Name of widget for display and identification purpose.
     /// If present is added to the start of dock names provided by a QEImage widget to an application (such as QEGui)
     /// to diferentiate between docks provided by different instances of QEImage.
+    /// Note, this name will be a prefix before the title of any external controls in the form '<name> - <title>'.
+    /// For example, if this property is set to 'Left' the Image Display Properties control can be identified in
+    /// customisation XML like so:  <Title>Left - Image Display Properties</Title>
     Q_PROPERTY(QString name READ getName WRITE setName)
     // Note, the 'name' property above must be before the 'externalControls' property below so it is available when processing #externalControls property.
     // This may not be the best way to code this - perhaps there is a signal on completion of reading all properties where the QEImage widget

@@ -83,9 +83,9 @@ DEFINES += QWT_DLL=TRUE
 
 _QE_FFMPEG = $$(QE_FFMPEG)
 isEmpty( _QE_FFMPEG ) {
-    warning( "MPEG viewer will NOT be included in QEImage. If you want MPEG support install FFmpeg and define environment variable QE_FFMPEG. This can be defined as anything on linux, but must point to the FFmpeg directory on windows" )
+    message( "MPEG viewer will NOT be included in QEImage. If you want MPEG support install FFmpeg and define environment variable QE_FFMPEG. This can be defined as anything on linux, but must point to the FFmpeg directory on windows" )
 } else {
-    warning( "MPEG viewer will be included in QEImage. FFmpeg libraries will be expected. On windows the environment variable QE_FFMPEG must point to the FFmpeg directory. Remove environment variable QE_FFMPEG if you don't want this" )
+    message( "MPEG viewer will be included in QEImage. FFmpeg libraries will be expected. On windows the environment variable QE_FFMPEG must point to the FFmpeg directory. Remove environment variable QE_FFMPEG if you don't want this" )
     DEFINES += QE_USE_MPEG
 }
 
@@ -213,11 +213,11 @@ win32:LIBS += -LC:/qwt-6.1.0/lib
 # The 'scope' labels Debug and Release need to have first letter capitalised for it to work in win32.
 win32 {
     Debug {
-        warning( "Using qwtd (not qwt) for this debug build" )
+        message( "Using qwtd (not qwt) for this debug build" )
         LIBS += -lqwtd
     }
     Release {
-        warning( "Using qwt (not qwtd) for this release build" )
+        message( "Using qwt (not qwtd) for this release build" )
         LIBS += -lqwt
     }
 }
@@ -225,10 +225,10 @@ win32 {
 unix {
     _QWT_ROOT = $$(QWT_ROOT)
     isEmpty( _QWT_ROOT ) {
-        warning( "QWT_ROOT is not defined, so using default location of QWT library" )
+        message( "QWT_ROOT is not defined, so using default location of QWT library" )
         LIBS += -lqwt
     } else {
-        warning( "Using QWT_ROOT environment variable to locate QWT library" )
+        message( "Using QWT_ROOT environment variable to locate QWT library" )
         LIBS += -L$$_QWT_ROOT/lib -lqwt
     }
 }
