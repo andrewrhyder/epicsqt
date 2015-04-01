@@ -234,7 +234,10 @@ void QERadioGroup::connectionChanged (QCaConnectionInfo& connectionInfo,
    isConnected = connectionInfo.isChannelConnected ();
 
    // Display the connected state
+   // Note: only one/first "variable" is a PV. Modify the tool tip class object
+   //       to only display actual PV name and connection status.
    //
+   this->setNumberToolTipVariables (1);
    this->updateToolTipConnection (isConnected, variableIndex);
 
    this->internalWidget->setEnabled (isConnected);
@@ -290,7 +293,9 @@ void QERadioGroup::valueUpdate (const long &value,
    emit this->dbValueChanged (value);
 
    // Invoke common alarm handling processing.
+   // Only first "variable" is a PV.
    //
+   this->setNumberToolTipVariables (1);
    this->processAlarmInfo (alarmInfo, variableIndex);
 }
 

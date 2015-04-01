@@ -149,6 +149,21 @@ public:
    /// Default value: ""
    Q_PROPERTY (QStringList colStrings  READ getColStrings       WRITE setColStrings )
 
+   /// variableAsToolTip is added as a non-designable property here only to hide the implementation present in QEFrame
+   ///
+   Q_PROPERTY (bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip DESIGNABLE false)
+
+   /// allowDrop is added as a non-designable property here only to hide the implementation present in QEFrame
+   ///
+   Q_PROPERTY (bool allowDrop READ getAllowDrop WRITE setAllowDrop  DESIGNABLE false)
+
+   /// displayAlarmStateOption is added as a non-designable property here only to hide the implementation present in QEFrame
+   ///
+   Q_PROPERTY (DisplayAlarmStateOptions displayAlarmStateOption
+               READ getDisplayAlarmStateOptionProperty
+               WRITE setDisplayAlarmStateOptionProperty DESIGNABLE false)
+
+
    //
    // End of QEFormGrid specific properties =========================================
 
