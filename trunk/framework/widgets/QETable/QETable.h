@@ -29,10 +29,12 @@
 
 #include <QHBoxLayout>
 #include <QList>
+#include <QMenu>
 #include <QString>
 #include <QStringList>
 #include <QSize>
 #include <QTableWidget>
+#include <QTimer>
 #include <QVector>
 
 #include <QECommon.h>
@@ -165,9 +167,10 @@ public:
    // using a macro.  Alas, due to SDK limitation, we cannot embedded the property
    // definitions in a macro.
    //
-   #define PROPERTY_ACCESS(symbol, slot)                                                 \
-      void    setVariableName##symbol (const QString& name)  { this->setVariableName (slot, name); }      \
+   #define PROPERTY_ACCESS(symbol, slot)                                                                 \
+      void    setVariableName##symbol (const QString& name)  { this->setVariableName (slot, name); }     \
       QString getVariableName##symbol () const { return this->getVariableName (slot); }
+
 
    PROPERTY_ACCESS  (1,  0)
    PROPERTY_ACCESS  (2,  1)
@@ -238,17 +241,26 @@ protected:
    void fontChange (const QFont& font);
    void resizeEvent (QResizeEvent* event);
 
-   // override QEWidget fnctions.
+   // Override QEWidget functions.
    //
    void establishConnection (unsigned int variableIndex);
    qcaobject::QCaObject* createQcaItem (unsigned int variableIndex);
    void activated ();
+
+   // Context menu
+   //
+   enum OwnContextMenuOptions { CM_HORIZONTAL_TABLE = CM_SPECIFIC_WIDGETS_START_HERE,
+                                CM_VERTICAL_TABLE };
+
+   QMenu* buildContextMenu ();                        // Build the QETable specific context menu
+   void contextMenuTriggered (int selectedItemNum);   // An action was selected from the context menu
 
    // Drag and Drop
    //
    void mousePressEvent (QMouseEvent *event)    { qcaMousePressEvent (event); }
    void dragEnterEvent (QDragEnterEvent *event) { qcaDragEnterEvent (event, false); }
    void dropEvent (QDropEvent *event)           { qcaDropEvent (event, true); }
+
    // This widget uses the setDrop/getDrop defined in QEWidget.
 
    // Copy paste
@@ -261,18 +273,20 @@ protected:
    void restoreConfiguration (PersistanceManager* pm, restorePhases restorePhase);
 
 private:
-   bool isVertical () const;
-   void rePopulateTable ();
-   void addVariableName (const QString& pvName);
-   void resizeCoulumns ();
+   bool isVertical () const;  // True iff the orientation is Qt::Vertical
+   void addVariableName (const QString& pvName);  // Add name to first availble slot.
+   void resizeCoulumns ();    // Resizes colums to fit available space
+   int numberInUse () const;  // Calculate the required number of cols (or rows when horizontal).
+   int dataSize () const;     // Calculate the required number of rows (or cols when horizontal).
 
    // Provides consistant interpretation of variableIndex.
    // Must be consistent with variableIndex allocation in the contructor.
    //
-   int slotOf  (const unsigned int vi) { return (vi); }
+   int slotOf  (const unsigned int vi) { return int (vi); }
 
    QTableWidget* table;         // internal widget
    QHBoxLayout* layout;         // holds the internal widget - any layout type will do
+   QTimer* rePopulateTimer;
    int displayMaximum;
    Qt::Orientation orientation;
    QEFloatingFormatting floatingFormatting;
@@ -281,6 +295,9 @@ private:
    bool selectionChangeInhibited;
    bool pvNameSetChangeInhibited;
    bool titlesChangeInhibited;
+   bool rePopulateAll;
+   bool rePopulateTitles;
+   bool rePopulateData;
 
    // Per PV data.
    //
@@ -289,14 +306,18 @@ private:
       explicit DataSets ();
       ~DataSets ();
       void setContext (QETable* owner, const int slot);
+      void clear ();
+
+      void setPvName (const QString& pvName);
+      QString getPvName () const;
 
       bool isInUse () const;
       void rePopulateTable ();
+      void rePopulateData ();
 
       QEFloatingArray data;
       QCaAlarmInfo alarmInfo;
 
-      QString pvName;
       QString title;
       QCaVariableNamePropertyManager variableNameManager;
       bool isConnected;
@@ -304,6 +325,8 @@ private:
    private:
       QETable* owner;
       int slot;
+      QString pvName;
+      int index;  // <= slot . Is < if unused slots
    };
 
    DataSets dataSet [MAXIMUM_NUMBER_OF_VARIABLES];
@@ -321,10 +344,10 @@ private slots:
                           QCaDateTime& timeStamp,
                           const unsigned int& variableIndex);
 
-   void currentCellChanged (int currentRow,  int currentCol,
-                            int previousRow, int previousCol);
+   void gridCellClicked (int row, int column);
+   void gridCellEntered (int row, int column);
 
-   void postConstruction ();
+   void timeout ();
 };
 
 #endif // QE_TABLE_H
