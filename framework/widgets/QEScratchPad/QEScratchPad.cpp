@@ -42,6 +42,8 @@ static const QColor clNotInUse  (0xC8C8C8);
 static const QColor clSelected  (0x7090FF);
 
 static const int NULL_SELECTION = -1;
+static const int margin = 2;
+static const int spacing = 2;
 
 
 //=================================================================================
@@ -73,6 +75,9 @@ void QEScratchPad::createInternalWidgets ()
    this->titleValue = new QLabel ("Value", this->titleFrame );
    this->titleValue->setIndent (indent);
 
+   this->titleSpacer = new QLabel (this->titleFrame);
+   this->titleSpacer->setFixedWidth (12);  // corresponds to the vertical scroll bar
+
    this->titleLayout = new QHBoxLayout (this->titleFrame);
    this->titleLayout->setMargin (horMargin);
    this->titleLayout->setSpacing (horSpacing);
@@ -80,13 +85,38 @@ void QEScratchPad::createInternalWidgets ()
    this->titleLayout->addWidget (this->titlePvName);
    this->titleLayout->addWidget (this->titleDescription);
    this->titleLayout->addWidget (this->titleValue);
+   this->titleLayout->addWidget (this->titleSpacer);
    this->vLayout->addWidget (this->titleFrame);
+
+   this->scrollArea = new QScrollArea (this);
+   this->scrollArea->setFrameShape (QFrame::NoFrame);
+   this->scrollArea->setFrameShadow (QFrame::Plain);
+   this->scrollArea->setVerticalScrollBarPolicy (Qt::ScrollBarAlwaysOn);
+   this->scrollArea->setHorizontalScrollBarPolicy (Qt::ScrollBarAlwaysOff);
+   this->scrollArea->setWidgetResizable (true);
+   this->scrollArea->setMinimumHeight (60);
+
+   this->scrollContents = new QWidget();
+   this->scrollContents->setGeometry (QRect (0, 0, 378, 20));
+   QSizePolicy sizePolicy (QSizePolicy::Preferred, QSizePolicy::Fixed);
+   sizePolicy.setHorizontalStretch (0);
+   sizePolicy.setVerticalStretch (0);
+   sizePolicy.setHeightForWidth (this->scrollContents->sizePolicy ().hasHeightForWidth ());
+
+   this->scrollContents->setSizePolicy (sizePolicy);
+   this->scrollContents->setMinimumSize (QSize (0, 244));
+
+   this->scrollLayout = new QVBoxLayout (scrollContents);
+   this->scrollLayout->setSpacing (spacing);
+   this->scrollLayout->setMargin (margin);
+   this->scrollArea->setWidget (this->scrollContents);
+   this->vLayout->addWidget (this->scrollArea);
 
    for (int slot = 0; slot < ARRAY_LENGTH (this->items); slot++) {
 
       DataSets* item = &(this->items [slot]);
 
-      item->menu = new QEScratchPadMenu (slot, this);
+      item->menu = new QEScratchPadMenu (slot, this->scrollContents);
 
       item->frame = new QFrame (this);
       item->frame->setFixedHeight (frameHeight);
@@ -95,7 +125,6 @@ void QEScratchPad::createInternalWidgets ()
       item->frame->setContextMenuPolicy (Qt::CustomContextMenu);
 
       item->pvName = new QLabel (item->frame);
-      item->pvName->installEventFilter (this);
       item->pvName->setText ("");
       item->pvName->setIndent (indent);
       item->pvName->setSizePolicy (QSizePolicy::Ignored, QSizePolicy::Preferred);
@@ -129,7 +158,7 @@ void QEScratchPad::createInternalWidgets ()
       item->hLayout->addWidget (item->description);
       item->hLayout->addWidget (item->value);
 
-      this->vLayout->addWidget (item->frame);
+      this->scrollLayout->addWidget (item->frame);
 
       QObject::connect (item->frame, SIGNAL (customContextMenuRequested (const QPoint &)),
                         this,        SLOT   (contextMenuRequested (const QPoint &)));
@@ -138,7 +167,8 @@ void QEScratchPad::createInternalWidgets ()
                         this,       SLOT   (contextMenuSelected (const int, const QEScratchPadMenu::ContextMenuOptions)));
    }
 
-   this->vLayout->addStretch ();
+   this->scrollLayout->addStretch ();
+   this->calcMinimumHeight ();
 
    this->pvNameSelectDialog = new QEPVNameSelectDialog (this);
 }
@@ -204,6 +234,7 @@ QEScratchPad::QEScratchPad (QWidget* parent) : QEFrame (parent)
    // Use default context menu.
    //
    this->setupContextMenu ();
+   this->setNumberOfContextMenuItems (ARRAY_LENGTH (this->items));
 }
 
 //---------------------------------------------------------------------------------
@@ -225,8 +256,8 @@ QSize QEScratchPad::sizeHint () const {
 //
 #define SLOT_CHECK(slot, default) {                                   \
    if ((slot < 0) || (slot >= ARRAY_LENGTH (this->items))) {          \
-   DEBUG << "slot out of range: " << slot;                            \
-   return default;                                                    \
+      DEBUG << "slot out of range: " << slot;                         \
+      return default;                                                 \
    }                                                                  \
 }
 
@@ -289,16 +320,11 @@ void QEScratchPad::calcMinimumHeight ()
       this->items [slot].frame->setVisible (slot < count);
    }
 
-   // Allow +1 for titles.
-   //
-   count += 1;
-
    delta_top = 20;
-   this->setMinimumHeight ((delta_top * count) + 10);
+   this->scrollContents->setFixedHeight ((delta_top * count) + 10);
 }
 
-
-//--------::-------------------------------------------------------------------------
+//---------------------------------------------------------------------------------
 //
 void QEScratchPad::setSelectItem (const int slot, const bool toggle)
 {
@@ -327,6 +353,11 @@ void QEScratchPad::setSelectItem (const int slot, const bool toggle)
          QString styleSheet = QEUtilities::colourToStyle (clSelected);
          item->frame->setStyleSheet (styleSheet);
       }
+   }
+
+   if (this->selectedItem  != NULL_SELECTION)  {
+      DataSets* item = &(this->items [this->selectedItem]);
+      this->scrollArea->ensureWidgetVisible (item->frame, 0, spacing);
    }
 
    // This prevents infinite looping in the case of cyclic connections.
@@ -362,14 +393,14 @@ void QEScratchPad::contextMenuSelected (const int slot, const QEScratchPadMenu::
 
    switch (option) {
       case QEScratchPadMenu::SCRATCHPAD_PASTE_PV_NAME:
-      {
-         QClipboard* cb = QApplication::clipboard ();
-         QString pasteText = cb->text().trimmed();
+         {
+            QClipboard* cb = QApplication::clipboard ();
+            QString pasteText = cb->text().trimmed();
 
-         if (! pasteText.isEmpty()) {
-            this->setPvName (slot, pasteText);
+            if (! pasteText.isEmpty()) {
+               this->setPvName (slot, pasteText);
+            }
          }
-      }
          break;
 
       case QEScratchPadMenu::SCRATCHPAD_ADD_PV_NAME:
@@ -667,6 +698,45 @@ void QEScratchPad::activated ()
    }
 }
 
+//---------------------------------------------------------------------------------
+// We disalow self drop. We don't need to do this in dragEnterEvent as
+// dragMoveEvent called immedatley afterwards.
+//
+void QEScratchPad::dragMoveEvent (QDragMoveEvent* event)
+{
+   QFrame* sourceFrame = dynamic_cast <QFrame*> (event->source()->parent());
+   if (sourceFrame) {
+      // Parent is of the correct type.
+
+      // Extract frame geometry and convert to global coordinates.
+      // Map to glabl requires the sourceFrame parant.
+      //
+      QWidget* gp = dynamic_cast <QWidget*> (sourceFrame->parent ());
+
+      QRect fg = sourceFrame->geometry ();
+      QPoint gtl = gp->mapToGlobal (fg.topLeft());
+      QPoint gbr = gp->mapToGlobal (fg.bottomRight());
+      QRect globalFrameRect = QRect (gtl, gbr);
+
+      // pos is relative this, the scratch pad, widget.
+      //
+      QPoint globalPos = this->mapToGlobal (event->pos ());
+
+      // Convert drop position to global coordinates as well so that we
+      // check if the would be drop location is own frame.
+      //
+      if (globalFrameRect.contains (globalPos)) {
+         event->ignore ();
+         return;
+      }
+   }
+
+   // Allow / re-allow drop. Allow dropping onto other slots.
+   //
+   event->acceptProposedAction ();
+   return;
+
+}
 
 //---------------------------------------------------------------------------------
 //

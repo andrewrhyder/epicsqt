@@ -23,8 +23,8 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-#ifndef QESCRATCHPAD_H
-#define QESCRATCHPAD_H
+#ifndef QE_SCRATCH_PAD_H
+#define QE_SCRATCH_PAD_H
 
 #include <QMenu>
 #include <QObject>
@@ -33,6 +33,7 @@
 #include <QWidget>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QScrollArea>
 
 #include <QEFrame.h>
 #include <QELabel.h>
@@ -53,7 +54,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEScratchPad : public QEFrame {
    Q_OBJECT
 public:
    explicit QEScratchPad (QWidget *parent = 0);
-   ~QEScratchPad();
+   ~QEScratchPad ();
    QSize sizeHint () const;
 
    static const int NUMBER_OF_ITEMS = 48;
@@ -95,6 +96,7 @@ protected:
    //
    void mousePressEvent (QMouseEvent *event)    { qcaMousePressEvent (event); }
    void dragEnterEvent (QDragEnterEvent *event) { qcaDragEnterEvent (event, false); }
+   void dragMoveEvent (QDragMoveEvent *event);  // we do a special to avoid self drop.
    void dropEvent (QDropEvent *event)           { qcaDropEvent (event, true); }
    // This widget uses the setDrop/getDrop defined in QEWidget.
 
@@ -123,7 +125,12 @@ private:
    QLabel* titlePvName;
    QLabel* titleDescription;
    QLabel* titleValue;
+   QLabel* titleSpacer;    // corresponds to the vertical scroll bar
+
    QHBoxLayout* titleLayout;
+   QScrollArea* scrollArea;
+   QWidget*     scrollContents;
+   QVBoxLayout* scrollLayout;   // manages BaseDataSets::frame items in scrollContents
 
    QEPVNameSelectDialog* pvNameSelectDialog;
 
@@ -151,8 +158,6 @@ private:
       QEScratchPadMenu* menu;
    };
 
-   // Slot 0 used for X data - some redundancy (e.g. colour)
-   //
    DataSets items [NUMBER_OF_ITEMS];
 
    void createInternalWidgets ();
@@ -170,4 +175,4 @@ private slots:
    void contextMenuSelected  (const int slot, const QEScratchPadMenu::ContextMenuOptions option);
 };
 
-#endif // QESCRATCHPAD_H
+#endif // QE_SCRATCH_PAD_H
