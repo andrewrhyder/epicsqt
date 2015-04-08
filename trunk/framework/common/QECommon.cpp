@@ -71,15 +71,12 @@ QColor QEUtilities::fontColour (const QColor & backgroundColour)
 
 //------------------------------------------------------------------------------
 //
-QString QEUtilities::colourToStyle (const QColor& backgroundColour) {
+QString  QEUtilities::colourToStyle (const QColor& backgroundColour,
+                                     const QColor& foregroundColour)
+{
    QString result;
-   QColor foregroundColour;
    int br, bg, bb, ba;
    int fr, fg, fb, fa;
-
-   // Choose high contrast font/foreground colour.
-   //
-   foregroundColour = QEUtilities::fontColour (backgroundColour);
 
    // Split colours into components and aggragate into a style sheet.
    //
@@ -89,6 +86,16 @@ QString QEUtilities::colourToStyle (const QColor& backgroundColour) {
    result.sprintf ("QWidget { background-color: #%02x%02x%02x; color: #%02x%02x%02x; }",
                    br, bg, bb, fr, fg, fb );
    return result;
+}
+
+//------------------------------------------------------------------------------
+//
+QString QEUtilities::colourToStyle (const QColor& backgroundColour)
+{
+   // Choose high contrast font/foreground colour.
+   //
+   QColor foregroundColour = QEUtilities::fontColour (backgroundColour);
+   return QEUtilities::colourToStyle (backgroundColour, foregroundColour);
 }
 
 

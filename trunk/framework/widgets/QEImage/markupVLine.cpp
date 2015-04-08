@@ -31,6 +31,7 @@
 
 markupVLine::markupVLine( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
+    x = 0;
 }
 
 void markupVLine::drawMarkup( QPainter& p )
