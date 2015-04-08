@@ -31,6 +31,7 @@
 
 markupHLine::markupHLine( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
+    y = 0;
 }
 
 void markupHLine::drawMarkup( QPainter& p )

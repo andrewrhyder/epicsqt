@@ -95,6 +95,11 @@ public:
     ///
     static QColor fontColour (const QColor& backgroundColour);
 
+    /// Converts a given colours to associated style.
+    ///
+    static QString colourToStyle (const QColor& backgroundColour,
+                                  const QColor& foregroundColour);
+
     /// Converts a given colour to associated background-color style,
     /// and sets foreground (font) colour to black or white accordingly.
     ///
