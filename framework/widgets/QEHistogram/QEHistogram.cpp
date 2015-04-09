@@ -325,7 +325,7 @@ int QEHistogram::indexOfPosition (const QPoint& p) const
 
 //------------------------------------------------------------------------------
 //
-bool QEHistogram::paintItem (QPainter & painter,
+bool QEHistogram::paintItem (QPainter& painter,
                              const int position,
                              const int valueIndex) const
 {
@@ -524,6 +524,7 @@ void QEHistogram::paintGrid (QPainter& painter) const
 void QEHistogram::paintAllItems ()
 {
    const int numberGrid = 5;   // approx number of y grid lines.
+   const int margin = QEScaling::scale (3);
    const int extra = QEScaling::scale (8);
 
    // Only apply style on change as this casues a new paint event.
@@ -589,10 +590,10 @@ void QEHistogram::paintAllItems ()
    QRect hostWidgetArea = this->histogramArea->geometry ();
    QFont ownFont (this->font ());
    int halfPointSize = (ownFont.pointSize () + 1) / 2;
-   this->paintArea.setTop (2 + halfPointSize);
-   this->paintArea.setBottom (hostWidgetArea.height () - 2 - halfPointSize);
+   this->paintArea.setTop (margin + halfPointSize);
+   this->paintArea.setBottom (hostWidgetArea.height () - margin - halfPointSize);
    this->paintArea.setLeft (this->maxPaintTextWidth (painter) + extra);
-   this->paintArea.setRight (hostWidgetArea.width () - 2);
+   this->paintArea.setRight (hostWidgetArea.width () - margin);
 
    // Do grid and axis - note this might tweak useMinimum/useMaximum.
    //
