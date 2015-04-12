@@ -205,6 +205,11 @@ QEToolTip::~QEToolTip()
 // Property set: variable as tool tip
 void QEToolTip::setVariableAsToolTip( const bool variableAsToolTipIn )
 {
+    // If and only if turning off variable as tool tip then clear the tool tip
+    if( variableAsToolTip && !variableAsToolTipIn )
+    {
+        owner->setToolTip( "" );
+    }
 
     // Set the new tool tip type
     variableAsToolTip = variableAsToolTipIn;
@@ -328,3 +333,5 @@ void QEToolTip::displayToolTip()
         owner->setToolTip( toolTip );
     }
 }
+
+// end
