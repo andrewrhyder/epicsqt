@@ -73,7 +73,7 @@ QEHistogram::QEHistogram (QWidget *parent) : QFrame (parent)
 
    // And local properties.
    //
-   this->mBackgroundColour = QColor (255, 255, 255);   // white
+   this->mBackgroundColour = QColor (224, 224, 224);   // pale gray
    this->mBarColour = QColor (55, 155, 255);           // blue
    this->mDrawBorder = true;
    this->mAutoScale = false;
