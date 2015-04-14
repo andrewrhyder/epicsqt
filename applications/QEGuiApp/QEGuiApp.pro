@@ -26,13 +26,12 @@
 
 # Qt 4 configuration
 equals( QT_MAJOR_VERSION, 4 ) {
-    CONFIG += debug_and_release uitools designer
+    CONFIG += uitools designer
     QT += core gui network
 }
 
 # Qt 5 configuration
 equals( QT_MAJOR_VERSION, 5 ) {
-    CONFIG += debug_and_release
     QT += core gui network uitools designer
 }
 
@@ -46,11 +45,31 @@ equals( QT_MAJOR_VERSION, 5 ) {
 TARGET = qegui
 TEMPLATE = app
 
+# Check EPICS dependancies
+_EPICS_BASE = $$(EPICS_BASE)
+isEmpty( _EPICS_BASE ) {
+    error( "EPICS_BASE must be defined. Ensure EPICS is installed and EPICS_BASE is set up." )
+}
+_EPICS_HOST_ARCH = $$(EPICS_HOST_ARCH)
+isEmpty( _EPICS_HOST_ARCH ) {
+    error( "EPICS_HOST_ARCH must be defined. Ensure EPICS is installed and EPICS_HOST_ARCH is set up." )
+}
+
+# Place the generated QEGui application in QE_TARGET_DIR if defined.
+_QE_TARGET_DIR = $$(QE_TARGET_DIR)
+isEmpty( _QE_TARGET_DIR ) {
+    message( "QEGui application will be created in" $$_PRO_FILE_PWD_ )
+} else {
+    DESTDIR = $$(QE_TARGET_DIR)/bin/$$(EPICS_HOST_ARCH)
+    message( "QEGui application will be created in" $$DESTDIR )
+}
+
 # Place all intermediate generated files in architecture specific directories
 #
 MOC_DIR        = O.$$(EPICS_HOST_ARCH)/moc
 OBJECTS_DIR    = O.$$(EPICS_HOST_ARCH)/obj
 UI_HEADERS_DIR = O.$$(EPICS_HOST_ARCH)/ui_headers
+RCC_DIR        = O.$$(EPICS_HOST_ARCH)/rcc
 
 # We don't get this include path for free - need to be explicit.
 #
@@ -194,7 +213,19 @@ isEmpty( _QE_CAQTDM ) {
     INCLUDEPATH += $(QE_CAQTDM)/caQtDM_Lib/src \
                    $(QE_CAQTDM)/caQtDM_QtControls/src \
                    $(QWT_INCLUDE_PATH)
-    LIBS += -L$(QE_CAQTDM)/caQtDM_Lib -lcaQtDM_Lib
+
+    equals( QT_MAJOR_VERSION, 5 ) {
+       INCLUDEPATH += $$(QTINC)/QtPrintSupport
+    }
+
+    _QE_CAQTDM_LIB = $(QE_CAQTDM_LIB)
+    isEmpty( _QE_CAQTDM_LIB ) {
+        message( "QE_CAQTDM_LIB is not defined so looking for caQtDM library in $QE_CAQTDM/caQtDM_Lib" )
+        LIBS += -L$(QE_CAQTDM)/caQtDM_Lib -lcaQtDM_Lib
+    } else {
+        LIBS += -L$(QE_CAQTDM_LIB) -lcaQtDM_Lib
+    }
+
 }
 #===========================================================
 

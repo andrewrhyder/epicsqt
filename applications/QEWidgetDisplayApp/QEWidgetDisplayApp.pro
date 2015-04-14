@@ -34,6 +34,31 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = QEWidgetDisplay
 TEMPLATE = app
 
+# Place all intermediate generated files in architecture specific directories
+#
+MOC_DIR        = O.$$(EPICS_HOST_ARCH)/moc
+OBJECTS_DIR    = O.$$(EPICS_HOST_ARCH)/obj
+UI_HEADERS_DIR = O.$$(EPICS_HOST_ARCH)/ui_headers
+RCC_DIR        = O.$$(EPICS_HOST_ARCH)/rcc
+
+# Check EPICS dependancies
+_EPICS_BASE = $$(EPICS_BASE)
+isEmpty( _EPICS_BASE ) {
+    error( "EPICS_BASE must be defined. Ensure EPICS is installed and EPICS_BASE is set up." )
+}
+_EPICS_HOST_ARCH = $$(EPICS_HOST_ARCH)
+isEmpty( _EPICS_HOST_ARCH ) {
+    error( "EPICS_HOST_ARCH must be defined. Ensure EPICS is installed and EPICS_HOST_ARCH is set up." )
+}
+
+# Place the generated QEWidgetDisplay application in QE_TARGET_DIR if defined.
+_QE_TARGET_DIR = $$(QE_TARGET_DIR)
+isEmpty( _QE_TARGET_DIR ) {
+    message( "QEWidgetDisplay application will be created in" $$_PRO_FILE_PWD_ )
+} else {
+    DESTDIR = $$(QE_TARGET_DIR)/bin/$$(EPICS_HOST_ARCH)
+    message( "QEWidgetDisplay application will be created in" $$DESTDIR )
+}
 
 SOURCES += main.cpp\
         mainwindow.cpp

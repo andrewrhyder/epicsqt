@@ -2254,7 +2254,10 @@ void QEImage::doEnableVertSlice1Selection( bool enableVSliceSelection )
     }
     else
     {
-        videoWidget->showMarkup( imageMarkup::MARKUP_ID_V1_SLICE );
+        if( mdMenu->isDisplayed( imageContextMenu::ICM_DISPLAY_VSLICE1 ) )
+        {
+            videoWidget->showMarkup( imageMarkup::MARKUP_ID_V1_SLICE );
+        }
     }
 }
 
@@ -2276,7 +2279,10 @@ void QEImage::doEnableVertSlice2Selection( bool enableVSliceSelection )
     }
     else
     {
-        videoWidget->showMarkup( imageMarkup::MARKUP_ID_V2_SLICE );
+        if( mdMenu->isDisplayed( imageContextMenu::ICM_DISPLAY_VSLICE2 ) )
+        {
+            videoWidget->showMarkup( imageMarkup::MARKUP_ID_V2_SLICE );
+        }
     }
 }
 
@@ -2294,7 +2300,10 @@ void QEImage::doEnableVertSlice3Selection( bool enableVSliceSelection )
             sMenu->setChecked( QEImage::SO_PANNING );
             panModeClicked();
         }
-        videoWidget->clearMarkup( imageMarkup::MARKUP_ID_V3_SLICE );
+        if( mdMenu->isDisplayed( imageContextMenu::ICM_DISPLAY_VSLICE3 ) )
+        {
+            videoWidget->clearMarkup( imageMarkup::MARKUP_ID_V3_SLICE );
+        }
     }
     else
     {
@@ -2320,7 +2329,10 @@ void QEImage::doEnableVertSlice4Selection( bool enableVSliceSelection )
     }
     else
     {
-        videoWidget->showMarkup( imageMarkup::MARKUP_ID_V4_SLICE );
+        if( mdMenu->isDisplayed( imageContextMenu::ICM_DISPLAY_VSLICE4 ) )
+        {
+            videoWidget->showMarkup( imageMarkup::MARKUP_ID_V4_SLICE );
+        }
     }
 }
 
@@ -2342,7 +2354,10 @@ void QEImage::doEnableVertSlice5Selection( bool enableVSliceSelection )
     }
     else
     {
-        videoWidget->showMarkup( imageMarkup::MARKUP_ID_V5_SLICE );
+        if( mdMenu->isDisplayed( imageContextMenu::ICM_DISPLAY_VSLICE5 ) )
+        {
+            videoWidget->showMarkup( imageMarkup::MARKUP_ID_V5_SLICE );
+        }
     }
 }
 
@@ -2364,7 +2379,10 @@ void QEImage::doEnableHozSlice1Selection( bool enableHSliceSelection )
     }
     else
     {
-        videoWidget->showMarkup( imageMarkup::MARKUP_ID_H1_SLICE );
+        if( mdMenu->isDisplayed( imageContextMenu::ICM_DISPLAY_HSLICE1 ) )
+        {
+           videoWidget->showMarkup( imageMarkup::MARKUP_ID_H1_SLICE );
+        }
     }
 }
 
@@ -2386,7 +2404,10 @@ void QEImage::doEnableHozSlice2Selection( bool enableHSliceSelection )
     }
     else
     {
-        videoWidget->showMarkup( imageMarkup::MARKUP_ID_H2_SLICE );
+        if( mdMenu->isDisplayed( imageContextMenu::ICM_DISPLAY_HSLICE2 ) )
+        {
+            videoWidget->showMarkup( imageMarkup::MARKUP_ID_H2_SLICE );
+        }
     }
 }
 
@@ -2408,7 +2429,10 @@ void QEImage::doEnableHozSlice3Selection( bool enableHSliceSelection )
     }
     else
     {
-        videoWidget->showMarkup( imageMarkup::MARKUP_ID_H3_SLICE );
+        if( mdMenu->isDisplayed( imageContextMenu::ICM_DISPLAY_HSLICE3 ) )
+        {
+            videoWidget->showMarkup( imageMarkup::MARKUP_ID_H3_SLICE );
+        }
     }
 }
 
@@ -2430,7 +2454,10 @@ void QEImage::doEnableHozSlice4Selection( bool enableHSliceSelection )
     }
     else
     {
-        videoWidget->showMarkup( imageMarkup::MARKUP_ID_H4_SLICE );
+        if( mdMenu->isDisplayed( imageContextMenu::ICM_DISPLAY_HSLICE4 ) )
+        {
+            videoWidget->showMarkup( imageMarkup::MARKUP_ID_H4_SLICE );
+        }
     }
 }
 
@@ -2452,7 +2479,10 @@ void QEImage::doEnableHozSlice5Selection( bool enableHSliceSelection )
     }
     else
     {
-        videoWidget->showMarkup( imageMarkup::MARKUP_ID_H5_SLICE );
+        if( mdMenu->isDisplayed( imageContextMenu::ICM_DISPLAY_HSLICE5 ) )
+        {
+            videoWidget->showMarkup( imageMarkup::MARKUP_ID_H5_SLICE );
+        }
     }
 }
 
@@ -2488,10 +2518,22 @@ void QEImage::doEnableAreaSelection( /*imageContextMenu::imageContextMenuOptions
     }
     else
     {
-        videoWidget->showMarkup( imageMarkup::MARKUP_ID_REGION1 );
-        videoWidget->showMarkup( imageMarkup::MARKUP_ID_REGION2 );
-        videoWidget->showMarkup( imageMarkup::MARKUP_ID_REGION3 );
-        videoWidget->showMarkup( imageMarkup::MARKUP_ID_REGION4 );
+        if( mdMenu->isDisplayed( imageContextMenu::ICM_DISPLAY_AREA1 ) )
+        {
+            videoWidget->showMarkup( imageMarkup::MARKUP_ID_REGION1 );
+        }
+        if( mdMenu->isDisplayed( imageContextMenu::ICM_DISPLAY_AREA2 ) )
+        {
+            videoWidget->showMarkup( imageMarkup::MARKUP_ID_REGION2 );
+        }
+        if( mdMenu->isDisplayed( imageContextMenu::ICM_DISPLAY_AREA3 ) )
+        {
+            videoWidget->showMarkup( imageMarkup::MARKUP_ID_REGION3 );
+        }
+        if( mdMenu->isDisplayed( imageContextMenu::ICM_DISPLAY_AREA4 ) )
+        {
+            videoWidget->showMarkup( imageMarkup::MARKUP_ID_REGION4 );
+        }
     }
 }
 
@@ -2513,7 +2555,10 @@ void QEImage::doEnableProfileSelection( bool enableProfileSelection )
     }
     else
     {
-        videoWidget->showMarkup( imageMarkup::MARKUP_ID_LINE );
+        if( mdMenu->isDisplayed( imageContextMenu::ICM_DISPLAY_PROFILE ) )
+        {
+            videoWidget->showMarkup( imageMarkup::MARKUP_ID_LINE );
+        }
     }
 }
 
@@ -2537,7 +2582,10 @@ void QEImage::doEnableTargetSelection( bool enableTargetSelection )
     }
     else
     {
-        videoWidget->showMarkup( imageMarkup::MARKUP_ID_TARGET );
+        if( mdMenu->isDisplayed( imageContextMenu::ICM_DISPLAY_TARGET ) )
+        {
+            videoWidget->showMarkup( imageMarkup::MARKUP_ID_TARGET );
+        }
     }
 }
 
@@ -2559,7 +2607,10 @@ void QEImage::doEnableBeamSelection( bool enableBeamSelection )
     }
     else
     {
-        videoWidget->showMarkup( imageMarkup::MARKUP_ID_BEAM );
+        if( mdMenu->isDisplayed( imageContextMenu::ICM_DISPLAY_BEAM ) )
+        {
+            videoWidget->showMarkup( imageMarkup::MARKUP_ID_BEAM );
+        }
     }
 }
 
@@ -3267,6 +3318,7 @@ bool QEImage::getEnableVertSlicePresentation()
 // Display vertical slice 1 selection
 void QEImage::setDisplayVertSlice1Selection( bool displayVSliceSelection )
 {
+
     videoWidget->displayMarkup( imageMarkup::MARKUP_ID_V1_SLICE, displayVSliceSelection );
 }
 

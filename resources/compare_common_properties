@@ -1,9 +1,9 @@
 #!/usr/bin/python
 #
 # $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/epicsqt/qeApp/epicsqt/resources/compare_common_properties $
-# $Revision: #2 $
-# $DateTime: 2015/02/02 17:43:51 $
-# Last checked in by: $Author: starritt $
+# $Revision: #4 $
+# $DateTime: 2015/04/13 14:27:45 $
+# Last checked in by: $Author: rhydera $
 #
 
 __author__ = "Andrew Starritt"

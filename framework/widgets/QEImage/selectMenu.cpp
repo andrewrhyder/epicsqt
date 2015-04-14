@@ -135,7 +135,10 @@ QAction* selectMenu::getAction( imageContextMenu::imageContextMenuOptions option
     }
 }
 
-// Set the state of the menu items
+// Set the availability of the menu items.
+// This function presents or hides controls in the 'Select Menu'.
+// For example, if a markup is not enabled for a GUI, then the option of selecting a mode
+// to work with that markup should not be avaiable
 void selectMenu::enable( imageContextMenu::imageContextMenuOptions option, bool state )
 {
     QAction* action = getAction( option );
@@ -145,7 +148,7 @@ void selectMenu::enable( imageContextMenu::imageContextMenuOptions option, bool 
     }
 }
 
-// Set the state of the menu items
+// Get the availability of the menu items
 bool selectMenu::isEnabled( imageContextMenu::imageContextMenuOptions option )
 {
     QAction* action = getAction( option );
