@@ -91,6 +91,7 @@ message( Applications may need to load the framework library as a Qt plugin. To 
 MOC_DIR        = O.$$(EPICS_HOST_ARCH)/moc
 OBJECTS_DIR    = O.$$(EPICS_HOST_ARCH)/obj
 UI_HEADERS_DIR = O.$$(EPICS_HOST_ARCH)/ui_headers
+RCC_DIR        = O.$$(EPICS_HOST_ARCH)/rcc
 
 # We don't get this include path for free - need to be explicit.
 # 
