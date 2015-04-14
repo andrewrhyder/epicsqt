@@ -912,20 +912,20 @@ void imageMarkup::clearMarkup( markupIds markupId )
 void imageMarkup::showMarkup( markupIds markupId )
 {
     markupItem* item = items[markupId];
+    item->visible = true;
+
     QRect area = item->area;
     if( ( item->getPoint1().x() != item->getPoint2().x() ) ||
         ( item->getPoint1().y() != item->getPoint2().y() ) )
     {
         QVector<QRect> changedAreas;
         changedAreas.append( scaleArea( area, item->scalableArea ) );
-        item->visible = true;
 
         // Redraw the now visible item
         markupChange( changedAreas );
 
         // Take the appropriate user action for a markup being shown
         markupAction( markupId, false, false, item->getPoint1(), item->getPoint2(), item->getThickness() );
-
     }
 }
 

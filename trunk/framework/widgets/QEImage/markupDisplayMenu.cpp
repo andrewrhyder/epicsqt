@@ -23,8 +23,12 @@
  */
 
 /*
- This class manages the markup display menufor the QEImage widget
+ This class manages the markup display menu for the QEImage widget.
  Functions are available to set the initial state of checkable actions.
+
+ Note, if a markup is not used for a GUI,then the controls relating to the markup are not enabled.
+ If a markup is used for a GUI, then the controls relating to the markup are enabled and the user
+ can use those controls to display or hide the markup.
  */
 
 #include "markupDisplayMenu.h"
@@ -64,11 +68,14 @@ markupDisplayMenu::markupDisplayMenu( QWidget *parent) : QMenu(parent)
     // Set the title
     setTitle( "Markup display" );
 
-//    QObject::connect( this, SIGNAL( triggered ( QAction* ) ), this,  SLOT  ( markupDisplayMenuTriggered( QAction* )) );
 }
 
-
-// Set the state of the menu items
+// Set the availability of the menu items.
+// This function presents or hides the markup controls, not the markups themselves.
+// Not all markups make sense in all GUIs. If a markup is enabled for use in a GUI the
+// associated check boxes are made visible here so the user can show or hide the markup.
+// If a markup is not enabled for use in a GUI the associated check boxes are hidden here
+// so the user sees no sign of them.
 void markupDisplayMenu::enable( imageContextMenu::imageContextMenuOptions option, bool state )
 {
     QAction* action = getAction( option );
@@ -78,7 +85,11 @@ void markupDisplayMenu::enable( imageContextMenu::imageContextMenuOptions option
     }
 }
 
-// Set the state of the menu items
+// Set the state of the menu items.
+// This function presents or hides the markups themselves, not the markups controls.
+// Not all markups make sense in all GUIs. If a markup is enabled for use in a GUI the
+// associated check boxes are visible allowing the user to display or hide the markup
+// through this functino.
 void markupDisplayMenu::setDisplayed( imageContextMenu::imageContextMenuOptions option, bool state )
 {
     QAction* action = getAction( option );
@@ -98,13 +109,26 @@ void markupDisplayMenu::setItemText( imageContextMenu::imageContextMenuOptions o
     }
 }
 
+// Return true if the markup is to be displayed.
 bool markupDisplayMenu::isDisplayed( imageContextMenu::imageContextMenuOptions option )
 {
     QAction* action = getAction( option );
     if( action )
     {
-        return action->isChecked();
+        // If the action is visible, return its state
+        if( action->isVisible() )
+        {
+            return action->isChecked();
+        }
+
+        // If the action is not visiible, ignore its state and return false as the markup is not even enabled (it is not intended to be used)
+        else
+        {
+            return false;
+        }
     }
+
+    // Sanity check. Action should always be available
     else
     {
         return false;
