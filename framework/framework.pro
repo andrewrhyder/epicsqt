@@ -61,10 +61,16 @@ TEMPLATE = lib
 DEFINES += QEPLUGIN_LIBRARY
 TARGET = QEPlugin
 
+# Determine EPICS_BASE
+_QE_EPICS_BASE = $$(QE_EPICS_BASE)
+isEmpty( _QE_EPICS_BASE ) {
+    _QE_EPICS_BASE = $$(EPICS_BASE)
+    message( QE_EPICS_BASE is not defined. Using EPICS_BASE instead - currently $$_QE_EPICS_BASE )
+}
+
 # Check EPICS dependancies
-_EPICS_BASE = $$(EPICS_BASE)
-isEmpty( _EPICS_BASE ) {
-    error( "EPICS_BASE must be defined. Ensure EPICS is installed and EPICS_BASE is set up." )
+isEmpty( _QE_EPICS_BASE ) {
+    error( "EPICS_BASE or QE_EPICS_BASE must be defined. Ensure EPICS is installed and EPICS_BASE or QE_EPICS_BASE is set up." )
 }
 _EPICS_HOST_ARCH = $$(EPICS_HOST_ARCH)
 isEmpty( _EPICS_HOST_ARCH ) {
@@ -97,7 +103,7 @@ RCC_DIR        = O.$$(EPICS_HOST_ARCH)/rcc
 # 
 INCLUDEPATH += O.$$(EPICS_HOST_ARCH)/ui_headers
 #Add this includepath for Epics version 3.15.1 and later
-#INCLUDEPATH += $$(EPICS_BASE)/include/compiler/gcc
+#INCLUDEPATH += $$_QE_EPICS_BASE/include/compiler/gcc
 
 DEFINES += QWT_DLL=TRUE
 
@@ -186,24 +192,13 @@ QMAKE_EXTRA_TARGETS += install_headers
 
 
 #===========================================================
-# EPICS
-#
-# Check EPICS appears to be present
-_EPICS_BASE = $$(EPICS_BASE)
-isEmpty( _EPICS_BASE ) {
-    error( "EPICS_BASE must be defined. Ensure EPICS is installed and EPICS_BASE is set up" )
-}
-_EPICS_HOST_ARCH = $$(EPICS_HOST_ARCH)
-isEmpty( _EPICS_HOST_ARCH ) {
-    error( "EPICS_HOST_ARCH must be defined. Ensure EPICS is installed and EPICS_HOST_ARCH is set up" )
-}
-
 # Set up EPICS
-unix:INCLUDEPATH += $$(EPICS_BASE)/include/os/Linux
-win32:INCLUDEPATH += $$(EPICS_BASE)/include/os/WIN32
-INCLUDEPATH += $$(EPICS_BASE)/include
 
-LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) \
+unix:INCLUDEPATH += $$_QE_EPICS_BASE/include/os/Linux
+win32:INCLUDEPATH += $$_QE_EPICS_BASE/include/os/WIN32
+INCLUDEPATH += $$_QE_EPICS_BASE/include
+
+LIBS += -L$$_QE_EPICS_BASE/lib/$$(EPICS_HOST_ARCH) \
     -lca \
     -lCom
 

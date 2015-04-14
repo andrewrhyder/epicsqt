@@ -30,10 +30,16 @@ OBJECTS_DIR    = O.$$(EPICS_HOST_ARCH)/obj
 UI_HEADERS_DIR = O.$$(EPICS_HOST_ARCH)/ui_headers
 RCC_DIR        = O.$$(EPICS_HOST_ARCH)/rcc
 
+# Determine EPICS_BASE
+_QE_EPICS_BASE = $$(QE_EPICS_BASE)
+isEmpty( _QE_EPICS_BASE ) {
+    _QE_EPICS_BASE = $$(EPICS_BASE)
+    message( QE_EPICS_BASE is not defined. Using EPICS_BASE instead - currently $$_QE_EPICS_BASE )
+}
+
 # Check EPICS dependancies
-_EPICS_BASE = $$(EPICS_BASE)
-isEmpty( _EPICS_BASE ) {
-    error( "EPICS_BASE must be defined. Ensure EPICS is installed and EPICS_BASE is set up." )
+isEmpty( _QE_EPICS_BASE ) {
+    error( "EPICS_BASE or QE_EPICS_BASE must be defined. Ensure EPICS is installed and EPICS_BASE or QE_EPICS_BASE is set up." )
 }
 _EPICS_HOST_ARCH = $$(EPICS_HOST_ARCH)
 isEmpty( _EPICS_HOST_ARCH ) {
@@ -75,5 +81,5 @@ RESOURCES +=  \
    ./QEReadArchive.qrc
 
 LIBS += -L../../framework/designer -lQEPlugin
-LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) -lca -lCom
+LIBS += -L$$_QE_EPICS_BASE/lib/$$(EPICS_HOST_ARCH) -lca -lCom
 # end
