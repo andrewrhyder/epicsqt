@@ -77,20 +77,25 @@ isEmpty( _EPICS_HOST_ARCH ) {
     error( "EPICS_HOST_ARCH must be defined. Ensure EPICS is installed and EPICS_HOST_ARCH is set up." )
 }
 
-# Place the generated plugin library in a 'designer' directory in QE_TARGET_DIR if defined.
-# If not defined, place the 'designer' directory within the epicsqt project.
+DESTDIR = ./designer
+
+# Install the generated QEPlugin library in QE_TARGET_DIR if defined.
 _QE_TARGET_DIR = $$(QE_TARGET_DIR)
 isEmpty( _QE_TARGET_DIR ) {
-    _DESIGNER_PARENT = $$_PRO_FILE_PWD_
+    # The QE plugin library won't be installed anywhere. Let the user know where to find the plugin library, and how to use it
+    message( "Since QE_TARGET_DIR is not defined 'make install' will not install the QE plugin library. It was built in " $$DESTDIR " and can be accessed there.)
+    unix:message( Applications may need to load the framework library directly. To ensure this can happen one option is to set up LD_LIBRARY_PATH to include the directory $$DESTDIR . LD_LIBRARY_PATH is currently $(LD_LIBRARY_PATH) )
+    message( Applications may need to load the framework library as a Qt plugin. To ensure this can happen one option is to set up QT_PLUGIN_PATH to include the directory $$_DESIGNER_PARENT . QT_PLUGIN_PATH is currently $(QT_PLUGIN_PATH) )
 } else {
-    _DESIGNER_PARENT = $$_QE_TARGET_DIR/lib/$$(EPICS_HOST_ARCH)
+    QEPLUGININSTALLPATH = $$(QE_TARGET_DIR)/designer
+    message( "'make install' will install the QE plugin library in" $$QEPLUGININSTALLPATH )
+    unix:message( Applications may need to load the framework library directly. To ensure this can happen one option is to set up LD_LIBRARY_PATH to include the directory $$(QE_TARGET_DIR)/lib/designer . LD_LIBRARY_PATH is currently $(LD_LIBRARY_PATH) )
+    message( Applications may need to load the framework library as a Qt plugin. To ensure this can happen one option is to set up QT_PLUGIN_PATH to include the directory $$(QE_TARGET_DIR)/lib . QT_PLUGIN_PATH is currently $(QT_PLUGIN_PATH) )
+    QEPLUGININSTALL.path = $$QEPLUGININSTALLPATH
+    QEPLUGININSTALL.files += $$TARGET
+    INSTALLS += QEPLUGININSTALL
 }
-DESTDIR = $$_DESIGNER_PARENT/designer
 
-# Let the user know where to expect the plugin library, and how to use it
-message( "QE plugin library will be placed in" $$DESTDIR )
-unix:message( Applications may need to load the framework library directly. To ensure this can happen one option is to set up LD_LIBRARY_PATH to include the directory $$DESTDIR . LD_LIBRARY_PATH is currently $(LD_LIBRARY_PATH) )
-message( Applications may need to load the framework library as a Qt plugin. To ensure this can happen one option is to set up QT_PLUGIN_PATH to include the directory $$_DESIGNER_PARENT . QT_PLUGIN_PATH is currently $(QT_PLUGIN_PATH) )
 
 # Place all intermediate generated files in architecture specific directories
 #

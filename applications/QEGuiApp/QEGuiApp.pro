@@ -61,13 +61,13 @@ isEmpty( _EPICS_HOST_ARCH ) {
     error( "EPICS_HOST_ARCH must be defined. Ensure EPICS is installed and EPICS_HOST_ARCH is set up." )
 }
 
-# Place the generated QEGui application in QE_TARGET_DIR if defined.
+# Install the generated QEGui application in QE_TARGET_DIR if defined.
 _QE_TARGET_DIR = $$(QE_TARGET_DIR)
 isEmpty( _QE_TARGET_DIR ) {
-    message( "QEGui application will be created in" $$_PRO_FILE_PWD_ )
 } else {
-    DESTDIR = $$(QE_TARGET_DIR)/bin/$$(EPICS_HOST_ARCH)
-    message( "QEGui application will be created in" $$DESTDIR )
+    QEGUIINSTALL.path = $$(QE_TARGET_DIR)/bin
+    QEGUIINSTALL.files += $$TARGET
+    INSTALLS += QEGUIINSTALL
 }
 
 # Place all intermediate generated files in architecture specific directories
