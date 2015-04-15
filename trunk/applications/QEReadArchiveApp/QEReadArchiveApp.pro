@@ -46,13 +46,13 @@ isEmpty( _EPICS_HOST_ARCH ) {
     error( "EPICS_HOST_ARCH must be defined. Ensure EPICS is installed and EPICS_HOST_ARCH is set up." )
 }
 
-# Place the generated QEReadArchive application in QE_TARGET_DIR if defined.
+# Install the generated QEReadArchive application in QE_TARGET_DIR if defined.
 _QE_TARGET_DIR = $$(QE_TARGET_DIR)
 isEmpty( _QE_TARGET_DIR ) {
-    message( "QEReadArchive application will be created in" $$_PRO_FILE_PWD_ )
 } else {
-    DESTDIR = $$(QE_TARGET_DIR)/bin/$$(EPICS_HOST_ARCH)
-    message( "QEReadArchive application will be created in" $$DESTDIR )
+    QEREADARCHIVEINSTALL.path = $$(QE_TARGET_DIR)/bin
+    QEREADARCHIVEINSTALL.files += $$TARGET
+    INSTALLS += QEREADARCHIVEINSTALL
 }
 
 #===========================================================

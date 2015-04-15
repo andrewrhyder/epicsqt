@@ -36,4 +36,15 @@ SUBDIRS = \
     applications/QEMonitorApp \
     applications/QEWidgetDisplayApp
 
+# Install the documentaion in QE_TARGET_DIR if defined.
+_QE_TARGET_DIR = $$(QE_TARGET_DIR)
+isEmpty( _QE_TARGET_DIR ) {
+    message( "QE_TARGET_DIR is not defined. No installation step (make install) will be available" )
+} else {
+    qeguiDoco.path = $$(QE_TARGET_DIR)/documentation
+    qeguiDoco.files += ./documentation/*.pdf
+    INSTALLS += qeguiDoco
+}
+
+
 # end
