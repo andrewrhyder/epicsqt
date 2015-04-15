@@ -83,7 +83,7 @@ DESTDIR = ./designer
 _QE_TARGET_DIR = $$(QE_TARGET_DIR)
 isEmpty( _QE_TARGET_DIR ) {
     # The QE plugin library won't be installed anywhere. Let the user know where to find the plugin library, and how to use it
-    message( "Since QE_TARGET_DIR is not defined 'make install' will not install the QE plugin library. It was built in " $$DESTDIR " and can be accessed there.)
+    message( "Since QE_TARGET_DIR is not defined 'make install' will not install the QE plugin library. It was built in " $$DESTDIR " and can be accessed there." )
     unix:message( Applications may need to load the framework library directly. To ensure this can happen one option is to set up LD_LIBRARY_PATH to include the directory $$DESTDIR . LD_LIBRARY_PATH is currently $(LD_LIBRARY_PATH) )
     message( Applications may need to load the framework library as a Qt plugin. To ensure this can happen one option is to set up QT_PLUGIN_PATH to include the directory $$_DESIGNER_PARENT . QT_PLUGIN_PATH is currently $(QT_PLUGIN_PATH) )
 } else {
