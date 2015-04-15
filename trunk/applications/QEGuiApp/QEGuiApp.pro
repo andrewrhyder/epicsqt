@@ -65,7 +65,7 @@ isEmpty( _EPICS_HOST_ARCH ) {
 _QE_TARGET_DIR = $$(QE_TARGET_DIR)
 isEmpty( _QE_TARGET_DIR ) {
 } else {
-    QEGUIINSTALL.path = $$(QE_TARGET_DIR)/bin
+    QEGUIINSTALL.path = $$(QE_TARGET_DIR)/bin/$$(EPICS_HOST_ARCH)
     QEGUIINSTALL.files += $$TARGET
     INSTALLS += QEGUIINSTALL
 }
