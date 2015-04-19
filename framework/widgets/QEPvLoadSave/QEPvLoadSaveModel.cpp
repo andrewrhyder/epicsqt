@@ -294,9 +294,16 @@ void QEPvLoadSaveModel::readArchiveData (const QCaDateTime& dateTime)
 
 //-----------------------------------------------------------------------------
 //
-int QEPvLoadSaveModel::leafCount ()
+int QEPvLoadSaveModel::leafCount () const
 {
    return this->coreItem->leafCount ();
+}
+
+//-----------------------------------------------------------------------------
+//
+QEPvLoadSaveCommon::PvNameValueMaps QEPvLoadSaveModel::getPvNameValueMap () const
+{
+   return this->coreItem->getPvNameValueMap ();
 }
 
 //-----------------------------------------------------------------------------

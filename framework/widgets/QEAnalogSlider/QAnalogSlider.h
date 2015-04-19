@@ -123,8 +123,8 @@ public:
    bool getShowApply () const;
 
 signals:
-   void valueChanged (const double value);
-   void appliedValue (const double value);
+   void valueChanged (const double value);              // Send when value changes.
+   void appliedValue (const double value);              // Send when internal apply button clicked
 
 protected:
    // A nod to the EPICS aware class derived from this class.

@@ -136,7 +136,12 @@ public:
    // Count of number of PV leaf items at or below this node.
    // (As opposed to childCount which is number of direct children).
    //
-   int leafCount ();
+   int leafCount () const;
+
+   // NOTE: child classes must override this - this function as is always
+   // returns an empty map.
+   //
+   virtual QEPvLoadSaveCommon::PvNameValueMaps getPvNameValueMap () const;
 
 signals:
    void reportActionComplete (const QEPvLoadSaveItem* item,
@@ -150,13 +155,13 @@ protected:
    //
    QList<QEPvLoadSaveItem*> childItems;
    QEPvLoadSaveItem* parentItem;
+   QVariant value;
 
 private:
    // The itemData created dynamically from these members.
    //
    QString nodeName;     // alias for first item in itemData
    bool isPV;
-   QVariant value;
    QCaAlarmInfo alarmInfo;
 
    bool isConnected;
@@ -182,6 +187,7 @@ public:
    ~QEPvLoadSaveGroup ();
 
    QEPvLoadSaveItem* clone (QEPvLoadSaveItem* parent);
+   QEPvLoadSaveCommon::PvNameValueMaps getPvNameValueMap () const;
 };
 
 
@@ -199,6 +205,7 @@ public:
    ~QEPvLoadSaveLeaf ();
 
    QEPvLoadSaveItem* clone (QEPvLoadSaveItem* parent);
+   QEPvLoadSaveCommon::PvNameValueMaps getPvNameValueMap () const;
 
    void setSetPointPvName (const QString& pvName);
    QString getSetPointPvName () const;

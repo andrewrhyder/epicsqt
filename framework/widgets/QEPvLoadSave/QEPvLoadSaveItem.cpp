@@ -228,6 +228,19 @@ QEPvLoadSaveItem* QEPvLoadSaveItem::clone (QEPvLoadSaveItem*)
 
 //-----------------------------------------------------------------------------
 //
+QEPvLoadSaveCommon::PvNameValueMaps QEPvLoadSaveItem::getPvNameValueMap () const
+{
+   QEPvLoadSaveCommon::PvNameValueMaps result;
+
+   DEBUG << "Class: " << this->metaObject ()->className ()
+         << " did not overide getPvNameValueMap () function";
+
+   result.clear ();
+   return result;
+}
+
+//-----------------------------------------------------------------------------
+//
 QStringList QEPvLoadSaveItem::getNodePath ()
 {
    QStringList result;
@@ -373,7 +386,7 @@ void QEPvLoadSaveItem::readArchiveData (const QCaDateTime& dateTime)
 
 //-----------------------------------------------------------------------------
 //
-int QEPvLoadSaveItem::leafCount ()
+int QEPvLoadSaveItem::leafCount () const
 {
    int result;
 
@@ -471,6 +484,30 @@ QEPvLoadSaveItem* QEPvLoadSaveGroup::clone (QEPvLoadSaveItem* parent)
    return result;
 }
 
+//-----------------------------------------------------------------------------
+//
+QEPvLoadSaveCommon::PvNameValueMaps QEPvLoadSaveGroup::getPvNameValueMap () const
+{
+   QEPvLoadSaveCommon::PvNameValueMaps result;
+
+   result.clear ();
+
+   // Examine each child.
+   //
+   for (int j = 0; j < this->childItems.count(); j++) {
+      QEPvLoadSaveItem* theChild = this->getChild (j);
+      QEPvLoadSaveCommon::PvNameValueMaps childMap;
+
+      // Extract the child's PV Name map and perge into the result.
+      //
+      childMap = theChild->getPvNameValueMap ();   // dispatching function
+      result = QEPvLoadSaveCommon::merge (result, childMap);
+   }
+
+   return result;
+}
+
+
 //=============================================================================
 // Sub class for group/leaf
 //=============================================================================
@@ -516,6 +553,26 @@ QEPvLoadSaveItem* QEPvLoadSaveLeaf::clone (QEPvLoadSaveItem* parent)
 
 //-----------------------------------------------------------------------------
 //
+QEPvLoadSaveCommon::PvNameValueMaps QEPvLoadSaveLeaf::getPvNameValueMap () const
+{
+   QEPvLoadSaveCommon::PvNameValueMaps result;
+   double dval;
+   bool okay;
+
+   result.clear ();
+
+   // Can this current value be sensible represtened as a double value??
+   //
+   dval = this->value .toDouble (&okay);
+   if (okay) {
+      QString key = this->getSetPointPvName ();
+      result.insert (key, dval);
+   }
+   return result;
+}
+
+//-----------------------------------------------------------------------------
+//
 void QEPvLoadSaveLeaf::setSetPointPvName (const QString& pvName)
 {
    this->setPointPvName = pvName;
@@ -525,21 +582,21 @@ void QEPvLoadSaveLeaf::setSetPointPvName (const QString& pvName)
 //
 QString QEPvLoadSaveLeaf::getSetPointPvName () const
 {
-   return this->readBackPvName;
+   return this->setPointPvName;
 }
 
 //-----------------------------------------------------------------------------
 //
 void QEPvLoadSaveLeaf::setReadBackPvName (const QString& pvName)
 {
-   this->archiverPvName = pvName;
+   this->readBackPvName = pvName;
 }
 
 //-----------------------------------------------------------------------------
 //
 QString QEPvLoadSaveLeaf::getReadBackPvName () const
 {
-   return this->archiverPvName;
+   return this->readBackPvName;
 }
 
 //-----------------------------------------------------------------------------
