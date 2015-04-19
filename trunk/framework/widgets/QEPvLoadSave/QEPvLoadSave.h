@@ -64,6 +64,7 @@
 
 // Differed declaration - avoids mutual header inclusions.
 //
+class QEPvLoadSaveCompare;
 class QEPvLoadSaveItem;
 class QEPvLoadSaveModel;
 
@@ -193,6 +194,7 @@ private:
 
       QEPvLoadSaveModel* model;               // manages tree data
       QCaVariableNamePropertyManager vnpm;    // manages filenames
+      QEPvLoadSaveCompare* graphicalCompare;
 
    private:
       Sides side;
@@ -225,6 +227,7 @@ private:
    //
    Sides objectSide (QObject* obj);
    Halves* halfAssociatedWith (QObject* obj);
+   bool hostSlotAvailable;
 
    void editItemValue (QEPvLoadSaveItem* item, Halves* half, QWidget* centerOver);
 
@@ -237,6 +240,7 @@ private:
 
    void setReadOut (const QString& text);
 
+   friend class QEPvLoadSaveCompare;
    friend class QEPvLoadSaveModel;
 
 private slots:

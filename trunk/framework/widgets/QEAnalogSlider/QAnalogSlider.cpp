@@ -176,6 +176,11 @@ void QAnalogSlider::commonSetup ()
                      this,              SLOT   (applyButtonClicked (bool)));
 
 
+   // Ensure widgets consistant with current settings
+   //
+   this->saveButton->setVisible (this->mShowSaveRevert);
+   this->revertButton->setVisible (this->mShowSaveRevert);
+   this->applyButton->setVisible (this->mShowApply);
 
    this->axisPainter->setMarkerValue  (SAVE_REVERT_MARKER, this->mShowSaveRevert);
    this->axisPainter->setMarkerColour (SAVE_REVERT_MARKER, QColor (55, 155, 255));

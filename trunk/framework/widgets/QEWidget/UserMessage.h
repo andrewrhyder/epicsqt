@@ -179,15 +179,15 @@ public:
     void setFormFilter( message_filter_options formFilterIn );    ///< Set the message filtering applied to the form ID
     void setSourceFilter( message_filter_options sourceFilterIn );///< Set the message filtering applied to the source ID
 
-    unsigned int getSourceId();                                 ///< Get the source ID (the ID set up by the GUI designer, usually matched to the source ID of logging widgets
-    unsigned int getFormId();                                   ///< Get the form ID (the the same ID for all sibling widgets within an QEForm widget)
-    message_filter_options getFormFilter();                     ///< Get the message filtering applied to the form ID
-    message_filter_options getSourceFilter();                   ///< Get the message filtering applied to the source ID
+    unsigned int getSourceId() const;                           ///< Get the source ID (the ID set up by the GUI designer, usually matched to the source ID of logging widgets
+    unsigned int getFormId() const;                             ///< Get the form ID (the the same ID for all sibling widgets within an QEForm widget)
+    message_filter_options getFormFilter() const;               ///< Get the message filtering applied to the form ID
+    message_filter_options getSourceFilter() const;             ///< Get the message filtering applied to the source ID
 
     void setChildFormId( unsigned int );                        ///< Set the for ID of all widgets that are children of this widget
-    unsigned int getChildFormId();                              ///< Get the for ID of all widgets that are children of this widget
+    unsigned int getChildFormId() const;                        ///< Get the for ID of all widgets that are children of this widget
 
-    unsigned int getNextMessageFormId();                        ///< Generate a new form ID for all widgets in a new form
+    unsigned int getNextMessageFormId() const;                  ///< Generate a new form ID for all widgets in a new form
 
     void sendMessage( QString message,
                       message_types type = message_types (MESSAGE_TYPE_INFO) ); ///< Send a message to the user

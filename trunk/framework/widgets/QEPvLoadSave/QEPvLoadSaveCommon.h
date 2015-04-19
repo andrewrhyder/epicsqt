@@ -26,19 +26,31 @@
 #ifndef QEPVLOADSAVECOMMON_H
 #define QEPVLOADSAVECOMMON_H
 
+#include <QMap>
+#include <QString>
 #include <QObject>
+#include <QEPluginLibrary_global.h>
 
 // Define PV Load/Save specific names (enumerations)
 // We use a QObject as opposed to a namespace as this allows us leverage off the
 // meta object compiler output, specifically allows us to use the enumToString
 // and stringToEnum functions in QEUtilities.
 //
-class QEPvLoadSaveCommon : public QObject {
+class QEPLUGINLIBRARYSHARED_EXPORT QEPvLoadSaveCommon : public QObject {
    Q_OBJECT
 public:
-
    enum  ActionKinds { Apply, Extract, ReadArchive };
 
+   // Define a name value map type, used by the graphical comparisioon tool.
+   //
+   typedef QMap<QString, double> PvNameValueMaps;
+
+   // Merge two PV name value maps. Specifically merge b into a and return
+   // result. If the PV name is in both maps, then the value from the first
+   // map, i.e. a, takes priority.
+   //
+   static PvNameValueMaps merge (const PvNameValueMaps& a,
+                                 const PvNameValueMaps& b);
 };
 
 #endif  // QEPVLOADSAVECOMMON_H

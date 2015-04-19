@@ -43,7 +43,7 @@ static const double  NO_DATA_VALUE = -1073741824.0;
 static const QColor  NO_COLOUR_VALUE = QColor (3, 1, 4, 2);   // Pi colour ;-)
 
 
-static const double  MINIMUM_SPAN  = +1.0E-12;
+static const double  MINIMUM_SPAN  = +1.0E-18;
 static const int     MAX_CAPACITY  = 10000;
 
 //------------------------------------------------------------------------------

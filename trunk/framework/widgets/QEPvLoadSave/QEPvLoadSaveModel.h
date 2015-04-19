@@ -108,7 +108,12 @@ public:
    void extractPVData ();
    void applyPVData ();
    void readArchiveData (const QCaDateTime& dateTime);
-   int leafCount ();
+
+   // Tree walking attribute functions.
+   //
+   int leafCount () const;
+   QEPvLoadSaveCommon::PvNameValueMaps getPvNameValueMap () const;
+
 
    QEPvLoadSaveItem* getRootItem ();
    QEPvLoadSaveItem* getSelectedItem () { return this->selectedItem; }

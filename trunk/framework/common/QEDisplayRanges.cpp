@@ -231,6 +231,10 @@ void QEDisplayRanges::adjustMinMax (const int number, const bool roundToMajor,
    // The range is somewhat arbitary, and may be extended.
    //
    static const double majorValues [] = {
+      1.0e-20,  2.0e-20,  5.0e-20,    1.0e-19,  2.0e-19,  5.0e-19,
+      1.0e-18,  2.0e-17,  5.0e-18,    1.0e-17,  2.0e-17,  5.0e-17,
+      1.0e-16,  2.0e-16,  5.0e-16,    1.0e-15,  2.0e-15,  5.0e-15,
+      1.0e-14,  2.0e-14,  5.0e-14,    1.0e-13,  2.0e-13,  5.0e-13,
       1.0e-12,  2.0e-12,  5.0e-12,    1.0e-11,  2.0e-11,  5.0e-11,
       1.0e-10,  2.0e-10,  5.0e-10,    1.0e-9,   2.0e-9,   5.0e-9,
       1.0e-8,   2.0e-8,   5.0e-8,     1.0e-7,   2.0e-7,   5.0e-7,
@@ -265,7 +269,7 @@ void QEDisplayRanges::adjustMinMax (const int number, const bool roundToMajor,
 
    // Round up major to next standard value.
    //
-   s = (major <= 1.0) ? 0 : 36;  // short cut
+   s = (major <= 1.0) ? 0 : 60;  // short cut - slot 60 correspons to 1.0
    while ((major > majorValues [s]) &&
           ((s + 1) < ARRAY_LENGTH (majorValues))) s++;
 

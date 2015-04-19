@@ -124,25 +124,25 @@ void UserMessage::setSourceFilter( message_filter_options sourceFilterIn )
 }
 
 // Get the source ID (the ID set up by the GUI designer, usually matched to the source ID of logging widgets
-unsigned int UserMessage::getSourceId()
+unsigned int UserMessage::getSourceId() const
 {
     return sourceId;
 }
 
 // Get the form ID (the the same ID for all sibling widgets within an QEForm widget)
-unsigned int UserMessage::getFormId()
+unsigned int UserMessage::getFormId() const
 {
     return formId;
 }
 
 // Get the message filtering applied to the form ID
-UserMessage::message_filter_options UserMessage::getFormFilter()
+UserMessage::message_filter_options UserMessage::getFormFilter() const
 {
     return formFilter;
 }
 
 // Get the message filtering applied to the source ID
-UserMessage::message_filter_options UserMessage::getSourceFilter()
+UserMessage::message_filter_options UserMessage::getSourceFilter() const
 {
     return sourceFilter;
 }
@@ -154,13 +154,13 @@ void UserMessage::setChildFormId( unsigned int childFormIdIn )
 }
 
 // Get the ID for of all widgets that are children of this widget
-unsigned int UserMessage::getChildFormId()
+unsigned int UserMessage::getChildFormId() const
 {
     return childFormId;
 }
 
 // Generate a new form ID for all widgets in a new form
-unsigned int UserMessage::getNextMessageFormId()
+unsigned int UserMessage::getNextMessageFormId() const
 {
     return nextMessageFormId++;
 }
@@ -237,3 +237,5 @@ void UserMessage::newMessage( QString, message_types )
     QObject::disconnect( &userMessageSignal, SIGNAL( message( QString, message_types, unsigned int, unsigned int, UserMessage* ) ),
                          &userMessageSlot, SLOT( message( QString, message_types, unsigned int, unsigned int, UserMessage* ) ) );
 }
+
+// end

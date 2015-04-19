@@ -35,6 +35,7 @@
 #include <QECommon.h>
 #include <QEScaling.h>
 #include "QEPvLoadSave.h"
+#include "QEPvLoadSaveCompare.h"
 #include "QEPvLoadSaveItem.h"
 #include "QEPvLoadSaveModel.h"
 #include "QEPvLoadSaveUtilities.h"
@@ -204,6 +205,12 @@ QEPvLoadSave::Halves::Halves (const Sides sideIn, QEPvLoadSave* ownerIn, QBoxLay
    this->tree->setUniformRowHeights (true);
    this->tree->setRootIsDecorated (true);
    this->tree->setAlternatingRowColors (true);
+
+   // Create the graphical PV value compare widget.
+   // There are two, one for each side, to allow Left v. Right as well as
+   // Right vs. Left. These should be same except for opposite sign.
+   //
+   this->graphicalCompare = new QEPvLoadSaveCompare (this->owner, this->side, NULL);
 
    // Create an essentially empty model.
    //
@@ -384,6 +391,8 @@ QEPvLoadSave::QEPvLoadSave (QWidget* parent) : QEFrame (parent)
       this->actionList [j] = NULL;
    }
 
+   // TODO - leverage of standard context menu if we can.
+   //
    this->treeContextMenu = new QMenu (this);
    this->createAction (this->treeContextMenu, "Create Root",          false, TCM_CREATE_ROOT);
    this->createAction (this->treeContextMenu, "Add Group...",         false, TCM_ADD_GROUP);
@@ -403,10 +412,12 @@ QEPvLoadSave::QEPvLoadSave (QWidget* parent) : QEFrame (parent)
 
    // Gui requests.
    //
+   this->hostSlotAvailable = false;
    QObject* consumer = this->getGuiLaunchConsumer ();
    if (consumer) {
-      QObject::connect (this,     SIGNAL (requestAction (const QEActionRequests& )),
-                        consumer, SLOT   (requestAction (const QEActionRequests& )));
+      this->hostSlotAvailable =
+         QObject::connect (this,     SIGNAL (requestAction (const QEActionRequests& )),
+                           consumer, SLOT   (requestAction (const QEActionRequests& )));
    }
 
    this->half [LeftSide]->checkBox->setChecked (false);
@@ -1004,7 +1015,34 @@ void QEPvLoadSave::sortClicked (bool)
 void QEPvLoadSave::compareClicked (bool)
 {
    VERIFY_SENDER;
-   DEBUG << side;
+
+   // TODO: Verification checks:
+   //   Do both sides contain at least a data stub (user root) node.
+   //   Is item already on display?
+   //
+   QEPvLoadSaveCompare* graphicalCompare = this->half [side]->graphicalCompare;  // alias
+   graphicalCompare->processModelData ();
+
+   QString title = "Process Variable Comparison";
+   if (this->hostSlotAvailable) {
+      // If the graphicalCompare widget already visible - skip this part
+      if (!graphicalCompare->isVisible()) {
+         // Create component item and associated request.
+         //
+         componentHostListItem item (graphicalCompare,
+                                     QEActionRequests::OptionFloatingDockWindow ,
+                                     false, title);
+
+         // ... and request this hosted by the support application.
+         //
+         emit requestAction (QEActionRequests (item));
+      }
+   } else {
+      // Just show it.
+      //
+      graphicalCompare->setWindowTitle (title);
+      graphicalCompare->show ();
+   }
 }
 
 //------------------------------------------------------------------------------
