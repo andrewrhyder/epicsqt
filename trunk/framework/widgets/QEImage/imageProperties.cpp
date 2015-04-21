@@ -38,7 +38,7 @@ imageProperties::imageProperties()
     flipVert = false;
     flipHoz = false;
 
-    mFormatOption = imageDataFormats::MONO;
+    formatOption = imageDataFormats::MONO;
     bitDepth = 8;
 
     imageDataSize = 0;
@@ -109,14 +109,14 @@ QString imageProperties::getInfoText()
     // Build the image information string
     QString about;
 
-    about.append( QString( "\nSize (bytes) of CA data array: %1" ).arg( image.count() ));
+    about.append( QString( "\nSize (bytes) of CA data array: %1" ).arg( imageData.count() ));
     about.append( QString( "\nSize (bytes) of CA data elements: %1" ).arg( imageDataSize ));
     about.append( QString( "\nWidth (pixels) taken from dimension variables or width variable: %1" ).arg( imageBuffWidth ));
     about.append( QString( "\nHeight (pixels) taken from dimension variables or height variable: %1" ).arg( imageBuffHeight ));
     about.append( QString( "\nPixel depth taken from bit depth variable or bit depth property: %1" ).arg( bitDepth ));
 
     QString name;
-    switch( mFormatOption )
+    switch( formatOption )
     {
         case imageDataFormats::MONO:        name = "Monochrome";         break;
         case imageDataFormats::BAYERGB:     name = "Bayer (Green/Blue)"; break;
@@ -134,20 +134,20 @@ QString imageProperties::getInfoText()
     about.append( QString( "\nExpected format: " ).append( name ));
 
     about.append( "\n\nFirst bytes of raw image data:\n   ");
-    if( image.isEmpty() )
+    if( imageData.isEmpty() )
     {
         about.append( "No data yet." );
     }
     else
     {
         int count = 20;
-        if( image.count() < count )
+        if( imageData.count() < count )
         {
-            count = image.count() ;
+            count = imageData.count() ;
         }
         for( int i = 0; i < count; i++ )
         {
-            about.append( QString( " %1" ).arg( (unsigned char)(image[i]) ));
+            about.append( QString( " %1" ).arg( (unsigned char)(imageData[i]) ));
         }
     }
 
@@ -178,20 +178,20 @@ QString imageProperties::getInfoText()
 // Return the current image format
 imageDataFormats::formatOptions imageProperties::getFormat()
 {
-    return mFormatOption;
+    return formatOption;
 }
 
 // Set the current image format
 void imageProperties::setFormat( imageDataFormats::formatOptions formatIn )
 {
     // Invalidate any pixel lookup information held
-    if( mFormatOption != formatIn )
+    if( formatOption != formatIn )
     {
         pixelLookupValid = false;
     }
 
     // Save the option
-    mFormatOption = formatIn;
+    formatOption = formatIn;
 }
 
 // Set the format based on the area detector format text
@@ -222,6 +222,6 @@ bool imageProperties::setFormat( const QString& text )
     }
 
     // Format text recognozed, use it
-    mFormatOption = newFormatOption;
+    formatOption = newFormatOption;
     return true;
 }

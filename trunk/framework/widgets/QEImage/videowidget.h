@@ -41,7 +41,7 @@ public:
     VideoWidget(QWidget *parent = 0);
     ~VideoWidget();
 
-    void setNewImage( const QImage image, QCaDateTime& time );
+    void setNewImage( QImage image, QCaDateTime& time );
     void setPanning( bool panningIn );
     bool getPanning();
     QPoint scalePoint( QPoint pnt );

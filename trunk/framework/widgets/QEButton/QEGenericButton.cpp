@@ -30,7 +30,6 @@
 
 #include <QEGenericButton.h>
 #include <QMessageBox>
-#include <QMainWindow>
 #include <QIcon>
 #include <QInputDialog>
 #include <QStyle>
@@ -767,46 +766,6 @@ QString QEGenericButton::getLabelTextProperty()
     return labelText;
 }
 
-//==============================================================================
-// 'Start new GUI' slots
-
-// Slot for launching a new gui.
-// This is the button's default action for launching a gui.
-// Normally the button would be within a container, such as a tab on a gui, that will provide a 'launch gui' mechanism.
-void QEGenericButton::startGui( const QEActionRequests & request )
-{
-    // Only handle file open requests
-    if( request.getKind() != QEActionRequests::KindOpenFile )
-    {
-        return;
-    }
-
-    // If there is enough arguments, open the file
-    if (request.getArguments().count () >= 1)
-    {
-        // Build the gui
-        // Build it in a new window.
-        QMainWindow* w = new QMainWindow;
-        QEForm* gui = new QEForm( request.getArguments().first() );
-        if( gui )
-        {
-            if( gui->readUiFile())
-            {
-                w->setCentralWidget( gui );
-                w->show();
-            }
-            else
-            {
-                delete gui;
-                gui = NULL;
-            }
-        }
-        else
-        {
-            delete w;
-        }
-    }
-}
 
 // Calculate style based on the widget usage and set a dynamic propert for style options.
 // When the dynamic property is set it can be used in style sheets to target a style at

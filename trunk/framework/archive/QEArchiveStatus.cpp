@@ -164,6 +164,13 @@ QSize QEArchiveStatus::sizeHint () const
 
 //------------------------------------------------------------------------------
 //
+void QEArchiveStatus::reReadAvailablePVs ()
+{
+   if (this->archiveAccess) this->archiveAccess->reReadAvailablePVs ();
+}
+
+//------------------------------------------------------------------------------
+//
 void QEArchiveStatus::archiveStatus (const QEArchiveAccess::StatusList& statusList)
 {
    int j;

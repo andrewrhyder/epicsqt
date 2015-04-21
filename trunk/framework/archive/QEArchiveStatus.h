@@ -45,6 +45,9 @@ public:
    ~QEArchiveStatus ();
    QSize sizeHint () const;
 
+public slots:
+   void reReadAvailablePVs ();     // requests re-read of availble PVs from the CA Archives
+
 private:
    // Internal widgets.
    //

@@ -63,6 +63,9 @@ void QESpinBox::setup() {
     // Initialise the flag indicating the value is being changed programatically (not by the user)
     programaticValueChange = false;
 
+    // Don't respond to every key stroke - just enter or loose focus
+    setKeyboardTracking( false );
+
     // Set up default properties
     writeOnChange = true;
     setAllowDrop( false );
@@ -158,7 +161,7 @@ void QESpinBox::connectionChanged( QCaConnectionInfo& connectionInfo )
     // If subscribing, then an update will occur without having to initiated one here.
     // Note, channel up implies link up
     // Note, even though there is nothing to do to initialise the spin box if not subscribing, an
-    // initial sing shot read is still performed to ensure we have valid information about the
+    // initial single shot read is still performed to ensure we have valid information about the
     // variable when it is time to do a write.
     if( isConnected && !subscribe )
     {
@@ -182,6 +185,9 @@ void QESpinBox::connectionChanged( QCaConnectionInfo& connectionInfo )
 */
 void QESpinBox::setValueIfNoFocus( const double& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
 
+    // Save the last database value
+    lastValue = value;
+
     // Set the limits and step size
     QEFloating* qca = (QEFloating*)getQcaItem(0);
     double upper = qca->getControlLimitUpper();
@@ -191,8 +197,6 @@ void QESpinBox::setValueIfNoFocus( const double& value, QCaAlarmInfo& alarmInfo,
         setMaximum( qca->getControlLimitUpper() );
         setMinimum( qca->getControlLimitLower() );
     }
-    setDecimalsFromPrecision( qca );
-    setSuffixEgu( qca );
 
     // Do nothing more if doing a single shot read (done when not subscribing to get range values)
     if( ignoreSingleShotRead )
@@ -201,16 +205,12 @@ void QESpinBox::setValueIfNoFocus( const double& value, QCaAlarmInfo& alarmInfo,
         return;
     }
 
-    // Signal a database value change to any Link widgets
-    emit dbValueChanged( value );
-
-    // Save the last database value
-    lastValue = value;
-
     // Update the spin box only if the user is not interacting with the object.
     if( !hasFocus() ) {
         // Update the spin box
         programaticValueChange = true;
+        setDecimalsFromPrecision( qca );
+        setSuffixEgu( qca );
         setValue( value );
         programaticValueChange = false;
 
@@ -220,6 +220,9 @@ void QESpinBox::setValueIfNoFocus( const double& value, QCaAlarmInfo& alarmInfo,
 
     // Invoke common alarm handling processing.
     processAlarmInfo( alarmInfo );
+
+    // Signal a database value change to any Link widgets
+    emit dbValueChanged( value );
 }
 
 /*

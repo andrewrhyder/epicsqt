@@ -135,6 +135,7 @@ QEScript::QEScript(QWidget *pParent):QWidget(pParent), QEWidget( this )
     setOptionsLayout(TOP);
     isExecuting = false;
     refreshWidgets();
+    editableTable = true;
 
 }
 

@@ -70,8 +70,11 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QEAbstractWidget
         int getDisconnectedCount();                                          /// Return the count of disconnected variables
         int getConnectedCount();                                             /// Return the count of connected variables
 
+        QWidget* getChild( QString name );                                   /// Find a widget within the ui loaded by the QEForm. Returns NULL if no UI is loaded yet or if the named widget can't be found.
+
     public slots:
         bool readUiFile();                                                   /// Read a .ui file and present it within this QEForm
+        void requestAction( const QEActionRequests& request ){ startGui( request ); } /// Slot for launching a new gui. Used by QE buttons and QEForm as the default action for launching a gui.
 
     private slots:
         void fileChanged ( const QString & path );
@@ -122,6 +125,9 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QEAbstractWidget
         void displayPlaceholder( bool display, QString message = QString() );   // Display or clear a message when the QEForm could not be loaded with a .ui file
 
         bool loadManually;                                                      // Set true when QEForm will be manually loaded by calling QEForm::readUiFile()
+
+    signals:
+        void formLoaded( bool fileLoaded );                                     // The form has finished loading a .ui file. fileLoaded is true if reading the .ui file was successfull. This signal is required since the loading completes in an event.
 
     public:
         // Note, a property macro in the form 'Q_PROPERTY(QString uiFileName READ ...' doesn't work.

@@ -26,15 +26,116 @@
 // information such as brightness, contrast, flip, rotate, canvas size, etc.
 // The work is performed in a dedicated thread .
 
+#include <QMutexLocker>
 #include "imageProcessor.h"
 #include "imageDataFormats.h"
 #include <colourConversion.h>
 #include <math.h>
 
-
 // Constructor
 imageProcessor::imageProcessor()
 {
+    // Initialise
+    next = NULL;
+    finishNow = false;
+
+    // Manage image processing thread
+    imageWait.lockForWrite();
+    start();
+}
+
+// Destructor
+imageProcessor::~imageProcessor()
+{
+// !!!!!! Getting the following errors on application exit
+// QMutex: destroying locked mutex
+// QWaitCondition: Destroyed while threads are still waiting
+// QThread: Destroyed while thread is still running
+
+    // If any outstanding images to process, get rid of it
+    finishNow = true;
+    {
+        QMutexLocker locker( &imageLock );
+        if( next )
+        {
+            delete next;
+            next = NULL;
+        }
+    }
+
+    // !!!!!!!! This is not robust.
+    // !!!!!!!! At this point the thread may not return to
+    // !!!!!!!! waiting before the following wake, so it will
+    // !!!!!!!! not wake and catch the 'please finish' flag.
+
+
+    // Ask the image processing thread to exit
+    imageSync.wakeOne();
+
+    // Wait for the thread to exit
+    wait();
+}
+
+// Image processing thread
+void imageProcessor::run()
+{
+    // Snapshot of all information required for image processing
+    imagePropertiesCore* core = NULL;
+
+    // Process images as the the data arrives
+    while( true )
+    {
+        // Wait for a image data
+        imageSync.wait( &imageWait );
+
+        // Processing new image data until there is none.
+        // There will be none if we process the data faster than it arrives.
+        while( true )
+        {
+            // If asked to finish, then finish
+            if( finishNow )
+            {
+                return;
+            }
+
+            // Get the next snapshot of image data and all the related image information
+            {// set scope of QMutexLocker
+                QMutexLocker locker( &imageLock );
+                core = next;
+                next = NULL;
+            }
+
+            // If any image data, process it
+            if( core )
+            {
+                // Build the image
+                image = core->buildImageCore();
+
+                // Deliver the image to the widget
+                emit imageBuilt( image, "" );
+
+                // Realease the content of any previous buffer that
+                // earlier QImages may have still been referencing.
+
+                // !!!!!!!! This is not correct. The slot called by the emit above is
+// unlikely to be complete yet.
+// It is not naturally synchronous when in another thread.
+// Force synchronous? I'd rather not...
+
+                lastImageBuff.clear();
+
+                // Discard the image information
+                delete core;
+                core = NULL;
+            }
+
+            // If no image data, stop processing and loop back to wait
+            else
+            {
+                break;
+            }
+        }
+    }
 }
 
 // Set the image buffer used for generating images so it will be large enough to hold the processed image.
@@ -48,15 +149,24 @@ void imageProcessor::setImageBuff()
     unsigned long buffSize = IMAGEBUFF_BYTES_PER_PIXEL * imageBuffWidth * imageBuffHeight;
 
     // Resize buffer
-    imageBuff.resize( buffSize );
+    // Note, not efficient to resize to same size - it actually does a reallocation
+    // of memory (on Qt 5.1 on windows at least)
+    if( (unsigned long)(imageBuff.size()) != buffSize )
+    {
+        // Keep the last buffer untill a the next image is
+        // generated to ensure any previous QImages still
+        // referencing the buffer data remain sound
+        lastImageBuff = imageBuff;
+        imageBuff.resize( buffSize );
+    }
 }
 
 // Save the image data for analysis, processing and display
 void imageProcessor::setImage( const QByteArray& imageIn, unsigned long dataSize )
 {
     // Save the current image
-    image = imageIn;
-    receivedImageSize = (unsigned long) image.size ();
+    imageData = imageIn;
+    receivedImageSize = (unsigned long) imageData.size ();
     imageDataSize = dataSize;
 
     // Calculate the number of bytes per pixel.
@@ -68,27 +178,31 @@ void imageProcessor::setImage( const QByteArray& imageIn, unsigned long dataSize
 }
 
 // Generate a new image.
-QImage imageProcessor::buildImage( QString& errorText )
+// This is the first part of generating an image from new data.
+// most of the processing will occur in a seperate thread in imagePropertiesCore::buildImageCore()
+void imageProcessor::buildImage()
 {
     // Initially no errors
-    errorText.clear();
+    QString errorText;
 
     // Do nothing if there is no image, or are no image dimensions yet
-    if( image.isEmpty() || !imageBuffWidth || !imageBuffHeight )
+    if( imageData.isEmpty() || !imageBuffWidth || !imageBuffHeight )
     {
-        return QImage();
+        emit imageBuilt( QImage(), errorText );
+        return;
     }
 
     // Do we have enough (or any) data
     //
     const unsigned long required_size = imageBuffWidth * imageBuffHeight * bytesPerPixel;
-    if( required_size > (unsigned int)(image.size()) )
+    if( required_size > (unsigned int)(imageData.size()) )
     {
         // Do nothing if no image data.
         //
         if( receivedImageSize == 0 )
         {
-            return QImage();
+            emit imageBuilt( QImage(), errorText );
+            return;
         }
 
         QString messageText;
@@ -111,25 +225,112 @@ QImage imageProcessor::buildImage( QString& errorText )
 
         // If not enough image data for the expected size then zero extend.
         // Part image better than no image at all.
-        int extra = (int)required_size - image.size();
+        int extra = (int)required_size - imageData.size();
         QByteArray zero_extend ( extra, '\0' );
-        image.append( zero_extend );
+        imageData.append( zero_extend );
     }
-
-    // Set up input and output pointers and counters ready to process each pixel
-    const unsigned char* dataIn = (unsigned char*)image.constData();
-    imageDisplayProperties::rgbPixel* dataOut = (imageDisplayProperties::rgbPixel*)(imageBuff.data());
-    unsigned long buffIndex = 0;
-    unsigned long dataIndex = 0;
 
     // Determine the number of pixels to process
     // If something is wrong, do nothing
     unsigned long pixelCount = imageBuffWidth*imageBuffHeight;
-    if(( pixelCount * bytesPerPixel > (unsigned long)image.size() ) ||
+    if(( pixelCount * bytesPerPixel > (unsigned long)imageData.size() ) ||
        ( pixelCount * IMAGEBUFF_BYTES_PER_PIXEL > (unsigned long)imageBuff.size() ))
     {
-        return QImage();  // !!! should clear the image
+        emit imageBuilt( QImage(), errorText ); // !!! should clear the image by delivering non null blank image???
+        return;
     }
+
+    // Get the pixel lookup table to convert raw pixel values to display pixel values taking into
+    // account input pixel size, clipping, contrast reversal, and local brightness and contrast.
+    if( !pixelLookupValid )
+    {
+        getPixelTranslation();
+        pixelLookupValid = true;
+    }
+
+    { // set scope of QMutexLocker
+        QMutexLocker locker( &imageLock );
+
+        // If there is earlier image data that is yet to be processed, discard it.
+        if( next )
+        {
+            delete next;
+            next = NULL;
+        }
+
+        // Package up the current image data and all related information
+        next = new imagePropertiesCore( imageData,
+                                        imageBuff,
+                                        imageBuffWidth,
+                                        imageBuffHeight,
+                                        getScanOption(),
+                                        bytesPerPixel,
+                                        pixelLow,
+                                        pixelHigh,
+                                        bitDepth,
+                                        pixelLookup,
+                                        formatOption,
+                                        imageDataSize,
+                                        imageDisplayProps,
+                                        rotatedImageBuffWidth(),
+                                        rotatedImageBuffHeight() );
+    }
+
+// Include the following two lines to skip processing in seperate thread.
+// Call processing in this thread instead
+//    emit imageBuilt( next->buildImageCore(), "" );
+//    return;
+
+    // Wake up the image processing thread if required to process the next lot of image data
+    imageSync.wakeOne();
+}
+
+// Package up image data along with all the information
+// needed to process it and generate a QImage.
+imagePropertiesCore::imagePropertiesCore( QByteArray imageDataIn,
+                                          QByteArray imageBuffIn,
+                                          unsigned long imageBuffWidthIn,
+                                          unsigned long imageBuffHeightIn,
+                                          int scanOptionIn,
+                                          unsigned long bytesPerPixelIn,
+                                          int pixelLowIn,
+                                          int pixelHighIn,
+                                          unsigned int bitDepthIn,
+                                          imageDisplayProperties::rgbPixel* pixelLookupIn,
+                                          imageDataFormats::formatOptions formatOptionIn,
+                                          unsigned long imageDataSizeIn,
+                                          imageDisplayProperties* imageDisplayPropsIn,
+                                          unsigned int rotatedImageBuffWidthIn,
+                                          unsigned int rotatedImageBuffHeightIn )
+{
+    imageData = imageDataIn;
+    imageBuff = imageBuffIn;
+    imageBuffWidth = imageBuffWidthIn;
+    imageBuffHeight = imageBuffHeightIn;
+    scanOptionIn = scanOption;
+    bytesPerPixel = bytesPerPixelIn;
+    pixelLow = pixelLowIn;
+    pixelHigh = pixelHighIn;
+    bitDepth = bitDepthIn;
+    pixelLookup = pixelLookupIn;
+    formatOption = formatOptionIn;
+    imageDataSize = imageDataSizeIn;
+    imageDisplayProps = imageDisplayPropsIn;
+    rotatedImageBuffWidth = rotatedImageBuffWidthIn;
+    rotatedImageBuffHeight = rotatedImageBuffHeightIn;
+}
+
+// Generate a new image.
+// This is the second part of generating an image from new data.
+// The image is generated in a seperate thread after preperation by imageProcessor::buildImage()
+QImage imagePropertiesCore::buildImageCore()
+{
+    // Set up input and output pointers and counters ready to process each pixel
+    // Note, must be constData() - not data() - to avoid a reallocation of the data
+    const unsigned char* dataIn = (unsigned char*)imageData.constData();
+    imageDisplayProperties::rgbPixel* dataOut = (imageDisplayProperties::rgbPixel*)(imageBuff.constData());
+    unsigned long buffIndex = 0;
+    unsigned long dataIndex = 0;
 
     // Depending on the flipping and rotating options pixel drawing can start in any of
     // the four corners and start scanning either vertically or horizontally.
@@ -153,7 +354,6 @@ QImage imageProcessor::buildImage( QString& errorText )
     //    |                       |
     //    o----->3         4<-----o
     //
-    int scanOption = getScanOption();
 
     // Drawing is performed in two nested loops, one for height and one for width.
     // Depending on the scan option, however, the outer may be height or width.
@@ -204,6 +404,8 @@ QImage imageProcessor::buildImage( QString& errorText )
         case 8: outCount = w; inCount = h; start = (w*h)-1; outInc =  w*h-1; inInc = -w; break;
     }
 
+
+
     // Draw the input pixels into the image buffer.
     // Drawing is performed in two nested loops, one for height and one for width.
     // Depending on the scan option, however, the outer may be height or width.
@@ -211,14 +413,6 @@ QImage imageProcessor::buildImage( QString& errorText )
     // output buffer, which is moved to the next pixel by both the inner and outer
     // loops to where ever that next pixel is according to the rotation and flipping.
     dataIndex = start;
-
-    // Get the pixel lookup table to convert raw pixel values to display pixel values taking into
-    // account input pixel size, clipping, contrast reversal, and local brightness and contrast.
-    if( !pixelLookupValid )
-    {
-        getPixelTranslation();
-        pixelLookupValid = true;
-    }
 
     unsigned int pixelRange = pixelHigh-pixelLow;
     if( !pixelRange )
@@ -261,7 +455,7 @@ QImage imageProcessor::buildImage( QString& errorText )
 
     // Format each pixel ready for use in an RGB32 QImage.
     // Note, for speed, the switch on format is outside the loop. The loop is duplicated in each case using macros.
-    switch( mFormatOption )
+    switch( formatOption )
     {
         case imageDataFormats::MONO:
         {
@@ -345,7 +539,7 @@ QImage imageProcessor::buildImage( QString& errorText )
             // Preconfigure a table to translate from cluster cell index to color.
             enum CELL_COLOURS {CC_G1, CC_G2,CC_R,CC_B};
             CELL_COLOURS cellColours[4];
-            switch( mFormatOption )
+            switch( formatOption )
             {
                 default:    // Should never hit the default case. Include to avoid compilation errors
                 case imageDataFormats::BAYERGB: cellColours[0] = CC_G1; cellColours[1] = CC_B;  cellColours[2] = CC_R;  cellColours[3] = CC_G2; break;
@@ -356,7 +550,7 @@ QImage imageProcessor::buildImage( QString& errorText )
 
             // Preconfigure red and blue positions relative to green. Depending on the Bayer pattern
             // red can be left and right, and blue above and below, or the other way round
-            switch( mFormatOption )
+            switch( formatOption )
             {
                 default:    // Should never hit the default case. Include to avoid compilation errors
                 case imageDataFormats::BAYERGB:
@@ -838,7 +1032,7 @@ QImage imageProcessor::buildImage( QString& errorText )
     }
 
     // Generate a frame from the data
-    QImage frameImage( (uchar*)(imageBuff.constData()), rotatedImageBuffWidth(), rotatedImageBuffHeight(), QImage::Format_RGB32 );
+    QImage frameImage( (uchar*)(imageBuff.constData()), rotatedImageBuffWidth, rotatedImageBuffHeight, QImage::Format_RGB32 );
     return frameImage;
 }
 
@@ -901,7 +1095,6 @@ bool imageProcessor::setNumDimensions( unsigned long uValue )
 // Set the first dimension (width if two dimenstions, bytes per element if three dimensions)
 bool imageProcessor::setDimension0( unsigned long uValue )
 {
-    //!!!LOCK
     if( imageDimension0 != uValue )
     {
         imageDimension0 = uValue;
@@ -917,7 +1110,6 @@ bool imageProcessor::setDimension0( unsigned long uValue )
 // Set the second dimension (height if two dimensions, width if three dimensions)
 bool imageProcessor::setDimension1( unsigned long uValue )
 {
-    //!!!LOCK
     if( imageDimension1 != uValue )
     {
         imageDimension1 = uValue;
@@ -1141,7 +1333,7 @@ unsigned int imageProcessor::maxPixelValue()
 {
     double result = 0;
 
-    switch( mFormatOption )
+    switch( formatOption )
     {
         case imageDataFormats::BAYERGB:
         case imageDataFormats::BAYERBG:
@@ -1336,7 +1528,7 @@ void imageProcessor::getPixelRange( const QRect& area, unsigned int* min, unsign
     unsigned int areaH = (area.height()<=(int)rotatedImageBuffHeight())?area.height():rotatedImageBuffHeight();
 
     // Set up to step pixel by pixel through the area
-    const unsigned char* data = (unsigned char*)image.constData();
+    const unsigned char* data = (unsigned char*)imageData.constData();
     unsigned int index = (areaY*rotatedImageBuffWidth()+areaX)*bytesPerPixel;
 
     // This function is called as the user drags region handles around the
@@ -1384,11 +1576,11 @@ const unsigned char* imageProcessor::getImageDataPtr( QPoint& pos )
     posTr = rotateFlipToDataPoint( pos );
 
     // Set up reference to start of the data, and the index to the required pixel
-    const unsigned char* data = (unsigned char*)image.constData();
+    const unsigned char* data = (unsigned char*)imageData.constData();
     int index = (posTr.x()+posTr.y()*imageBuffWidth)*bytesPerPixel;
 
     // Return a pointer to the pixel data if possible
-    if( !image.isEmpty() && index < image.size() )
+    if( !imageData.isEmpty() && index < imageData.size() )
     {
         return &(data[index]);
     }
@@ -1408,7 +1600,7 @@ int imageProcessor::getPixelValueFromData( const unsigned char* ptr )
         return 0;
 
     // Case the data to the correct size, then return the data as a floating point number.
-    switch( mFormatOption )
+    switch( formatOption )
     {
         case imageDataFormats::BAYERGB:
         case imageDataFormats::BAYERBG:
@@ -1488,7 +1680,7 @@ double imageProcessor::getFloatingPixelValueFromData( const unsigned char* ptr )
 // Return a QImage based on the current image
 QImage imageProcessor::copyImage()
 {
-    return QImage((uchar*) imageBuff.constData(), rotatedImageBuffWidth(), rotatedImageBuffHeight(), QImage::Format_RGB32);
+    return image;
 }
 
 // Generate a profile along a line down an image at a given X position
@@ -1501,7 +1693,7 @@ void imageProcessor::generateVSliceData( QVector<QPointF>& vSliceData, int x, un
         vSliceData.resize( rotatedImageBuffHeight() );
 
     // Set up to step pixel by pixel through the image data along the line
-    const unsigned char* data = (unsigned char*)image.constData();
+    const unsigned char* data = (unsigned char*)imageData.constData();
     const unsigned char* dataPtr = &(data[x*bytesPerPixel]);
     int dataPtrStep = rotatedImageBuffWidth()*bytesPerPixel;
 
@@ -1566,7 +1758,7 @@ void imageProcessor::generateHSliceData( QVector<QPointF>& hSliceData, int y, un
         hSliceData.resize( rotatedImageBuffWidth() );
 
     // Set up to step pixel by pixel through the image data along the line
-    const unsigned char* data = (unsigned char*)image.constData();
+    const unsigned char* data = (unsigned char*)imageData.constData();
     const unsigned char* dataPtr = &(data[y*rotatedImageBuffWidth()*bytesPerPixel]);
     int dataPtrStep = bytesPerPixel;
 

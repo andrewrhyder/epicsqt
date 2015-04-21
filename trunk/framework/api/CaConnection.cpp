@@ -455,7 +455,14 @@ bool CaConnection::getReadAccess ()
     chid ChannelId = getChannelId ();
 
     if (!ChannelId) return false;    // belts and braces check
-    return ca_read_access (ChannelId);
+    if( ca_read_access (ChannelId) )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 /*
@@ -466,7 +473,14 @@ bool CaConnection::getWriteAccess ()
     chid ChannelId = getChannelId ();
 
     if (!ChannelId) return false;    // belts and braces check
-    return ca_write_access (ChannelId);
+    if( ca_write_access (ChannelId) )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 /*

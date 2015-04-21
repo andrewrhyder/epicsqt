@@ -482,6 +482,11 @@ bool QEForm::readUiFile()
 
         }
     }
+
+    // Signal the form has finished loading the .ui file. fileLoaded is true if reading the .ui file was successfull.
+    // This signal is required since the loading completes in an event.
+    emit formLoaded( fileLoaded );
+
     return fileLoaded;
 }
 
@@ -750,6 +755,20 @@ void QEForm::setEmbeddedFileMonitoringIsEnabled( QWidget* parent, bool fileMonit
             }
         }
     }
+}
+
+// Find a widget within the ui loaded by the QEForm.
+// Returns NULL if no UI is loaded yet or if the named widget can't be found.
+QWidget* QEForm::getChild( QString name )
+{
+    // If no UI yet, return nothing
+    if( !this->ui )
+    {
+        return NULL;
+    }
+
+    // Return the widget if it can be found
+    return findChild<QWidget*>( name );
 }
 
 //==============================================================================

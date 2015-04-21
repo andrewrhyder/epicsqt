@@ -78,7 +78,10 @@ imageDisplayProperties::imageDisplayProperties()
     range = 255;
 
     // Initialise image stats
-    bins = NULL;
+    for( int i = 0; i < HISTOGRAM_BINS; i++ )
+    {
+        bins[i] = 0;
+    }
     maxP = 0;
     minP = UINT_MAX;
 
@@ -721,7 +724,8 @@ void imageDisplayProperties::updateFullValueInterface()
 
 //=========================================================
 
-// Set current image statistics
+// Set current image statistics.
+// This can be called from the image processing thread
 void imageDisplayProperties::setStatistics( unsigned int minPIn,                // Minimum pixel value
                                             unsigned int maxPIn,                // Maximum pixel value
                                             unsigned int bitDepth,              // Bit depth
@@ -732,9 +736,19 @@ void imageDisplayProperties::setStatistics( unsigned int minPIn,                
     minP = minPIn;
     maxP = maxPIn;
     depth = bitDepth;
-    bins = binsIn;
+    for( int i = 0; i < HISTOGRAM_BINS; i++ )
+    {
+        bins[i] = binsIn[i];
+    }
     pixelLookup = pixelLookupIn;
+}
 
+// Show the current image statistics.
+// This can not be called from the image processing thread.
+// It must be called from the main thread after setStatistics()
+// is called from the image processing thread.
+void imageDisplayProperties::showStatistics()
+{
     // Recalculate dependand variables
     range = (1<<depth)-1;
 
