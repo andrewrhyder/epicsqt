@@ -307,7 +307,7 @@ imagePropertiesCore::imagePropertiesCore( QByteArray imageDataIn,
     imageBuff = imageBuffIn;
     imageBuffWidth = imageBuffWidthIn;
     imageBuffHeight = imageBuffHeightIn;
-    scanOptionIn = scanOption;
+    scanOption = scanOptionIn;
     bytesPerPixel = bytesPerPixelIn;
     pixelLow = pixelLowIn;
     pixelHigh = pixelHighIn;

@@ -61,12 +61,15 @@ isEmpty( _EPICS_HOST_ARCH ) {
     error( "EPICS_HOST_ARCH must be defined. Ensure EPICS is installed and EPICS_HOST_ARCH is set up." )
 }
 
+DESTDIR = bin
+
 # Install the generated QEGui application in QE_TARGET_DIR if defined.
 _QE_TARGET_DIR = $$(QE_TARGET_DIR)
 isEmpty( _QE_TARGET_DIR ) {
 } else {
     QEGUIINSTALL.path = $$(QE_TARGET_DIR)/bin/$$(EPICS_HOST_ARCH)
-    QEGUIINSTALL.files += $$TARGET
+    unix: QEGUIINSTALL.files += $$DESTDIR/$$TARGET
+    win32: QEGUIINSTALL.files += $$DESTDIR/$$TARGET".exe"
     INSTALLS += QEGUIINSTALL
 }
 
@@ -74,12 +77,12 @@ isEmpty( _QE_TARGET_DIR ) {
 #
 MOC_DIR        = O.$$(EPICS_HOST_ARCH)/moc
 OBJECTS_DIR    = O.$$(EPICS_HOST_ARCH)/obj
-UI_HEADERS_DIR = O.$$(EPICS_HOST_ARCH)/ui_headers
+UI_DIR         = O.$$(EPICS_HOST_ARCH)/ui
 RCC_DIR        = O.$$(EPICS_HOST_ARCH)/rcc
 
 # We don't get this include path for free - need to be explicit.
 #
-INCLUDEPATH += O.$$(EPICS_HOST_ARCH)/ui_headers
+INCLUDEPATH += O.$$(EPICS_HOST_ARCH)/ui
 
 
 #===========================================================
