@@ -92,7 +92,8 @@ isEmpty( _QE_TARGET_DIR ) {
     unix:message( Applications may need to load the framework library directly. To ensure this can happen one option is to set up LD_LIBRARY_PATH to include the directory $$QEPLUGININSTALLPATH . LD_LIBRARY_PATH is currently $(LD_LIBRARY_PATH) )
     message( Applications may need to load the framework library as a Qt plugin. To ensure this can happen one option is to set up QT_PLUGIN_PATH to include a directory containing a 'designer' directory with a link to the plugin library. QT_PLUGIN_PATH is currently $(QT_PLUGIN_PATH) )
     QEPLUGININSTALL.path = $$QEPLUGININSTALLPATH
-    QEPLUGININSTALL.files += ./designer/*
+    unix: QEPLUGININSTALL.files += $$DESTDIR/"lib"$$TARGET".so"
+    win32: QEPLUGININSTALL.files += $$DESTDIR/$$TARGET".dll"
     INSTALLS += QEPLUGININSTALL
 }
 
@@ -101,12 +102,12 @@ isEmpty( _QE_TARGET_DIR ) {
 #
 MOC_DIR        = O.$$(EPICS_HOST_ARCH)/moc
 OBJECTS_DIR    = O.$$(EPICS_HOST_ARCH)/obj
-UI_HEADERS_DIR = O.$$(EPICS_HOST_ARCH)/ui_headers
+UI_DIR         = O.$$(EPICS_HOST_ARCH)/ui
 RCC_DIR        = O.$$(EPICS_HOST_ARCH)/rcc
 
 # We don't get this include path for free - need to be explicit.
 # 
-INCLUDEPATH += O.$$(EPICS_HOST_ARCH)/ui_headers
+INCLUDEPATH += O.$$(EPICS_HOST_ARCH)/ui
 #Add this includepath for Epics version 3.15.1 and later
 #INCLUDEPATH += $$_QE_EPICS_BASE/include/compiler/gcc
 

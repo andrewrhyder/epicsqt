@@ -38,7 +38,7 @@ TEMPLATE = app
 #
 MOC_DIR        = O.$$(EPICS_HOST_ARCH)/moc
 OBJECTS_DIR    = O.$$(EPICS_HOST_ARCH)/obj
-UI_HEADERS_DIR = O.$$(EPICS_HOST_ARCH)/ui_headers
+UI_DIR         = O.$$(EPICS_HOST_ARCH)/ui
 RCC_DIR        = O.$$(EPICS_HOST_ARCH)/rcc
 
 # Determine EPICS_BASE
@@ -57,12 +57,15 @@ isEmpty( _EPICS_HOST_ARCH ) {
     error( "EPICS_HOST_ARCH must be defined. Ensure EPICS is installed and EPICS_HOST_ARCH is set up." )
 }
 
+DESTDIR = bin
+
 # Install the generated QEWidgetDisplay application in QE_TARGET_DIR if defined.
 _QE_TARGET_DIR = $$(QE_TARGET_DIR)
 isEmpty( _QE_TARGET_DIR ) {
 } else {
     QEWIDGETDISPLAYINSTALL.path = $$(QE_TARGET_DIR)/bin/$$(EPICS_HOST_ARCH)
-    QEWIDGETDISPLAYINSTALL.files += $$TARGET
+    unix: QEWIDGETDISPLAYINSTALL.files += $$DESTDIR/$$TARGET
+    win32: QEWIDGETDISPLAYINSTALL.files += $$DESTDIR/$$TARGET".exe"
     INSTALLS += QEWIDGETDISPLAYINSTALL
 }
 
