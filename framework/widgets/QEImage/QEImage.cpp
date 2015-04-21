@@ -241,6 +241,7 @@ void QEImage::setup() {
 
     // Image display properties controls
     imageDisplayProps = new imageDisplayProperties;
+
     iProcessor.setImageDisplayProperties( imageDisplayProps );
 
     QObject::connect( imageDisplayProps, SIGNAL( imageDisplayPropertiesChange() ),
@@ -394,6 +395,9 @@ void QEImage::setup() {
     // Simulate pan mode being selected
     panModeClicked();
     sMenu->setChecked( QEImage::SO_PANNING );
+
+    // Connect to the image process to be able to receive images as they are built from image data
+    QObject::connect( &iProcessor, SIGNAL( imageBuilt( QImage, QString ) ), this, SLOT( displayBuiltImage( QImage, QString ) ) );
 
     // !! move this functionality into QEWidget???
     // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
@@ -1520,7 +1524,8 @@ void QEImage::setImage( const QByteArray& imageIn,
 
 /*
     Update the image
-    This is the slot used to recieve data updates from a QCaObject based class.
+    This is the slot used to recieve data updates from a QCaObject based class,
+    or from a non CA based data source including an MPG decoder and an image file source.
     Note the following comments from the Qt help:
         Note: Drawing into a QImage with QImage::Format_Indexed8 is not supported.
         Note: Do not render into ARGB32 images using QPainter. Using QImage::Format_ARGB32_Premultiplied is significantly faster.
@@ -1597,10 +1602,16 @@ void QEImage::displayImage()
     }
 
     // Process the image data. Hopefully a presentable QImage will be result.
-    QString messageText;
-    QImage frameImage;
-    frameImage = iProcessor.buildImage( messageText );
+    iProcessor.buildImage();
 
+    // Displaying the image will continue in the slot QEImage::newProcessedImage() below
+}
+
+// Continue displaying a new image.
+// This slot continues the work of the function QEImage::displayImage() above.
+//
+void QEImage::displayBuiltImage( QImage frameImage, QString messageText )
+{
     // If there was an error processing the image, report it.
     if( !messageText.isEmpty() )
     {
@@ -1620,12 +1631,15 @@ void QEImage::displayImage()
 
     // Update markups if required
     updateMarkupData();
+
+    // Display the image statistics
+    imageDisplayProps->showStatistics();
 }
 
 // Return the size of the widget where the image will be presented
 // It will be presented in the QEImage's main window used for full screen view,
 // or in QEImage's scroll area
-QSize QEImage::getVedioDestinationSize()
+QSize QEImage::getVideoDestinationSize()
 {
     // If full screen, return the size of the main window used for this
     // (sanity check, only do this if the full screen widget is present - it always should be in full screen)
@@ -1657,7 +1671,7 @@ void QEImage::setImageSize()
 
         // Resize the image to fit exactly within the QCaItem
         case RESIZE_OPTION_FIT:
-            QSize destSize = getVedioDestinationSize();
+            QSize destSize = getVideoDestinationSize();
             double vScale = (double)(destSize.height()) / (double)(iProcessor.rotatedImageBuffHeight());
             double hScale = (double)(destSize.width()) / (double)(iProcessor.rotatedImageBuffWidth());
             double scale = (hScale<vScale)?hScale:vScale;

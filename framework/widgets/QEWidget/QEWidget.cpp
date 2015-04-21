@@ -41,6 +41,7 @@
 #include <QEWidget.h>
 #include <QEFrameworkVersion.h>
 #include <QEForm.h>
+#include <QMainWindow>
 
 // Constructor
 
@@ -580,6 +581,7 @@ void QEWidget::doAction( QWidget* searchPoint, QString widgetName, QString actio
         }
 */
 
+// Return information about the data sources for this widget
 const QList<QCaInfo> QEWidget::getQCaInfo()
 {
     // Prepare a list of info for each variable
@@ -691,6 +693,44 @@ void QEWidget::setAccessCursorStyle()
             // save the current cursor style and then update.
             savedAllowedCursor = widget->cursor ();
             widget->setCursor( Qt::ForbiddenCursor );
+        }
+    }
+}
+
+// Slot for launching a new gui.
+// Used by QE buttons and QEForm as the default action for launching a gui.
+// Normally the widget would be within a container, such as the QEGui application, that will provide a 'launch gui' mechanism.
+void QEWidget::startGui( const QEActionRequests & request )
+{
+    // Only handle file open requests
+    if( request.getKind() != QEActionRequests::KindOpenFile )
+    {
+        return;
+    }
+
+    // If there is enough arguments, open the file
+    if (request.getArguments().count () >= 1)
+    {
+        // Build the gui
+        // Build it in a new window.
+        QMainWindow* w = new QMainWindow;
+        QEForm* gui = new QEForm( request.getArguments().first() );
+        if( gui )
+        {
+            if( gui->readUiFile())
+            {
+                w->setCentralWidget( gui );
+                w->show();
+            }
+            else
+            {
+                delete gui;
+                gui = NULL;
+            }
+        }
+        else
+        {
+            delete w;
         }
     }
 }

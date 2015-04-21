@@ -91,11 +91,12 @@ public:
     {
         unsigned char p[4]; // R/G/B/Alpha
     };
-    void setStatistics( unsigned int minPIn,    // Set current image statistics
+    void setStatistics( unsigned int minPIn,    // Set current image statistics (can be called from any thread)
                         unsigned int maxPIn,
                         unsigned int bitDepth,
                         unsigned int binsIn[HISTOGRAM_BINS],
                         rgbPixel pixelLookup[256] );
+    void showStatistics();                      // Must be called from main thread
 
 signals:
     void brightnessContrastAutoImage();     // Issue a request to set the brightness and contrast to match the current image
@@ -197,7 +198,7 @@ public:
     unsigned int maxP;  // Highest pixel value in image
     unsigned int minP;  // Lowest pixel value in image
     unsigned int depth; // Bit depth
-    unsigned int* bins; // Histogram bins [HISTOGRAM_BINS]
+    unsigned int bins[HISTOGRAM_BINS]; // Histogram bins
     bool statisticsSet; // Statistic have been set ( setStatistics() has been called) and things like range are now available
 
     rgbPixel* pixelLookup; // Pixel lookup table used to present colour scale in histogram

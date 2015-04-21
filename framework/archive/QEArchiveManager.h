@@ -45,8 +45,8 @@
 #include <UserMessage.h>
 #include <QEPluginLibrary_global.h>
 
-// This class provides user access to the archives and indirect management
-// of the underlying QEArchiveManager.
+// This class provides user access to the archives and indirect control of the
+// underlying QEArchiveManager.
 //
 // Currently only handles scalar values but can/will be extended to
 // provide array data retrival.
@@ -78,6 +78,10 @@ public:
    // Returned status is via archiveStatus signal.
    //
    void resendStatus ();
+
+   // Requests a re-read of the available PVs.
+   //
+   void reReadAvailablePVs ();
 
    // Simple archive request - single scaler PV, or one arbitary element from
    // a single array PV.  No extended meta data, just values + timestamp + alarm info.
@@ -146,6 +150,7 @@ signals:
    // Requests responses to/from the Archive Manager.
    // NOTE: response goes to all archive access instances.
 signals:
+   void reInterogateArchives ();
    void archiveStatusRequest ();
    void readArchiveRequest (const QEArchiveAccess*,
                             const QEArchiveAccess::PVDataRequests&);
@@ -169,10 +174,14 @@ Q_DECLARE_METATYPE (QEArchiveAccess::PVDataRequests)
 Q_DECLARE_METATYPE (QEArchiveAccess::PVDataResponses)
 
 
-// This is a singleton class - the single instance is declared in the .cpp file.
-// It's only exposed in a header because the Qt SDK framework requires that signals
+//==============================================================================
+// Private
+// The following are private classes. They are only exposed in a header because
+// the Qt SDK framework and/or meta object data compiler (moc) require that signals
 // and slots are declared in header files. Clients should use the QEArchiveAccess
-// specified above.
+// specified above to initialise the archiver, request status or PV re-reads etc.
+//
+// This is a singleton class - the single instance is declared in the .cpp file.
 //
 class QEArchiveManager : public QObject, UserMessage {
    Q_OBJECT
@@ -205,6 +214,8 @@ private:
 
    QString archives;
    QString pattern;
+   QDateTime lastReadTime;
+   QTimer* timer;
 
    friend class QEArchiveAccess;
 
@@ -219,6 +230,8 @@ signals:
    // Data request/response from/to archive interface objects.
    //
 private slots:
+   void timeout ();                  // auto archiver re-interogation
+   void reInterogateArchives ();     // client requested archiver re-interogation
    void readArchiveRequest (const QEArchiveAccess* archiveAccess,
                             const QEArchiveAccess::PVDataRequests& request);
 
@@ -242,10 +255,8 @@ private slots:
 };
 
 
-// This class essentially justs tacks on a bit of status and control to the basic
-// QEArchiveInterface. It is only for internal use, and is exposed in a header
-// because the Qt SDK framework requires that signals and slots are declared in
-// header files.
+// This class essentially justs extends QEArchiveInterface by adding some additional
+// status data and a timer.
 //
 class ArchiveInterfacePlus : public QEArchiveInterface {
    Q_OBJECT

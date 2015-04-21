@@ -27,6 +27,10 @@
 
 #include <QByteArray>
 #include <QString>
+#include <QThread>
+#include <QMutex>
+#include <QWaitCondition>
+#include <QReadWriteLock>
 #include <imageProperties.h>
 
 /*!
@@ -34,16 +38,19 @@
  information such as brightness, contrast, flip, rotate, canvas size, etc.
  The work is performed in a dedicated thread .
  */
-class imageProcessor : public imageProperties
+class imageProcessor : public QThread, public imageProperties
 {
+    Q_OBJECT
+
 public:
     // Construction
     imageProcessor();                                                   ///< Constructor
+    ~imageProcessor();                                                  ///< Destructor
 
     // Image update
     void setImageBuff();                                                ///< Ensure the image buffer used to process images is appropriatly sized. This is called whenever an image attribute changes that may affect the buffer size required.
     void setImage( const QByteArray& imageIn, unsigned long dataSize ); ///< Save the image data for analysis processing and display
-    QImage buildImage( QString& errorText );                            ///< Generate a new image.
+    void buildImage();                                                  ///< Generate a new image.
 
     // Set functions for dimensions and image attributes
     bool setWidth( unsigned long uValue );          ///< Set the image width
@@ -67,7 +74,7 @@ public:
     int getElementCount();                                                         ///< Determine the element count expected based on the available dimensions
     bool validateDimensions();                                                     ///< Determine if the image dimensional information is valid.
     void getPixelRange( const QRect& area, unsigned int* min, unsigned int* max ); ///< Determine the range of pixel values an area of the image
-    bool hasImage(){ return image.isEmpty(); }                                     ///< Return true if the current image is empty
+    bool hasImage(){ return imageData.isEmpty(); }                                     ///< Return true if the current image is empty
     bool hasImageBuff(){ return imageBuff.isEmpty(); }                             ///< Return true if the current image data buffer is empty
     const unsigned char* getImageDataPtr( QPoint& pos );                           ///< Return a pointer to pixel data in the original image data.
     int getPixelValueFromData( const unsigned char* ptr );                         ///< Return a number representing a pixel intensity given a pointer into an image data buffer.
@@ -88,8 +95,18 @@ public:
     QRect rotateFlipToImageRectangle( const QPoint& pos1, const QPoint& pos2 ); ///< Transform a rectangle from the original data to the image according to current rotation and flip options
     QPoint rotateFlipToImagePoint( const QPoint& pos );                         ///< Transform a point from the original data to the image according to current rotation and flip options.
 
+
+    void run();
+    QWaitCondition imageSync;
+    QReadWriteLock imageWait;
+    QMutex imageLock;
+    bool finishNow;
+    imagePropertiesCore* next;
+
+signals:
+    void imageBuilt( QImage imageData, QString error );                         ///< An image has been generated from image data and in now ready for presentation
+
 private:
-    unsigned int bins[HISTOGRAM_BINS];                                          ///< Bins used for generating a pixel histogram
 };
 
 #endif // IMAGEPROCESSOR_H

@@ -154,7 +154,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEGenericButton : public QEWidget, public man
     void setProgramStartupOption( applicationLauncher::programStartupOptions programStartupOptionIn );
     applicationLauncher::programStartupOptions getProgramStartupOption();
 
-    // 'Start new GUI' Property convenience functions
+    // Property convenience functions
 
     // GUI name
     void setGuiName( QString guiName );
@@ -172,7 +172,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEGenericButton : public QEWidget, public man
     void setCreationOption( QEActionRequests::Options creationOption );
     QEActionRequests::Options getCreationOption();
 
-    // label text (prior to substitution)
+    // Label text (prior to substitution)
     void setLabelTextProperty( QString labelTextIn );
     QString getLabelTextProperty();
 
@@ -190,7 +190,6 @@ protected:
 
     virtual updateOptions getDefaultUpdateOption() = 0;
 
-    void startGui( const QEActionRequests & request );
     applicationLauncher programLauncher;
 
 private:

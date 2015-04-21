@@ -92,7 +92,7 @@ isEmpty( _QE_TARGET_DIR ) {
     unix:message( Applications may need to load the framework library directly. To ensure this can happen one option is to set up LD_LIBRARY_PATH to include the directory $$QEPLUGININSTALLPATH . LD_LIBRARY_PATH is currently $(LD_LIBRARY_PATH) )
     message( Applications may need to load the framework library as a Qt plugin. To ensure this can happen one option is to set up QT_PLUGIN_PATH to include a directory containing a 'designer' directory with a link to the plugin library. QT_PLUGIN_PATH is currently $(QT_PLUGIN_PATH) )
     QEPLUGININSTALL.path = $$QEPLUGININSTALLPATH
-    QEPLUGININSTALL.files += $$TARGET
+    QEPLUGININSTALL.files += ./designer/*
     INSTALLS += QEPLUGININSTALL
 }
 

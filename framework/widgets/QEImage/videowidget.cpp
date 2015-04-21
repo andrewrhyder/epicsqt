@@ -78,7 +78,7 @@ bool VideoWidget::createRefImage()
 }
 
 // The displayed image has changed, redraw it
-void VideoWidget::setNewImage( const QImage image, QCaDateTime& time )
+void VideoWidget::setNewImage( QImage image, QCaDateTime& time )
 {
     // Note if this is the first image update
     bool firstImage = currentImage.isNull();

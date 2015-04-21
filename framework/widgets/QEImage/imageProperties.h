@@ -30,11 +30,68 @@
 #include "imageDataFormats.h"
 #include <brightnessContrast.h> // Remove this, or extract the general definitions used (eg rgbPixel) into another include file
 
+
+// Class to manage core image processing by a seperate thread.
+//
+// Much of the information required for processing an image can me
+// modified by the user or by incomming data and if would be:
+// 1) Dangerous to modify this on the fly while the thread
+//    processing an image is doing its work.
+// 2) Complicated and not robust to lock access to individual
+//    items in this set of information. Even if each bit of information
+//    was managed well, the entire set may be inconsistant.
+//
+// This class captures all the information required to completely process
+// an image during construction, then processes that image in a class function
+// that cannot see anything outside this class. This means that the processing
+// cannot accidentially reference anything that has not been captured in the
+// constructor of this class.
+//
+class imagePropertiesCore
+{
+public:
+    imagePropertiesCore( QByteArray imageDataIn,
+                         QByteArray imageBuffIn,
+                         unsigned long imageBuffWidthIn,
+                         unsigned long imageBuffHeightIn,
+                         int scanOptionIn,
+                         unsigned long bytesPerPixelIn,
+                         int pixelLowIn,
+                         int pixelHighIn,
+                         unsigned int bitDepthIn,
+                         imageDisplayProperties::rgbPixel* pixelLookupIn,
+                         imageDataFormats::formatOptions formatOptionIn,
+                         unsigned long imageDataSizeIn,
+                         imageDisplayProperties* imageDisplayPropsIn,
+                         unsigned int rotatedImageBuffWidthIn,
+                         unsigned int rotatedImageBuffHeightIn );
+
+    QImage buildImageCore();
+private:
+    QByteArray imageData;             // Buffer to hold original image data.
+    QByteArray imageBuff;             // Buffer to hold data converted to format for generating QImage.
+    unsigned long imageBuffWidth;     // Original image width (may be generated directly from a width variable, or selected from the relevent dimension variable)
+    unsigned long imageBuffHeight;    // Original image height (may be generated directly from a width variable, or selected from the relevent dimension variable)
+    int scanOption;
+    unsigned long bytesPerPixel;      // Bytes in input data per pixel (imageDataSize * elementsPerPixel)
+    int pixelLow;
+    int pixelHigh;
+    unsigned int bitDepth;
+    unsigned int bins[HISTOGRAM_BINS]; // Bins used for generating a pixel histogram
+    imageDisplayProperties::rgbPixel* pixelLookup;
+    imageDataFormats::formatOptions formatOption;
+    unsigned long imageDataSize;      // Size of elements in image data (originating from CA data type)
+    imageDisplayProperties* imageDisplayProps;
+    unsigned int rotatedImageBuffWidth;
+    unsigned int rotatedImageBuffHeight;
+};
+
 /*!
  This class manages the image attributes required for generating a QImage from a QByteArray holding CA image data.
  It is used as the base class for the imageProcessor class.
+ Note, while this class holds and manages all the information needed to process an image, a snapshot
+ of all the information required for processing an image in a seperate thread is made by the imagePropertiesCore class.
  */
-//!!! for all setfunctions below consider LOCKING ACCESS when implimenting multi threading
 class imageProperties
 {
 public:
@@ -94,17 +151,19 @@ protected:
     imageDisplayProperties* imageDisplayProps;  // Dialog for user manuipulation (and storage of) brightness and contrast and related info
 
     // Options
-    imageDataFormats::formatOptions mFormatOption;
+    imageDataFormats::formatOptions formatOption;
     unsigned int bitDepth;
 
     // Image and related information
     unsigned long imageDataSize;      // Size of elements in image data (originating from CA data type)
     unsigned long elementsPerPixel;   // Number of data elements per pixel. Derived from image dimension 0 (only when there are three dimensions)
     unsigned long bytesPerPixel;      // Bytes in input data per pixel (imageDataSize * elementsPerPixel)
-    QByteArray image;                 // Buffer to hold original image data.
+    QByteArray imageData;                 // Buffer to hold original image data.
     unsigned long receivedImageSize;  // Size as received on last CA update.
     QString previousMessageText;      // Previous message text - avoid repeats.
-    QByteArray imageBuff;             // Buffer to hold data converted to format for generating QImage.
+    QByteArray imageBuff;             // Buffer to hold data converted to format for generating QImage. This is only used within the imagePropertiesCore class, but it is coppied from here each time a class is created so the same buffer is reused and to keep the buffer until QImages created from it no longer need it
+    QByteArray lastImageBuff;         // Previous imageBuff (before a resize) kept untill all QImages generated from it ( and still referencing its data) are gone
+    QImage image;                     // Last image generated. Kept as the widget may aask for it again. For example, if the user is saving it.
 #define IMAGEBUFF_BYTES_PER_PIXEL 4   // 4 bytes for Format_RGB32
     unsigned long imageBuffWidth;     // Original image width (may be generated directly from a width variable, or selected from the relevent dimension variable)
     unsigned long imageBuffHeight;    // Original image height (may be generated directly from a width variable, or selected from the relevent dimension variable)

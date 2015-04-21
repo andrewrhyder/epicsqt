@@ -310,7 +310,7 @@ public:
     /// The method returns true if the named widget was found. (The action was not nessesarily performed, or even recognised by the widget)
     static void doAction( QWidget* searchPoint, QString widgetName, QString action, QStringList arguments, bool initialise, QAction* originator );
 
-    /// Return information about the data sources
+    /// Return information about the data sources for this widget
     ///
     const QList<QCaInfo> getQCaInfo();
 
@@ -330,6 +330,7 @@ protected:
     ControlVariableIndicesSet getControlPVs () const;
 
     void setAccessCursorStyle ();                                         /// Update cursor style if all control variable indices are write inhibited.
+    void startGui( const QEActionRequests & request );                    /// Support function for slot for launching a new gui. Used by QE buttons and QEForm as the default action for launching a gui.
 
 private:
     void userLevelChangedGeneral( userLevelTypes::userLevels level );     // Manage general aspects of user level change, then call optional QE widget specific virtual functions

@@ -134,7 +134,7 @@ void QESlider::connectionChanged( QCaConnectionInfo& connectionInfo )
     // If subscribing, then an update will occur without having to initiated one here.
     // Note, channel up implies link up
     // Note, even though there is nothing to do to initialise the spin box if not subscribing, an
-    // initial sing shot read is still performed to ensure we have valid information about the
+    // initial single shot read is still performed to ensure we have valid information about the
     // variable when it is time to do a write.
     if( isConnected && !subscribe )
     {

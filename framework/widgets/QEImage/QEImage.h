@@ -631,6 +631,8 @@ private slots:
 
     void playingBack( bool playing );
 
+    void displayBuiltImage( QImage image, QString error );
+
 public slots:
     void setImageFile( QString name );
     // Slots to allow external setting of selection menu options
@@ -726,7 +728,7 @@ signals:
 
     void emitComponentHostRequest( const QEActionRequests& request ){ emit componentHostRequest( request ); }
 
-    QSize getVedioDestinationSize();                // Get the size of the widget where the image is being displayed (either a scroll widget within the QEImage widget, or a full screen main window)
+    QSize getVideoDestinationSize();                // Get the size of the widget where the image is being displayed (either a scroll widget within the QEImage widget, or a full screen main window)
     void showImageContextMenuCommon( const QPoint& pos, const QPoint& globalPos );  // Common support for showImageContextMenu() and showImageContextMenuFullScreen()
 
     void saveConfiguration( PersistanceManager* pm );
