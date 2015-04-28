@@ -38,6 +38,13 @@ public:
 
    typedef QVector<double> DoubleVector;
 
+   // Controls the mode of operation of the drawText functions.
+   //
+   enum TextPositions {
+      RealWorldPosition,
+      PixelPosition
+   };
+
    // Determines how the associated value is used to find and estimated major value.
    // The estimated value is then rounded to something more appropriate
    //

@@ -57,10 +57,9 @@ CaObject::CaObject() {
     allowCallbacks = true;
 
     // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = new CaObjectPrivate( this );
-    priPtr = p;
+    caPrivate = new CaObjectPrivate( this );
 
-    p->caConnection = new caconnection::CaConnection( this );
+    caPrivate->caConnection = new caconnection::CaConnection( this );
     initialise();
 }
 
@@ -77,15 +76,12 @@ CaObject::~CaObject() {
     myRef->discard();
     myRef = NULL;
 
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
     // *** CaRef::accessUnlock();
 
     shutdown();
 
-    delete p->caConnection;
-    delete p;
+    delete caPrivate->caConnection;
+    delete caPrivate;
 
 }
 
@@ -105,32 +101,28 @@ void CaObject::inhibitCallbacks()
     Initialise the EPICS library by creating or attaching to a context.
 */
 void CaObject::initialise() {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
 
-    p->caConnection->establishContext( p->exceptionHandler, myRef );
+    caPrivate->caConnection->establishContext( caPrivate->exceptionHandler, myRef );
     CA_UNIQUE_OBJECT_ID++;
     if( CA_UNIQUE_OBJECT_ID <= 1) {
         monitorEvent = epicsEventCreate( epicsEventEmpty );
     }
-    p->caRecord.setName( "" );
-    p->caRecord.setValid( false );
+    caPrivate->caRecord.setName( "" );
+    caPrivate->caRecord.setValid( false );
 }
 
 /*
     Shutdown the EPICS library.
 */
 void CaObject::shutdown() {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
 
     CA_UNIQUE_OBJECT_ID--;
     if( CA_UNIQUE_OBJECT_ID <= 0 ) {
         epicsEventDestroy( monitorEvent );
         monitorEvent = NULL;
     }
-    p->caRecord.setName( "" );
-    p->caRecord.setValid( false );
+    caPrivate->caRecord.setName( "" );
+    caPrivate->caRecord.setValid( false );
 }
 
 //===============================================================================
@@ -363,10 +355,7 @@ caconnection::ca_responses CaObjectPrivate::writeChannel( generic::Generic *newV
  */
 bool CaObject::isFirstUpdate()
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
-    return p->caRecord.isFirstUpdate();
+    return caPrivate->caRecord.isFirstUpdate();
 }
 
 /*
@@ -376,10 +365,7 @@ bool CaObject::isFirstUpdate()
  */
 void* CaObject::getRecordCopyPtr()
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
-    return (void*)(new carecord::CaRecord( p->caRecord ));
+    return (void*)(new carecord::CaRecord( caPrivate->caRecord ));
 }
 
 /*
@@ -387,10 +373,7 @@ void* CaObject::getRecordCopyPtr()
  */
 int CaObject::getEnumStateCount()
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
-    return p->caRecord.getEnumStateCount();
+    return caPrivate->caRecord.getEnumStateCount();
 }
 
 /*
@@ -398,10 +381,7 @@ int CaObject::getEnumStateCount()
  */
 std::string CaObject::getEnumState( int position )
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
-    return p->caRecord.getEnumState( position );
+    return caPrivate->caRecord.getEnumState( position );
 }
 
 /*
@@ -409,10 +389,7 @@ std::string CaObject::getEnumState( int position )
  */
 int CaObject::getPrecision()
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
-    return p->caRecord.getPrecision();
+    return caPrivate->caRecord.getPrecision();
 }
 
 /*
@@ -420,10 +397,7 @@ int CaObject::getPrecision()
  */
 std::string CaObject::getUnits()
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
-    return p->caRecord.getUnits();
+    return caPrivate->caRecord.getUnits();
 }
 
 /*
@@ -431,10 +405,7 @@ std::string CaObject::getUnits()
  */
 generic_types CaObject::getType()
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
-    return p->caRecord.getType();
+    return caPrivate->caRecord.getType();
 }
 
 /*
@@ -442,10 +413,7 @@ generic_types CaObject::getType()
  */
 unsigned long CaObject::getTimeStampSeconds()
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
-    return p->caRecord.getTimeStampSeconds();
+    return caPrivate->caRecord.getTimeStampSeconds();
 }
 
 /*
@@ -453,10 +421,7 @@ unsigned long CaObject::getTimeStampSeconds()
  */
 unsigned long CaObject::getTimeStampNanoseconds()
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
-    return p->caRecord.getTimeStampNanoseconds();
+    return caPrivate->caRecord.getTimeStampNanoseconds();
 }
 
 /*
@@ -464,10 +429,7 @@ unsigned long CaObject::getTimeStampNanoseconds()
 */
 short CaObject::getAlarmStatus()
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
-    return p->caRecord.getStatus();
+    return caPrivate->caRecord.getStatus();
 }
 
 /*
@@ -475,10 +437,7 @@ short CaObject::getAlarmStatus()
 */
 short CaObject::getAlarmSeverity()
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
-    return p->caRecord.getAlarmSeverity();
+    return caPrivate->caRecord.getAlarmSeverity();
 }
 
 /*
@@ -486,10 +445,7 @@ short CaObject::getAlarmSeverity()
 */
 double CaObject::getDisplayUpper()
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
-    carecord::ca_limit limit = p->caRecord.getDisplayLimit();
+    carecord::ca_limit limit = caPrivate->caRecord.getDisplayLimit();
     return limit.upper;
 }
 
@@ -498,10 +454,7 @@ double CaObject::getDisplayUpper()
 */
 double CaObject::getDisplayLower()
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
-    carecord::ca_limit limit = p->caRecord.getDisplayLimit();
+    carecord::ca_limit limit = caPrivate->caRecord.getDisplayLimit();
     return limit.lower;
 }
 
@@ -510,10 +463,7 @@ double CaObject::getDisplayLower()
 */
 double CaObject::getAlarmUpper()
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
-    carecord::ca_limit limit = p->caRecord.getAlarmLimit();
+    carecord::ca_limit limit = caPrivate->caRecord.getAlarmLimit();
     return limit.upper;
 }
 
@@ -522,10 +472,7 @@ double CaObject::getAlarmUpper()
 */
 double CaObject::getAlarmLower()
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
-    carecord::ca_limit limit = p->caRecord.getAlarmLimit();
+    carecord::ca_limit limit = caPrivate->caRecord.getAlarmLimit();
     return limit.lower;
 }
 
@@ -534,10 +481,7 @@ double CaObject::getAlarmLower()
 */
 double CaObject::getWarningUpper()
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
-    carecord::ca_limit limit = p->caRecord.getWarningLimit();
+    carecord::ca_limit limit = caPrivate->caRecord.getWarningLimit();
     return limit.upper;
 }
 
@@ -546,10 +490,7 @@ double CaObject::getWarningUpper()
 */
 double CaObject::getWarningLower()
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
-    carecord::ca_limit limit = p->caRecord.getWarningLimit();
+    carecord::ca_limit limit = caPrivate->caRecord.getWarningLimit();
     return limit.lower;
 }
 
@@ -558,10 +499,7 @@ double CaObject::getWarningLower()
 */
 double CaObject::getControlUpper()
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
-    carecord::ca_limit limit = p->caRecord.getControlLimit();
+    carecord::ca_limit limit = caPrivate->caRecord.getControlLimit();
     return limit.upper;
 }
 
@@ -570,10 +508,7 @@ double CaObject::getControlUpper()
 */
 double CaObject::getControlLower()
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
-    carecord::ca_limit limit = p->caRecord.getControlLimit();
+    carecord::ca_limit limit = caPrivate->caRecord.getControlLimit();
     return limit.lower;
 }
 
@@ -598,10 +533,7 @@ caconnection::channel_states CaObjectPrivate::getChannelState() {
  */
 std::string CaObject::getHostName()
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
-    return p->caConnection->getHostName();
+    return caPrivate->caConnection->getHostName();
 }
 
 /*
@@ -609,10 +541,7 @@ std::string CaObject::getHostName()
  */
 bool CaObject::getReadAccess()
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
-    return p->caConnection->getReadAccess();
+    return caPrivate->caConnection->getReadAccess();
 }
 
 /*
@@ -620,10 +549,7 @@ bool CaObject::getReadAccess()
  */
 bool CaObject::getWriteAccess()
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
-    return p->caConnection->getWriteAccess();
+    return caPrivate->caConnection->getWriteAccess();
 }
 
 /*
@@ -631,10 +557,7 @@ bool CaObject::getWriteAccess()
 */
 std::string  CaObject::getFieldType ()
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
-    return p->caConnection->getFieldType();
+    return caPrivate->caConnection->getFieldType();
 }
 
 /*
@@ -642,10 +565,7 @@ std::string  CaObject::getFieldType ()
 */
 unsigned long CaObject::getElementCount()
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
-    return p->caConnection->getElementCount();
+    return caPrivate->caConnection->getElementCount();
 }
 
 
@@ -944,11 +864,17 @@ bool CaObjectPrivate::processChannel( struct event_handler_args args ) {
     return 0;
 }
 
-CaObject* CaObjectPrivate::contextFromCaUsr( void* usr, void* id )
+// Convert the ID from the CA callback to a CaObject.
+// Due to problems where CA callbacks can arrive late (after the CaObject
+// class has been deleted) the CaObject class reference itself is not used.
+// Instead, an enduring CaRef class is used which can validate if the original
+// CaObject is still current. If it is, it is returned. If it is not, a crash
+// caused by refering to a dead CaObject is avoided.
+CaObject* CaObjectPrivate::contextFromCaUsr( void* usr, void* id, bool ignoreZeroId )
 {
     CaRef::accessLock();
     CaRef* ref = (CaRef*)(usr);
-    CaObject* caObject = (CaObject*)(ref->getRef( id ));
+    CaObject* caObject = (CaObject*)(ref->getRef( id, ignoreZeroId ));
     CaRef::accessUnlock();
     return caObject;
 }
@@ -964,12 +890,9 @@ void CaObjectPrivate::subscriptionHandler( struct event_handler_args args ) {
         return;
     }
 
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)(context->priPtr);
-
     switch( args.status ) {
         case ECA_NORMAL :
-            p->processChannel( args );
+            context->caPrivate->processChannel( args );
             if( context->allowCallbacks )
             {
                 context->signalCallback( SUBSCRIPTION_SUCCESS );
@@ -1003,12 +926,9 @@ void CaObjectPrivate::readHandler( struct event_handler_args args ) {
         return;
     }
 
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)(context->priPtr);
-
     switch( args.status ) {
         case ECA_NORMAL :
-            p->processChannel( args );
+            context->caPrivate->processChannel( args );
             context->signalCallback( READ_SUCCESS );
         break;
         default :
@@ -1042,7 +962,7 @@ void CaObjectPrivate::writeHandler( struct event_handler_args args ) {
     EPICS Exception handler callback.
 */
 void CaObjectPrivate::exceptionHandler( struct exception_handler_args args ) {
-    CaObject* context = contextFromCaUsr( args.usr, args.chid );
+    CaObject* context = contextFromCaUsr( args.usr, args.chid, true );
     if( !context )
     {
         return;
@@ -1115,7 +1035,7 @@ void CaObjectPrivate::connectionHandler( struct connection_handler_args args ) {
     switch( args.op ) {
         case CA_OP_CONN_UP :
             {
-                CaObjectPrivate* grandParentPri = (CaObjectPrivate*)(grandParent->priPtr);
+                CaObjectPrivate* grandParentPri = (CaObjectPrivate*)(grandParent->caPrivate);
                 grandParentPri->caRecord.setDbrType( parent->getChannelType() );
             }
             parent->setChannelElementCount();
@@ -1145,11 +1065,8 @@ void CaObjectPrivate::connectionHandler( struct connection_handler_args args ) {
   */
 void CaObject::setWriteWithCallback( bool writeWithCallbackIn )
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
     // Set the write callback requirements
-    p->caConnection->setWriteWithCallback( writeWithCallbackIn );
+    caPrivate->caConnection->setWriteWithCallback( writeWithCallbackIn );
 }
 
 /*
@@ -1157,9 +1074,6 @@ void CaObject::setWriteWithCallback( bool writeWithCallbackIn )
   */
 bool CaObject::getWriteWithCallback()
 {
-    // Get the parts not shared with the non CA world
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
     // return the write callback requirements
-    return p->caConnection->getWriteWithCallback();
+    return caPrivate->caConnection->getWriteWithCallback();
 }

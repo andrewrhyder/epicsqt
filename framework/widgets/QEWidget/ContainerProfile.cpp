@@ -142,7 +142,7 @@ QEEnvironmentShare::QEEnvironmentShare()
 
     if( !sharedMemory->create( sizeof( PublishedProfile* ) ) )
     {
-        qDebug() << "Error (1) setting up ContainerProfile in shared memory. (on Linux, check if there are left over lock files in /tmp)" << sharedMemory->error() << sharedMemory->errorString();
+        qDebug() << "Error (1) setting up ContainerProfile in shared memory. (on Linux, check if there are old shared memory sections or semaphores using the ipcs command.)" << sharedMemory->error() << sharedMemory->errorString();
     }
     else
     {

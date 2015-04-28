@@ -29,6 +29,8 @@
 #include <Generic.h>
 #include <CaRef.h>
 
+class CaObjectPrivate;
+
 using namespace generic;
 
 namespace caobject {
@@ -93,7 +95,7 @@ namespace caobject {
             // To allow application to include the QEFramework without requiring
             // EPICS include files, this is obscured by casting the CA specific data as a void*
         public:
-            void*        priPtr;     // Actually of type CaObjectPrivate*
+            CaObjectPrivate*        caPrivate;     // CA Components hidden from users of CaObject to avoid having to include CA header files in application code
         protected:
             static int CA_UNIQUE_OBJECT_ID;            // Unique ID assigned to each instance.
 

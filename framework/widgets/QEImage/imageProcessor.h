@@ -74,7 +74,7 @@ public:
     int getElementCount();                                                         ///< Determine the element count expected based on the available dimensions
     bool validateDimensions();                                                     ///< Determine if the image dimensional information is valid.
     void getPixelRange( const QRect& area, unsigned int* min, unsigned int* max ); ///< Determine the range of pixel values an area of the image
-    bool hasImage(){ return imageData.isEmpty(); }                                     ///< Return true if the current image is empty
+    bool hasImage(){ return !imageData.isEmpty(); }                                     ///< Return true if the current image is empty
     bool hasImageBuff(){ return imageBuff.isEmpty(); }                             ///< Return true if the current image data buffer is empty
     const unsigned char* getImageDataPtr( QPoint& pos );                           ///< Return a pointer to pixel data in the original image data.
     int getPixelValueFromData( const unsigned char* ptr );                         ///< Return a number representing a pixel intensity given a pointer into an image data buffer.

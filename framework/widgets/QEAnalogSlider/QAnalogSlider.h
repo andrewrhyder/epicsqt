@@ -36,9 +36,14 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
+#include <QECommon.h>
 #include <QEPluginLibrary_global.h>
 #include <QEAxisPainter.h>
 
+/// QAnalogSlider is a non EPICS aware slider that provides an analog equivilent of the QSlider.
+/// It is deemed analog as it can be set by/emits floating point (double) values as opposed to interger values.
+/// It is also decorated with a scale and text showing the current value; it also provides a save-restore capability.
+///
 class QEPLUGINLIBRARYSHARED_EXPORT QAnalogSlider : public QFrame {
 
 Q_OBJECT
@@ -65,11 +70,20 @@ public:
    /// Only applies for linear scale (not log scale)
    Q_PROPERTY (double majorInterval  READ getMajorInterval  WRITE setMajorInterval)
 
+   /// Controls when valueChanged signal is emitted.
+   /// If tracking is enabled (the default), the slider emits the valueChanged () signal while the slider is being dragged.
+   /// If tracking is disabled, the slider emits the valueChanged () signal only when the user releases the slider.
+   Q_PROPERTY (bool tracking READ hasTracking WRITE setTracking)
+
+   /// Controls the left, centre and right texts.
    Q_PROPERTY (QString leftText      READ getLeftText       WRITE setLeftText)
    Q_PROPERTY (QString centreText    READ getCentreText     WRITE setCentreText)
    Q_PROPERTY (QString rightText     READ getRightText      WRITE setRightText)
 
+   /// Enables/disables the save-revert capability.
    Q_PROPERTY (bool showSaveRevert   READ getShowSaveRevert   WRITE setShowSaveRevert)
+
+   /// Enables/disables the apply value capability.
    Q_PROPERTY (bool showApply        READ getShowApply        WRITE setShowApply)
 
 public:
@@ -121,6 +135,8 @@ public:
 
    void setShowApply (const bool show);
    bool getShowApply () const;
+
+   QE_EXPOSE_INTERNAL_OBJECT_FUNCTIONS (intSlilder, bool, hasTracking, setTracking)
 
 signals:
    void valueChanged (const double value);              // Send when value changes.
