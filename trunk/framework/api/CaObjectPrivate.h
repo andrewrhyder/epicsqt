@@ -70,7 +70,7 @@ class CaObjectPrivate {
         // CaObject of which this instance is a part of
     private:
         CaObject* owner;
-        static CaObject* contextFromCaUsr( void* usr, void* id );
+        static CaObject* contextFromCaUsr( void* usr, void* id, bool ignoreZeroId = false );
 
 };
 

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1072</width>
+    <width>1098</width>
     <height>480</height>
    </rect>
   </property>
@@ -14,6 +14,9 @@
    <string>Strip Chart</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="leftMargin">
+    <number>9</number>
+   </property>
    <item>
     <widget class="QEStripChart" name="qestripchart"/>
    </item>
@@ -22,8 +25,14 @@
  <customwidgets>
   <customwidget>
    <class>QEStripChart</class>
-   <extends>QFrame</extends>
+   <extends>QEFrame</extends>
    <header>QEStripChart.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QEFrame</class>
+   <extends>QFrame</extends>
+   <header>QEFrame.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

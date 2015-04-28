@@ -186,8 +186,7 @@ QCaObject::~QCaObject() {
     // is being marked as 'to be ignored' (below). While access to the list is thread safe, this would
     // result in an active event in the event queue which would be cause this QCaObject to be accessed
     // after deletion.
-    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-    p->removeChannel();
+    caPrivate->removeChannel();
 
     // Prevent callbacks to this class from the base CaObject class through the CaObject::signalCallback() virtual function.
     // Callbacks should not occur after removeChannel is called (above) but CA callbacks sometimes do.
@@ -341,9 +340,6 @@ unsigned int QCaObject::getVariableIndex () const
 */
 bool QCaObject::createChannel() {
 
-    // Get the private part of this object (not visible to users of this class)
-    CaObjectPrivate* p = (CaObjectPrivate*)(priPtr);
-
     // Select the CA priority appropriate
     caconnection::priorities caPriority;
     switch( priority )
@@ -355,7 +351,7 @@ bool QCaObject::createChannel() {
     };
 
     // Try to create the channel
-    caconnection::ca_responses response = p->setChannel( recordName.toStdString(), caPriority );
+    caconnection::ca_responses response = caPrivate->setChannel( recordName.toStdString(), caPriority );
     if( response == caconnection::REQUEST_SUCCESSFUL )
     {
         return true;
@@ -381,11 +377,8 @@ bool QCaObject::createChannel() {
 */
 void QCaObject::deleteChannel() {
 
-    // Get the private part of this object (not visible to users of this class)
-    CaObjectPrivate* p = (CaObjectPrivate*)(priPtr);
-
     // Delete the channel
-    p->removeChannel();
+    caPrivate->removeChannel();
 }
 
 /*
@@ -393,11 +386,8 @@ void QCaObject::deleteChannel() {
 */
 bool QCaObject::createSubscription() {
 
-    // Get the private part of this object (not visible to users of this class)
-    CaObjectPrivate* p = (CaObjectPrivate*)(priPtr);
-
     // Try to start a subscription
-    caconnection::ca_responses response = p->startSubscription();
+    caconnection::ca_responses response = caPrivate->startSubscription();
     if( response == caconnection::REQUEST_SUCCESSFUL )
     {
         return true;
@@ -423,11 +413,8 @@ bool QCaObject::createSubscription() {
 */
 bool QCaObject::getChannel() {
 
-    // Get the private part of this object (not visible to users of this class)
-    CaObjectPrivate* p = (CaObjectPrivate*)(priPtr);
-
     // ???
-    caconnection::ca_responses response = p->readChannel();
+    caconnection::ca_responses response = caPrivate->readChannel();
     if( response == caconnection::REQUEST_SUCCESSFUL )
     {
         return true;
@@ -523,11 +510,8 @@ bool QCaObject::putChannel() {
 
     }
 
-    // Get the CA specific part
-    CaObjectPrivate* p = (CaObjectPrivate*)(priPtr);
-
     // Write the data
-    caconnection::ca_responses response = p->writeChannel( &outputData );
+    caconnection::ca_responses response = caPrivate->writeChannel( &outputData );
     if( response == caconnection::REQUEST_SUCCESSFUL )
     {
         return true;
@@ -786,15 +770,14 @@ void QCaObject::processEvent( QCaEventUpdate* dataUpdateEvent ) {
     bool connectionChange = false;
 
     // If the channel state has changed, signal if the channel is connected or not
-    CaObjectPrivate* p = (CaObjectPrivate*)(priPtr);
-    if( p->getChannelState() != lastEventChannelState ) {
-        lastEventChannelState = p->getChannelState();
+    if( caPrivate->getChannelState() != lastEventChannelState ) {
+        lastEventChannelState = caPrivate->getChannelState();
         connectionChange = true;
     }
 
     // If the link state has changed, signal if the link is up or not
-    if( p->getLinkState() != lastEventLinkState ) {
-        lastEventLinkState = p->getLinkState();
+    if( caPrivate->getLinkState() != lastEventLinkState ) {
+        lastEventLinkState = caPrivate->getLinkState();
         connectionChange = true;
     }
 
@@ -1187,10 +1170,7 @@ void QCaObject::setUserMessage( UserMessage* userMessageIn )
  */
 void QCaObject::setRequestedElementCount( unsigned int elementCount )
 {
-    // Get the private part of this object (not visible to users of this class)
-    CaObjectPrivate* p = (CaObjectPrivate*)(priPtr);
-
-    p->caConnection->setChannelRequestedElementCount( elementCount );
+    caPrivate->caConnection->setChannelRequestedElementCount( elementCount );
 }
 
 /*

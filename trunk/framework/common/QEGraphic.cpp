@@ -27,6 +27,8 @@
 #include <math.h>
 
 #include <QDebug>
+#include <QPainter>
+
 #include <qevent.h>       // QEvent maps to qcoreevent.h, not qevent.h
 #include <qwt_scale_engine.h>
 
@@ -44,6 +46,54 @@
 
 #define NUMBER_TRANISTION_STEPS   6
 
+
+//==============================================================================
+// QEGraphicOwnPlot class
+//==============================================================================
+// Derived class so that we can override drawCanvas and use this to draw
+// additional artefacts
+//
+class QEGraphic::OwnPlot : public QwtPlot {
+public:
+   explicit OwnPlot (QEGraphic* parent = NULL);
+   explicit OwnPlot (const QwtText &title, QEGraphic* parent = NULL);
+   ~OwnPlot ();
+protected:
+   void drawCanvas (QPainter* painter);
+private:
+   QEGraphic* owner;
+};
+
+
+//==============================================================================
+//
+QEGraphic::OwnPlot::OwnPlot (QEGraphic* parent) :
+   QwtPlot (parent)
+{
+   this->owner = parent;
+}
+
+//------------------------------------------------------------------------------
+//
+QEGraphic::OwnPlot::OwnPlot (const QwtText& title, QEGraphic* parent) :
+   QwtPlot (title, parent)
+{
+   this->owner = parent;
+}
+
+//------------------------------------------------------------------------------
+//
+QEGraphic::OwnPlot::~OwnPlot () { }
+
+//------------------------------------------------------------------------------
+//
+void QEGraphic::OwnPlot::drawCanvas(QPainter* painter)
+{
+   QwtPlot::drawCanvas (painter); // call super class function first.
+   if (this->owner) {
+      this->owner->drawTexts (painter);
+   }
+}
 
 //==============================================================================
 // QEGraphic::Axis class
@@ -340,7 +390,7 @@ bool QEGraphic::Axis::getLogarithmic () const
 //
 QEGraphic::QEGraphic (QWidget* parent) : QWidget (parent)
 {
-   this->plot = new QwtPlot (parent);
+   this->plot = new QEGraphic::OwnPlot (this);
    this->construct ();
 }
 
@@ -348,7 +398,7 @@ QEGraphic::QEGraphic (QWidget* parent) : QWidget (parent)
 //
 QEGraphic::QEGraphic (const QString& title, QWidget* parent) : QWidget (parent)
 {
-   this->plot = new QwtPlot (title, parent);
+   this->plot = new QEGraphic::OwnPlot (title, this);
    this->construct ();
 }
 
@@ -356,7 +406,7 @@ QEGraphic::QEGraphic (const QString& title, QWidget* parent) : QWidget (parent)
 //
 void QEGraphic::construct ()
 {
-   // Create a louout within the containing widget.
+   // Create a layout within the containing widget.
    //
    this->layout = new QHBoxLayout (this);
    this->layout->setContentsMargins (0, 0, 0, 0);
@@ -620,7 +670,7 @@ QPoint QEGraphic::realToPoint (const QPointF& pos) const
 
 //------------------------------------------------------------------------------
 //
-void QEGraphic::releaseCurveList (CurveList& list)
+void QEGraphic::releaseCurveList (CurveLists& list)
 {
    for (int j = 0; j < list.size (); j++) {
       QwtPlotCurve* curve = list.value (j);
@@ -636,12 +686,20 @@ void QEGraphic::releaseCurveList (CurveList& list)
 }
 
 //------------------------------------------------------------------------------
+//
+void QEGraphic::releaseTextItemList (TextItemLists& list)
+{
+   list.clear ();
+}
+
+//------------------------------------------------------------------------------
 // Releases all curves
 //
 void QEGraphic::releaseCurves ()
 {
    this->releaseCurveList (this->userCurveList);
    this->releaseCurveList (this->markupCurveList);
+   this->releaseTextItemList (this->textItemList);
 }
 
 //------------------------------------------------------------------------------
@@ -740,6 +798,49 @@ void QEGraphic::graphicReplot ()
    this->releaseCurveList (this->markupCurveList);
    this->plotMarkups ();
    this->plot->replot ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QEGraphic::drawText (const QPointF& posn, const QString& text, const TextPositions option)
+{
+   TextItems item;
+
+   if (option == QEGraphic::RealWorldPosition) {
+      item.position = this->realToPoint (posn);
+   } else {
+      item.position = posn;
+   }
+   item.text = text;
+   item.pen = this->pen;   // use curve pen
+
+   this->textItemList.append (item);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEGraphic::drawText (const QPoint& posn, const QString& text, const TextPositions option)
+{
+   this->drawText (QPointF (posn), text, option);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEGraphic::drawTexts (QPainter* painter)
+{
+   QFontMetrics fm = painter->fontMetrics ();
+   int ps = this->font().pointSize ();
+
+   int n = this->textItemList.count ();
+   for (int j = 0; j < n; j++) {
+      TextItems item = this->textItemList.value (j);
+
+      int x = item.position.x () - fm.width (item.text)/2;
+      int y = item.position.y () + (ps + 1)/2;
+
+      painter->setPen (item.pen);
+      painter->drawText (x, y, item.text);
+   }
 }
 
 //------------------------------------------------------------------------------

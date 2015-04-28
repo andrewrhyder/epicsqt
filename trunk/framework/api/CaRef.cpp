@@ -145,7 +145,7 @@ void CaRef::discard()
 
 // Return the object referenced, if it is still around.
 // Returns NULL if the object is no longer in use.
-void* CaRef::getRef( void* channelIn )
+void* CaRef::getRef( void* channelIn, bool ignoreZeroId )
 {
     // Sanity check - was the CA user data really a CaRef pointer
     if( magic != CAREF_MAGIC )
@@ -162,16 +162,18 @@ void* CaRef::getRef( void* channelIn )
         return NULL;
     }
 
-    // If channel in callback is zero, then something is badly wrong
-    if( channelIn == 0 )
+    // If channel in callback is zero, then something is badly wrong (most of the time... zero is OK in 'exception' callbacks)
+    if(( ignoreZeroId == false ) && ( channelIn == 0 ))
     {
         printf( "Channel returned in callback is zero. CaRef::getRef() called with zero channel ID.  object reference: %ld  variable: %s  expected channel: %ld\n",
                 (long)owner, variable.c_str(), (long)channel );
         return NULL;
     }
 
-    // If a channel has been recorded, but the current channel doesn't match, it is likely due to a late callback calling with a reference to a now re-used CaRef
-    if( channel && (channel != channelIn) )
+    // If a channel has been recorded, but the current channel doesn't match, it is likely due to a late callback
+    // calling with a reference to a now re-used CaRef.
+    // (note, we have already dealt, or ignored) a channel ID of zero)
+    if(( channelIn != 0 ) && channel && (channel != channelIn) )
     {
         printf( "Very late CA callback. CaRef::getRef() called with incorrect channel ID.  object reference: %ld  variable: %s  expected channel: %ld received channel %ld\n",
                 (long)owner, variable.c_str(), (long)channel, (long)channelIn );

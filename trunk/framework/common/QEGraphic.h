@@ -113,6 +113,12 @@ public:
    //
    void plotCurveData (const DoubleVector& xData, const DoubleVector& yData);
 
+   // Draw text centred on specified position.
+   // Position may be real world coordinates or pixel coordates.
+   //
+   void drawText (const QPointF& posn, const QString& text, const TextPositions option);
+   void drawText (const QPoint& posn,  const QString& text, const TextPositions option);
+
    void setXRange (const double min, const double max, const AxisMajorIntervalModes mode, const int value, const bool immediate);
    void setYRange (const double min, const double max, const AxisMajorIntervalModes mode, const int value, const bool immediate);
 
@@ -206,6 +212,8 @@ protected:
    bool eventFilter (QObject *obj, QEvent *event);
 
 private:
+   class OwnPlot;   // private and differed.
+
    // Handle each axis in own class.
    //
    class Axis {
@@ -281,6 +289,7 @@ private:
    void plotMarkupCurveData (const DoubleVector& xData, const DoubleVector& yData);
    QwtPlotCurve* createCurveData (const DoubleVector& xData, const DoubleVector& yData);
    void graphicReplot ();   // relases and replots markups, then calls QwtPlot replot
+   void drawTexts (QPainter* painter);    // called from OwnPlot
 
    Axis* xAxis;
    Axis* yAxis;
@@ -292,17 +301,29 @@ private:
    typedef QList<Markups> MarkupLists;
    QEGraphicMarkupSets* graphicMarkupsSet;      // set of available markups.
 
-   QHBoxLayout *layout;
-   QwtPlot* plot;
+   QHBoxLayout* layout;                         // controls plot layout within QEGraphic
+   OwnPlot* plot;                               // Essentially QwtPlot
    QwtPlotGrid* plotGrid;
    QTimer* tickTimer;
 
    // Keep a list of allocated curves so that we can track and delete them.
    //
-   typedef QList<QwtPlotCurve*> CurveList;
-   CurveList userCurveList;
-   CurveList markupCurveList;
-   void releaseCurveList (CurveList& list);
+   typedef QList<QwtPlotCurve*> CurveLists;
+   CurveLists userCurveList;
+   CurveLists markupCurveList;
+   void releaseCurveList (CurveLists& list);
+
+   // Keep a list of drawn texts.
+   //
+   struct TextItems {
+      QPointF position;   // stored in pixel cooredinates.
+      QString text;
+      QPen pen;
+   };
+
+   typedef QList <TextItems> TextItemLists;
+   TextItemLists textItemList;
+   void releaseTextItemList (TextItemLists& list);
 
    // Curve attributes.
    //
@@ -319,6 +340,7 @@ private slots:
 
    // The price we pay for separate classes is we have to befriend them all.
    //
+   friend class OwnPlot;
    friend class QEGraphicMarkup;
    friend class QEGraphicAreaMarkup;
    friend class QEGraphicLineMarkup;

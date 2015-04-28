@@ -77,7 +77,7 @@ isEmpty( _EPICS_HOST_ARCH ) {
     error( "EPICS_HOST_ARCH must be defined. Ensure EPICS is installed and EPICS_HOST_ARCH is set up." )
 }
 
-DESTDIR = ./designer
+DESTDIR = designer
 
 # Install the generated QEPlugin library in QE_TARGET_DIR if defined.
 _QE_TARGET_DIR = $$(QE_TARGET_DIR)

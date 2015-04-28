@@ -58,7 +58,7 @@ public:
 
     void setPV( std::string variableIn );   // Set variable name. Used for logging only
     void setChannelId ( void* channelIn );  // Set channel name. used for logging and also for validating callback
-    void* getRef( void* channelIn );        // Get the owner (validating the channel if known) else NULL
+    void* getRef( void* channelIn, bool ignoreZeroId = false );        // Get the owner (validating the channel if known) else NULL
 
     static void accessLock ();              //
     static void accessUnlock ();            //
