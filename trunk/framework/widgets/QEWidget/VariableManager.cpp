@@ -184,7 +184,7 @@ void VariableManager::activated()
 // Return a reference to one of the qCaObjects used to stream CA data updates to the widget
 // This is called by CA aware widgets based on this class, such as a QELabel, mainly when they
 // want to connect to its signals to recieve data updates.
-qcaobject::QCaObject* VariableManager::getQcaItem( unsigned int variableIndex ) {
+qcaobject::QCaObject* VariableManager::getQcaItem( unsigned int variableIndex ) const {
     // If the index is invalid return NULL.
     // This same test is also valid if qcaItem has never been set up yet as numVariables will be zero
     if( variableIndex >= numVariables )
@@ -254,7 +254,7 @@ using namespace qcastatemachine;
 // and the reference returned can be used to get counts for all widgets loaded by the
 // UI loader.
 //
-int* VariableManager::getDisconnectedCountRef()
+int* VariableManager::getDisconnectedCountRef() const
 {
     return &ConnectionQCaStateMachine::disconnectedCount;
 }
@@ -267,7 +267,9 @@ int* VariableManager::getDisconnectedCountRef()
 // and the reference returned can be used to get counts for all widgets loaded by the
 // UI loader.
 //
-int* VariableManager::getConnectedCountRef()
+int* VariableManager::getConnectedCountRef() const
 {
     return &ConnectionQCaStateMachine::connectedCount;
 }
+
+// end

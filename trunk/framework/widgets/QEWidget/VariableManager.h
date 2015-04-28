@@ -102,7 +102,7 @@ public:
 
     /// Return a reference to one of the qCaObjects used to stream CA updates
     ///
-    qcaobject::QCaObject* getQcaItem( unsigned int variableIndex );
+    qcaobject::QCaObject* getQcaItem( unsigned int variableIndex ) const;
 
     /// Perform a single shot read on all variables (Usefull when not subscribing by default)
     ///
@@ -119,7 +119,7 @@ public:
     /// by the UI Loader. This function can be called on any widget loaded by the UI loader
     /// and the reference returned can be used to get counts for all widgets loaded by the
     /// UI loader.
-    int* getDisconnectedCountRef();
+    int* getDisconnectedCountRef() const;
 
     /// Return references to the current count of connections.
     /// The plugin library (and therefore the static connection and disconnection counts)
@@ -128,12 +128,12 @@ public:
     /// by the UI Loader. This function can be called on any widget loaded by the UI loader
     /// and the reference returned can be used to get counts for all widgets loaded by the
     /// UI loader.
-    int* getConnectedCountRef();
+    int* getConnectedCountRef() const;
 
 
 protected:
     void setNumVariables( unsigned int numVariablesIn );                        ///< Set the number of variables that will stream data updates to the widget. Default of 1 if not called.
-    unsigned int getNumVariables(){ return numVariables; }                      ///< Get the number of variables streaming data updates to the widget.
+    unsigned int getNumVariables() const { return numVariables; }               ///< Get the number of variables streaming data updates to the widget.
 
     bool subscribe;                                                             ///< Flag if data updates should be requested
 
