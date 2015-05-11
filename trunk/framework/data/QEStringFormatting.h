@@ -73,7 +73,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEStringFormatting {
     //   - Format a string based on a value
     //   - Translate a string and generate a value
     //===============================================
-    QString formatString( const QVariant& value );
+    QString formatString( const QVariant& value ) const;
     QVariant formatValue( const QString& text, bool& ok );
 
 
@@ -110,6 +110,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEStringFormatting {
     QELocalEnumeration getLocalEnumerationObject() const;
 
   private:
+    QString formatElementString( const QVariant& value );
+
     // Type specific conversion functions
     void formatFromFloating( const QVariant& value );
     void formatFromInteger( const QVariant& value );
