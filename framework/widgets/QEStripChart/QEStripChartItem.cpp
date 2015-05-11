@@ -117,7 +117,9 @@ QEStripChartItem::QEStripChartItem (QEStripChart* chartIn,
    //
    this->caLabel->setPrecision (6);
    this->caLabel->setUseDbPrecision (false);
-   this->caLabel->setNotationProperty (QELabel::Automatic);
+   this->caLabel->setNotation (QEStringFormatting::NOTATION_AUTOMATIC);
+   this->caLabel->setArrayAction (QEStringFormatting::INDEX);
+   this->caLabel->setArrayIndex (0);
 
    QFont font = this->caLabel->font ();
    font.setFamily ("Monospace");

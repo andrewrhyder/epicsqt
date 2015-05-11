@@ -39,7 +39,6 @@
 #include "QEPvProperties.h"
 #include "QEPvPropertiesUtilities.h"
 
-
 #define DEBUG qDebug() << "QEPvProperties::" << __FUNCTION__ << ":" << __LINE__
 
 // INP/OUT and CALC fields are 80, 120 should cover it.
@@ -342,11 +341,14 @@ void QEPvProperties::common_setup ()
 
    style = "QWidget { background-color: #F0F0F0; }";
 
-   this->valueLabel->setStyleSheet (style);
-   // We have to be general here
+   this->valueLabel->setDefaultStyle (style);
+
+   // We want to be general here - plenty of precision.
    this->valueLabel->setPrecision (9);
    this->valueLabel->setUseDbPrecision (false);
-   this->valueLabel->setNotationProperty (QELabel::Automatic);
+   this->valueLabel->setNotation (QEStringFormatting::NOTATION_AUTOMATIC);
+   this->valueLabel->setArrayAction (QEStringFormatting::INDEX);
+   this->valueLabel->setArrayIndex (0);
 
    this->hostName->setIndent (4);
    this->hostName->setStyleSheet (style);
@@ -834,16 +836,37 @@ void QEPvProperties::setValueValue (const QVariant&,
    //
    this->timeStamp->setText (dateTime.text () + "  " + QEUtilities::getTimeZoneTLA (dateTime));
 
-   if (this->isFirstUpdate) {
+   // We "know" that the only/main channel is the 1st (slot 0) channel.
+   //
+   qca = this->valueLabel->getQcaItem (0);
+
+   if (this->isFirstUpdate && qca) {
+
+      // Whilst the value QELabel basically looks after itself, it benefits from
+      // a helping hand. If the PV is of type DBF_CHAR and the field name
+      // ends with $ then interpret as a long string.
+      //
+      // TODO - move this logic into QEStringFormatting.
+      //
+      bool isDbfChar = (qca->getFieldType () == "DBF_CHAR");
+
+      QString pvName = qca->getRecordName ();
+      QString field = QERecordFieldName::fieldName (pvName);
+      bool requestedCharArray = field.endsWith ('$');
+
+      bool longString = isDbfChar && requestedCharArray;
+      if (longString) {
+         this->valueLabel->setArrayAction (QEStringFormatting::ASCII);
+      } else {
+         this->valueLabel->setArrayAction (QEStringFormatting::INDEX);
+      }
 
       // Ensure we do any required resizing.
       //
       this->resizeEvent (NULL);
 
       // Set up any enumeration values
-      // We "know" that the only/main channel is the 1st (slot 0) channel.
       //
-      qca = this->valueLabel->getQcaItem (0);
       enumerations = qca->getEnumerations ();
       n = enumerations.count();
 
@@ -957,6 +980,11 @@ void QEPvProperties::boxCurrentIndexChanged (int index)
       // belts 'n' braces.
       //
       if (newPvName != oldPvName) {
+         // Clear style - by calling processAlarmInfo - if we clear style directly,
+         // next time processAlarmInfo is called, it may decidec no change is required.
+         //
+         QCaAlarmInfo dummyAlarm (0, QCaAlarmInfo::getInvalidSeverity());
+         this->valueLabel->processAlarmInfo (dummyAlarm, 0);
          this->setVariableName (newPvName, 0);
          this->establishConnection (0);
       }
