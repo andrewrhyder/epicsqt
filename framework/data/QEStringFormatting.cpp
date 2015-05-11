@@ -345,7 +345,97 @@ void QEStringFormatting::determineDbFormat( const QVariant &value )
 /*
     Generate a string given a value, using formatting defined within this class.
 */
-QString QEStringFormatting::formatString( const QVariant &value ) {
+QString QEStringFormatting::formatString( const QVariant& value ) const
+{
+    QEStringFormatting* self = (QEStringFormatting*) this;   // this works as modified members are just used as temp. variables.
+    QString result;
+
+    if( value.type() != QVariant::List ){
+        // "Simple" scalar
+        result = self->formatElementString( value );
+
+    } else {
+        // Array variable
+        const QVariantList valueArray = value.toList();
+        const int number = valueArray.count ();
+
+        switch( arrayAction ) {
+
+            case APPEND:
+                // Interpret each element in the array as an unsigned integer and append
+                // string representations of each element from the array with a space in
+                // between each.
+                for( int j = 0; j < number; j++ ){
+                    QVariant element = valueArray.value (j);
+                    QString elementString;
+                    elementString = self->formatElementString( element );
+
+                    if( j > 0 )result.append ( " " );
+                    result.append( elementString );
+                }
+                break;
+
+            case ASCII:
+                // Interpret each element from the array as a character in a string.
+                // Translate all non printing characters to '?' except for trailing
+                // zeros (ignore them)
+                for( int j = 0; j < number; j++ ){
+                    QVariant element = valueArray.value( j );
+                    bool okay;
+
+                    int c = element.toInt( &okay );
+
+                    if( !okay || (c == 0) ) break;  // Not an int or got a zero - end of string.
+
+                    // Ignore carriage returns.
+                    // Note this will cause problems when implementing on Commodore 8-bit machines,
+                    // Acorn BBC, ZX Spectrum, and TRS-80 as they don't use a line feed.
+                    if( c == '\r' )
+                    {
+                    }
+                    // Translate all non printing characters (except for space and line feed) to a '?'
+                    else if( (c!= '\n') && (c < ' ' || c > '~') )
+                    {
+                        result.append( "?" );
+                    }
+                    // Use everything else as is.
+                    else
+                    {
+                        result.append( element.toChar() );
+                    }
+                }
+                break;
+
+            case INDEX:
+                // Interpret the element selected by setArrayIndex().
+                if( arrayIndex < (unsigned int)(number) )
+                {
+                    QVariant element = valueArray.value ((int) arrayIndex);
+                    result = self->formatElementString( element );
+                }
+                break;
+
+            default:
+                self->formatFailure( QString ( "Invalid arrayAction: %d" ).arg ( (int) arrayAction ));
+                result = "---";
+                break;
+        }
+    }
+
+    // Add units if required, if there are any present, and if the text is not an error message
+    int eguLen = dbEgu.length(); // ??? Why cant this be in the 'if' statement? If it is it never adds an egu
+    if( addUnits && eguLen && (format != FORMAT_TIME) )
+    {
+        result.append( " " ).append( dbEgu );
+    }
+
+   return result;
+}
+
+/*
+    Generate a string given an element value, using formatting defined within this class.
+*/
+QString QEStringFormatting::formatElementString( const QVariant& value ) {
     // Examine the value and note the matching format
     determineDbFormat( value );
 
@@ -390,117 +480,28 @@ QString QEStringFormatting::formatString( const QVariant &value ) {
             // convert the value based on it's type.
             if( !haveEnumeratedString )
             {
-                // If value is not a list...
-                if( value.type() != QVariant::List )
+                switch( dbFormat )
                 {
-                    switch( dbFormat )
-                    {
-                        case FORMAT_FLOATING:
-                            formatFromFloating( value );
-                            break;
+                case FORMAT_FLOATING:
+                    formatFromFloating( value );
+                    break;
 
-                        case FORMAT_INTEGER:
-                            formatFromInteger( value );
-                            break;
+                case FORMAT_INTEGER:
+                    formatFromInteger( value );
+                    break;
 
-                        case FORMAT_UNSIGNEDINTEGER:
-                            formatFromUnsignedInteger( value );
-                            break;
+                case FORMAT_UNSIGNEDINTEGER:
+                    formatFromUnsignedInteger( value );
+                    break;
 
-                        case FORMAT_STRING:
-                            formatFromString( value );
-                            break;
+                case FORMAT_STRING:
+                    formatFromString( value );
+                    break;
 
-                        default:
-                            formatFailure( QString( "Bug in QEStringFormatting::formatString(). The QVariant type was not expected" ) );
-                            errorMessage = true;
-                            break;
-                    }
-                }
-
-                // If value is a list...
-                else
-                {
-                    // Get the list
-                    const QVariantList valueArray = value.toList();
-
-                    // Add nothing to the stream if a value beyond the end of the list has been requested
-                    if( arrayAction == INDEX && arrayIndex >= (unsigned int)(valueArray.count()) )
-                    {
-                        break;
-                    }
-
-                    switch( dbFormat )
-                    {
-                        case FORMAT_FLOATING:
-                            //???!!! ignores arrayAction and arrayIndex See uint and ulonglong below
-                            formatFromFloating( valueArray[0].toDouble() );
-                            break;
-
-                        case FORMAT_INTEGER:
-                            //???!!! ignores arrayAction and arrayIndex See uint and ulonglong below
-                            formatFromInteger( valueArray[0] );
-                            break;
-
-                        case FORMAT_UNSIGNEDINTEGER:
-                            switch( arrayAction )
-                            {
-                                case APPEND:
-                                    for( int i = 0; i < valueArray.count(); i++ )
-                                    {
-                                        formatFromUnsignedInteger( valueArray[i] );
-                                        stream << " ";
-                                    }
-                                    break;
-
-                                case ASCII:
-                                    {
-                                        // Translate most non printing characters to '?' except for trailing zeros (ignore them)
-                                        int len = valueArray.count();
-
-                                        for( int i = 0; i < len; i++ )
-                                        {
-                                            int c = valueArray[i].toInt();
-
-                                            if (c == 0) break;  // Got a zero - end of string.
-
-                                            // Ignore carriage returns.
-                                            // Note this will cause problems when implementing on Commodore 8-bit machines, Acorn BBC, ZX Spectrum, and TRS-80 as they don't use a line feed
-                                            if( c == '\r' )
-                                            {
-                                            }
-                                            // Translate all non printing characters (except for space and line feed) to a '?'
-                                            else if( (c!= '\n') && (c < ' ' || c > '~') )
-                                            {
-                                                stream << "?";
-                                            }
-                                            // Use everything else as is.
-                                            else
-                                            {
-                                                stream << valueArray[i].toChar();
-                                            }
-                                        }
-                                    }
-                                    break;
-
-                                case INDEX:
-                                    formatFromUnsignedInteger( valueArray[arrayIndex] );
-                                    break;
-                            }
-                            break;
-
-                        case FORMAT_STRING:
-                            //???!!! ignores arrayAction and arrayIndex See uint and ulonglong above
-                            formatFromString( valueArray[0] );
-                            break;
-
-                        default:
-                            formatFailure( QString( "Bug in QEStringFormatting::formatString(). The QVariant type was not expected" ) );
-                            errorMessage = true;
-                            break;
-
-                    }
-
+                default:
+                    formatFailure( QString( "Bug in QEStringFormatting::formatString(). The QVariant type was not expected" ) );
+                    errorMessage = true;
+                    break;
                 }
             }
             break;
@@ -538,11 +539,6 @@ QString QEStringFormatting::formatString( const QVariant &value ) {
             errorMessage = true;
             break;
     }
-
-    // Add units if required, if there are any present, and if the text is not an error message
-    int eguLen = dbEgu.length(); // ??? Why cant this be in the 'if' statement? If it is it never adds an egu
-    if( addUnits && !errorMessage && eguLen && (format != FORMAT_TIME))
-        stream << " " << dbEgu;
 
     return outStr;
 }
