@@ -61,7 +61,7 @@ QESimpleShape::QESimpleShape (const QString& variableNameIn, QWidget* parent)
 {
    this->setup ();
    this->setVariableName (variableNameIn, 0);
-   activate();
+   this->activate ();
 }
 
 //-----------------------------------------------------------------------------
@@ -105,6 +105,20 @@ void QESimpleShape::setup ()
    this->edgeVNPM.setVariableIndex (EDGE_PV_INDEX);
    QObject::connect (&this->edgeVNPM, SIGNAL (newVariableNameProperty    (QString, QString, unsigned int)),
                      this,            SLOT   (useNewVariableNameProperty (QString, QString, unsigned int)));
+}
+
+//------------------------------------------------------------------------------
+//
+void QESimpleShape::activated ()
+{
+   QCaAlarmInfo invalid (NO_ALARM, INVALID_ALARM);
+
+   // Ensure widget returns to default state when (re-)activated.
+   //
+   this->setIsActive (false);
+   this->channelValue = 0;
+   this->channelAlarmColour = this->getColor (invalid, 255);
+   this->setValue (0);
 }
 
 //------------------------------------------------------------------------------
@@ -212,14 +226,6 @@ void QESimpleShape::establishConnection (unsigned int variableIndex)
       QObject::connect (qca,  SIGNAL (connectionChanged (QCaConnectionInfo&, const unsigned int &)),
                         this, SLOT   (connectionChanged (QCaConnectionInfo&, const unsigned int &)));
    }
-}
-
-//------------------------------------------------------------------------------
-//
-void QESimpleShape::activated ()
-{
-   this->setValue (0);
-   this->setIsActive (false);
 }
 
 //------------------------------------------------------------------------------
