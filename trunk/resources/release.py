@@ -119,7 +119,7 @@ try:
 	# ===========================================================
 	if tag_name is None:
 		try:
-			executable = "/trunk/applications/QEGuiApp/qegui -v"
+			executable = "/trunk/applications/QEGuiApp/bin/qegui -v"
 			print "Retrieving new release version by running '%s%s'..." % (base_path, executable)
 			print
 			command = "%s%s | head -2 | tail -1 | sed 's/Framework\ version:\ //' | sed 's/\ .*//' > %s" % (base_path, executable, __TEMP_FILE__)
@@ -205,9 +205,9 @@ try:
 	summaryList = []
 	summaryList.append("==================================================================================================")
 	if tag_name is None:
-		summaryList.append("Changes between %s and %s (this includes changes to all branches and tags and may include changes no related to this release)" % (new_release_version, last_release_version))
+		summaryList.append("Changes between %s and %s (this includes changes to all branches and tags and may include changes not related to this release)" % (new_release_version, last_release_version))
 	else:
-		summaryList.append("Changes between %s and %s (this includes changes to all branches and tags and may include changes no related to this release)" % (tag_name, last_release_version))
+		summaryList.append("Changes between %s and %s (this includes changes to all branches and tags and may include changes not related to this release)" % (tag_name, last_release_version))
 	summaryList.append("")
 	summaryList.append("SUMMARY:")
 	print "You can enter the summary one line at a time, or paste multiple lines as long as there are no empty lines."
