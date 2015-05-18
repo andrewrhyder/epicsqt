@@ -1,0 +1,138 @@
+#!/usr/bin/python
+#
+# $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/epicsqt/qeApp/epicsqt/resources/compare_common_properties $
+# $Revision: #6 $
+# $DateTime: 2015/04/28 15:40:33 $
+# Last checked in by: $Author: rhydera $
+#
+
+__author__ = "Andrew Starritt"
+__email__ = "andrew.starritt@synchrotron.org.au"
+__copyright__ = "(C) 2015 Australian Synchrotron"
+__version__ = "1.1"
+__date__ = "2015/FEB/02"
+__description__ = "Script to extract, compare and report on standard sets of properties"
+__status__ = "Production"
+
+
+import os.path
+import sys
+
+#-------------------------------------------------------------------------------
+#
+def process_file (filename, lookfor, extracted):
+
+   extracted [:] = []
+
+   if (not os.path.isfile (filename)):
+      print (filename + ": does not exists or is not a file")
+      return False
+
+   try:
+      f = open (filename, 'r')
+   except IOError:
+      print ("Cannot open file: " + filename);
+      return False
+
+   lines = f.read ().splitlines ()
+   f.close ()
+
+   first_line_number = 1
+   initial_size = len (lines)
+
+#   print ("processing " + filename + " (" + str (initial_size) + " lines)")
+
+   if len (lines) == 0:
+      print ("file " + filename + " is empty")
+      return  process_status [1]
+
+
+   status = False
+
+   begin = "BEGIN-" + lookfor
+   end   = "END-" + lookfor
+   copy = False
+
+   for line in lines:
+      if begin in line:
+         copy = True
+
+      if copy:
+         extracted.append (line)
+
+      if end in line:
+         status = True
+         break
+
+   return True
+
+#-------------------------------------------------------------------------------
+# Provides an equality test on two lists of strings.
+#
+def compare (a, b):
+   if len (a) != len (b):
+      print "length mis match", len (a), len (b)
+      return False
+
+   status = True
+   for j in range (len (a)):
+      pa = a [j].strip ()
+      pb = b [j].strip ()
+      if pa != pb:
+         print "line", j, "mis match"
+         print "   ", pa
+         print "   ", pb
+         status = False
+
+   return status
+
+#-------------------------------------------------------------------------------
+#
+groups = [ 'SINGLE-VARIABLE-PROPERTIES', 'STANDARD-PROPERTIES', 'STRING-FORMATTING-PROPERTIES' ]
+
+args = sys.argv
+
+# Save and remove exectuable name
+#
+iam = os.path.basename (args.pop (0))
+
+if len (args) == 0:
+   print (iam + " - no arguments specified")
+   print ""
+   print "Try something like:  ./compare_common_properties ../framework/widgets/*/*.h"
+   print ""
+
+else:
+
+   print ("")
+   for group in groups:
+      print "Processing group", group
+
+      the_set = []
+
+      for arg in args:
+         try:
+            extracted = []
+            status = process_file (arg, group, extracted)
+            if len (extracted) > 0:
+               the_set.append ((arg, extracted))
+         except:
+            print  ("failed to parse " + arg)
+            raise
+
+      total = len (the_set)
+      reference = the_set.pop (0)
+      mis_match = 0
+      for j in range (len (the_set)):
+         item = the_set [j]
+         status = compare (reference [1], item [1])
+         if not status:
+            mis_match = mis_match + 1
+            print reference [0], "and",  item [0], "differ"
+
+      print "The are",  mis_match, "mis matches out of", total, "files"
+      print ""
+
+   print  (iam + " complete")
+
+# end
