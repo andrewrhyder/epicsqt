@@ -6,7 +6,9 @@
 
 HEADERS += \
    common/QEActionRequests.h \
+   common/QEAxisIterator.h \
    common/QEAxisPainter.h \
+   common/QEColourBandList.h \
    common/QECommon.h \
    common/QEDialog.h \
    common/QEDelayedText.h \
@@ -30,7 +32,9 @@ HEADERS += \
 
 SOURCES += \
    common/QEActionRequests.cpp \
+   common/QEAxisIterator.cpp \
    common/QEAxisPainter.cpp \
+   common/QEColourBandList.cpp \
    common/QECommon.cpp \
    common/QEDialog.cpp \
    common/QEDelayedText.cpp \

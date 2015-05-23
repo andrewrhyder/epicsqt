@@ -1,4 +1,4 @@
-/*  QEAnalogSlider.h
+/*  QEAxisPainter.h
  *
  *  This file is part of the EPICS QT Framework, initially developed at the
  *  Australian Synchrotron.
@@ -31,11 +31,12 @@
 #include <QList>
 #include <QObject>
 #include <QWidget>
+#include <QEAxisIterator.h>
+#include <QEColourBandList.h>
 
-#include <QCaObject.h>
 #include <QEPluginLibrary_global.h>
 
-// This is (currently) as support widget used by QAnalogIndicator/QAnalogSlider.
+// Support widget for QAnalogSlider (and maybe in future) for QAnalogIndicator
 // It could be promoted to a plugin widget in its own right if ever necessary.
 //
 class QEPLUGINLIBRARYSHARED_EXPORT QEAxisPainter : public QWidget {
@@ -55,21 +56,11 @@ public:
                       };
    Q_ENUMS (TextPositions)
 
-   // Used by get/get band list
-   //
-   struct ColourBand {
-      double lower;
-      double upper;
-      QColor colour;
-   };
-
-   typedef QList <ColourBand> ColourBandLists;
-
 #define NUMBER_OF_MARKERS   4
 
 
    explicit QEAxisPainter (QWidget* parent = 0);
-   ~QEAxisPainter () { }
+   ~QEAxisPainter ();
 
    // Set/get minimum axis limit. Default is 0.0
    //
@@ -141,39 +132,24 @@ public:
 
    // Set/get the band background colours. Default is an empty list.
    //
-   void setColourBandList (const ColourBandLists& bandList);
-   ColourBandLists getColourBandList () const;
-
-   // Conveniance function to calculate a band list based upon alarm levels
-   // from within the given QCaObject.
-   // TODO: Refactor out so that it can be used by AnalogProgressBar.
-   //
-   ColourBandLists calcAlarmColourBandList (qcaobject::QCaObject* qca);
+   void setColourBandList (const QEColourBandList& bandList);
+   QEColourBandList getColourBandList () const;
 
 protected:
    void paintEvent (QPaintEvent *event);
 
 private:
-   // Value iterator.
-   // itc is the iterator control value.
-   //
-   bool firstValue (int& itc, double& value, bool& isMajor);
-   bool nextValue  (int& itc, double& value, bool& isMajor);
-
    bool isLeftRight () const;
    double calcFraction (const double value);
 
    void drawAxisText (QPainter& painter, const QPoint& position,
                       const QString& text, const int pointSize);
 
-   ColourBand createColourBand (const double lower, const double upper, const QColor& colour);
-   ColourBand createColourBand (const double lower, const double upper, const unsigned short severity);
-
    QColor markerColour [NUMBER_OF_MARKERS];
    bool   markerVisible [NUMBER_OF_MARKERS];
    double markerValue [NUMBER_OF_MARKERS];
 
-   ColourBandLists bandList;
+   QEColourBandList bandList;
    QColor mPenColour;
    double mMinimum;
    double mMaximum;
@@ -184,6 +160,8 @@ private:
    Orientations mOrientation;
    TextPositions mTextPosition;
    bool mIsLogScale;
+   QEAxisIterator* iterator;
 };
+
 
 #endif  // QE_AXIS_PAINTER_H

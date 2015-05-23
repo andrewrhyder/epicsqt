@@ -23,18 +23,12 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-#include <QDebug>
-#include <QRadioButton>
-#include <QPushButton>
-#include <QECommon.h>
 #include <stdio.h>
+#include <QDebug>
 
-// Microsoft don't implement snprintf. If using MSVC, use their version
-// Note, _snprintf_s is not identical to snprintf, but close enough for
-// our purposes
-#ifdef _MSC_VER
-#define snprintf _snprintf_s
-#endif
+#include <QPushButton>
+#include <QEPlatform.h>
+#include <QECommon.h>
 
 #include "QAnalogSlider.h"
 
@@ -44,7 +38,7 @@
 //
 #define MIN_VALUE         (-1.0E+24)
 #define MAX_VALUE         (+1.0E+24)
-#define MIN_INTERVAL      (+1.0E-20)
+#define MIN_INTERVAL      (+1.0E-6)
 
 #define SAVE_REVERT_MARKER         0
 
@@ -162,7 +156,6 @@ void QAnalogSlider::commonSetup ()
    this->setShowSaveRevert (false);
    this->setShowApply (false);
 
-
    QObject::connect (this->intSlilder, SIGNAL (valueChanged          (int)),
                      this,             SLOT   (sliderPositionChanged (const int)));
 
@@ -226,7 +219,6 @@ void QAnalogSlider::internalSetValue (const double value)
    }
 }
 
-
 //------------------------------------------------------------------------------
 //
 void QAnalogSlider::setIsActive (const bool value)
@@ -272,14 +264,14 @@ double QAnalogSlider::getMaximum () const
 
 //------------------------------------------------------------------------------
 //
-void QAnalogSlider::setColourBandList (const QEAxisPainter::ColourBandLists& bandList)
+void QAnalogSlider::setColourBandList (const QEColourBandList& bandList)
 {
    this->axisPainter->setColourBandList (bandList);
 }
 
 //------------------------------------------------------------------------------
 //
-QEAxisPainter::ColourBandLists QAnalogSlider::getColourBandList () const
+QEColourBandList QAnalogSlider::getColourBandList () const
 {
    return this->axisPainter->getColourBandList ();
 }
@@ -330,6 +322,7 @@ void QAnalogSlider::setDesignMinimum (const double minimum)
    //
    this->mMaximum = MAX (this->mMaximum, this->mMinimum + MIN_INTERVAL);
 
+   this->setValue (this->getValue());
    this->updateAxisAndSlider ();
 }
 
@@ -352,6 +345,7 @@ void QAnalogSlider::setDesignMaximum (const double maximum)
    //
    this->mMinimum = MIN (this->mMinimum, this->mMaximum - MIN_INTERVAL);
 
+   this->setValue (this->getValue());
    this->updateAxisAndSlider ();
 }
 

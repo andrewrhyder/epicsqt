@@ -66,6 +66,19 @@ QEAxisPainter::QEAxisPainter (QWidget* parent) : QWidget (parent)
    }
 
    this->mPenColour = QColor (0, 0, 0, 255);  // black
+
+   // Construct inerator based on current/default attributes.
+   //
+   this->iterator = new QEAxisIterator (this->mMinimum, this->mMaximum,
+                                        this->mMinorInterval, this->mMajorMinorRatio,
+                                        this->mIsLogScale);
+}
+
+//------------------------------------------------------------------------------
+//
+QEAxisPainter::~QEAxisPainter ()
+{
+   delete this->iterator;
 }
 
 //------------------------------------------------------------------------------
@@ -85,6 +98,9 @@ void QEAxisPainter::setMinimum (const double minimum)
       this->setMinorInterval (this->mMinorInterval * n / MAX_MINOR_TICKS);
    }
 
+   this->iterator->reInitialise (this->mMinimum, this->mMaximum,
+                           this->mMinorInterval,
+                           this->mMajorMinorRatio, this->mIsLogScale);
    this->update ();
 }
 
@@ -112,6 +128,9 @@ void QEAxisPainter::setMaximum (const double maximum)
       this->setMinorInterval (this->mMinorInterval * n / MAX_MINOR_TICKS);
    }
 
+   this->iterator->reInitialise (this->mMinimum, this->mMaximum,
+                           this->mMinorInterval,
+                           this->mMajorMinorRatio, this->mIsLogScale);
    this->update ();
 }
 
@@ -128,10 +147,14 @@ void QEAxisPainter::setMinorInterval (const double minorInterval)
 {
    // Ensure in range
    //
-   this->mMinorInterval = LIMIT (minorInterval, MIN_INTERVAL, MAX_INTERVAL);
-
+   double limitedMin = LIMIT (minorInterval, MIN_INTERVAL, MAX_INTERVAL);
    double dynamicMin = (this->mMaximum - this->mMinimum) / MAX_MINOR_TICKS;
-   this->mMinorInterval = MAX (this->mMinorInterval, dynamicMin);
+
+   this->mMinorInterval = MAX (limitedMin, dynamicMin);
+
+   this->iterator->reInitialise (this->mMinimum, this->mMaximum,
+                           this->mMinorInterval,
+                           this->mMajorMinorRatio, this->mIsLogScale);
    this->update ();
 }
 
@@ -149,6 +172,10 @@ void QEAxisPainter::setMajorMinorRatio (const int majorMinorRatio)
    // Ensure in range
    //
    this->mMajorMinorRatio = MAX (1, majorMinorRatio);
+
+   this->iterator->reInitialise (this->mMinimum, this->mMaximum,
+                           this->mMinorInterval,
+                           this->mMajorMinorRatio, this->mIsLogScale);
    this->update ();
 }
 
@@ -164,6 +191,10 @@ int QEAxisPainter::getMajorMinorRatio () const
 void QEAxisPainter::setLogScale (const bool value)
 {
    this->mIsLogScale = value;
+   this->iterator->reInitialise (this->mMinimum, this->mMaximum,
+                           this->mMinorInterval,
+                           this->mMajorMinorRatio, this->mIsLogScale);
+   this->update ();
 }
 
 //------------------------------------------------------------------------------
@@ -308,99 +339,9 @@ double QEAxisPainter::getMarkerValue (const int index) const
    return this->markerValue [index];
 }
 
-
 //------------------------------------------------------------------------------
 //
-QEAxisPainter::ColourBand QEAxisPainter::createColourBand (const double lower, const double upper,  const QColor& colour)
-{
-   QEAxisPainter::ColourBand result;
-   result.lower = lower;
-   result.upper = upper;
-   result.colour = colour;
-   return result;
-}
-
-//------------------------------------------------------------------------------
-//
-QEAxisPainter::ColourBand QEAxisPainter::createColourBand (const double lower, const double upper,  const unsigned short severity)
-{
-   QCaAlarmInfo alarmInfo (0, severity);
-   int saturation;
-   QColor colour;
-
-   saturation = (severity == NO_ALARM) ? 32 : 128;
-   colour = QEWidget::getColor (alarmInfo, saturation);
-   return QEAxisPainter::createColourBand (lower, upper, colour);
-}
-
-//------------------------------------------------------------------------------
-//
-QEAxisPainter::ColourBandLists QEAxisPainter::calcAlarmColourBandList (qcaobject::QCaObject* qca)
-{
-   ColourBandLists result;
-
-   result.clear ();
-   if (!qca) return result;  // sanity check
-
-   const double dispLower = this->getMinimum ();
-   const double dispUpper = this->getMaximum ();
-   double alarmLower = qca->getAlarmLimitLower ();
-   double alarmUpper = qca->getAlarmLimitUpper ();
-   double warnLower = qca->getWarningLimitLower ();
-   double warnUpper = qca->getWarningLimitUpper ();
-   bool alarmIsDefined;
-   bool warnIsDefined;
-
-   // Unfortunately, the Channel Access protocol only provides the alarm/warning
-   // values, and not the associated severities. We assume major for alarms, and
-   // minor for warnings. Also when not defined, alarm levels are NaN.
-   //
-   // Of course a QEAxisPainter user is noy obliged to use this function.
-   //
-   if (QEPlatform::isNaN (alarmLower)) alarmLower = 0.0;
-   if (QEPlatform::isNaN (alarmLower)) alarmLower = 0.0;
-   alarmIsDefined = (alarmLower != alarmUpper);
-
-   if (QEPlatform::isNaN (warnLower)) warnLower = 0.0;
-   if (QEPlatform::isNaN (warnUpper)) warnUpper = 0.0;
-   warnIsDefined = (warnLower != warnUpper);
-
-   if (alarmIsDefined) {
-      if (warnIsDefined) {
-         // All alarms defined.
-         //
-         result << QEAxisPainter::createColourBand (dispLower,  alarmLower, MAJOR_ALARM);
-         result << QEAxisPainter::createColourBand (alarmLower, warnLower,  MINOR_ALARM);
-         result << QEAxisPainter::createColourBand (warnLower,  warnUpper,  NO_ALARM);
-         result << QEAxisPainter::createColourBand (warnUpper,  alarmUpper, MINOR_ALARM);
-         result << QEAxisPainter::createColourBand (alarmUpper, dispUpper,  MAJOR_ALARM);
-      } else {
-         // Major alarms defined.
-         //
-         result << QEAxisPainter::createColourBand (dispLower,  alarmLower, MAJOR_ALARM);
-         result << QEAxisPainter::createColourBand (alarmLower, alarmUpper, NO_ALARM);
-         result << QEAxisPainter::createColourBand (alarmUpper, dispUpper,  MAJOR_ALARM);
-      }
-   } else {
-      if (warnIsDefined) {
-         // Minor alarms defined.
-         //
-         result << QEAxisPainter::createColourBand (dispLower, warnLower, MINOR_ALARM);
-         result << QEAxisPainter::createColourBand (warnLower, warnUpper, NO_ALARM);
-         result << QEAxisPainter::createColourBand (warnUpper, dispUpper, MINOR_ALARM);
-      } else {
-         // No alarms defined at all.
-         //
-         result << QEAxisPainter::createColourBand (dispLower, dispUpper, NO_ALARM);
-      }
-   }
-
-   return result;
-}
-
-//------------------------------------------------------------------------------
-//
-void QEAxisPainter::setColourBandList (const ColourBandLists& bandListIn)
+void QEAxisPainter::setColourBandList (const QEColourBandList& bandListIn)
 {
    this->bandList = bandListIn;
    this->update ();
@@ -408,7 +349,7 @@ void QEAxisPainter::setColourBandList (const ColourBandLists& bandListIn)
 
 //------------------------------------------------------------------------------
 //
-QEAxisPainter::ColourBandLists QEAxisPainter::getColourBandList () const
+QEColourBandList QEAxisPainter::getColourBandList () const
 {
    return this->bandList;
 }
@@ -442,7 +383,6 @@ void QEAxisPainter::paintEvent (QPaintEvent *)
    int sign;
    int x_first, x_last;
    int y_first, y_last;
-   int j;
    bool ok;
    bool isMajor;
    double value;
@@ -498,7 +438,7 @@ void QEAxisPainter::paintEvent (QPaintEvent *)
    }
 
    for (int j = 0; j < this->bandList.count (); j++) {
-      ColourBand band = this->bandList.at (j);
+      const QEColourBand band = this->bandList.value (j);
       double fl, gl;
       double fu, gu;
       int x1, x2;
@@ -573,8 +513,8 @@ void QEAxisPainter::paintEvent (QPaintEvent *)
    pen.setColor (penColour);
    painter.setPen (pen);
 
-   for (ok = this->firstValue (j, value, isMajor); ok;
-        ok = this->nextValue  (j, value, isMajor)) {
+   for (ok = this->iterator->firstValue (value, isMajor); ok;
+        ok = this->iterator->nextValue  (value, isMajor)) {
 
       double f, g;
       int x, y;
@@ -601,7 +541,8 @@ void QEAxisPainter::paintEvent (QPaintEvent *)
          if (this->getLogScale () ) {
             vt.sprintf ("%.0e", value);
          } else {
-            vt.sprintf ("%.1f", value);
+            vt = QString ("%1").arg (value,0, 'g', 4);
+            if (!vt.contains(".")) vt.append(".0");
          }
 
          p2 = this->isLeftRight () ? QPoint (x, y + sign*(majorTick + 1)) :
@@ -673,66 +614,5 @@ void QEAxisPainter::drawAxisText (QPainter& painter, const QPoint& position,
    //
    painter.drawText (MAX (1, x), y, text);
 }
-
-//------------------------------------------------------------------------------
-//
-bool QEAxisPainter::firstValue (int& itc, double& value, bool& isMajor)
-{
-   double real;
-   bool result;
-
-   if (this->getLogScale ()) {
-      real = 9.0 * LOG10 (this->mMinimum);
-   } else {
-      real = this->mMinimum / this->mMinorInterval;
-   }
-
-   // Use floor to round down and - 0.5 to mitigate any rounding effects.
-   // Subtract an addition -1 to ensure first call to nextValue returns a
-   // value no greater than the first required value.
-   //
-   itc = int (floor (real) - 0.5) - 1;
-
-   result = this->nextValue (itc, value, isMajor);
-   while (result && (value < this->mMinimum)) {
-      result = this->nextValue (itc, value, isMajor);
-   }
-   return result;
-}
-
-//------------------------------------------------------------------------------
-//
-bool QEAxisPainter::nextValue  (int& itc, double& value, bool& isMajor)
-{
-   const int fs = 9;
-
-   int d;
-   int f;
-
-   itc++;
-   if (this->getLogScale ()) {
-      // Ensure round down towards -infinity (as opposed to 0)
-      // (Oh how I wish C/C++ has a proper "mod" operator).
-      //
-      d = itc / fs;
-      if ((fs * d) > itc) d--;
-      f = itc -(fs * d);
-      value = (1.0 + f) * pow (10.0, d);
-      if (f == 0) {
-         // Is an exact power of 10 - test for being major.
-         //
-         isMajor = ((d % 2) == 0);  // this->getLogScaleInterval ()) == 0);
-      } else {
-         // Is not an exact power of 10 - canot be major.
-         //
-         isMajor = false;
-      }
-   } else {
-      value = itc * this->mMinorInterval;
-      isMajor = ((itc % this->mMajorMinorRatio) == 0);
-   }
-   return (value <= this->mMaximum);
-}
-
 
 // end

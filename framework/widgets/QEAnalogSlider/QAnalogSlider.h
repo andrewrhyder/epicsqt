@@ -37,8 +37,9 @@
 #include <QVBoxLayout>
 
 #include <QECommon.h>
-#include <QEPluginLibrary_global.h>
+#include <QEColourBandList.h>
 #include <QEAxisPainter.h>
+#include <QEPluginLibrary_global.h>
 
 /// QAnalogSlider is a non EPICS aware slider that provides an analog equivilent of the QSlider.
 /// It is deemed analog as it can be set by/emits floating point (double) values as opposed to interger values.
@@ -96,8 +97,8 @@ public:
 
    QSize sizeHint () const;
 
-   void setColourBandList (const QEAxisPainter::ColourBandLists& bandList);
-   QEAxisPainter::ColourBandLists getColourBandList () const;
+   void setColourBandList (const QEColourBandList& bandList);
+   QEColourBandList getColourBandList () const;
 
    // Property setters and getters
    //
@@ -154,6 +155,11 @@ protected:
 
    // Allows sub-class to override designer (property) parameters.
    // Default, i.e. non overriden, functions just returns designer values.
+   //
+   // While this widget has no knowledge of QEAnalogSlider per se, these virtual
+   // functions are included specifically to allow an QEAnalogSlider widget to auto
+   // scale without the need to change design time property values. This allows
+   // toggling between auto scale on/off while still maintaining property values.
    //
    virtual int getPrecision () const;
    virtual double getMinimum () const;
