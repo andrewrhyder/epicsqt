@@ -152,7 +152,7 @@ endif
 	@echo "Packaging framework in directory '$(PACKAGE_DIRECTORY)'..."
 	@mkdir -p $(PACKAGE_DIRECTORY)/lib $(PACKAGE_DIRECTORY)/bin
 	@cp -r /usr/lib/qt4/plugins $(PACKAGE_DIRECTORY)/lib/.
-	@cp $(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION)/applications/QEGuiApp/qegui $(PACKAGE_DIRECTORY)/bin/.
+	@cp $(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION)/applications/QEGuiApp/bin/qegui $(PACKAGE_DIRECTORY)/bin/.
 	@cp $(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION)/framework/designer/libQEPlugin.so $(PACKAGE_DIRECTORY)/lib/.
 	@cp $(EPICS_BASE)/lib/$(EPICS_HOST_ARCH)/libca.so* $(PACKAGE_DIRECTORY)/lib/.
 	@cp $(EPICS_BASE)/lib/$(EPICS_HOST_ARCH)/libCom.so* $(PACKAGE_DIRECTORY)/lib/.

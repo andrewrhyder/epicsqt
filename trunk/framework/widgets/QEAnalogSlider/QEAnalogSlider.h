@@ -296,7 +296,7 @@ private:
 
 private slots:
    void mainConnectionChanged (QCaConnectionInfo& connectionInfo,
-                           const unsigned int &variableIndex);
+                               const unsigned int &variableIndex);
 
    void secondaryConnectionChanged (QCaConnectionInfo& connectionInfo,
                                     const unsigned int &variableIndex);

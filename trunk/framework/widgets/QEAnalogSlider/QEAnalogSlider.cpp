@@ -247,10 +247,10 @@ void QEAnalogSlider::calcColourBandList ()
 {
    qcaobject::QCaObject* qca = this->getQcaItem (SET_POINT_VARIABLE_INDEX);
 
-   QEAxisPainter::ColourBandLists bandList;
+   QEColourBandList bandList;
 
    if (qca && this->mAxisAlarmColours) {
-      bandList = this->getAxisPainter ()->calcAlarmColourBandList (qca);
+      bandList.setAlarmColours (this->getMinimum (), this->getMaximum(), qca);
    }
 
    this->setColourBandList (bandList);
