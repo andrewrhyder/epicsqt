@@ -102,11 +102,12 @@ void QELocalEnumeration::setLocalEnumeration( const QString &  localEnumerationI
                 }
 
                 // If more operator characters, continue
-                if( localEnumerationIn[start+len] == '>' ||
+                if((start+len < size) &&
+                   (localEnumerationIn[start+len] == '>' ||
                     localEnumerationIn[start+len] == '<' ||
                     localEnumerationIn[start+len] == '=' ||
                     localEnumerationIn[start+len] == '!' ||
-                    localEnumerationIn[start+len] == '*' )
+                    localEnumerationIn[start+len] == '*' ))
                 {
                     len++;
                     break;
