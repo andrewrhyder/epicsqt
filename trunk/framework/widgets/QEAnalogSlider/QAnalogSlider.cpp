@@ -189,11 +189,13 @@ void QAnalogSlider::commonSetup ()
 //
 void QAnalogSlider::setTextImage ()
 {
-   char format [20];
+   QString format;
    QString x;
 
-   snprintf (format, 20, "%%+0.%df", this->mPrecision);
-   x.sprintf (format, this->mValue);
+   // The arg (...,'f') almost works but has no '+' option.
+   //
+   format.sprintf ("%%+0.%df", this->mPrecision);
+   x.sprintf(format.toStdString().c_str(), this->mValue);
 
    this->rightImage->setText (x);
 }
@@ -535,11 +537,11 @@ void QAnalogSlider::saveButtonClicked (bool)
 {
    this->savedValue = this->getValue ();
 
-   char format [20];
+   QString format;
    QString x;
 
-   snprintf (format, 20, "%%+0.%df", this->mPrecision);
-   x.sprintf (format, this->savedValue);
+   format.sprintf ("%%+0.%df", this->mPrecision);
+   x.sprintf(format.toStdString().c_str(), this->savedValue);
    this->leftImage->setText (x);
 
    this->axisPainter->setMarkerValue (SAVE_REVERT_MARKER, this->savedValue);

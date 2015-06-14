@@ -201,7 +201,7 @@ void QRadioGroup::setButtonText ()
    // consistent selection. The length of the suffix is a bit arbitrary, but in
    // practice 40 is more than enough.
    //
-   static const QString suffix =
+   const QString suffix =
       (this->buttonStyle == Radio) ?  "                                        " : "";
 
    QAbstractButton* button = NULL;
