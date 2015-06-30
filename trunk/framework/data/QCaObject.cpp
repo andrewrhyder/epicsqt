@@ -442,7 +442,30 @@ bool QCaObject::putChannel() {
 
     // Generate the output data based on the type
     Generic outputData;
-    if( writingData.type() != QVariant::List )
+
+    // If an array represented by a string
+    if(( writingData.type() == QVariant::String )
+       &&
+       ( getElementCount() > 1 ))
+    {
+        // Copy the string and a zero terminator into the output data
+        // (a zero terminator is required when writing an empty string,
+        //  and is also required in some cases such as AreaDetector file path
+        //  If the string is the full length of the array, adding this zero terminator
+        //  will cause the write to fail. Perhaps this should not add the zero if
+        //  already at the full array length???)
+        QString s = writingData.toString();
+        outputData.setUnsignedChar( NULL, s.length()+1 );
+        int i;
+        for( i = 0; i < s.length(); i++ )
+        {
+            outputData.updateUnsignedChar( s.at(i).toAscii(), i );
+        }
+        outputData.updateUnsignedChar( 0, i );
+    }
+
+    // If a scalar
+    else if( writingData.type() != QVariant::List )
     {
         // Generate the output data based on the single value types
         switch( writingData.type() )
@@ -466,6 +489,8 @@ bool QCaObject::putChannel() {
             break;
         }
     }
+
+    // If an array
     else
     {
         // Generate the output data based on the array value types

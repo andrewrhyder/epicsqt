@@ -210,8 +210,10 @@ void styleManager::updateStyleSheet()
 
     newStyleSheet.append( userLevelStyle );
 
-    // Apply the new style sheet if the widget is enabled (and it is different to the current one)
-    if( owner->isEnabled() && newStyleSheet.compare( owner->styleSheet() ))
+    // Apply the new style sheet if the widget is enabled
+    // (and it is different to the current one)
+    // (and we are not in Designer)
+    if( owner->isEnabled() && newStyleSheet.compare( owner->styleSheet() ) && !QEWidget::inDesigner() )
     {
         owner->setStyleSheet( newStyleSheet );
     }
@@ -240,6 +242,11 @@ void styleManager::styleUserLevelChanged( userLevelTypes::userLevels levelIn )
 // have been calculated by the manager while the widget was disabled.
 void styleManager::enabledChange()
 {
+    // Do nothing if running within designer
+    if( QEWidget::inDesigner() )
+        return;
+
+    // Enable use or don't use the current style sheet according to the disabled state
     if( owner->isEnabled() )
     {
         owner->setStyleSheet( currentStyle );
