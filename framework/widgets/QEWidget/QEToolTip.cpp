@@ -109,6 +109,12 @@ void QEToolTipSingleton::descriptionUpdate (const QString &value, QCaAlarmInfo &
 // a gateway generated PV or a pycas PV, the <name>.DESC PV won't exist.
 void QEToolTipSingleton::enterQEWidget ( QEWidget* qewidget )
 {
+    // Do nothing if not displaying Variable names in the tool tip
+    if( !qewidget->variableAsToolTip )
+    {
+        return;
+    }
+
     currentQEWidget = qewidget;  // save a reference widget of interest.
 
     // First delete any existing QEString objects. The API provides no means to
